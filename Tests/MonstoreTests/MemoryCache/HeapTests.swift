@@ -19,7 +19,30 @@ extension HeapTests {
     }
     
     /// Test case configuration for heap validation
-    struct TestCase {
+    class TestCase {
+        class Node: Comparable, ExpressibleByIntegerLiteral {
+            required init(integerLiteral value: Int) {
+                self.index = nil
+                self.value = value
+            }
+            
+            static func < (lhs: HeapTests.TestCase.Node, rhs: HeapTests.TestCase.Node) -> Bool {
+                lhs.value < rhs.value
+            }
+            
+            static func == (lhs: HeapTests.TestCase.Node, rhs: HeapTests.TestCase.Node) -> Bool {
+                lhs.value == rhs.value
+            }
+            
+            var index: Int?
+            var value: Int
+            
+            init(index: Int? = nil, value: Int) {
+                self.index = index
+                self.value = value
+            }
+        }
+        
         enum HeapType {
             case max
             case min
@@ -41,7 +64,16 @@ extension HeapTests {
         let operations: [Operation]
         let expectedElements: [Int]
         
-        mutating func run() {
+        init(title: String, failMessage: String? = nil, heapType: HeapType, capacity: Int, operations: [Operation], expectedElements: [Int]) {
+            self.title = title
+            self.failMessage = failMessage
+            self.heapType = heapType
+            self.capacity = capacity
+            self.operations = operations
+            self.expectedElements = expectedElements
+        }
+        
+        func run() {
             XCTAssertTrue(
                 validate(),
                 "Failed test case: \(description)"
@@ -49,8 +81,8 @@ extension HeapTests {
         }
         
         /// Validates heap operations and heap property
-        mutating func validate() -> Bool {
-            var heap: Heap<Int>
+        func validate() -> Bool {
+            var heap: Heap<Node>
             switch heapType {
             case .max:
                 heap = .maxHeap(capacity: capacity)
@@ -58,16 +90,27 @@ extension HeapTests {
                 heap = .minHeap(capacity: capacity)
             }
             
+            heap.onEvent = {
+                switch $0 {
+                case .insert(element: let element, at: let to):
+                    element.index = to
+                case .remove:
+                    break
+                case .move(element: let element, to: let to):
+                    element.index = to
+                }
+            }
+            
             // Execute operations
             for operation in operations {
                 switch operation {
                 case .insertion(let value, let forceInsert, let expectedResult):
-                    guard heap.insert(value, forceInsert: forceInsert) == expectedResult else {
+                    guard heap.insert(.init(value: value), force: forceInsert)?.value == expectedResult else {
                         self.failMessage = "\(operation)"
                         return false
                     }
                 case .removal(let index, let expectedResult):
-                    guard heap.remove(at: index) == expectedResult else {
+                    guard heap.remove(at: index)?.value == expectedResult else {
                         self.failMessage = "\(operation)"
                         return false
                     }
@@ -75,7 +118,7 @@ extension HeapTests {
             }
             
             // Validate count
-            guard heap.elements == expectedElements else {
+            guard heap.elements.map({$0.value}) == expectedElements else {
                 self.failMessage = """
                             heap.elements = \(heap.elements);
                             expectedElements = \(expectedElements);
@@ -83,12 +126,23 @@ extension HeapTests {
                 return false
             }
             
+            for i in 0..<heap.elements.count {
+                guard heap.elements[i].index == i else {
+                    self.failMessage = """
+                                event notification verificatio failed at: \(i), \(String(describing: heap.elements[i].index));
+                                heap.elements = \(heap.elements);
+                                expectedElements = \(expectedElements);
+                                """
+                    return false
+                }
+            }
+            
             // Validate heap property
             return validateHeapProperty(elements: heap.elements, type: heapType)
         }
         
         /// Validates if array satisfies heap property
-        private mutating func validateHeapProperty(elements: [Int], type: HeapType) -> Bool {
+        private func validateHeapProperty(elements: [Node], type: HeapType) -> Bool {
             guard !elements.isEmpty else { return true }
             
             for i in 0..<elements.count {
@@ -153,7 +207,7 @@ extension HeapTests {
 // MARK: - Basic Operations Tests
 final class HeapTests: XCTestCase {
     func testBasicMaxHeapInsertion() {
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Basic max heap insertion",
             heapType: .max,
             capacity: 5,
@@ -168,7 +222,7 @@ final class HeapTests: XCTestCase {
     }
     
     func testMaxHeapOverflow() {
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Max heap overflow handling",
             heapType: .max,
             capacity: 3,
@@ -184,7 +238,7 @@ final class HeapTests: XCTestCase {
     }
     
     func testMaxHeapBasicRemoval() {
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Max heap basic removal operations",
             heapType: .max,
             capacity: 5,
@@ -203,7 +257,7 @@ final class HeapTests: XCTestCase {
     // MARK: - Min Heap Tests
     
     func testBasicMinHeapInsertion() {
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Basic min heap insertion",
             heapType: .min,
             capacity: 5,
@@ -218,7 +272,7 @@ final class HeapTests: XCTestCase {
     }
     
     func testMinHeapOverflow() {
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Min heap overflow handling",
             heapType: .min,
             capacity: 3,
@@ -236,7 +290,7 @@ final class HeapTests: XCTestCase {
     // MARK: - Specific Index Removal Tests
     
     func testMaxHeapMiddleRemoval() {
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Max heap middle index removal",
             heapType: .max,
             capacity: 7,
@@ -256,7 +310,7 @@ final class HeapTests: XCTestCase {
     }
     
     func testMinHeapLeafRemoval() {
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Min heap leaf removal",
             heapType: .min,
             capacity: 6,
@@ -275,7 +329,7 @@ final class HeapTests: XCTestCase {
     }
     
     func testMixedIndexRemovalPattern() {
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Mixed index removal pattern",
             heapType: .max,
             capacity: 5,
@@ -297,7 +351,7 @@ final class HeapTests: XCTestCase {
     // MARK: - Edge Cases Tests
     
     func testEmptyHeapOperations() {
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Empty heap operations",
             heapType: .max,
             capacity: 0,
@@ -311,7 +365,7 @@ final class HeapTests: XCTestCase {
     }
     
     func testSingleElementOperations() {
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Single element operations",
             heapType: .min,
             capacity: 1,
@@ -325,7 +379,7 @@ final class HeapTests: XCTestCase {
     }
     
     func testInvalidIndexRemoval() {
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Invalid index removal",
             heapType: .min,
             capacity: 3,
@@ -342,7 +396,7 @@ final class HeapTests: XCTestCase {
     }
     
     func testComplexReheapification() {
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Complex reheapification after removal",
             heapType: .max,
             capacity: 8,
@@ -372,7 +426,7 @@ final class HeapTests: XCTestCase {
         Since heap is full, force insert replaces root (100)
         and returns 100 as expectedResult
         */
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Max heap force insert - replace root",
             heapType: .max,
             capacity: 6,
@@ -401,7 +455,7 @@ final class HeapTests: XCTestCase {
         Since heap is full, force insert replaces root (5)
         and returns 5 as expectedResult
         */
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Min heap force insert - replace root",
             heapType: .min,
             capacity: 6,
@@ -429,7 +483,7 @@ final class HeapTests: XCTestCase {
         4. [30,50,40] (replace 60) -> [50,30,40]
         5. [20,30,40] (replace 50) -> [40,30,20]
         */
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Sequence of force inserts",
             heapType: .max,
             capacity: 3,
@@ -447,7 +501,7 @@ final class HeapTests: XCTestCase {
     }
     
     func testForceInsertEdgeCases() {
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Force insert edge cases",
             heapType: .min,
             capacity: 1,
@@ -471,7 +525,7 @@ final class HeapTests: XCTestCase {
         3. Remove root -> [80,60]
         4. Force insert 70 -> [80,60,70]
         */
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Force insert combined with removal in max heap",
             heapType: .max,
             capacity: 3,
@@ -496,7 +550,7 @@ final class HeapTests: XCTestCase {
         3. Remove root -> [15,20]
         4. Force insert 12 -> [15,20,12] -> [12,20,15]
         */
-        var testCase = TestCase(
+        let testCase = TestCase(
             title: "Force insert combined with removal in min heap",
             heapType: .min,
             capacity: 3,

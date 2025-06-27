@@ -30,6 +30,8 @@ struct CPUTimeStamp {
         self.timestampSeconds = timeInterval
     }
     
+    static let infinity: Self = .init(timeInterval: .infinity)
+    
     /// Creates a timestamp representing the current moment
     static func now() -> Self { Self() }
     

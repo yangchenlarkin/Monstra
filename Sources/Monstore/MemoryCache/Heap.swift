@@ -5,7 +5,7 @@
 //
 
 /// A generic heap (priority queue) supporting custom ordering and capacity limits.
-struct Heap<Element> {
+class Heap<Element> {
     /// Maximum number of elements the heap can store.
     private let capacity: Int
 
@@ -28,11 +28,11 @@ struct Heap<Element> {
     var elements: [Element] { storage.compactMap { $0 } }
 
     /// Initializes a heap with given capacity and comparison strategy.
-    init(capacity: Int, compare: @escaping (Element, Element) -> ComparisonResult) {
+    required init(capacity: Int, compare: @escaping (Element, Element) -> ComparisonResult) {
         self.capacity = max(0, capacity)
         self.count = 0
         self.compare = compare
-        self.storage = Array(repeating: nil, count: capacity)
+        self.storage = Array(repeating: nil, count: self.capacity)
     }
 }
 
@@ -66,12 +66,25 @@ extension Heap {
     ///   - element: Element to insert.
     ///   - force: If true, replaces root if heap is full.
     /// - Returns: Displaced root if force-inserted, otherwise nil.
-    mutating func insert(_ element: Element, force: Bool = false) -> Element? {
+    func insert(_ element: Element, force: Bool = false) -> Element? {
         guard capacity > 0 else { return element }
 
         if count == capacity {
-            guard force else { return element }
-            let removed = storage[0]
+            guard let root = storage[0] else {
+                assign(element, at: 0)
+                heapify(from: 0)
+                return nil
+            }
+            let cmp = compare(element, root)
+            
+            if force {
+                // rule 1: force == true, but element is moreTop → reject
+                guard cmp != .moreTop else { return element }
+            } else {
+                // rule 2: force == false, only allow if element is moreBottom
+                guard cmp == .moreBottom else { return element }
+            }
+            let removed = root
             assign(element, at: 0)
             heapify(from: 0)
             return removed
@@ -84,7 +97,7 @@ extension Heap {
     }
 
     /// Removes and returns an element at the specified index (default: root).
-    mutating func remove(at index: Int = 0) -> Element? {
+    func remove(at index: Int = 0) -> Element? {
         guard capacity > 0, count > 0, isValid(index) else { return nil }
 
         count -= 1
@@ -124,7 +137,7 @@ extension Heap {
 // MARK: - Internal Helpers
 
 private extension Heap {
-    mutating func assign(_ element: Element, at index: Int) {
+    func assign(_ element: Element, at index: Int) {
         let previous = storage[index]
         storage[index] = element
         onEvent?(.insert(element: element, at: index))
@@ -133,20 +146,20 @@ private extension Heap {
         }
     }
 
-    mutating func swapElements(at i: Int, and j: Int) {
+    func swapElements(at i: Int, and j: Int) {
         storage.swapAt(i, j)
         if let e1 = storage[i] { onEvent?(.move(element: e1, to: i)) }
         if let e2 = storage[j] { onEvent?(.move(element: e2, to: j)) }
     }
 
-    mutating func removeElement(at index: Int) {
+    func removeElement(at index: Int) {
         if let removed = storage[index] {
             storage[index] = nil
             onEvent?(.remove(element: removed))
         }
     }
 
-    mutating func heapify(from index: Int) {
+    func heapify(from index: Int) {
         guard isValid(index) else { return }
 
         switch (isRoot(index), isLeaf(index)) {
@@ -163,7 +176,7 @@ private extension Heap {
         }
     }
 
-    mutating func siftUp(from index: Int) {
+    func siftUp(from index: Int) {
         var idx = index
         while isValid(idx) {
             let parent = parentIndex(of: idx)
@@ -173,7 +186,7 @@ private extension Heap {
         }
     }
 
-    mutating func siftDown(from index: Int) {
+    func siftDown(from index: Int) {
         var idx = index
         while isValid(idx) {
             let left = leftChildIndex(of: idx)

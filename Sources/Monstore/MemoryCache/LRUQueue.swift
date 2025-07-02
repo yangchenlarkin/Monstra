@@ -11,8 +11,7 @@ import Foundation
 ///
 /// - Note: This queue is designed for internal (unsafe) operations assuming node correctness,
 ///   so external callers should use the safe APIs on `LRUQueue` struct for correctness.
-struct LRUQueue<K: Hashable, Element> {
-    
+class LRUQueue<K: Hashable, Element> {
     /// A node in the doubly linked list storing the key-value pair and links to adjacent nodes.
     class Node: CustomStringConvertible {
         /// Key associated with the element. Immutable after creation.
@@ -77,12 +76,12 @@ struct LRUQueue<K: Hashable, Element> {
     /// - Parameters:
     ///   - value: Element to store.
     ///   - key: Key associated with the element.
-    mutating func unsafeSetValue(_ value: Element, for key: K) {
+    func unsafeSetValue(_ value: Element, for key: K) -> Element? {
         if let existingNode = keyNodeMap[key] {
             // Remove old node, update value, re-insert at front
             removeNode(existingNode)
             existingNode.value = value
-            _ = enqueueNode(existingNode)
+            return enqueueNode(existingNode)?.value
         } else {
             // Insert new node; evict if needed
             let (newNode, evictedNode) = enqueue(key: key, value: value)
@@ -92,6 +91,7 @@ struct LRUQueue<K: Hashable, Element> {
             if let evictedNode = evictedNode {
                 keyNodeMap.removeValue(forKey: evictedNode.key)
             }
+            return nil
         }
     }
     
@@ -100,10 +100,22 @@ struct LRUQueue<K: Hashable, Element> {
     ///
     /// - Parameter key: Key to lookup.
     /// - Returns: The associated element or nil if not found.
-    mutating func unsafeGetValue(for key: K) -> Element? {
+    func unsafeGetValue(for key: K) -> Element? {
         guard let node = keyNodeMap[key] else { return nil }
         removeNode(node)
         _ = enqueueNode(node)
+        return node.value
+    }
+    
+    /// Removes the element associated with the key if present.
+    /// Does not update usage order since the element is being removed.
+    ///
+    /// - Parameter key: Key to remove.
+    /// - Returns: The removed element or nil if not found.
+    func unsafeRemoveValue(for key: K) -> Element? {
+        guard let node = keyNodeMap[key] else { return nil }
+        removeNode(node)
+        keyNodeMap.removeValue(forKey: node.key)
         return node.value
     }
 }
@@ -118,7 +130,7 @@ private extension LRUQueue {
     ///   - key: Key of the new element.
     ///   - value: Value of the new element.
     /// - Returns: Tuple of the new node and the evicted node (if any).
-    mutating func enqueue(key: K, value: Element) -> (newNode: Node?, evictedNode: Node?) {
+    func enqueue(key: K, value: Element) -> (newNode: Node?, evictedNode: Node?) {
         guard capacity > 0 else { return (nil, nil) }
         
         let evictedNode: Node?
@@ -148,7 +160,7 @@ private extension LRUQueue {
     ///
     /// - Parameter node: Node to enqueue.
     /// - Returns: Evicted node if any; otherwise nil.
-    mutating func enqueueNode(_ node: Node) -> Node? {
+    func enqueueNode(_ node: Node) -> Node? {
         guard capacity > 0 else { return node }
         
         let evictedNode: Node?
@@ -174,7 +186,7 @@ private extension LRUQueue {
     /// Removes and returns the node at the back of the queue (least recently used).
     ///
     /// - Returns: The removed node, or nil if queue is empty.
-    mutating func dequeue() -> Node? {
+    func dequeue() -> Node? {
         guard let oldBack = back else { return nil }
         
         back = oldBack.previous
@@ -195,7 +207,7 @@ private extension LRUQueue {
     /// Removes a specific node from the queue.
     ///
     /// - Parameter node: The node to remove. Must be currently in the queue.
-    mutating func removeNode(_ node: Node) {
+    func removeNode(_ node: Node) {
         node.previous?.next = node.next
         node.next?.previous = node.previous
         

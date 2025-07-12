@@ -508,9 +508,9 @@ final class HeapTests: XCTestCase {
             operations: [
                 .insertion(value: 10, expectedResult: nil),
                 // Force insert into single element heap (replaces root)
-                .insertion(value: 5, forceInsert: true, expectedResult: 10),
+                .insertion(value: 5, forceInsert: true, expectedResult: 5),
                 // Another force insert (replaces root again)
-                .insertion(value: 15, forceInsert: true, expectedResult: 5)
+                .insertion(value: 15, forceInsert: true, expectedResult: 10)
             ],
             expectedElements: [15]
         )

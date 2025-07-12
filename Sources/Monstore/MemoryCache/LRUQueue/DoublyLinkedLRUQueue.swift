@@ -1,5 +1,5 @@
 //
-//  LRUQueue.swift
+//  DoublyLinkedLRUQueue.swift
 //
 //  Created by Larkin on 2025/5/8.
 //
@@ -10,10 +10,10 @@ import Foundation
 /// Supports O(1) enqueue, dequeue, remove, and access by key operations.
 ///
 /// - Note: This queue is designed for internal (unsafe) operations assuming node correctness,
-///   so external callers should use the safe APIs on `LRUQueue` struct for correctness.
-class LRUQueue<K: Hashable, Element> {
+///   so external callers should use the safe APIs on `DoublyLinkedLRUQueue` struct for correctness.
+class DoublyLinkedLRUQueue<K: Hashable, Element>: LRUQueueProtocol {
     /// A node in the doubly linked list storing the key-value pair and links to adjacent nodes.
-    class Node: CustomStringConvertible {
+    fileprivate class Node {
         /// Key associated with the element. Immutable after creation.
         let key: K
         
@@ -25,13 +25,6 @@ class LRUQueue<K: Hashable, Element> {
         
         /// Previous node in the list (closer to the back).
         fileprivate(set) var previous: Node? = nil
-        
-        /// Node description useful for debugging.
-        var description: String {
-            """
-            {key: \(key), value: \(value), previous: \(String(describing: previous?.key)), next: \(String(describing: next?.key))}
-            """
-        }
         
         /// Initializes a new node with key, value and optional links.
         init(key: K, value: Element, next: Node? = nil, previous: Node? = nil) {
@@ -69,37 +62,37 @@ class LRUQueue<K: Hashable, Element> {
         self.capacity = Swift.max(0, capacity)
     }
     
-    /// Inserts or updates an element for the given key.
-    /// If the key already exists, the node is moved to the front (most recently used).
-    /// If capacity is reached, the least recently used element is evicted.
-    ///
-    /// - Parameters:
-    ///   - value: Element to store.
-    ///   - key: Key associated with the element.
+    @discardableResult
+    func setValue(_ value: Element, for key: K) -> Element? {
+        return unsafeSetValue(value, for: key)
+    }
+    func getValue(for key: K) -> Element? {
+        return unsafeGetValue(for: key)
+    }
+    @discardableResult
+    func removeValue(for key: K) -> Element? {
+        return unsafeRemoveValue(for: key)
+    }
+    
+    @discardableResult
     func unsafeSetValue(_ value: Element, for key: K) -> Element? {
         if let existingNode = keyNodeMap[key] {
-            // Remove old node, update value, re-insert at front
             removeNode(existingNode)
             existingNode.value = value
             return enqueueNode(existingNode)?.value
         } else {
-            // Insert new node; evict if needed
             let (newNode, evictedNode) = enqueue(key: key, value: value)
             if let newNode = newNode {
                 keyNodeMap[newNode.key] = newNode
             }
             if let evictedNode = evictedNode {
                 keyNodeMap.removeValue(forKey: evictedNode.key)
+                return evictedNode.value
             }
             return nil
         }
     }
     
-    /// Returns the element associated with the key if present.
-    /// Moves the node to the front as it is now most recently used.
-    ///
-    /// - Parameter key: Key to lookup.
-    /// - Returns: The associated element or nil if not found.
     func unsafeGetValue(for key: K) -> Element? {
         guard let node = keyNodeMap[key] else { return nil }
         removeNode(node)
@@ -107,11 +100,7 @@ class LRUQueue<K: Hashable, Element> {
         return node.value
     }
     
-    /// Removes the element associated with the key if present.
-    /// Does not update usage order since the element is being removed.
-    ///
-    /// - Parameter key: Key to remove.
-    /// - Returns: The removed element or nil if not found.
+    @discardableResult
     func unsafeRemoveValue(for key: K) -> Element? {
         guard let node = keyNodeMap[key] else { return nil }
         removeNode(node)
@@ -120,7 +109,7 @@ class LRUQueue<K: Hashable, Element> {
     }
 }
 
-private extension LRUQueue {
+private extension DoublyLinkedLRUQueue {
     
     /// Enqueues a new element at the front of the queue.
     ///
@@ -225,30 +214,9 @@ private extension LRUQueue {
     }
 }
 
-// MARK: - Sequence conformance for easy iteration
-
-extension LRUQueue: Sequence {
-    struct Iterator: IteratorProtocol {
-        private var currentNode: Node?
-        
-        init(startNode: Node?) {
-            self.currentNode = startNode
-        }
-        
-        mutating func next() -> Element? {
-            defer { currentNode = currentNode?.next }
-            return currentNode?.value
-        }
-    }
-    
-    func makeIterator() -> Iterator {
-        Iterator(startNode: front)
-    }
-}
-
 // MARK: - CustomStringConvertible conformance for debugging
 
-extension LRUQueue: CustomStringConvertible {
+extension DoublyLinkedLRUQueue: CustomStringConvertible {
     var description: String {
         var elements = [String]()
         var node = front

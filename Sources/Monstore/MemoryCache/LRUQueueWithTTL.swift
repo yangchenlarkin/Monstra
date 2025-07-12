@@ -46,7 +46,7 @@ extension LRUQueueWithTTL {
         let now = CPUTimeStamp.now()
 
         // Check if the key already exists in the LRU queue
-        if let existing = lruQueue.unsafeGetValue(for: key) {
+        if let existing = lruQueue._getValue(for: key) {
             // If the existing entry has expired, remove it and insert the new value into the TTL heap
             if existing.expirationTimeStamp < now {
                 _ = unsafeRemoveValue(for: key)
@@ -67,7 +67,7 @@ extension LRUQueueWithTTL {
     }
     
     func getValue(for key: Key) -> Value? {
-        guard let node = lruQueue.unsafeGetValue(for:key) else { return nil }
+        guard let node = lruQueue._getValue(for:key) else { return nil }
         if node.expirationTimeStamp < .now() {
             _=unsafeRemoveValue(for: key)
             return nil
@@ -76,7 +76,7 @@ extension LRUQueueWithTTL {
     }
     
     func unsafeRemoveValue(for key: Key) -> Value? {
-        if let node = lruQueue.unsafeRemoveValue(for: key) {
+        if let node = lruQueue._removeValue(for: key) {
             if let nodeIndex = node.ttlIndex {
                 _=ttlQueue.remove(at: nodeIndex)
                 return node.value
@@ -92,17 +92,17 @@ private extension LRUQueueWithTTL {
         var res: Value? = nil
         let node = Node(key: key, value: value, expirationTimeStamp: now + duration)
         if let pop = ttlQueue.insert(node, force: true) {
-            _=lruQueue.unsafeRemoveValue(for: pop.key)
+            _=lruQueue._removeValue(for: pop.key)
             res = pop.value
         }
-        _=lruQueue.unsafeSetValue(node, for: key)
+        _=lruQueue._setValue(node, for: key)
         return res
     }
     
     func unsafeSetToLRUQueue(now: CPUTimeStamp, value: Value, for key: Key, expiredIn duration: TimeInterval) -> Value? {
         var res: Value? = nil
         let node = Node(key: key, value: value, expirationTimeStamp: now + duration)
-        if let pop = lruQueue.unsafeSetValue(node, for: key), let ttlIndex = pop.ttlIndex {
+        if let pop = lruQueue._setValue(node, for: key), let ttlIndex = pop.ttlIndex {
             _=ttlQueue.remove(at: ttlIndex)
             res = pop.value
         }

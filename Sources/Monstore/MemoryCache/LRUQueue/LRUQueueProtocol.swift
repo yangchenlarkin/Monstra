@@ -1,3 +1,10 @@
+//
+//  LRUQueueProtocol.swift
+//  Monstore
+//
+//  Created by Larkin on 2025/5/8.
+//
+
 import Foundation
 
 /// Protocol defining the interface for LRU (Least Recently Used) queue implementations.

@@ -1,8 +1,8 @@
 //
-// CPUTimeStamp.swift
-// A high-precision CPU timestamp implementation for performance measurement
+//  CPUTimeStamp.swift
+//  Monstore
 //
-// Created by Larkin on 2025/5/10.
+//  Created by Larkin on 2025/5/10.
 //
 
 import Foundation

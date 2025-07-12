@@ -8,15 +8,14 @@ import Foundation
 
 /// A queue backed by a doubly linked list implementing a fixed-capacity LRU (Least Recently Used) cache behavior.
 /// Supports O(1) enqueue, dequeue, remove, and access by key operations.
-///
-/// - Note: This queue is designed for internal (unsafe) operations assuming node correctness,
-///   so external callers should use the safe APIs on `DoublyLinkedLRUQueue` struct for correctness.
 class ArrayBasedLRUQueue<K: Hashable, Element>: LRUQueueProtocol {
     /// A node in the doubly linked list storing the key-value pair and links to adjacent nodes.
     fileprivate struct Node {
-        typealias KV = (key: K, value: Element)
+        /// Key associated with the element. Mutable.
+        fileprivate(set) var key: K?
+        
         /// The stored element value. Mutable.
-        fileprivate(set) var kv: KV?
+        fileprivate(set) var value: Element?
         
         /// Next node in the list (closer to the front).
         fileprivate(set) var next: Int? = nil
@@ -25,8 +24,9 @@ class ArrayBasedLRUQueue<K: Hashable, Element>: LRUQueueProtocol {
         fileprivate(set) var previous: Int? = nil
         
         /// Initializes a new node with key, value and optional links.
-        init(kv: KV? = nil, next: Int? = nil, previous: Int? = nil) {
-            self.kv = kv
+        init(key: K?, value: Element?, next: Int? = nil, previous: Int? = nil) {
+            self.key = key
+            self.value = value
             self.next = next
             self.previous = previous
         }
@@ -52,11 +52,22 @@ class ArrayBasedLRUQueue<K: Hashable, Element>: LRUQueueProtocol {
     /// Indicates if the queue is full.
     var isFull: Bool { count == capacity }
     
+    /// CustomStringConvertible conformance for debugging
+    var description: String {
+        var elements = [String]()
+        var node = front
+        while let currentNode = node {
+            elements.append("\(String(describing: storage[currentNode].value))")
+            node = storage[currentNode].next
+        }
+        return "[\(elements.joined(separator: ", "))]"
+    }
+    
     /// Initializes a new empty queue with specified capacity.
     /// - Parameter capacity: Maximum elements allowed; negative values treated as zero.
     init(capacity: Int) {
         self.capacity = Swift.max(0, capacity)
-        self.storage = .init(repeating: .init(), count: self.capacity)
+        self.storage = .init(repeating: .init(key: nil, value: nil), count: self.capacity)
         
         guard self.capacity > 0 else { return }
         
@@ -68,82 +79,85 @@ class ArrayBasedLRUQueue<K: Hashable, Element>: LRUQueueProtocol {
     
     @discardableResult
     func setValue(_ value: Element, for key: K) -> Element? {
-        return unsafeSetValue(value, for: key)
+        return _setValue(value, for: key)
     }
     func getValue(for key: K) -> Element? {
-        return unsafeGetValue(for: key)
+        return _getValue(for: key)
     }
     @discardableResult
     func removeValue(for key: K) -> Element? {
-        return unsafeRemoveValue(for: key)
+        return _removeValue(for: key)
     }
     
     @discardableResult
-    func unsafeSetValue(_ value: Element, for key: K) -> Element? {
+    func _setValue(_ value: Element, for key: K) -> Element? {
+        // If capacity is 0, return the value as it cannot be stored
         guard capacity > 0 else { return value }
         
         if let existingIndex = keyNodeMap[key] {
-            // Remove old node, update value, re-insert at front
-            _=removeNode(at: existingIndex)
+            // Key already exists: remove old node, update value, re-insert at front
+            _ = removeNode(at: existingIndex)
             let res = enqueue(key: key, value: value)
             keyNodeMap[key] = res.index
-            return nil
+            return nil // No eviction occurred, just overwrite
         } else {
-            // Insert new node; evict if needed
-            let (index, evictedKV) = enqueue(key: key, value: value)
+            // New key: insert new node, evict if needed
+            let (index, evictedNode) = enqueue(key: key, value: value)
             keyNodeMap[key] = index
-            if let evictedKV  {
-                keyNodeMap.removeValue(forKey: evictedKV.key)
-                return evictedKV.value
+            if let evictedNode {
+                keyNodeMap.removeValue(forKey: evictedNode.key!)
+                return evictedNode.value // Return evicted value
             }
-            return nil
+            return nil // No eviction occurred
         }
     }
     
-    func unsafeGetValue(for key: K) -> Element? {
+    func _getValue(for key: K) -> Element? {
         guard capacity > 0 else { return nil }
         
         guard
             let existingIndex = keyNodeMap[key],
-            let kv = removeNode(at: existingIndex)
+            let node = removeNode(at: existingIndex)
         else {
             return nil
         }
         
-        let res = enqueue(key: kv.key, value: kv.value)
+        let res = enqueue(key: node.key!, value: node.value!)
         keyNodeMap[key] = res.index
-        return kv.value
+        return node.value
     }
     
     @discardableResult
-    func unsafeRemoveValue(for key: K) -> Element? {
+    func _removeValue(for key: K) -> Element? {
         guard capacity > 0 else { return nil }
         
         guard
             let existingIndex = keyNodeMap[key],
-            let kv = removeNode(at: existingIndex)
+            let node = removeNode(at: existingIndex)
         else {
             return nil
         }
         
-        return kv.value
+        return node.value
     }
 }
 
 private extension ArrayBasedLRUQueue {
     /// Enqueues a new element at the front of the queue.
     ///
-    /// If the queue is full, removes the least recently used (back) node.
+    /// If the queue is full, evicts the least recently used (back) node.
     ///
     /// - Parameters:
     ///   - key: Key of the new element.
     ///   - value: Value of the new element.
-    /// - Returns: Tuple of the new node and the evicted node (if any).
-    func enqueue(key: K, value: Element) -> (index: Int?, evictedKV: Node.KV?) {
-        guard capacity > 0 else { return (nil, (key, value))}
+    /// - Returns: Tuple of the new node index and the evicted node (if any).
+    func enqueue(key: K, value: Element) -> (index: Int?, evictedNode: Node?) {
+        // If capacity is 0, return the value as evicted since it cannot be stored
+        guard capacity > 0 else { return (nil, Node(key: key, value: value)) }
         
         if let emptyIndex = popNil() {
-            storage[emptyIndex].kv = (key, value)
+            storage[emptyIndex].key = key
+            storage[emptyIndex].value = value
             
             guard let front else {
                 self.front = emptyIndex
@@ -161,8 +175,9 @@ private extension ArrayBasedLRUQueue {
         }
         
         guard let front, let back else { return (nil, nil) }
-        let evictedKV = storage[back].kv
-        storage[back].kv = (key, value)
+        let evictedNode = Node(key: storage[back].key, value: storage[back].value)
+        storage[back].key = key
+        storage[back].value = value
         
         if front != back {
             self.front = back
@@ -177,7 +192,7 @@ private extension ArrayBasedLRUQueue {
             storage[currentBack].next = nil
         }
         
-        return (back, evictedKV)
+        return (back, evictedNode)
     }
     
     /// Removes and returns the node at the back of the queue (least recently used).
@@ -202,11 +217,15 @@ private extension ArrayBasedLRUQueue {
     
     /// Removes a specific node from the queue.
     ///
-    /// - Parameter node: The node to remove. Must be currently in the queue.
-    func removeNode(at index: Int) -> Node.KV? {
+    /// - Parameter index: The index of the node to remove. Must be currently in the queue.
+    /// - Returns: The removed node, or nil if the node doesn't exist.
+    func removeNode(at index: Int) -> Node? {
         guard index >= 0, index < self.capacity else { return nil }
-        guard let kv = storage[index].kv else { return nil }
-        storage[index].kv = nil
+        guard storage[index].key != nil else { return nil }
+        
+        let node = Node(key: storage[index].key!, value: storage[index].value)
+        storage[index].key = nil
+        storage[index].value = nil
         
         if front == back {
             guard front == index else { return nil }
@@ -239,7 +258,7 @@ private extension ArrayBasedLRUQueue {
         
         insertNil(index: index)
         count -= 1
-        return kv
+        return node
     }
     
     func popNil() -> Int? {
@@ -254,20 +273,6 @@ private extension ArrayBasedLRUQueue {
         storage[index].previous = nil
         storage[index].next = nilHead
         nilHead = index
-    }
-}
-
-// MARK: - CustomStringConvertible conformance for debugging
-
-extension ArrayBasedLRUQueue: CustomStringConvertible {
-    var description: String {
-        var elements = [String]()
-        var node = front
-        while let currentNode = node {
-            elements.append("\(String(describing: storage[currentNode].kv?.value))")
-            node = storage[currentNode].next
-        }
-        return "[\(elements.joined(separator: ", "))]"
     }
 }
 

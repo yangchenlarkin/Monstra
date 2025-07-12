@@ -8,9 +8,6 @@ import Foundation
 
 /// A queue backed by a doubly linked list implementing a fixed-capacity LRU (Least Recently Used) cache behavior.
 /// Supports O(1) enqueue, dequeue, remove, and access by key operations.
-///
-/// - Note: This queue is designed for internal (unsafe) operations assuming node correctness,
-///   so external callers should use the safe APIs on `DoublyLinkedLRUQueue` struct for correctness.
 class DoublyLinkedLRUQueue<K: Hashable, Element>: LRUQueueProtocol {
     /// A node in the doubly linked list storing the key-value pair and links to adjacent nodes.
     fileprivate class Node {
@@ -56,6 +53,17 @@ class DoublyLinkedLRUQueue<K: Hashable, Element>: LRUQueueProtocol {
     /// Indicates if the queue is full.
     var isFull: Bool { count == capacity }
     
+    /// CustomStringConvertible conformance for debugging
+    var description: String {
+        var elements = [String]()
+        var node = front
+        while let currentNode = node {
+            elements.append("\(currentNode.value)")
+            node = currentNode.next
+        }
+        return "[\(elements.joined(separator: ", "))]"
+    }
+    
     /// Initializes a new empty queue with specified capacity.
     /// - Parameter capacity: Maximum elements allowed; negative values treated as zero.
     init(capacity: Int) {
@@ -64,36 +72,38 @@ class DoublyLinkedLRUQueue<K: Hashable, Element>: LRUQueueProtocol {
     
     @discardableResult
     func setValue(_ value: Element, for key: K) -> Element? {
-        return unsafeSetValue(value, for: key)
+        return _setValue(value, for: key)
     }
     func getValue(for key: K) -> Element? {
-        return unsafeGetValue(for: key)
+        return _getValue(for: key)
     }
     @discardableResult
     func removeValue(for key: K) -> Element? {
-        return unsafeRemoveValue(for: key)
+        return _removeValue(for: key)
     }
     
     @discardableResult
-    func unsafeSetValue(_ value: Element, for key: K) -> Element? {
+    func _setValue(_ value: Element, for key: K) -> Element? {
         if let existingNode = keyNodeMap[key] {
+            // Key already exists: remove old node, update value, re-insert at front
             removeNode(existingNode)
             existingNode.value = value
-            return enqueueNode(existingNode)?.value
+            return enqueueNode(existingNode)?.value // May return evicted value if capacity exceeded
         } else {
+            // New key: insert new node, evict if needed
             let (newNode, evictedNode) = enqueue(key: key, value: value)
             if let newNode = newNode {
                 keyNodeMap[newNode.key] = newNode
             }
             if let evictedNode = evictedNode {
                 keyNodeMap.removeValue(forKey: evictedNode.key)
-                return evictedNode.value
+                return evictedNode.value // Return evicted value
             }
-            return nil
+            return nil // No eviction occurred
         }
     }
     
-    func unsafeGetValue(for key: K) -> Element? {
+    func _getValue(for key: K) -> Element? {
         guard let node = keyNodeMap[key] else { return nil }
         removeNode(node)
         _ = enqueueNode(node)
@@ -101,7 +111,7 @@ class DoublyLinkedLRUQueue<K: Hashable, Element>: LRUQueueProtocol {
     }
     
     @discardableResult
-    func unsafeRemoveValue(for key: K) -> Element? {
+    func _removeValue(for key: K) -> Element? {
         guard let node = keyNodeMap[key] else { return nil }
         removeNode(node)
         keyNodeMap.removeValue(forKey: node.key)
@@ -120,7 +130,8 @@ private extension DoublyLinkedLRUQueue {
     ///   - value: Value of the new element.
     /// - Returns: Tuple of the new node and the evicted node (if any).
     func enqueue(key: K, value: Element) -> (newNode: Node?, evictedNode: Node?) {
-        guard capacity > 0 else { return (nil, nil) }
+        // If capacity is 0, return the value as evicted since it cannot be stored
+        guard capacity > 0 else { return (nil, Node(key: key, value: value)) }
         
         let evictedNode: Node?
         if count == capacity {
@@ -211,19 +222,5 @@ private extension DoublyLinkedLRUQueue {
         node.next = nil
         
         count -= 1
-    }
-}
-
-// MARK: - CustomStringConvertible conformance for debugging
-
-extension DoublyLinkedLRUQueue: CustomStringConvertible {
-    var description: String {
-        var elements = [String]()
-        var node = front
-        while let currentNode = node {
-            elements.append("\(currentNode.value)")
-            node = currentNode.next
-        }
-        return "[\(elements.joined(separator: ", "))]"
     }
 }

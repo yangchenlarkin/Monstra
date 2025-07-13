@@ -146,7 +146,7 @@ private extension LRUQueue {
     
     /// Gets a node from the pool or creates a new one
     private func getNode(key: K, value: Element) -> Node {
-        if let reusedNode = nodePool.popLast() {
+        if nodePool.popLast() != nil {
             // Reuse existing node (note: we can't reuse the key, so create new node)
             return Node(key: key, value: value)
         }

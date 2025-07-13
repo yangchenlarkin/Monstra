@@ -67,6 +67,7 @@ extension Heap {
     ///   - element: Element to insert.
     ///   - force: If true, replaces root if heap is full.
     /// - Returns: Displaced root if force-inserted, otherwise nil.
+    @discardableResult
     func insert(_ element: Element, force: Bool = false) -> Element? {
         guard capacity > 0 else { return element }
 

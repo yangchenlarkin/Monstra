@@ -42,6 +42,7 @@ class LRUQueueWithTTL<Key: Hashable, Value> {
 }
 
 extension LRUQueueWithTTL {
+    @discardableResult
     func unsafeSet(value: Value, for key: Key, expiredIn duration: TimeInterval) -> Value? {
         let now = CPUTimeStamp.now()
 

@@ -1,0 +1,63 @@
+# SwiftLint Configuration for Monstore Cache Library
+
+# Disable rules that are too strict for cache/performance code
+disabled_rules:
+  - trailing_whitespace
+  - line_length
+  - function_body_length
+  - type_body_length
+  - file_length
+  - cyclomatic_complexity
+  - function_parameter_count
+  - identifier_name  # Allow short variable names for performance code
+  - empty_count  # Allow count == 0 for performance reasons
+  - redundant_optional_initialization  # Allow explicit nil initialization
+  - redundant_set_access_control  # Allow explicit access control
+  - redundant_type_annotation  # Allow explicit type annotations
+  - colon  # Allow flexible colon spacing
+
+# Enable specific rules
+opt_in_rules:
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - overridden_super_call
+  - redundant_nil_coalescing
+  - unused_import
+  - vertical_parameter_alignment_on_call
+  - yoda_condition
+
+# Exclude files
+excluded:
+  - Tests/
+  - .build/
+  - Package.swift
+
+# Line length configuration (relaxed for performance code)
+line_length:
+  warning: 150
+  error: 200
+
+# Function body length (relaxed for complex algorithms)
+function_body_length:
+  warning: 100
+  error: 200
+
+# Type body length (relaxed for data structures)
+type_body_length:
+  warning: 500
+  error: 1000
+
+# File length (relaxed for complex implementations)
+file_length:
+  warning: 800
+  error: 1500
+
+# Cyclomatic complexity (relaxed for algorithms)
+cyclomatic_complexity:
+  warning: 15
+  error: 30
+
+# Function parameter count (relaxed for cache APIs)
+function_parameter_count:
+  warning: 8
+  error: 12 

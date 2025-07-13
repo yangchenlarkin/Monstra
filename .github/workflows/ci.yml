@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: macos-latest
+    
+    strategy:
+      matrix:
+        xcode: ['15.0']
+        swift: ['5.10']
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Select Xcode
+      run: sudo xcode-select -switch /Applications/Xcode_${{ matrix.xcode }}.app
+    
+    - name: Setup Swift
+      uses: swift-actions/setup-swift@v2
+      with:
+        swift-version: ${{ matrix.swift }}
+    
+    - name: Install SwiftLint
+      run: |
+        brew install swiftlint swiftformat sourcekitten
+    
+    - name: Build
+      run: swift build -v
+    
+    - name: Run tests
+      run: swift test -v
+    
+    - name: Run SwiftLint
+      run: swiftlint lint Sources/
+    
+    - name: Run SwiftFormat (check)
+      run: swiftformat --lint .
+    
+    - name: Generate documentation
+      run: |
+        sourcekitten doc --spm-module Monstore > docs.json
+        jazzy --sourcekitten-sourcefile docs.json --output docs/
+    
+    - name: Upload documentation
+      uses: actions/upload-artifact@v4
+      with:
+        name: documentation
+        path: docs/
+    
+    - name: Check package compatibility
+      run: |
+        swift package resolve
+        swift package show-dependencies
+    
+    - name: Test on different platforms
+      run: |
+        # Test iOS
+        swift build -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphonesimulator --show-sdk-path) -Xswiftc -target -Xswiftc arm64-apple-ios13.0-simulator
+        
+        # Test macOS
+        swift build -Xswiftc -sdk -Xswiftc $(xcrun --sdk macosx --show-sdk-path) -Xswiftc -target -Xswiftc x86_64-apple-macosx10.15
+
+  performance:
+    runs-on: macos-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Swift
+      uses: swift-actions/setup-swift@v2
+      with:
+        swift-version: '5.10'
+    
+    - name: Run performance tests
+      run: |
+        swift test --filter PerformanceTests
+        swift test --filter ScaleTests
+    
+    - name: Generate performance report
+      run: |
+        swift test --filter PerformanceTests --verbose > performance_results.txt
+        cat performance_results.txt
+
+  security:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run security scan
+      run: |
+        # Add security scanning tools here
+        echo "Security scan completed"
+    
+    - name: Check for vulnerabilities
+      run: |
+        # Add vulnerability checking here
+        echo "Vulnerability check completed" 

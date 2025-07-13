@@ -10,7 +10,7 @@ import Foundation
 class LRUQueueWithTTL<Key: Hashable, Value> {
     let capacity: Int
     fileprivate var ttlQueue: Heap<Node>
-    fileprivate var lruQueue: DoublyLinkedLRUQueue<Key, Node>
+    fileprivate var lruQueue: LRUQueue<Key, Node>
     
     /// Initializes a new empty queue with specified capacity.
     /// - Parameter capacity: Maximum elements allowed; negative values treated as zero.
@@ -26,7 +26,7 @@ class LRUQueueWithTTL<Key: Hashable, Value> {
                 return .equal
             }
         })
-        lruQueue = .init(capacity: capacity)
+        lruQueue = LRUQueue(capacity: capacity)
         
         ttlQueue.onEvent = {
             switch $0 {

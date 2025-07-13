@@ -1,5 +1,5 @@
 //
-//  LRUQueueProtocolTests.swift
+//  LRUQueueTests.swift
 //  MonstoreTests
 //
 //  Created by Larkin on 2025/7/12.
@@ -8,13 +8,12 @@
 import XCTest
 @testable import Monstore
 
-/// Generic test class for any LRU queue implementation that conforms to LRUQueueProtocol
-/// This allows us to test multiple implementations with the same test cases
-class LRUQueueProtocolTests<Queue: LRUQueueProtocol>: XCTestCase where Queue.K == String, Queue.Element == Int {
+/// Test class for LRUQueue implementation
+final class LRUQueueTests: XCTestCase {
     
-    // Factory method to create the queue instance - subclasses must override this
-    func createQueue(capacity: Int) -> Queue {
-        fatalError("Subclasses must override createQueue(capacity:)")
+    // Factory method to create the queue instance
+    func createQueue(capacity: Int) -> LRUQueue<String, Int> {
+        return LRUQueue(capacity: capacity)
     }
     
     // MARK: - Initialization Tests

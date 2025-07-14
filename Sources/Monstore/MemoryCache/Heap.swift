@@ -16,26 +16,25 @@ class Heap<Element> {
     /// Comparison function to determine heap order.
     private let compare: (Element, Element) -> ComparisonResult
 
-    /// Internal backing storage (dynamic array with optionals).
-    private var storage: [Element?]
+    /// Internal backing storage (using Swift Array's automatic expansion).
+    private var storage: [Element]
 
     /// Callback triggered on insert, remove, and index changes.
     var onEvent: ((Event) -> Void)? = nil
 
     /// The root element (highest priority), or nil if heap is empty.
-    var root: Element? { storage.first ?? nil }
+    var root: Element? { storage.first }
 
-    /// All non-nil elements currently in the heap.
-    var elements: [Element] { storage.compactMap { $0 } }
+    /// All elements currently in the heap.
+    var elements: [Element] { storage }
 
     /// Initializes a heap with given capacity and comparison strategy.
     required init(capacity: Int, compare: @escaping (Element, Element) -> ComparisonResult) {
         self.capacity = max(0, capacity)
         self.count = 0
         self.compare = compare
-        // Pre-allocate a small initial capacity to avoid frequent resizing during small-scale operations
-        let preloadCapacity = min(128, capacity)
-        self.storage = Array(repeating: nil, count: preloadCapacity)
+        // Let Swift Array handle automatic expansion
+        self.storage = []
     }
 }
 
@@ -74,9 +73,10 @@ extension Heap {
         guard capacity > 0 else { return element }
 
         if count == capacity {
-            guard let root = storage[0] else {
-                assign(element, at: 0)
-                heapify(from: 0)
+            guard let root = storage.first else {
+                storage.append(element)
+                count += 1
+                onEvent?(.insert(element: element, at: 0))
                 return nil
             }
             let cmp = compare(element, root)
@@ -89,16 +89,17 @@ extension Heap {
                 guard cmp == .moreBottom else { return element }
             }
             let removed = root
-            assign(element, at: 0)
+            storage[0] = element
+            onEvent?(.insert(element: element, at: 0))
+            onEvent?(.remove(element: removed))
             heapify(from: 0)
             return removed
         }
 
-        // Ensure we have space for the new element
-        ensureCapacity(for: count + 1)
-        
-        assign(element, at: count)
+        // Let Swift Array handle automatic expansion
+        storage.append(element)
         count += 1
+        onEvent?(.insert(element: element, at: count - 1))
         siftUp(from: count - 1)
         return nil
     }
@@ -107,21 +108,18 @@ extension Heap {
     func remove(at index: Int = 0) -> Element? {
         guard capacity > 0, count > 0, isValid(index) else { return nil }
 
+        let removed = storage[index]
         count -= 1
+        
         if index != count {
-            swapElements(at: index, and: count)
+            storage[index] = storage[count]
+            onEvent?(.move(element: storage[index], to: index))
+            heapify(from: index)
         }
-
-        defer {
-            removeElement(at: count)
-            if index != count {
-                heapify(from: index)
-            }
-            // Check if memory cleanup is needed after removing elements
-            ensureCapacity(for: count)
-        }
-
-        return storage[count]
+        
+        storage.removeLast()
+        onEvent?(.remove(element: removed))
+        return removed
     }
 }
 
@@ -146,39 +144,10 @@ extension Heap {
 // MARK: - Internal Helpers
 
 private extension Heap {
-    /// Ensures the storage has enough capacity for the given count.
-    func ensureCapacity(for count: Int) {
-        if storage.count < count {
-            let newCapacity = max(count, max(storage.count * 2, 1))
-            storage.append(contentsOf: Array(repeating: nil, count: newCapacity - storage.count))
-        } else if count < storage.count / 2 && storage.count > 16 {
-            // Clean up excess nil elements when count is less than half of storage.count and storage.count > 16
-            // Avoid unnecessary cleanup operations for small-scale caches
-            let newCapacity = max(count * 2, 8)
-            storage = Array(storage.prefix(newCapacity))
-        }
-    }
-    
-    func assign(_ element: Element, at index: Int) {
-        let previous = storage[index]
-        storage[index] = element
-        onEvent?(.insert(element: element, at: index))
-        if let previous {
-            onEvent?(.remove(element: previous))
-        }
-    }
-
     func swapElements(at i: Int, and j: Int) {
         storage.swapAt(i, j)
-        if let e1 = storage[i] { onEvent?(.move(element: e1, to: i)) }
-        if let e2 = storage[j] { onEvent?(.move(element: e2, to: j)) }
-    }
-
-    func removeElement(at index: Int) {
-        if let removed = storage[index] {
-            storage[index] = nil
-            onEvent?(.remove(element: removed))
-        }
+        onEvent?(.move(element: storage[i], to: i))
+        onEvent?(.move(element: storage[j], to: j))
     }
 
     func heapify(from index: Int) {
@@ -240,10 +209,9 @@ private extension Heap {
     func isValid(_ index: Int) -> Bool { index >= 0 && index < count }
 
     func compareAt(_ i: Int, with j: Int) -> ComparisonResult {
-        guard isValid(i), isValid(j),
-              let e1 = storage[i], let e2 = storage[j] else {
+        guard isValid(i), isValid(j) else {
             return .equal
         }
-        return compare(e1, e2)
+        return compare(storage[i], storage[j])
     }
 }

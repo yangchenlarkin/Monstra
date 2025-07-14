@@ -16,7 +16,7 @@ class Heap<Element> {
     /// Comparison function to determine heap order.
     private let compare: (Element, Element) -> ComparisonResult
 
-    /// Internal backing storage (fixed-size array with optionals).
+    /// Internal backing storage (dynamic array with optionals).
     private var storage: [Element?]
 
     /// Callback triggered on insert, remove, and index changes.
@@ -33,7 +33,9 @@ class Heap<Element> {
         self.capacity = max(0, capacity)
         self.count = 0
         self.compare = compare
-        self.storage = Array(repeating: nil, count: self.capacity)
+        // Pre-allocate a small initial capacity to avoid frequent resizing during small-scale operations
+        let preloadCapacity = min(128, capacity)
+        self.storage = Array(repeating: nil, count: preloadCapacity)
     }
 }
 
@@ -92,6 +94,9 @@ extension Heap {
             return removed
         }
 
+        // Ensure we have space for the new element
+        ensureCapacity(for: count + 1)
+        
         assign(element, at: count)
         count += 1
         siftUp(from: count - 1)
@@ -112,6 +117,8 @@ extension Heap {
             if index != count {
                 heapify(from: index)
             }
+            // Check if memory cleanup is needed after removing elements
+            ensureCapacity(for: count)
         }
 
         return storage[count]
@@ -139,6 +146,19 @@ extension Heap {
 // MARK: - Internal Helpers
 
 private extension Heap {
+    /// Ensures the storage has enough capacity for the given count.
+    func ensureCapacity(for count: Int) {
+        if storage.count < count {
+            let newCapacity = max(count, max(storage.count * 2, 1))
+            storage.append(contentsOf: Array(repeating: nil, count: newCapacity - storage.count))
+        } else if count < storage.count / 2 && storage.count > 16 {
+            // Clean up excess nil elements when count is less than half of storage.count and storage.count > 16
+            // Avoid unnecessary cleanup operations for small-scale caches
+            let newCapacity = max(count * 2, 8)
+            storage = Array(storage.prefix(newCapacity))
+        }
+    }
+    
     func assign(_ element: Element, at index: Int) {
         let previous = storage[index]
         storage[index] = element

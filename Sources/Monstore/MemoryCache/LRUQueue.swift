@@ -62,9 +62,6 @@ class LRUQueue<K: Hashable, Element> {
     /// Key-to-node map for O(1) access to nodes.
     private var keyNodeMap: [K: Node] = [:]
     
-    /// Object pool for node reuse to reduce allocations
-    private var nodePool: [Node] = []
-    
     /// Indicates if the queue is empty.
     var isEmpty: Bool { count == 0 }
     
@@ -86,11 +83,6 @@ class LRUQueue<K: Hashable, Element> {
     /// - Parameter capacity: Maximum elements allowed; negative values treated as zero.
     init(capacity: Int) {
         self.capacity = Swift.max(0, capacity)
-        
-        // Pre-allocate nodes for the pool to reduce allocations
-        if capacity > 0 {
-            nodePool.reserveCapacity(capacity)
-        }
     }
     
     @discardableResult
@@ -144,21 +136,6 @@ class LRUQueue<K: Hashable, Element> {
 
 private extension LRUQueue {
     
-    /// Gets a node from the pool or creates a new one
-    private func getNode(key: K, value: Element) -> Node {
-        if nodePool.popLast() != nil {
-            // Reuse existing node (note: we can't reuse the key, so create new node)
-            return Node(key: key, value: value)
-        }
-        return Node(key: key, value: value)
-    }
-    
-    /// Returns a node to the pool for reuse
-    private func returnNodeToPool(_ node: Node) {
-        node.reset()
-        nodePool.append(node)
-    }
-    
     /// Enqueues a new element at the front of the queue.
     ///
     /// If the queue is full, removes the least recently used (back) node.
@@ -178,7 +155,7 @@ private extension LRUQueue {
             evictedNode = nil
         }
         
-        let newNode = getNode(key: key, value: value)
+        let newNode = Node(key: key, value: value)
         if let currentFront = front {
             newNode.next = currentFront
             currentFront.previous = newNode
@@ -238,9 +215,6 @@ private extension LRUQueue {
         
         oldBack.previous = nil
         oldBack.next = nil
-        
-        // Return to pool for reuse
-        returnNodeToPool(oldBack)
         
         return oldBack
     }

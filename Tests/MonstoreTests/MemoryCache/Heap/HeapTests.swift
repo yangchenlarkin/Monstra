@@ -573,4 +573,35 @@ final class HeapTests: XCTestCase {
         )
         testCase.run()
     }
+    
+    // MARK: - Dynamic Storage Tests
+    
+    func testDynamicStorageExpansion() {
+        let heap = Heap<Int>.maxHeap(capacity: 2)
+        
+        // Insert elements to trigger storage expansion
+        XCTAssertNil(heap.insert(1))
+        XCTAssertNil(heap.insert(2))
+        XCTAssertEqual(heap.insert(3), 3) // Should be rejected due to capacity limit
+        
+        XCTAssertEqual(heap.count, 2)
+        XCTAssertEqual(heap.elements, [2, 1])
+    }
+    
+    func testDynamicStorageContraction() {
+        let heap = Heap<Int>.maxHeap(capacity: 10)
+        
+        // Insert many elements
+        for i in 1...8 {
+            XCTAssertNil(heap.insert(i))
+        }
+        
+        // Remove elements to trigger contraction
+        for _ in 1...6 {
+            heap.remove()
+        }
+        
+        XCTAssertEqual(heap.count, 2)
+        // Should have contracted storage
+    }
 }

@@ -66,7 +66,7 @@ extension Heap {
     /// Inserts an element into the heap.
     /// - Parameters:
     ///   - element: Element to insert.
-    ///   - force: If true, replaces root if heap is full.
+    ///   - force: If true, replaces root if heap is full and element has lower priority.
     /// - Returns: Displaced root if force-inserted, otherwise nil.
     @discardableResult
     func insert(_ element: Element, force: Bool = false) -> Element? {
@@ -82,10 +82,10 @@ extension Heap {
             let cmp = compare(element, root)
             
             if force {
-                // rule 1: force == true, but element is moreTop → reject
+                // Force insertion: reject if element has higher priority than root
                 guard cmp != .moreTop else { return element }
             } else {
-                // rule 2: force == false, only allow if element is moreBottom
+                // Normal insertion: only allow if element has lower priority than root
                 guard cmp == .moreBottom else { return element }
             }
             let removed = root
@@ -105,6 +105,8 @@ extension Heap {
     }
 
     /// Removes and returns an element at the specified index (default: root).
+    /// - Parameter index: Index of element to remove (defaults to root at index 0).
+    /// - Returns: Removed element, or nil if index is invalid or heap is empty.
     func remove(at index: Int = 0) -> Element? {
         guard capacity > 0, count > 0, isValid(index) else { return nil }
 
@@ -144,12 +146,18 @@ extension Heap {
 // MARK: - Internal Helpers
 
 private extension Heap {
+    /// Swaps two elements at the specified indices and triggers move events.
+    /// - Parameters:
+    ///   - i: First element index.
+    ///   - j: Second element index.
     func swapElements(at i: Int, and j: Int) {
         storage.swapAt(i, j)
         onEvent?(.move(element: storage[i], to: i))
         onEvent?(.move(element: storage[j], to: j))
     }
 
+    /// Restores heap property starting from the given index.
+    /// - Parameter index: Starting index for heapification.
     func heapify(from index: Int) {
         guard isValid(index) else { return }
 
@@ -167,32 +175,45 @@ private extension Heap {
         }
     }
 
+    /// Moves an element up the heap to restore heap property.
+    /// - Parameter index: Starting index for sift-up operation.
     func siftUp(from index: Int) {
-        var idx = index
-        while isValid(idx) {
-            let parent = parentIndex(of: idx)
-            guard compareAt(idx, with: parent) == .moreTop else { return }
-            swapElements(at: idx, and: parent)
-            idx = parent
+        var currentIndex = index
+        while isValid(currentIndex) {
+            let parent = parentIndex(of: currentIndex)
+            guard compareAt(currentIndex, with: parent) == .moreTop else { return }
+            swapElements(at: currentIndex, and: parent)
+            currentIndex = parent
         }
     }
 
+    /// Moves an element down the heap to restore heap property.
+    /// - Parameter index: Starting index for sift-down operation.
     func siftDown(from index: Int) {
-        var idx = index
-        while isValid(idx) {
-            let left = leftChildIndex(of: idx)
-            let right = rightChildIndex(of: idx)
+        var currentIndex = index
+        while isValid(currentIndex) {
+            let left = leftChildIndex(of: currentIndex)
+            let right = rightChildIndex(of: currentIndex)
             let target: Int
-
-            if compareAt(left, with: right) == .moreTop {
+            
+            switch (isValid(left), isValid(right)) {
+            case (true, true):
+                if compareAt(left, with: right) == .moreTop {
+                    target = left
+                } else {
+                    target = right
+                }
+            case (true, false):
                 target = left
-            } else {
+            case (false, true):
                 target = right
+            case (false, false):
+                return
             }
 
-            guard compareAt(idx, with: target) == .moreBottom else { return }
-            swapElements(at: idx, and: target)
-            idx = target
+            guard compareAt(currentIndex, with: target) == .moreBottom else { return }
+            swapElements(at: currentIndex, and: target)
+            currentIndex = target
         }
     }
 }
@@ -200,14 +221,29 @@ private extension Heap {
 // MARK: - Index Calculations
 
 private extension Heap {
+    /// Returns the parent index of the given index.
     func parentIndex(of index: Int) -> Int { (index - 1) / 2 }
+    
+    /// Returns the left child index of the given index.
     func leftChildIndex(of index: Int) -> Int { 2 * index + 1 }
+    
+    /// Returns the right child index of the given index.
     func rightChildIndex(of index: Int) -> Int { 2 * index + 2 }
 
+    /// Returns true if the index is the root (index 0).
     func isRoot(_ index: Int) -> Bool { index == 0 }
+    
+    /// Returns true if the index is a leaf node (no children).
     func isLeaf(_ index: Int) -> Bool { leftChildIndex(of: index) >= count }
+    
+    /// Returns true if the index is within valid bounds.
     func isValid(_ index: Int) -> Bool { index >= 0 && index < count }
 
+    /// Compares elements at the specified indices.
+    /// - Parameters:
+    ///   - i: First element index.
+    ///   - j: Second element index.
+    /// - Returns: Comparison result between the elements.
     func compareAt(_ i: Int, with j: Int) -> ComparisonResult {
         guard isValid(i), isValid(j) else {
             return .equal

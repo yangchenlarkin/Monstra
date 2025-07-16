@@ -10,7 +10,7 @@ import Foundation
 class LRUQueueWithTTL<Key: Hashable, Value> {
     let capacity: Int
     fileprivate var ttlQueue: Heap<Node>
-    fileprivate var lruQueue: LRUQueue<Key, Node>
+    fileprivate var lruQueue: PriorityLRUQueue<Key, Node>
     
     /// Initializes a new empty queue with specified capacity.
     /// - Parameter capacity: Maximum elements allowed; negative values treated as zero.
@@ -26,7 +26,7 @@ class LRUQueueWithTTL<Key: Hashable, Value> {
                 return .equal
             }
         })
-        lruQueue = LRUQueue(capacity: capacity)
+        lruQueue = PriorityLRUQueue(capacity: capacity)
         
         ttlQueue.onEvent = {
             switch $0 {
@@ -96,14 +96,14 @@ private extension LRUQueueWithTTL {
             _=lruQueue._removeValue(for: pop.key)
             res = pop.value
         }
-        _=lruQueue._setValue(node, for: key)
+        _=lruQueue._setValue(node, for: key, with: 0)
         return res
     }
     
     func unsafeSetToLRUQueue(now: CPUTimeStamp, value: Value, for key: Key, expiredIn duration: TimeInterval) -> Value? {
         var res: Value? = nil
         let node = Node(key: key, value: value, expirationTimeStamp: now + duration)
-        if let pop = lruQueue._setValue(node, for: key), let ttlIndex = pop.ttlIndex {
+        if let pop = lruQueue._setValue(node, for: key, with: 0), let ttlIndex = pop.ttlIndex {
             _=ttlQueue.remove(at: ttlIndex)
             res = pop.value
         }

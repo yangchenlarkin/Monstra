@@ -1,5 +1,5 @@
 //
-//  LRUQueueWithTTLScaleTests.swift
+//  TTLPriorityLRUQueueScaleTests.swift
 //  MonstoreTests
 //
 //  Created on 2024-12-19.
@@ -8,12 +8,12 @@
 import XCTest
 @testable import Monstore
 
-final class LRUQueueWithTTLScaleTests: XCTestCase {
+final class TTLPriorityLRUQueueScaleTests: XCTestCase {
     
     // MARK: - Small Scale Tests (100 operations)
     
     func testSmallScaleInsertions() {
-        let queue = LRUQueueWithTTL<Int, String>(capacity: 1000)
+        let queue = TTLPriorityLRUQueue<Int, String>(capacity: 1000)
         
         measure {
             for i in 0..<100 {
@@ -23,7 +23,7 @@ final class LRUQueueWithTTLScaleTests: XCTestCase {
     }
     
     func testSmallScaleMixedOperations() {
-        let queue = LRUQueueWithTTL<Int, String>(capacity: 1000)
+        let queue = TTLPriorityLRUQueue<Int, String>(capacity: 1000)
         
         // Pre-populate
         for i in 0..<50 {
@@ -42,7 +42,7 @@ final class LRUQueueWithTTLScaleTests: XCTestCase {
     }
     
     func testSmallScaleEvictions() {
-        let queue = LRUQueueWithTTL<Int, String>(capacity: 50)
+        let queue = TTLPriorityLRUQueue<Int, String>(capacity: 50)
         
         measure {
             // Insert 100 items, causing 50 evictions
@@ -53,21 +53,21 @@ final class LRUQueueWithTTLScaleTests: XCTestCase {
     }
     
     func testSmallScaleTTLExpirations() {
-        let queue = LRUQueueWithTTL<Int, String>(capacity: 1000)
+        let queue = TTLPriorityLRUQueue<Int, String>(capacity: 1000)
         
         measure {
             // Insert items with very short TTL
             for i in 0..<100 {
                 queue.unsafeSet(value: "value\(i)", for: i, expiredIn: 0.001) // 1ms TTL
             }
-            // Force expiration check - note: LRUQueueWithTTL doesn't have cleanup method
+            // Force expiration check - note: TTLPriorityLRUQueue doesn't have cleanup method
         }
     }
     
     // MARK: - Large Scale Tests (10,000 operations)
     
     func testLargeScaleInsertions() {
-        let queue = LRUQueueWithTTL<Int, String>(capacity: 10000)
+        let queue = TTLPriorityLRUQueue<Int, String>(capacity: 10000)
         
         measure {
             for i in 0..<10000 {
@@ -77,7 +77,7 @@ final class LRUQueueWithTTLScaleTests: XCTestCase {
     }
     
     func testLargeScaleMixedOperations() {
-        let queue = LRUQueueWithTTL<Int, String>(capacity: 10000)
+        let queue = TTLPriorityLRUQueue<Int, String>(capacity: 10000)
         
         // Pre-populate
         for i in 0..<5000 {
@@ -96,7 +96,7 @@ final class LRUQueueWithTTLScaleTests: XCTestCase {
     }
     
     func testLargeScaleEvictions() {
-        let queue = LRUQueueWithTTL<Int, String>(capacity: 5000)
+        let queue = TTLPriorityLRUQueue<Int, String>(capacity: 5000)
         
         measure {
             // Insert 10,000 items, causing 5,000 evictions
@@ -107,7 +107,7 @@ final class LRUQueueWithTTLScaleTests: XCTestCase {
     }
     
     func testLargeScaleSequentialAccess() {
-        let queue = LRUQueueWithTTL<Int, String>(capacity: 10000)
+        let queue = TTLPriorityLRUQueue<Int, String>(capacity: 10000)
         
         // Pre-populate
         for i in 0..<10000 {
@@ -123,7 +123,7 @@ final class LRUQueueWithTTLScaleTests: XCTestCase {
     }
     
     func testLargeScaleRandomAccess() {
-        let queue = LRUQueueWithTTL<Int, String>(capacity: 10000)
+        let queue = TTLPriorityLRUQueue<Int, String>(capacity: 10000)
         
         // Pre-populate
         for i in 0..<10000 {
@@ -140,19 +140,19 @@ final class LRUQueueWithTTLScaleTests: XCTestCase {
     }
     
     func testLargeScaleTTLExpirations() {
-        let queue = LRUQueueWithTTL<Int, String>(capacity: 10000)
+        let queue = TTLPriorityLRUQueue<Int, String>(capacity: 10000)
         
         measure {
             // Insert items with very short TTL
             for i in 0..<10000 {
                 queue.unsafeSet(value: "value\(i)", for: i, expiredIn: 0.001) // 1ms TTL
             }
-            // Force expiration check - note: LRUQueueWithTTL doesn't have cleanup method
+            // Force expiration check - note: TTLPriorityLRUQueue doesn't have cleanup method
         }
     }
     
     func testLargeScaleMixedTTLOperations() {
-        let queue = LRUQueueWithTTL<Int, String>(capacity: 10000)
+        let queue = TTLPriorityLRUQueue<Int, String>(capacity: 10000)
         
         measure {
             // Mixed operations with different TTLs
@@ -166,8 +166,8 @@ final class LRUQueueWithTTLScaleTests: XCTestCase {
     // MARK: - Time Complexity Comparison Tests
     
     func testTimeComplexityComparison() {
-        let smallQueue = LRUQueueWithTTL<Int, String>(capacity: 1000)
-        let largeQueue = LRUQueueWithTTL<Int, String>(capacity: 10000)
+        let smallQueue = TTLPriorityLRUQueue<Int, String>(capacity: 1000)
+        let largeQueue = TTLPriorityLRUQueue<Int, String>(capacity: 10000)
         
         var smallTime: TimeInterval = 0
         var largeTime: TimeInterval = 0
@@ -190,7 +190,7 @@ final class LRUQueueWithTTLScaleTests: XCTestCase {
         let smallOpsPerSecond = 100.0 / smallTime
         let largeOpsPerSecond = 10000.0 / largeTime
         
-        print("=== LRUQueueWithTTL Time Complexity Analysis ===")
+        print("=== TTLPriorityLRUQueue Time Complexity Analysis ===")
         print("Small scale (100 ops): \(smallTime * 1000) ms, \(smallOpsPerSecond) ops/sec")
         print("Large scale (10,000 ops): \(largeTime * 1000) ms, \(largeOpsPerSecond) ops/sec")
         print("Scale factor: \(Double(10000) / Double(100))x operations")
@@ -206,8 +206,8 @@ final class LRUQueueWithTTLScaleTests: XCTestCase {
     }
     
     func testTTLComplexityComparison() {
-        let smallQueue = LRUQueueWithTTL<Int, String>(capacity: 1000)
-        let largeQueue = LRUQueueWithTTL<Int, String>(capacity: 10000)
+        let smallQueue = TTLPriorityLRUQueue<Int, String>(capacity: 1000)
+        let largeQueue = TTLPriorityLRUQueue<Int, String>(capacity: 10000)
         
         var smallTime: TimeInterval = 0
         var largeTime: TimeInterval = 0
@@ -226,7 +226,7 @@ final class LRUQueueWithTTLScaleTests: XCTestCase {
         }
         largeTime = CFAbsoluteTimeGetCurrent() - largeStart
         
-        print("=== LRUQueueWithTTL TTL Complexity Analysis ===")
+        print("=== TTLPriorityLRUQueue TTL Complexity Analysis ===")
         print("Small scale TTL setup (100 items): \(smallTime * 1000) ms")
         print("Large scale TTL setup (10,000 items): \(largeTime * 1000) ms")
         print("Scale factor: \(Double(10000) / Double(100))x items")

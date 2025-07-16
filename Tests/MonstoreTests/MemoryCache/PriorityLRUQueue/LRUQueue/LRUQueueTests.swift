@@ -12,8 +12,8 @@ import XCTest
 final class LRUQueueTests: XCTestCase {
     
     // Factory method to create the queue instance
-    func createQueue(capacity: Int) -> LRUQueue<String, Int> {
-        return LRUQueue(capacity: capacity)
+    func createQueue(capacity: Int) -> PriorityLRUQueue<String, Int> {
+        return PriorityLRUQueue(capacity: capacity)
     }
     
     // MARK: - Initialization Tests

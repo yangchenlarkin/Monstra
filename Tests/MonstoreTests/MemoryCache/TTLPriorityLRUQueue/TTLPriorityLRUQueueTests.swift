@@ -1,5 +1,5 @@
 //
-//  LRUQueueWithTTLTests.swift
+//  TTLPriorityLRUQueueTests.swift
 //  MonstoreTests
 //
 //  Created by Larkin on 2025/6/27.
@@ -9,22 +9,22 @@ import XCTest
 
 @testable import Monstore
 
-/// Unit tests for LRUQueueWithTTL covering initialization, insertion, retrieval, TTL expiration, deletion, LRU behavior, and edge cases.
-final class LRUQueueWithTTLTests: XCTestCase {
+/// Unit tests for TTLPriorityLRUQueue covering initialization, insertion, retrieval, TTL expiration, deletion, LRU behavior, and edge cases.
+final class TTLPriorityLRUQueueTests: XCTestCase {
     // MARK: - Initialization Tests
     /// Test cache initialization with different capacities.
     func testInitialization() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 5)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 5)
         XCTAssertEqual(cache.capacity, 5, "Capacity should be set correctly.")
 
-        let unlimitedCache = LRUQueueWithTTL<String, Int>(capacity: -1)
+        let unlimitedCache = TTLPriorityLRUQueue<String, Int>(capacity: -1)
         XCTAssertEqual(unlimitedCache.capacity, 0, "Negative capacity should default to 0.")
     }
 
     // MARK: - Insertion and Retrieval Tests
     /// Test inserting values and retrieving them.
     func testInsertAndRetrieve() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 3)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
 
         _ = cache.unsafeSet(value: 10, for: "key1", expiredIn: 10)
         _ = cache.unsafeSet(value: 20, for: "key2", expiredIn: 20)
@@ -36,7 +36,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
 
     /// Test overwriting an existing key value works correctly.
     func testOverwriteExistingKey() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 3)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
 
         _ = cache.unsafeSet(value: 10, for: "key1", expiredIn: 10)
         _ = cache.unsafeSet(value: 20, for: "key1", expiredIn: 20) // Overwrite
@@ -47,7 +47,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
     // MARK: - TTL Expiration Tests
     /// Test that values expire after their TTL.
     func testExpiration() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 5)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 5)
 
         _ = cache.unsafeSet(value: 30, for: "key1", expiredIn: 1) // TTL: 1 second
         sleep(2) // Wait for the value to expire
@@ -57,7 +57,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
 
     /// Test that multiple expired entries do not affect valid entries.
     func testMultipleExpiration() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 5)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 5)
 
         _ = cache.unsafeSet(value: 10, for: "key1", expiredIn: 1) // TTL: 1 second
         _ = cache.unsafeSet(value: 20, for: "key2", expiredIn: 10)
@@ -70,7 +70,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
     
     /// Test setting a key with zero or negative TTL behaves correctly.
     func testZeroOrNegativeTTLKey() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 3)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
 
         // Step 1: Insert keys with zero and negative TTLs
         _ = cache.unsafeSet(value: 10, for: "Key1", expiredIn: 0)
@@ -85,7 +85,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
 
     /// Test removing values from the cache.
     func testRemoveValue() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 3)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
 
         _ = cache.unsafeSet(value: 40, for: "key1", expiredIn: 10)
         _ = cache.unsafeSet(value: 50, for: "key2", expiredIn: 20)
@@ -100,7 +100,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
 
     /// Test cache behavior when exceeding capacity (triggering LRU).
     func testLRUEviction() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 2)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
 
         _ = cache.unsafeSet(value: 60, for: "key1", expiredIn: 10)
         _ = cache.unsafeSet(value: 70, for: "key2", expiredIn: 10)
@@ -113,7 +113,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
 
     /// Test that accessing a key updates its position in the LRU queue.
     func testLRUAccessUpdatesPosition() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 2)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
 
         _ = cache.unsafeSet(value: 90, for: "key1", expiredIn: 10)
         _ = cache.unsafeSet(value: 100, for: "key2", expiredIn: 10)
@@ -128,7 +128,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
     
     /// Test LRU eviction when the least recently used tail node is expired.
     func testLRUEvictionTailNodeExpired() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 3)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
         // Step 1: Add three elements with different expiration times
         _ = cache.unsafeSet(value: 100, for: "key1", expiredIn: 5) // Head node (most recently used)
         _ = cache.unsafeSet(value: 200, for: "key2", expiredIn: 5) // Middle node
@@ -146,7 +146,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
     
     /// Test LRU eviction when a middle node is expired.
     func testLRUEvictionMiddleNodeExpired() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 3)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
         // Step 1: Add three elements with different expiration times
         _ = cache.unsafeSet(value: 100, for: "key1", expiredIn: 5) // Head node (most recently used)
         _ = cache.unsafeSet(value: 200, for: "key2", expiredIn: 1) // Middle node
@@ -164,7 +164,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
     
     /// Test LRU eviction when the head node is expired.
     func testLRUEvictionHeadNodeExpired() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 3)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
         // Step 1: Add three elements with different expiration times
         _ = cache.unsafeSet(value: 100, for: "key1", expiredIn: 1) // Head node (most recently used)
         _ = cache.unsafeSet(value: 200, for: "key2", expiredIn: 5) // Middle node
@@ -183,7 +183,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
     // MARK: - Comprehensive Tests
     /// Test a combination of cache behaviors including LRU eviction, updates, and TTL expiration.
     func testComprehensiveScenario1() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 3)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
 
         // Step 1: Insert three elements
         _ = cache.unsafeSet(value: 1, for: "Key1", expiredIn: 10) // Insert Key1
@@ -205,7 +205,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
 
     /// Test mixed behavior involving TTL expiration, updates, and LRU policy.
     func testComprehensiveScenario2() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 3)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
 
         // Step 1: Insert three elements with TTL
         _ = cache.unsafeSet(value: 1, for: "Key1", expiredIn: 2) // Short-lived TTL
@@ -231,7 +231,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
 
     /// Test sequential operations including access to update LRU and trigger evictions.
     func testComprehensiveScenario3() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 3)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
 
         // Step 1: Insert three elements
         _ = cache.unsafeSet(value: 10, for: "Key1", expiredIn: 10)
@@ -253,7 +253,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
 
     /// Test inserting duplicate keys with updated TTL values and ensure proper expiration.
     func testComprehensiveScenario4() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 3)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
 
         // Step 1: Insert the same key multiple times with different TTLs
         _ = cache.unsafeSet(value: 10, for: "Key1", expiredIn: 1) // Set a short TTL
@@ -267,7 +267,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
 
     /// Test handling a cache with zero capacity to ensure no values are stored.
     func testComprehensiveScenario5() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 0)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 0)
 
         // Attempt to insert values into a zero-capacity cache
         _ = cache.unsafeSet(value: 1, for: "Key1", expiredIn: 10)
@@ -278,7 +278,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
     
     /// Test re-setting a key after expiration to ensure correct behavior.
     func testReSetAfterExpiration() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 3)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
 
         // Step 1: Insert a key with a short TTL and let it expire
         _ = cache.unsafeSet(value: 10, for: "Key1", expiredIn: 1)
@@ -293,7 +293,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
     
     /// Test behavior when multiple keys expire at the same time.
     func testMultipleKeysExpireSimultaneously() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 3)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
 
         // Insert keys with the same TTL
         _ = cache.unsafeSet(value: 10, for: "Key1", expiredIn: 2)
@@ -310,7 +310,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
     
     /// Test removing expired keys to ensure proper behavior.
     func testRemoveExpiredKey() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 3)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
 
         // Step 1: Insert a key with a short TTL
         _ = cache.unsafeSet(value: 10, for: "Key1", expiredIn: 1)
@@ -327,7 +327,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
     // MARK: - Edge Case Tests
     /// Test handling capacity of zero.
     func testCapacityZero() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 0)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 0)
 
         _ = cache.unsafeSet(value: 10, for: "key1", expiredIn: 10)
         XCTAssertNil(cache.getValue(for: "key1"), "Cache with zero capacity should not hold any values.")
@@ -335,7 +335,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
 
     /// Test behavior when inserting duplicate keys.
     func testInsertDuplicates() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 5)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 5)
 
         _ = cache.unsafeSet(value: 10, for: "key1", expiredIn: 10)
         _ = cache.unsafeSet(value: 20, for: "key1", expiredIn: 20) // Overwrite
@@ -345,7 +345,7 @@ final class LRUQueueWithTTLTests: XCTestCase {
 
     /// Test retrieving expired keys does not affect valid entries.
     func testRetrievingExpiredKeys() {
-        let cache = LRUQueueWithTTL<String, Int>(capacity: 3)
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
 
         _ = cache.unsafeSet(value: 10, for: "key1", expiredIn: 1) // TTL: 1 second
         _ = cache.unsafeSet(value: 20, for: "key2", expiredIn: 10)

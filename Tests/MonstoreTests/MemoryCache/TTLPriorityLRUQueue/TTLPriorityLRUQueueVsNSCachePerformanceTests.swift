@@ -1,5 +1,5 @@
 //
-//  LRUQueueWithTTLVsNSCachePerformanceTests.swift
+//  TTLPriorityLRUQueueVsNSCachePerformanceTests.swift
 //  MonstoreTests
 //
 //  Created on 2024-12-19.
@@ -8,34 +8,34 @@
 import XCTest
 @testable import Monstore
 
-final class LRUQueueWithTTLVsNSCachePerformanceTests: XCTestCase {
+final class TTLPriorityLRUQueueVsNSCachePerformanceTests: XCTestCase {
     
     // MARK: - Properties
     
-    private var lruQueueWithTTL: LRUQueueWithTTL<Int, String>!
+    private var TTLPriorityLRUQueue: TTLPriorityLRUQueue<Int, String>!
     private var nsCache: NSCache<NSNumber, NSString>!
     
     // MARK: - Setup and Teardown
     
     override func setUp() {
         super.setUp()
-        lruQueueWithTTL = LRUQueueWithTTL<Int, String>(capacity: 1000)
+        TTLPriorityLRUQueue = TTLPriorityLRUQueue<Int, String>(capacity: 1000)
         nsCache = NSCache<NSNumber, NSString>()
         nsCache.countLimit = 1000
     }
     
     override func tearDown() {
-        lruQueueWithTTL = nil
+        TTLPriorityLRUQueue = nil
         nsCache = nil
         super.tearDown()
     }
     
     // MARK: - Insert Performance Tests
     
-    func testInsertPerformance_LRUQueueWithTTL() {
+    func testInsertPerformance_TTLPriorityLRUQueue() {
         measure {
             for i in 0..<1000 {
-                lruQueueWithTTL.unsafeSet(value: "value\(i)", for: i, expiredIn: 60.0)
+                TTLPriorityLRUQueue.unsafeSet(value: "value\(i)", for: i, expiredIn: 60.0)
             }
         }
     }
@@ -50,15 +50,15 @@ final class LRUQueueWithTTLVsNSCachePerformanceTests: XCTestCase {
     
     // MARK: - Access Performance Tests
     
-    func testAccessPerformance_LRUQueueWithTTL() {
+    func testAccessPerformance_TTLPriorityLRUQueue() {
         // Pre-populate
         for i in 0..<1000 {
-            lruQueueWithTTL.unsafeSet(value: "value\(i)", for: i, expiredIn: 60.0)
+            TTLPriorityLRUQueue.unsafeSet(value: "value\(i)", for: i, expiredIn: 60.0)
         }
         
         measure {
             for i in 0..<1000 {
-                _ = lruQueueWithTTL.getValue(for: i)
+                _ = TTLPriorityLRUQueue.getValue(for: i)
             }
         }
     }
@@ -78,10 +78,10 @@ final class LRUQueueWithTTLVsNSCachePerformanceTests: XCTestCase {
     
     // MARK: - TTL Expiration Tests
     
-    func testTTLExpirationPerformance_LRUQueueWithTTL() {
+    func testTTLExpirationPerformance_TTLPriorityLRUQueue() {
         // Insert items with short TTL
         for i in 0..<1000 {
-            lruQueueWithTTL.unsafeSet(value: "value\(i)", for: i, expiredIn: 0.001) // 1ms TTL
+            TTLPriorityLRUQueue.unsafeSet(value: "value\(i)", for: i, expiredIn: 0.001) // 1ms TTL
         }
         
         // Wait for expiration
@@ -89,7 +89,7 @@ final class LRUQueueWithTTLVsNSCachePerformanceTests: XCTestCase {
         
         measure {
             for i in 0..<1000 {
-                _ = lruQueueWithTTL.getValue(for: i)
+                _ = TTLPriorityLRUQueue.getValue(for: i)
             }
         }
     }
@@ -106,15 +106,15 @@ final class LRUQueueWithTTLVsNSCachePerformanceTests: XCTestCase {
     
     // MARK: - Mixed Operations Performance Tests
     
-    func testMixedOperationsPerformance_LRUQueueWithTTL() {
+    func testMixedOperationsPerformance_TTLPriorityLRUQueue() {
         measure {
             for i in 0..<1000 {
-                lruQueueWithTTL.unsafeSet(value: "value\(i)", for: i, expiredIn: 60.0)
+                TTLPriorityLRUQueue.unsafeSet(value: "value\(i)", for: i, expiredIn: 60.0)
                 if i % 3 == 0 {
-                    _ = lruQueueWithTTL.getValue(for: i - 1)
+                    _ = TTLPriorityLRUQueue.getValue(for: i - 1)
                 }
                 if i % 5 == 0 {
-                    lruQueueWithTTL.unsafeRemoveValue(for: i - 2)
+                    TTLPriorityLRUQueue.unsafeRemoveValue(for: i - 2)
                 }
             }
         }
@@ -136,11 +136,11 @@ final class LRUQueueWithTTLVsNSCachePerformanceTests: XCTestCase {
     
     // MARK: - Cleanup Performance Tests
     
-    func testCleanupPerformance_LRUQueueWithTTL() {
+    func testCleanupPerformance_TTLPriorityLRUQueue() {
         // Insert items with varying TTLs
         for i in 0..<1000 {
             let ttl = Double(i % 10) * 0.001 // 0-9ms TTL
-            lruQueueWithTTL.unsafeSet(value: "value\(i)", for: i, expiredIn: ttl)
+            TTLPriorityLRUQueue.unsafeSet(value: "value\(i)", for: i, expiredIn: ttl)
         }
         
         // Wait for some items to expire
@@ -149,7 +149,7 @@ final class LRUQueueWithTTLVsNSCachePerformanceTests: XCTestCase {
         measure {
             // Manual cleanup by checking each item
             for i in 0..<1000 {
-                _ = lruQueueWithTTL.getValue(for: i)
+                _ = TTLPriorityLRUQueue.getValue(for: i)
             }
         }
     }
@@ -167,17 +167,17 @@ final class LRUQueueWithTTLVsNSCachePerformanceTests: XCTestCase {
     
     // MARK: - Memory Usage Tests
     
-    func testMemoryUsage_LRUQueueWithTTL() {
+    func testMemoryUsage_TTLPriorityLRUQueue() {
         let initialMemory = getMemoryUsage()
         
         for i in 0..<10000 {
-            lruQueueWithTTL.unsafeSet(value: "value\(i)", for: i, expiredIn: 60.0)
+            TTLPriorityLRUQueue.unsafeSet(value: "value\(i)", for: i, expiredIn: 60.0)
         }
         
         let finalMemory = getMemoryUsage()
         let memoryIncrease = finalMemory - initialMemory
         
-        print("LRUQueueWithTTL memory increase: \(memoryIncrease) bytes")
+        print("TTLPriorityLRUQueue memory increase: \(memoryIncrease) bytes")
         XCTAssertLessThan(memoryIncrease, 10 * 1024 * 1024) // Less than 10MB
     }
     
@@ -197,14 +197,14 @@ final class LRUQueueWithTTLVsNSCachePerformanceTests: XCTestCase {
     
     // MARK: - TTL Management Tests
     
-    func testTTLManagement_LRUQueueWithTTL() {
+    func testTTLManagement_TTLPriorityLRUQueue() {
         let iterations = 1000
         var totalTime: TimeInterval = 0
         
         measure {
             for i in 0..<iterations {
                 let start = Date()
-                lruQueueWithTTL.unsafeSet(value: "value\(i)", for: i, expiredIn: Double(i % 100) / 1000.0)
+                TTLPriorityLRUQueue.unsafeSet(value: "value\(i)", for: i, expiredIn: Double(i % 100) / 1000.0)
                 let end = Date()
                 totalTime += end.timeIntervalSince(start)
             }
@@ -213,20 +213,20 @@ final class LRUQueueWithTTLVsNSCachePerformanceTests: XCTestCase {
         print("Average TTL setting time: \(totalTime / Double(iterations)) seconds")
     }
     
-    func testTTLExpirationAccuracy_LRUQueueWithTTL() {
+    func testTTLExpirationAccuracy_TTLPriorityLRUQueue() {
         let testKey = 999
         let ttl = 0.1 // 100ms
         
-        lruQueueWithTTL.unsafeSet(value: "test", for: testKey, expiredIn: ttl)
+        TTLPriorityLRUQueue.unsafeSet(value: "test", for: testKey, expiredIn: ttl)
         
         // Should be available immediately
-        XCTAssertNotNil(lruQueueWithTTL.getValue(for: testKey))
+        XCTAssertNotNil(TTLPriorityLRUQueue.getValue(for: testKey))
         
         // Wait for expiration
         Thread.sleep(forTimeInterval: ttl + 0.01)
         
         // Should be expired
-        XCTAssertNil(lruQueueWithTTL.getValue(for: testKey))
+        XCTAssertNil(TTLPriorityLRUQueue.getValue(for: testKey))
     }
     
     // MARK: - Helper Methods

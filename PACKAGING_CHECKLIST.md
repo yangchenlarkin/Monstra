@@ -26,7 +26,7 @@ docs/
 ├── README.md (main)
 ├── API/
 │   ├── LRUQueue.md
-│   ├── LRUQueueWithTTL.md
+│   ├── TTLPriorityLRUQueue.md
 │   ├── Heap.md
 │   └── CPUTimeStamp.md
 ├── Examples/

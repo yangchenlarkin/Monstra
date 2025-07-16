@@ -8,12 +8,12 @@
 import XCTest
 @testable import Monstore
 
-final class LRUQueueScaleTests: XCTestCase {
+final class PriorityLRUQueueScaleTests: XCTestCase {
     
     // MARK: - Small Scale Tests (100 operations)
     
     func testSmallScaleInsertions() {
-        let queue = LRUQueue<Int, String>(capacity: 1000)
+        let queue = PriorityLRUQueue<Int, String>(capacity: 1000)
         
         measure {
             for i in 0..<100 {
@@ -23,7 +23,7 @@ final class LRUQueueScaleTests: XCTestCase {
     }
     
     func testSmallScaleMixedOperations() {
-        let queue = LRUQueue<Int, String>(capacity: 1000)
+        let queue = PriorityLRUQueue<Int, String>(capacity: 1000)
         
         // Pre-populate
         for i in 0..<50 {
@@ -42,7 +42,7 @@ final class LRUQueueScaleTests: XCTestCase {
     }
     
     func testSmallScaleEvictions() {
-        let queue = LRUQueue<Int, String>(capacity: 50)
+        let queue = PriorityLRUQueue<Int, String>(capacity: 50)
         
         measure {
             // Insert 100 items, causing 50 evictions
@@ -55,7 +55,7 @@ final class LRUQueueScaleTests: XCTestCase {
     // MARK: - Large Scale Tests (10,000 operations)
     
     func testLargeScaleInsertions() {
-        let queue = LRUQueue<Int, String>(capacity: 10000)
+        let queue = PriorityLRUQueue<Int, String>(capacity: 10000)
         
         measure {
             for i in 0..<10000 {
@@ -65,7 +65,7 @@ final class LRUQueueScaleTests: XCTestCase {
     }
     
     func testLargeScaleMixedOperations() {
-        let queue = LRUQueue<Int, String>(capacity: 10000)
+        let queue = PriorityLRUQueue<Int, String>(capacity: 10000)
         
         // Pre-populate
         for i in 0..<5000 {
@@ -84,7 +84,7 @@ final class LRUQueueScaleTests: XCTestCase {
     }
     
     func testLargeScaleEvictions() {
-        let queue = LRUQueue<Int, String>(capacity: 5000)
+        let queue = PriorityLRUQueue<Int, String>(capacity: 5000)
         
         measure {
             // Insert 10,000 items, causing 5,000 evictions
@@ -95,7 +95,7 @@ final class LRUQueueScaleTests: XCTestCase {
     }
     
     func testLargeScaleSequentialAccess() {
-        let queue = LRUQueue<Int, String>(capacity: 10000)
+        let queue = PriorityLRUQueue<Int, String>(capacity: 10000)
         
         // Pre-populate
         for i in 0..<10000 {
@@ -111,7 +111,7 @@ final class LRUQueueScaleTests: XCTestCase {
     }
     
     func testLargeScaleRandomAccess() {
-        let queue = LRUQueue<Int, String>(capacity: 10000)
+        let queue = PriorityLRUQueue<Int, String>(capacity: 10000)
         
         // Pre-populate
         for i in 0..<10000 {
@@ -130,8 +130,8 @@ final class LRUQueueScaleTests: XCTestCase {
     // MARK: - Time Complexity Comparison Tests
     
     func testTimeComplexityComparison() {
-        let smallQueue = LRUQueue<Int, String>(capacity: 1000)
-        let largeQueue = LRUQueue<Int, String>(capacity: 10000)
+        let smallQueue = PriorityLRUQueue<Int, String>(capacity: 1000)
+        let largeQueue = PriorityLRUQueue<Int, String>(capacity: 10000)
         
         var smallTime: TimeInterval = 0
         var largeTime: TimeInterval = 0
@@ -154,7 +154,7 @@ final class LRUQueueScaleTests: XCTestCase {
         let smallOpsPerSecond = 100.0 / smallTime
         let largeOpsPerSecond = 10000.0 / largeTime
         
-        print("=== LRUQueue Time Complexity Analysis ===")
+        print("=== PriorityLRUQueue Time Complexity Analysis ===")
         print("Small scale (100 ops): \(smallTime * 1000) ms, \(smallOpsPerSecond) ops/sec")
         print("Large scale (10,000 ops): \(largeTime * 1000) ms, \(largeOpsPerSecond) ops/sec")
         print("Scale factor: \(Double(10000) / Double(100))x operations")

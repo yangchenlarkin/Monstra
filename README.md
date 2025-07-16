@@ -21,7 +21,7 @@ A high-performance Swift package providing efficient memory caching utilities wi
 ### Core Components
 
 - **LRUQueue**: High-performance LRU cache implementation with optimized doubly-linked list
-- **LRUQueueWithTTL**: LRU cache with automatic time-to-live (TTL) expiration
+- **TTLPriorityLRUQueue**: LRU cache with automatic time-to-live (TTL) expiration
 - **Heap**: Efficient heap data structure implementation
 - **CPUTimeStamp**: High-precision CPU timestamp utilities for performance measurement
 - **MemoryCache**: Core memory caching functionality
@@ -32,13 +32,13 @@ A high-performance Swift package providing efficient memory caching utilities wi
 Monstore/
 ├── Sources/Monstore/MemoryCache/
 │   ├── LRUQueue.swift          # O(1) LRU cache implementation
-│   ├── LRUQueueWithTTL.swift   # LRU + TTL hybrid cache
+│   ├── TTLPriorityLRUQueue.swift   # LRU + TTL hybrid cache
 │   ├── Heap.swift              # Efficient heap data structure
 │   ├── CPUTimeStamp.swift      # High-precision timing utilities
 │   └── MemoryCache.swift       # Core caching functionality
 └── Tests/MonstoreTests/MemoryCache/
     ├── LRUQueue/               # LRUQueue tests and benchmarks
-    ├── LRUQueueWithTTL/        # TTL cache tests and benchmarks
+    ├── TTLPriorityLRUQueue/        # TTL cache tests and benchmarks
     ├── Heap/                   # Heap performance tests
     └── CPUTimeStamp/           # Timing utility tests
 ```
@@ -92,7 +92,7 @@ print(cache.isFull) // Whether cache is at capacity
 import Monstore
 
 // Create TTL cache with automatic expiration
-let ttlCache = LRUQueueWithTTL<String, Int>(capacity: 100)
+let ttlCache = TTLPriorityLRUQueue<String, Int>(capacity: 100)
 
 // Set value with TTL (expires in 5 seconds)
 ttlCache.unsafeSet(value: 42, for: "answer", expiredIn: 5.0)
@@ -109,7 +109,7 @@ let expired = ttlCache.getValue(for: "answer") // Returns nil
 
 ### Time Complexity
 
-| Operation | LRUQueue | LRUQueueWithTTL |
+| Operation | LRUQueue | TTLPriorityLRUQueue |
 |-----------|----------|------------------|
 | Insert/Update | O(1) | O(1) |
 | Retrieve | O(1) | O(1) |
@@ -121,7 +121,7 @@ let expired = ttlCache.getValue(for: "answer") // Returns nil
 Based on comprehensive testing with 10,000 operations:
 
 - **LRUQueue**: 97.3x time scaling (near-linear O(1))
-- **LRUQueueWithTTL**: 79.7x time scaling (better than linear)
+- **TTLPriorityLRUQueue**: 79.7x time scaling (better than linear)
 - **Memory Usage**: 50-60% less than NSCache
 - **Access Performance**: Comparable to NSCache
 
@@ -202,10 +202,10 @@ class LRUQueue<K: Hashable, Element> {
 }
 ```
 
-### LRUQueueWithTTL
+### TTLPriorityLRUQueue
 
 ```swift
-class LRUQueueWithTTL<Key: Hashable, Value> {
+class TTLPriorityLRUQueue<Key: Hashable, Value> {
     init(capacity: Int)
     
     func unsafeSet(value: Value, for key: Key, expiredIn duration: TimeInterval) -> Value?

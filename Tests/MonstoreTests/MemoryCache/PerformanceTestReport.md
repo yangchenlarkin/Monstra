@@ -47,9 +47,9 @@
 
 ---
 
-## 3. LRUQueueWithTTL vs NSCache Performance Comparison
+## 3. TTLPriorityLRUQueue vs NSCache Performance Comparison
 
-| Test Item | LRUQueueWithTTL | NSCache |
+| Test Item | TTLPriorityLRUQueue | NSCache |
 |-----------|-----------------|---------|
 | Insert Performance (1000 operations) | ~0.009s | ~0.001s |
 | Access Performance (1000 operations) | ~0.001s | ~0.001s |
@@ -58,9 +58,9 @@
 | Memory Usage (10000 items) | 393216 bytes | 573440 bytes |
 | Average TTL Setup Time | 3.84e-05s | - |
 
-- **Conclusion**: NSCache has faster insertion but no TTL, LRUQueueWithTTL supports efficient TTL eviction, lower memory usage.
+- **Conclusion**: NSCache has faster insertion but no TTL, TTLPriorityLRUQueue supports efficient TTL eviction, lower memory usage.
 
-### 3.1 LRUQueueWithTTL Large-Scale Tests (New)
+### 3.1 TTLPriorityLRUQueue Large-Scale Tests (New)
 
 | Test Item | Small Scale (100 ops) | Large Scale (10000 ops) | Time Complexity Verification |
 |-----------|------------------------|-------------------------|------------------------------|
@@ -77,7 +77,7 @@
 - Time expansion: 79.7x (better than linear scaling)
 - Efficiency ratio: 125.5% (significantly better than linear scaling)
 - TTL setup expansion: 92.9x (close to linear)
-- **Conclusion**: LRUQueueWithTTL maintains O(1) time complexity while providing efficient TTL management functionality
+- **Conclusion**: TTLPriorityLRUQueue maintains O(1) time complexity while providing efficient TTL management functionality
 
 ---
 
@@ -105,14 +105,14 @@
 - **Actual Verification**: 100x operation scale expansion, 97.3x time expansion
 - **Verification Result**: ✅ Conforms to O(1) time complexity, efficiency ratio 102.8%
 
-### 5.2 LRUQueueWithTTL Time Complexity Verification  
+### 5.2 TTLPriorityLRUQueue Time Complexity Verification  
 - **Theoretical Complexity**: O(1) insert, access, O(log n) TTL management
 - **Actual Verification**: 100x operation scale expansion, 79.7x time expansion
 - **Verification Result**: ✅ Conforms to O(1) time complexity, efficiency ratio 125.5%
 
 ### 5.3 Performance Comparison Conclusions
 1. **LRUQueue**: Pure LRU implementation, optimal performance, suitable for scenarios without TTL requirements
-2. **LRUQueueWithTTL**: LRU + TTL hybrid implementation, slightly lower performance but richer functionality
+2. **TTLPriorityLRUQueue**: LRU + TTL hybrid implementation, slightly lower performance but richer functionality
 3. **Time Complexity**: Both demonstrate excellent O(1) characteristics, suitable for production environment use
 
 ## 6. Additional Notes

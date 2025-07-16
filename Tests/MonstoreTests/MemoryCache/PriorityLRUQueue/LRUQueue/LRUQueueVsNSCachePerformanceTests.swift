@@ -12,14 +12,14 @@ final class LRUQueueVsNSCachePerformanceTests: XCTestCase {
     
     // MARK: - Properties
     
-    private var lruQueue: LRUQueue<Int, String>!
+    private var lruQueue: PriorityLRUQueue<Int, String>!
     private var nsCache: NSCache<NSNumber, NSString>!
     
     // MARK: - Setup and Teardown
     
     override func setUp() {
         super.setUp()
-        lruQueue = LRUQueue<Int, String>(capacity: 1000)
+        lruQueue = PriorityLRUQueue<Int, String>(capacity: 1000)
         nsCache = NSCache<NSNumber, NSString>()
         nsCache.countLimit = 1000
     }

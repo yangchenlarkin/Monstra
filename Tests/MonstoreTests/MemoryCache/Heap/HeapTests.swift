@@ -577,31 +577,78 @@ final class HeapTests: XCTestCase {
     // MARK: - Dynamic Storage Tests
     
     func testDynamicStorageExpansion() {
-        let heap = Heap<Int>.maxHeap(capacity: 2)
-        
-        // Insert elements to trigger storage expansion
-        XCTAssertNil(heap.insert(1))
-        XCTAssertNil(heap.insert(2))
-        XCTAssertEqual(heap.insert(3), 3) // Should be rejected due to capacity limit
-        
-        XCTAssertEqual(heap.count, 2)
-        XCTAssertEqual(heap.elements, [2, 1])
+        let testCase = TestCase(
+            title: "",
+            heapType: .max,
+            capacity: 2,
+            operations: [
+                .insertion(value: 1, expectedResult: nil),
+                .insertion(value: 2, expectedResult: nil),
+                .insertion(value: 3, expectedResult: 3),
+            ],
+            expectedElements: [2, 1]
+        )
+        testCase.run()
     }
     
     func testDynamicStorageContraction() {
-        let heap = Heap<Int>.maxHeap(capacity: 10)
-        
-        // Insert many elements
-        for i in 1...8 {
-            XCTAssertNil(heap.insert(i))
-        }
-        
-        // Remove elements to trigger contraction
-        for _ in 1...6 {
-            heap.remove()
-        }
-        
-        XCTAssertEqual(heap.count, 2)
-        // Should have contracted storage
+        let testCase = TestCase(
+            title: "",
+            heapType: .min,
+            capacity: 10,
+            operations: [
+                .insertion(value: 1, expectedResult: nil),
+                .insertion(value: 2, expectedResult: nil),
+                .insertion(value: 3, expectedResult: nil),
+                .insertion(value: 4, expectedResult: nil),
+                .insertion(value: 5, expectedResult: nil),
+                .insertion(value: 6, expectedResult: nil),
+                .insertion(value: 7, expectedResult: nil),
+                .insertion(value: 8, expectedResult: nil),
+                .removal(expectedResult: 1),
+                .removal(expectedResult: 2),
+                .removal(expectedResult: 3),
+                .removal(expectedResult: 4),
+            ],
+            expectedElements: [5, 7, 6, 8]
+        )
+        testCase.run()
+    }
+    
+    func testDynamicStorageContraction2() {
+        let testCase = TestCase(
+            title: "",
+            heapType: .min,
+            capacity: 10,
+            operations: [
+                .insertion(value: 1, expectedResult: nil),
+                .insertion(value: 2, expectedResult: nil),
+                .insertion(value: 3, expectedResult: nil),
+                .insertion(value: 4, expectedResult: nil),
+                .insertion(value: 5, expectedResult: nil),
+                .insertion(value: 6, expectedResult: nil),
+                .insertion(value: 7, expectedResult: nil),
+                .insertion(value: 8, expectedResult: nil),
+                .removal(expectedResult: 1),
+                .removal(expectedResult: 2),
+                .removal(expectedResult: 3),
+                .removal(expectedResult: 4),
+                .removal(expectedResult: 5),
+            ],
+            expectedElements: [6, 7, 8]
+        )
+        testCase.run()
+    }
+    
+    func testXXX() {
+        let heap = Heap<Int>.minHeap(capacity: 3)
+        XCTAssertNil(heap.insert(1))
+        XCTAssertNil(heap.insert(2))
+        XCTAssertNil(heap.insert(3))
+        XCTAssertEqual(heap.remove(at: 0), 1)
+        XCTAssertNil(heap.insert(4))
+        XCTAssertEqual(heap.insert(5), 2)
+        XCTAssertEqual(heap.insert(6), 3)
+        XCTAssertEqual(heap.insert(7), 4)
     }
 }

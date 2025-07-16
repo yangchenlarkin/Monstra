@@ -9,14 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Comprehensive performance test suite with scale testing
-- Time complexity analysis for LRUQueue and LRUQueueWithTTL
+- Time complexity analysis for LRUQueue and TTLPriorityLRUQueue
 - SwiftLint and SwiftFormat configuration for code quality
 - English performance test report with operation count details
 - Large-scale testing (10,000 operations) for time complexity verification
 
 ### Changed
 - Refactored LRUQueue implementation for better performance
-- Optimized LRUQueueWithTTL with improved TTL management
+- Optimized TTLPriorityLRUQueue with improved TTL management
 - Enhanced Heap implementation with better memory efficiency
 - Updated README with comprehensive usage examples
 
@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Initial release of Monstore cache library
 - LRUQueue: High-performance LRU cache implementation
-- LRUQueueWithTTL: LRU cache with time-to-live support
+- TTLPriorityLRUQueue: LRU cache with time-to-live support
 - Heap: Efficient heap data structure implementation
 - CPUTimeStamp: High-precision CPU timestamp utilities
 - MemoryCache: Core memory caching functionality

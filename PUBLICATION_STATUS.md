@@ -4,7 +4,7 @@
 
 ### 1. Core Library Development
 - [x] High-performance LRUQueue implementation with O(1) operations
-- [x] LRUQueueWithTTL with automatic expiration support
+- [x] TTLPriorityLRUQueue with automatic expiration support
 - [x] Efficient Heap data structure implementation
 - [x] CPUTimeStamp for high-precision performance measurement
 - [x] MemoryCache core functionality
@@ -98,7 +98,7 @@
 
 ### Performance Metrics
 - **LRUQueue**: 97.3x time scaling (near-linear O(1))
-- **LRUQueueWithTTL**: 79.7x time scaling (better than linear)
+- **TTLPriorityLRUQueue**: 79.7x time scaling (better than linear)
 - **Memory Usage**: 50-60% less than NSCache
 - **Access Performance**: Comparable to NSCache
 

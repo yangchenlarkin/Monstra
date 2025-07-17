@@ -80,4 +80,116 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
             }
         }
     }
+
+// MARK: - Small Capacity Edge Case Performance
+    /// Measures performance for cache with capacity 1.
+    func testSmallCapacity1Performance() {
+        let cap = 1
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: cap)
+        measure {
+            for i in 0..<(cap * 1000) {
+                _ = cache.set(value: i, for: "key\(i)", expiredIn: 1000)
+                _ = cache.getValue(for: "key\(i)")
+                _ = cache.removeValue(for: "key\(i)")
+            }
+        }
+    }
+    /// Measures performance for cache with capacity 2.
+    func testSmallCapacity2Performance() {
+        let cap = 2
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: cap)
+        measure {
+            for i in 0..<(cap * 1000) {
+                _ = cache.set(value: i, for: "key\(i)", expiredIn: 1000)
+                _ = cache.getValue(for: "key\(i)")
+                _ = cache.removeValue(for: "key\(i)")
+            }
+        }
+    }
+    /// Measures performance for cache with capacity 10.
+    func testSmallCapacity10Performance() {
+        let cap = 10
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: cap)
+        measure {
+            for i in 0..<(cap * 1000) {
+                _ = cache.set(value: i, for: "key\(i)", expiredIn: 1000)
+                _ = cache.getValue(for: "key\(i)")
+                _ = cache.removeValue(for: "key\(i)")
+            }
+        }
+    }
+
+// MARK: - Randomized Workload Performance
+    /// Measures performance under a randomized insert/get/remove workload.
+    func testRandomizedWorkloadPerformance() {
+        let count = 10_000
+        let cache = TTLPriorityLRUQueue<Int, String>(capacity: 1000)
+        var inserted = 0
+        var removed = 0
+        measure {
+            for _ in 0..<(count * 2) {
+                let op = Int.random(in: 0..<3)
+                if op == 0 && inserted < count {
+                    _ = cache.set(value: "val\(inserted)", for: inserted, expiredIn: 1000)
+                    inserted += 1
+                } else if op == 1 {
+                    _ = cache.getValue(for: Int.random(in: 0..<count))
+                } else if removed < inserted {
+                    _ = cache.removeValue(for: removed)
+                    removed += 1
+                }
+            }
+        }
+    }
+
+// MARK: - Remove at Random Key Performance
+    /// Measures performance of removing elements at random keys.
+    func testRemoveAtRandomKeyPerformance() {
+        let count = 5000
+        let cache = TTLPriorityLRUQueue<Int, Int>(capacity: count)
+        for i in 0..<count {
+            _ = cache.set(value: i, for: i, expiredIn: 1000)
+        }
+        var keys = Array(0..<count)
+        keys.shuffle()
+        var removeIdx = 0
+        measure {
+            while cache.count > 0 && removeIdx < keys.count {
+                let key = keys[removeIdx]
+                _ = cache.removeValue(for: key)
+                removeIdx += 1
+            }
+        }
+    }
+
+// MARK: - Expired Entries Under High Churn
+    /// Measures performance when many entries are expired under high churn.
+    func testExpiredEntriesHighChurnPerformance() {
+        let count = 5000
+        let cache = TTLPriorityLRUQueue<Int, Int>(capacity: 1000)
+        for i in 0..<count {
+            _ = cache.set(value: i, for: i, expiredIn: 0.01)
+        }
+        sleep(1)
+        measure {
+            for i in 0..<count {
+                _ = cache.getValue(for: i)
+            }
+        }
+    }
+
+// MARK: - Stress/Long-Running Performance
+    /// Measures performance under long-running, high-churn workload.
+    func testStressLongRunningPerformance() {
+        let count = 50_000
+        let cache = TTLPriorityLRUQueue<Int, Int>(capacity: 1000)
+        measure {
+            for i in 0..<count {
+                _ = cache.set(value: i, for: i, expiredIn: 1000)
+                if i % 2 == 0 {
+                    _ = cache.removeValue(for: i - 1)
+                }
+            }
+        }
+    }
 } 

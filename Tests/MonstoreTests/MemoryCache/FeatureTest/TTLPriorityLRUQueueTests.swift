@@ -4,14 +4,20 @@
 //
 //  Created by Larkin on 2025/6/27.
 //
+//  Test suite for TTLPriorityLRUQueue: covers initialization, basic operations, TTL expiration,
+//  priority-based eviction, LRU policy, combined scenarios, and edge/stress cases.
+//  Ensures correctness of all algorithmic behaviors and edge cases for the cache.
 
 import XCTest
 
 @testable import Monstore
 
+/// Tests for TTLPriorityLRUQueue, a cache combining TTL, priority, and LRU eviction policies.
+/// Each test group covers a distinct aspect of the cache's behavior.
 final class TTLPriorityLRUQueueTests: XCTestCase {}
 
 // MARK: - Initialization Tests
+/// Tests for correct initialization and capacity handling.
 extension TTLPriorityLRUQueueTests {
     func testInitialization() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 5)
@@ -22,6 +28,7 @@ extension TTLPriorityLRUQueueTests {
 }
 
 // MARK: - Basic Operations
+/// Tests for insert, retrieve, remove, duplicate keys, and zero capacity.
 extension TTLPriorityLRUQueueTests {
     func testInsertAndRetrieve() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
@@ -59,6 +66,7 @@ extension TTLPriorityLRUQueueTests {
 }
 
 // MARK: - TTL Expiration
+/// Tests for TTL expiration and retrieval of expired keys.
 extension TTLPriorityLRUQueueTests {
     func testExpiration() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 5)
@@ -129,6 +137,7 @@ extension TTLPriorityLRUQueueTests {
 }
 
 // MARK: - Priority
+/// Tests for priority-based eviction and retrieval.
 extension TTLPriorityLRUQueueTests {
     func testEvictionPrefersPriorityOverTTL() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
@@ -171,6 +180,7 @@ extension TTLPriorityLRUQueueTests {
 }
 
 // MARK: - LRU
+/// Tests for LRU eviction and access updates.
 extension TTLPriorityLRUQueueTests {
     func testLRUEviction() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
@@ -214,6 +224,7 @@ extension TTLPriorityLRUQueueTests {
 }
 
 // MARK: - Combined TTL + Priority
+/// Tests for combined TTL and priority scenarios.
 extension TTLPriorityLRUQueueTests {
     func testTTLExpirationWithPriority() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
@@ -262,6 +273,7 @@ extension TTLPriorityLRUQueueTests {
 }
 
 // MARK: - Edge and Stress Cases
+/// Tests for edge cases and stress scenarios.
 extension TTLPriorityLRUQueueTests {
     func testStressInsertAccess() {
         let cache = TTLPriorityLRUQueue<Int, Int>(capacity: 100)

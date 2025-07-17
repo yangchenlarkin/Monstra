@@ -12,6 +12,12 @@ class TTLPriorityLRUQueue<Key: Hashable, Value> {
     fileprivate var ttlQueue: Heap<Node>
     fileprivate var lruQueue: PriorityLRUQueue<Key, Node>
     
+    /// Indicates if the queue is empty.
+    var isEmpty: Bool { lruQueue.isEmpty }
+    /// Indicates if the queue is full.
+    var isFull: Bool { lruQueue.isFull }
+    var count: Int { lruQueue.count}
+    
     /// Initializes a new empty queue with specified capacity.
     /// - Parameter capacity: Maximum elements allowed; negative values treated as zero.
     init(capacity: Int) {
@@ -47,15 +53,8 @@ extension TTLPriorityLRUQueue {
         let now = CPUTimeStamp.now()
 
         // Check if the key already exists in the LRU queue
-        if let existing = lruQueue.getValue(for: key) {
-            // If the existing entry has expired, remove it and insert the new value into the TTL heap
-            if existing.expirationTimeStamp < now {
-                _ = unsafeRemoveValue(for: key)
-                return unsafeSetToTTLQueue(now: now, value: value, for: key, priority: priority, expiredIn: duration)
-            } else {
-                // If the existing entry is still valid, update its position in the LRU queue
-                return unsafeSetToLRUQueue(now: now, value: value, for: key, priority: priority, expiredIn: duration)
-            }
+        if unsafeRemoveValue(for: key) != nil {
+            return unsafeSetToLRUQueue(now: now, value: value, for: key, priority: priority, expiredIn: duration)
         } else {
             // If the key does not exist, check if the TTL heap root has expired
             if let ttlRoot = ttlQueue.root?.expirationTimeStamp, ttlRoot < now {

@@ -9,8 +9,10 @@ import XCTest
 
 @testable import Monstore
 
+final class TTLPriorityLRUQueueTests: XCTestCase {}
+
 // MARK: - Initialization Tests
-final class TTLPriorityLRUQueueInitializationTests: XCTestCase {
+extension TTLPriorityLRUQueueTests {
     func testInitialization() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 5)
         XCTAssertEqual(cache.capacity, 5)
@@ -20,7 +22,7 @@ final class TTLPriorityLRUQueueInitializationTests: XCTestCase {
 }
 
 // MARK: - Basic Operations
-final class TTLPriorityLRUQueueBasicOpsTests: XCTestCase {
+extension TTLPriorityLRUQueueTests {
     func testInsertAndRetrieve() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
         _ = cache.unsafeSet(value: 10, for: "key1", expiredIn: 10)
@@ -57,7 +59,7 @@ final class TTLPriorityLRUQueueBasicOpsTests: XCTestCase {
 }
 
 // MARK: - TTL Expiration
-final class TTLPriorityLRUQueueTTLTests: XCTestCase {
+extension TTLPriorityLRUQueueTests {
     func testExpiration() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 5)
         _ = cache.unsafeSet(value: 30, for: "key1", expiredIn: 1)
@@ -127,7 +129,7 @@ final class TTLPriorityLRUQueueTTLTests: XCTestCase {
 }
 
 // MARK: - Priority
-final class TTLPriorityLRUQueuePriorityTests: XCTestCase {
+extension TTLPriorityLRUQueueTests {
     func testEvictionPrefersPriorityOverTTL() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
         _ = cache.unsafeSet(value: 1, for: "A", priority: 1, expiredIn: 100)
@@ -169,7 +171,7 @@ final class TTLPriorityLRUQueuePriorityTests: XCTestCase {
 }
 
 // MARK: - LRU
-final class TTLPriorityLRUQueueLRUTests: XCTestCase {
+extension TTLPriorityLRUQueueTests {
     func testLRUEviction() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
         _ = cache.unsafeSet(value: 60, for: "key1", expiredIn: 10)
@@ -212,7 +214,7 @@ final class TTLPriorityLRUQueueLRUTests: XCTestCase {
 }
 
 // MARK: - Combined TTL + Priority
-final class TTLPriorityLRUQueueCombinedTests: XCTestCase {
+extension TTLPriorityLRUQueueTests {
     func testTTLExpirationWithPriority() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
         _ = cache.unsafeSet(value: 1, for: "A", priority: 1, expiredIn: 1)
@@ -261,7 +263,7 @@ final class TTLPriorityLRUQueueCombinedTests: XCTestCase {
 }
 
 // MARK: - Edge and Stress Cases
-final class TTLPriorityLRUQueueEdgeStressTests: XCTestCase {
+extension TTLPriorityLRUQueueTests {
     func testStressInsertAccess() {
         let cache = TTLPriorityLRUQueue<Int, Int>(capacity: 100)
         for i in 0..<1000 {

@@ -114,7 +114,7 @@ final class TTLPriorityLRUQueueVsNSCachePerformanceTests: XCTestCase {
                     _ = ttlPriorityLRUQueue.getValue(for: i - 1)
                 }
                 if i % 5 == 0 {
-                    ttlPriorityLRUQueue.unsafeRemoveValue(for: i - 2)
+                    _ = ttlPriorityLRUQueue.unsafeRemoveValue(for: i - 2)
                 }
             }
         }

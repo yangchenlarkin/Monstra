@@ -65,18 +65,6 @@ class PriorityLRUQueue<K: Hashable, Element> {
     
     @discardableResult
     func setValue(_ value: Element, for key: K, with priority: Double = 0) -> Element? {
-        return _setValue(value, for: key, with: priority)
-    }
-    func getValue(for key: K) -> Element? {
-        return _getValue(for: key)
-    }
-    @discardableResult
-    func removeValue(for key: K) -> Element? {
-        return _removeValue(for: key)
-    }
-    
-    @discardableResult
-    func _setValue(_ value: Element, for key: K, with priority: Double) -> Element? {
         guard capacity > 0 else { return value }
         
         if let node = keyNodeMap[key] {
@@ -117,7 +105,8 @@ class PriorityLRUQueue<K: Hashable, Element> {
         return evictedNode?.value
     }
     
-    func _getValue(for key: K) -> Element? {
+    @discardableResult
+    func getValue(for key: K) -> Element? {
         guard let node = keyNodeMap[key] else { return nil }
         
         guard let link = links[node.priority] else {
@@ -131,7 +120,7 @@ class PriorityLRUQueue<K: Hashable, Element> {
     }
     
     @discardableResult
-    func _removeValue(for key: K) -> Element? {
+    func removeValue(for key: K) -> Element? {
         guard let node = keyNodeMap[key] else { return nil }
         keyNodeMap.removeValue(forKey: node.key)
         

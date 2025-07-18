@@ -123,6 +123,17 @@ class PriorityLRUQueue<K: Hashable, Element> {
         removeLinkIfEmpty(of: node.priority)
         return node.value
     }
+    
+    /// Gets the least recently used key for eviction.
+    /// - Returns: The key of the least recently used entry, or nil if queue is empty
+    func getLeastRecentKey() -> K? {
+        // Find the lowest priority first
+        guard let minPriority = priorities.root else { return nil }
+        guard let link = links[minPriority] else { return nil }
+        
+        // Return the key of the least recently used node (back of the queue)
+        return link.back?.key
+    }
 }
 
 private extension PriorityLRUQueue {

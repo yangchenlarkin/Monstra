@@ -27,7 +27,7 @@ final class MemoryCacheTests: XCTestCase {
     }
     
     func testCapacityLimit() {
-        let cache = MemoryCache<String, Int>(configuration: .init(capacityLimitation: 2))
+        let cache = MemoryCache<String, Int>(configuration: .init(usageLimitation: .init(capacity: 2)))
         
         // Fill cache to capacity
         cache.set(value: 1, for: "key1")
@@ -48,7 +48,7 @@ final class MemoryCacheTests: XCTestCase {
         // Create cache with custom key validator that only accepts non-empty strings
         let cache = MemoryCache<String, String>(
             configuration: .init(
-                capacityLimitation: 10,
+                usageLimitation: .init(capacity: 10),
                 keyValidator: { key in
                     return !key.isEmpty && key.count <= 10
                 }
@@ -71,7 +71,7 @@ final class MemoryCacheTests: XCTestCase {
         // Create cache with numeric key validator
         let cache = MemoryCache<Int, String>(
             configuration: .init(
-                capacityLimitation: 10,
+                usageLimitation: .init(capacity: 10),
                 keyValidator: { key in
                     return key > 0 && key <= 1000
                 }
@@ -109,7 +109,7 @@ final class MemoryCacheTests: XCTestCase {
     func testNullValueWithCustomTTL() {
         let cache = MemoryCache<String, String>(
             configuration: .init(
-                capacityLimitation: 10,
+                usageLimitation: .init(capacity: 10),
                 defaultTTLForNullValue: 1.0 // 1 second TTL for null values
             )
         )
@@ -132,7 +132,7 @@ final class MemoryCacheTests: XCTestCase {
     func testTTLRandomization() {
         let cache = MemoryCache<String, String>(
             configuration: .init(
-                capacityLimitation: 10,
+                usageLimitation: .init(capacity: 10),
                 defaultTTL: 10.0,
                 ttlRandomizationRange: 2.0 // ±2 seconds randomization
             )
@@ -152,7 +152,7 @@ final class MemoryCacheTests: XCTestCase {
     // MARK: - Priority Tests
     
     func testPriorityEviction() {
-        let cache = MemoryCache<String, String>(configuration: .init(capacityLimitation: 2))
+        let cache = MemoryCache<String, String>(configuration: .init(usageLimitation: .init(capacity: 2)))
         
         // Add low priority item
         cache.set(value: "low", for: "low_key", priority: 0.0)
@@ -174,7 +174,7 @@ final class MemoryCacheTests: XCTestCase {
     // MARK: - Performance Tests
     
     func testBulkOperations() {
-        let cache = MemoryCache<String, Int>(configuration: .init(capacityLimitation: 1000))
+        let cache = MemoryCache<String, Int>(configuration: .init(usageLimitation: .init(capacity: 1000)))
         
         measure {
             // Bulk insert

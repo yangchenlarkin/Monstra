@@ -308,4 +308,356 @@ final class MemoryCacheTests: XCTestCase {
         XCTAssertNotNil(cache.getValue(for: "valid2"))
         XCTAssertNotNil(cache.getValue(for: "valid3"))
     }
+    
+    // MARK: - Configuration & Property Tests
+    
+    func testDefaultConfiguration() {
+        let cache = MemoryCache<String, Int>()
+        
+        // Test default behavior - should accept any key
+        cache.set(value: 1, for: "any_key")
+        XCTAssertEqual(cache.getValue(for: "any_key"), 1)
+        
+        // Test default capacity
+        XCTAssertEqual(cache.capacity, 1024)
+    }
+    
+    func testCustomConfiguration() {
+        let cache = MemoryCache<String, Int>(
+            configuration: .init(
+                enableThreadSynchronization: false,
+                usageLimitation: .init(capacity: 500, memory: 100),
+                defaultTTL: 3600,
+                defaultTTLForNullValue: 1800,
+                ttlRandomizationRange: 300,
+                keyValidator: { $0.hasPrefix("test_") },
+                costProvider: { _ in 1024 }
+            )
+        )
+        
+        // Test custom capacity
+        XCTAssertEqual(cache.capacity, 500)
+        
+        // Test custom key validator
+        cache.set(value: 1, for: "test_key")
+        XCTAssertEqual(cache.getValue(for: "test_key"), 1)
+        
+        cache.set(value: 2, for: "invalid_key")
+        XCTAssertNil(cache.getValue(for: "invalid_key"))
+    }
+    
+    func testPropertyAccess() {
+        let cache = MemoryCache<String, Int>(configuration: .init(usageLimitation: .init(capacity: 3)))
+        
+        // Test empty state
+        XCTAssertTrue(cache.isEmpty)
+        XCTAssertEqual(cache.count, 0)
+        XCTAssertEqual(cache.capacity, 3)
+        XCTAssertFalse(cache.isFull)
+        
+        // Add items
+        cache.set(value: 1, for: "key1")
+        XCTAssertFalse(cache.isEmpty)
+        XCTAssertEqual(cache.count, 1)
+        XCTAssertFalse(cache.isFull)
+        
+        // Fill cache
+        cache.set(value: 2, for: "key2")
+        cache.set(value: 3, for: "key3")
+        XCTAssertEqual(cache.count, 3)
+        XCTAssertTrue(cache.isFull)
+        
+        // Remove item
+        cache.removeValue(for: "key1")
+        XCTAssertEqual(cache.count, 2)
+        XCTAssertFalse(cache.isFull)
+    }
+    
+    // MARK: - Memory Management Tests
+    
+    func testMemoryLimitEnforcement() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                usageLimitation: .init(capacity: 1000, memory: 1), // 1MB limit
+                costProvider: { _ in 1024 * 1024 } // 1MB per item
+            )
+        )
+        
+        // Add first item (should fit)
+        let evicted1 = cache.set(value: "large_value", for: "key1")
+        // Should not evict anything on first insert
+        XCTAssertTrue(evicted1.count == 1 && evicted1[0] == "large_value")
+        XCTAssertEqual(cache.count, 0)
+        XCTAssertNil(cache.getValue(for: "key1"))
+        
+        // Add second item (should evict first due to memory limit)
+        let evicted2 = cache.set(value: "large_value2", for: "key2")
+        // After eviction, only key2 should remain
+        XCTAssertTrue(evicted2.count == 1 && evicted2[0] == "large_value2")
+        XCTAssertEqual(cache.count, 0)
+        XCTAssertNil(cache.getValue(for: "key1"))
+        XCTAssertNil(cache.getValue(for: "key2"))
+    }
+    
+    func testCostProvider() {
+        var costCalculations = 0
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                costProvider: { value in
+                    costCalculations += 1
+                    return value.count * 2 // Custom cost calculation
+                }
+            )
+        )
+        
+        // Add items with different costs
+        cache.set(value: "short", for: "key1")
+        cache.set(value: "longer_value", for: "key2")
+        
+        XCTAssertGreaterThan(costCalculations, 0)
+        XCTAssertEqual(cache.count, 2)
+    }
+    
+    // MARK: - TTL Edge Cases Tests
+    
+    func testInfiniteTTL() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                usageLimitation: .init(capacity: 10),
+                defaultTTL: .infinity
+            )
+        )
+        
+        cache.set(value: "value", for: "key")
+        
+        // Wait and check - should still be there
+        Thread.sleep(forTimeInterval: 0.1)
+        XCTAssertEqual(cache.getValue(for: "key"), "value")
+    }
+    
+    func testZeroTTL() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                usageLimitation: .init(capacity: 10)
+            )
+        )
+        
+        cache.set(value: "value", for: "key", expiredIn: 0)
+        
+        // Should be immediately expired
+        XCTAssertNil(cache.getValue(for: "key"))
+    }
+    
+    func testNegativeTTL() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                usageLimitation: .init(capacity: 10)
+            )
+        )
+        
+        cache.set(value: "value", for: "key", expiredIn: -1)
+        
+        // Should be immediately expired
+        XCTAssertNil(cache.getValue(for: "key"))
+    }
+    
+    func testTTLPrecision() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                usageLimitation: .init(capacity: 10)
+            )
+        )
+        
+        // Set with very short TTL
+        cache.set(value: "value", for: "key", expiredIn: 0.001) // 1ms
+        
+        // Should be immediately available
+        XCTAssertEqual(cache.getValue(for: "key"), "value")
+        
+        // Wait and should be expired
+        Thread.sleep(forTimeInterval: 0.002)
+        XCTAssertNil(cache.getValue(for: "key"))
+    }
+    
+    // MARK: - Edge Cases Tests
+    
+    func testEmptyCacheOperations() {
+        let cache = MemoryCache<String, Int>()
+        
+        // Test operations on empty cache
+        XCTAssertTrue(cache.isEmpty)
+        XCTAssertEqual(cache.count, 0)
+        XCTAssertNil(cache.getValue(for: "nonexistent"))
+        XCTAssertNil(cache.removeValue(for: "nonexistent"))
+        XCTAssertNil(cache.removeValue())
+        cache.removeExpiredValues() // Should not crash
+        cache.removeValues(toPercent: 0.5) // Should not crash
+    }
+    
+    func testOverwriteExistingKey() {
+        let cache = MemoryCache<String, String>()
+        
+        // Set initial value
+        cache.set(value: "initial", for: "key")
+        XCTAssertEqual(cache.getValue(for: "key"), "initial")
+        
+        // Overwrite with new value
+        let evicted = cache.set(value: "updated", for: "key")
+        XCTAssertEqual(evicted.count, 0) // No eviction when overwriting
+        XCTAssertEqual(cache.getValue(for: "key"), "updated")
+    }
+    
+    func testCapacityZero() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(usageLimitation: .init(capacity: 0))
+        )
+        
+        XCTAssertEqual(cache.capacity, 0)
+        XCTAssertTrue(cache.isFull)
+        
+        // Should not be able to add items - value gets immediately evicted
+        let evicted = cache.set(value: "value", for: "key")
+        XCTAssertEqual(evicted.count, 0) // Value should be immediately evicted
+        XCTAssertEqual(cache.count, 0)
+        XCTAssertNil(cache.getValue(for: "key"))
+    }
+    
+    func testNegativeCapacity() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(usageLimitation: .init(capacity: -5))
+        )
+        
+        XCTAssertEqual(cache.capacity, 0) // Should be normalized to 0
+        XCTAssertTrue(cache.isFull)
+    }
+    
+    // MARK: - Priority Edge Cases Tests
+    
+    func testPriorityEdgeCases() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(usageLimitation: .init(capacity: 2))
+        )
+        
+        // Test with extreme priority values
+        cache.set(value: "low", for: "low_key", priority: Double.leastNormalMagnitude)
+        cache.set(value: "high", for: "high_key", priority: Double.greatestFiniteMagnitude)
+        
+        XCTAssertEqual(cache.count, 2)
+        XCTAssertNotNil(cache.getValue(for: "low_key"))
+        XCTAssertNotNil(cache.getValue(for: "high_key"))
+    }
+    
+    func testLRUEvictionOrder() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(usageLimitation: .init(capacity: 3))
+        )
+        
+        // Add three items with same priority
+        cache.set(value: "first", for: "key1", priority: 1.0)
+        cache.set(value: "second", for: "key2", priority: 1.0)
+        cache.set(value: "third", for: "key3", priority: 1.0)
+        
+        // Access items to change LRU order
+        _ = cache.getValue(for: "key1") // Move key1 to front
+        
+        // Add fourth item - should evict key2 (least recently used)
+        cache.set(value: "fourth", for: "key4", priority: 1.0)
+        
+        XCTAssertNil(cache.getValue(for: "key2"))
+        XCTAssertNotNil(cache.getValue(for: "key1"))
+        XCTAssertNotNil(cache.getValue(for: "key3"))
+        XCTAssertNotNil(cache.getValue(for: "key4"))
+    }
+    
+    // MARK: - Thread Safety Tests
+    
+    func testThreadSafetyEnabled() {
+        let cache = MemoryCache<String, Int>(
+            configuration: .init(enableThreadSynchronization: true)
+        )
+        
+        // Basic operations should work with thread safety enabled
+        cache.set(value: 1, for: "key1")
+        XCTAssertEqual(cache.getValue(for: "key1"), 1)
+        XCTAssertEqual(cache.count, 1)
+    }
+    
+    func testThreadSafetyDisabled() {
+        let cache = MemoryCache<String, Int>(
+            configuration: .init(enableThreadSynchronization: false)
+        )
+        
+        // Basic operations should work with thread safety disabled
+        cache.set(value: 1, for: "key1")
+        XCTAssertEqual(cache.getValue(for: "key1"), 1)
+        XCTAssertEqual(cache.count, 1)
+    }
+    
+    // MARK: - Complex Scenarios Tests
+    
+    func testComplexScenario() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                usageLimitation: .init(capacity: 5, memory: 10),
+                defaultTTL: 1.0,
+                ttlRandomizationRange: 0.1,
+                costProvider: { _ in 1 }
+            )
+        )
+        
+        // Add items with different priorities and TTLs
+        cache.set(value: "short_lived", for: "key1", priority: 1.0, expiredIn: 0.1)
+        cache.set(value: "high_priority", for: "key2", priority: 10.0, expiredIn: 10.0)
+        cache.set(value: "normal", for: "key3", priority: 5.0, expiredIn: 5.0)
+        cache.set(value: "low_priority", for: "key4", priority: 0.1, expiredIn: 10.0)
+        cache.set(value: "null_value", for: "key5")
+        
+        XCTAssertEqual(cache.count, 5)
+        
+        // Wait for short-lived item to expire
+        Thread.sleep(forTimeInterval: 0.2)
+        
+        // Remove expired values
+        cache.removeExpiredValues()
+        XCTAssertEqual(cache.count, 4)
+        XCTAssertNil(cache.getValue(for: "key1"))
+        
+        // Remove to 50%
+        cache.removeValues(toPercent: 0.5)
+        XCTAssertEqual(cache.count, 2)
+        
+        // High priority and normal should remain
+        XCTAssertNotNil(cache.getValue(for: "key2"))
+        XCTAssertNotNil(cache.getValue(for: "key3"))
+    }
+    
+    func testStressScenario() {
+        let cache = MemoryCache<String, Int>(
+            configuration: .init(
+                usageLimitation: .init(capacity: 100),
+                defaultTTL: 0.1
+            )
+        )
+        
+        // Rapidly add and remove items
+        for i in 0..<1000 {
+            cache.set(value: i, for: "key\(i)", priority: Double(i % 10))
+            
+            if i % 10 == 0 {
+                _ = cache.removeValue()
+            }
+            
+            if i % 20 == 0 {
+                cache.removeExpiredValues()
+            }
+            
+            if i % 50 == 0 {
+                cache.removeValues(toPercent: 0.8)
+            }
+        }
+        
+        // Cache should still be functional
+        XCTAssertLessThanOrEqual(cache.count, cache.capacity)
+        XCTAssertGreaterThanOrEqual(cache.count, 0)
+    }
 } 

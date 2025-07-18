@@ -500,4 +500,92 @@ extension PriorityLRUQueueTests {
         let desc = queue.description
         XCTAssertEqual(desc, "[10, 20]")
     }
+    
+    // MARK: - Remove Value (No Parameter) Tests
+    
+    func testRemoveValueNoParameter() {
+        let queue = PriorityLRUQueue<String, Int>(capacity: 3)
+        
+        // Add some values
+        queue.setValue(10, for: "key1", with: 1.0)
+        queue.setValue(20, for: "key2", with: 2.0)
+        queue.setValue(30, for: "key3", with: 3.0)
+        
+        XCTAssertEqual(queue.count, 3)
+        
+        // Remove least recently used value (should be key1 with lowest priority)
+        let removedValue = queue.removeValue()
+        XCTAssertNotNil(removedValue)
+        XCTAssertEqual(queue.count, 2)
+        
+        // Remove another value
+        let secondRemovedValue = queue.removeValue()
+        XCTAssertNotNil(secondRemovedValue)
+        XCTAssertEqual(queue.count, 1)
+        
+        // Remove last value
+        let thirdRemovedValue = queue.removeValue()
+        XCTAssertNotNil(thirdRemovedValue)
+        XCTAssertEqual(queue.count, 0)
+        XCTAssertTrue(queue.isEmpty)
+        
+        // Try to remove from empty queue
+        let emptyRemovedValue = queue.removeValue()
+        XCTAssertNil(emptyRemovedValue)
+    }
+    
+    func testRemoveValueNoParameterWithSamePriority() {
+        let queue = PriorityLRUQueue<String, Int>(capacity: 3)
+        
+        // Add values with same priority
+        queue.setValue(10, for: "key1", with: 1.0)
+        queue.setValue(20, for: "key2", with: 1.0)
+        queue.setValue(30, for: "key3", with: 1.0)
+        
+        XCTAssertEqual(queue.count, 3)
+        
+        // Access key2 to make it more recently used
+        _ = queue.getValue(for: "key2")
+        
+        // Remove least recently used value (should be key1 since key2 was accessed)
+        let removedValue = queue.removeValue()
+        XCTAssertEqual(removedValue, 10) // key1 should be removed
+        XCTAssertEqual(queue.count, 2)
+        
+        // Remove another value (should be key3 since key2 was accessed)
+        let secondRemovedValue = queue.removeValue()
+        XCTAssertEqual(secondRemovedValue, 30) // key3 should be removed
+        XCTAssertEqual(queue.count, 1)
+        
+        // Remove last value
+        let thirdRemovedValue = queue.removeValue()
+        XCTAssertEqual(thirdRemovedValue, 20) // key2 should be removed
+        XCTAssertEqual(queue.count, 0)
+    }
+    
+    func testRemoveValueNoParameterWithDifferentPriorities() {
+        let queue = PriorityLRUQueue<String, Int>(capacity: 3)
+        
+        // Add values with different priorities
+        queue.setValue(10, for: "key1", with: 1.0) // Lowest priority
+        queue.setValue(20, for: "key2", with: 2.0) // Medium priority
+        queue.setValue(30, for: "key3", with: 3.0) // Highest priority
+        
+        XCTAssertEqual(queue.count, 3)
+        
+        // Remove least recently used value (should be from lowest priority)
+        let removedValue = queue.removeValue()
+        XCTAssertEqual(removedValue, 10) // key1 with lowest priority should be removed
+        XCTAssertEqual(queue.count, 2)
+        
+        // Remove another value (should be from remaining lowest priority)
+        let secondRemovedValue = queue.removeValue()
+        XCTAssertEqual(secondRemovedValue, 20) // key2 with medium priority should be removed
+        XCTAssertEqual(queue.count, 1)
+        
+        // Remove last value
+        let thirdRemovedValue = queue.removeValue()
+        XCTAssertEqual(thirdRemovedValue, 30) // key3 should be removed
+        XCTAssertEqual(queue.count, 0)
+    }
 } 

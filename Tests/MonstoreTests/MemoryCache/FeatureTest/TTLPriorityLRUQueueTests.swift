@@ -321,4 +321,102 @@ extension TTLPriorityLRUQueueTests {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 1)
         XCTAssertNil(cache.removeValue(for: "nope"))
     }
+    
+    // MARK: - Remove Expired Values Tests
+    
+    func testRemoveExpiredValues() {
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 5)
+        
+        // Add values with different expiration times
+        cache.set(value: 10, for: "key1", expiredIn: 0.1) // Expires quickly
+        cache.set(value: 20, for: "key2", expiredIn: 0.1) // Expires quickly
+        cache.set(value: 30, for: "key3", expiredIn: 10.0) // Long TTL
+        cache.set(value: 40, for: "key4", expiredIn: 10.0) // Long TTL
+        
+        XCTAssertEqual(cache.count, 4)
+        
+        // Wait for expiration
+        Thread.sleep(forTimeInterval: 0.15)
+        
+        // Remove expired values
+        cache.removeExpiredValues()
+        
+        // Should only have long TTL values remaining
+        XCTAssertEqual(cache.count, 2)
+        XCTAssertNil(cache.getValue(for: "key1"))
+        XCTAssertNil(cache.getValue(for: "key2"))
+        XCTAssertEqual(cache.getValue(for: "key3"), 30)
+        XCTAssertEqual(cache.getValue(for: "key4"), 40)
+    }
+    
+    func testRemoveExpiredValuesWithNoExpired() {
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
+        
+        // Add values with long TTL
+        cache.set(value: 10, for: "key1", expiredIn: 10.0)
+        cache.set(value: 20, for: "key2", expiredIn: 10.0)
+        cache.set(value: 30, for: "key3", expiredIn: 10.0)
+        
+        XCTAssertEqual(cache.count, 3)
+        
+        // Remove expired values (none should be expired)
+        cache.removeExpiredValues()
+        
+        // All values should remain
+        XCTAssertEqual(cache.count, 3)
+        XCTAssertEqual(cache.getValue(for: "key1"), 10)
+        XCTAssertEqual(cache.getValue(for: "key2"), 20)
+        XCTAssertEqual(cache.getValue(for: "key3"), 30)
+    }
+    
+    func testRemoveExpiredValuesWithAllExpired() {
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
+        
+        // Add values with short TTL
+        cache.set(value: 10, for: "key1", expiredIn: 0.1)
+        cache.set(value: 20, for: "key2", expiredIn: 0.1)
+        cache.set(value: 30, for: "key3", expiredIn: 0.1)
+        
+        XCTAssertEqual(cache.count, 3)
+        
+        // Wait for expiration
+        Thread.sleep(forTimeInterval: 0.15)
+        
+        // Remove expired values
+        cache.removeExpiredValues()
+        
+        // All values should be removed
+        XCTAssertEqual(cache.count, 0)
+        XCTAssertTrue(cache.isEmpty)
+        XCTAssertNil(cache.getValue(for: "key1"))
+        XCTAssertNil(cache.getValue(for: "key2"))
+        XCTAssertNil(cache.getValue(for: "key3"))
+    }
+    
+    func testRemoveExpiredValuesWithMixedExpiration() {
+        let cache = TTLPriorityLRUQueue<String, Int>(capacity: 5)
+        
+        // Add values with mixed expiration times
+        cache.set(value: 10, for: "key1", expiredIn: 0.1) // Expires quickly
+        cache.set(value: 20, for: "key2", expiredIn: 10.0) // Long TTL
+        cache.set(value: 30, for: "key3", expiredIn: 0.1) // Expires quickly
+        cache.set(value: 40, for: "key4", expiredIn: 10.0) // Long TTL
+        cache.set(value: 50, for: "key5", expiredIn: 0.1) // Expires quickly
+        
+        XCTAssertEqual(cache.count, 5)
+        
+        // Wait for expiration
+        Thread.sleep(forTimeInterval: 0.15)
+        
+        // Remove expired values
+        cache.removeExpiredValues()
+        
+        // Should only have long TTL values remaining
+        XCTAssertEqual(cache.count, 2)
+        XCTAssertNil(cache.getValue(for: "key1"))
+        XCTAssertEqual(cache.getValue(for: "key2"), 20)
+        XCTAssertNil(cache.getValue(for: "key3"))
+        XCTAssertEqual(cache.getValue(for: "key4"), 40)
+        XCTAssertNil(cache.getValue(for: "key5"))
+    }
 }

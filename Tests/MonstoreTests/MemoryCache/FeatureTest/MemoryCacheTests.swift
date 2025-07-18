@@ -193,4 +193,119 @@ final class MemoryCacheTests: XCTestCase {
             }
         }
     }
+    
+    // MARK: - Cache Management Tests
+    
+    func testRemoveValue() {
+        let cache = MemoryCache<String, String>(configuration: .init(usageLimitation: .init(capacity: 3)))
+        
+        // Add some values
+        cache.set(value: "value1", for: "key1")
+        cache.set(value: "value2", for: "key2")
+        cache.set(value: "value3", for: "key3")
+        
+        XCTAssertEqual(cache.count, 3)
+        
+        // Remove least recently used value
+        let removedValue = cache.removeValue()
+        XCTAssertNotNil(removedValue)
+        XCTAssertEqual(cache.count, 2)
+        
+        // Remove another value
+        let secondRemovedValue = cache.removeValue()
+        XCTAssertNotNil(secondRemovedValue)
+        XCTAssertEqual(cache.count, 1)
+        
+        // Remove last value
+        let thirdRemovedValue = cache.removeValue()
+        XCTAssertNotNil(thirdRemovedValue)
+        XCTAssertEqual(cache.count, 0)
+        XCTAssertTrue(cache.isEmpty)
+        
+        // Try to remove from empty cache
+        let emptyRemovedValue = cache.removeValue()
+        XCTAssertNil(emptyRemovedValue)
+    }
+    
+    func testRemoveExpiredValues() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                usageLimitation: .init(capacity: 10),
+                defaultTTL: 0.1 // 100ms TTL
+            )
+        )
+        
+        // Add values with short TTL
+        cache.set(value: "value1", for: "key1", expiredIn: 0.1)
+        cache.set(value: "value2", for: "key2", expiredIn: 0.1)
+        cache.set(value: "value3", for: "key3", expiredIn: 0.1)
+        
+        XCTAssertEqual(cache.count, 3)
+        
+        // Wait for expiration
+        Thread.sleep(forTimeInterval: 0.15)
+        
+        // Remove expired values
+        cache.removeExpiredValues()
+        
+        // All values should be removed
+        XCTAssertEqual(cache.count, 0)
+        XCTAssertTrue(cache.isEmpty)
+    }
+    
+    func testRemoveValuesToPercent() {
+        let cache = MemoryCache<String, Int>(configuration: .init(usageLimitation: .init(capacity: 10)))
+        
+        // Add 10 values
+        for i in 0..<10 {
+            cache.set(value: i, for: "key\(i)")
+        }
+        
+        XCTAssertEqual(cache.count, 10)
+        
+        // Remove to 50% (should keep 5 items)
+        cache.removeValues(toPercent: 0.5)
+        XCTAssertEqual(cache.count, 5)
+        
+        // Remove to 20% (should keep 1 item)
+        cache.removeValues(toPercent: 0.2)
+        XCTAssertEqual(cache.count, 1)
+        
+        // Remove to 0% (should keep 0 items)
+        cache.removeValues(toPercent: 0.0)
+        XCTAssertEqual(cache.count, 0)
+        XCTAssertTrue(cache.isEmpty)
+    }
+    
+    func testRemoveValuesToPercentWithExpiredValues() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                usageLimitation: .init(capacity: 10),
+                defaultTTL: 0.1 // 100ms TTL
+            )
+        )
+        
+        // Add some values with short TTL
+        cache.set(value: "expired1", for: "expired1", expiredIn: 0.1)
+        cache.set(value: "expired2", for: "expired2", expiredIn: 0.1)
+        
+        // Add some values with long TTL
+        cache.set(value: "valid1", for: "valid1", expiredIn: 10.0)
+        cache.set(value: "valid2", for: "valid2", expiredIn: 10.0)
+        cache.set(value: "valid3", for: "valid3", expiredIn: 10.0)
+        
+        XCTAssertEqual(cache.count, 5)
+        
+        // Wait for expiration
+        Thread.sleep(forTimeInterval: 0.15)
+        
+        // Remove to 60% (should keep 3 items, but expired ones are removed first)
+        cache.removeValues(toPercent: 0.6)
+        
+        // Should only have valid items remaining
+        XCTAssertEqual(cache.count, 3)
+        XCTAssertNotNil(cache.getValue(for: "valid1"))
+        XCTAssertNotNil(cache.getValue(for: "valid2"))
+        XCTAssertNotNil(cache.getValue(for: "valid3"))
+    }
 } 

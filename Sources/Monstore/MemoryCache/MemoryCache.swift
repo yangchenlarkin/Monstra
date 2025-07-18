@@ -45,7 +45,7 @@ import Foundation
          keyValidator: { $0.hasPrefix("https://") },
          costProvider: { image in
              guard let cgImage = image.cgImage else { return 0 }
-             return cgImage.bytesPerRow * cgImage.height
+             return cgImage.bytesPerRow * cgImage.height // Returns bytes
          }
      )
  )
@@ -106,7 +106,7 @@ extension MemoryCache {
         /// Key validation function that returns true for valid keys. Fixed at initialization.
         let keyValidator: (Key) -> Bool
         
-        /// Function to calculate memory cost of elements. For classes, provide the actual memory usage (e.g., image data size). For value types, this is optional as memory layout is automatically calculated.
+        /// Function to calculate memory cost of elements in bytes. For classes, provide the actual memory usage (e.g., image data size in bytes). For value types, this is optional as memory layout is automatically calculated.
         let costProvider: (Element) -> Int
         
         /// Creates a new configuration with specified parameters.
@@ -117,7 +117,7 @@ extension MemoryCache {
         ///   - defaultTTLForNullValue: Default TTL for nil values (default: .infinity)
         ///   - ttlRandomizationRange: TTL randomization range (default: 0)
         ///   - keyValidator: Key validation closure (default: always true)
-        ///   - costProvider: Memory cost calculation closure (default: returns 0)
+        ///   - costProvider: Memory cost calculation closure in bytes (default: returns 0)
         init(
             enableThreadSynchronization: Bool = true,
             usageLimitation: UsageLimitation = .init(),

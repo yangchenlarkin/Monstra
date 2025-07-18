@@ -444,23 +444,13 @@ private extension MemoryCache {
     /// Increases the total memory cost by the cost of the given value.
     /// - Parameter value: The value whose cost should be added
     func increaseCost(for value: Element?) {
-        guard storageQueue.count > 0 else {
-            totalCost = 0
-            return
-        }
-        
         totalCost += cost(of: value)
     }
     
     /// Decreases the total memory cost by the cost of the given value.
     /// - Parameter value: The value whose cost should be subtracted
     func decreaseCost(for value: Element?) {
-        guard storageQueue.count > 0 else {
-            totalCost = 0
-            return
-        }
-        
-        totalCost -= cost(of: value)
+        totalCost = max(0, totalCost - cost(of: value))
     }
     
     /// Calculates the memory cost of a value in bytes.

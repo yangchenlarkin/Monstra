@@ -106,7 +106,43 @@ extension MemoryCache {
         /// Key validation function that returns true for valid keys. Fixed at initialization.
         let keyValidator: (Key) -> Bool
         
-        /// Function to calculate memory cost of elements in bytes. For classes, provide the actual memory usage (e.g., image data size in bytes). For value types, this is optional as memory layout is automatically calculated.
+        /// Function to calculate memory cost of elements in bytes.
+        ///
+        /// This closure is called for each element to determine its memory footprint for eviction decisions.
+        /// The returned value should represent the actual memory usage in bytes.
+        ///
+        /// ## Usage Guidelines:
+        /// - **For reference types (classes)**: Return the actual memory size (e.g., image data size, buffer length)
+        /// - **For value types**: Can return 0 as memory layout is automatically calculated by the system
+        /// - **For complex objects**: Sum up all contained data sizes (strings, arrays, etc.)
+        /// - **For nil values**: Return 0 (handled automatically by the cache)
+        ///
+        /// ## Examples:
+        /// ```swift
+        /// // For UIImage: return actual image data size
+        /// costProvider: { image in
+        ///     guard let cgImage = image.cgImage else { return 0 }
+        ///     return cgImage.bytesPerRow * cgImage.height
+        /// }
+        ///
+        /// // For String: return character count (approximate)
+        /// costProvider: { $0.count * 2 }
+        ///
+        /// // For Data: return actual byte count
+        /// costProvider: { $0.count }
+        ///
+        /// // For complex objects: sum up all data
+        /// costProvider: { obj in
+        ///     return obj.stringData.count + obj.binaryData.count + obj.metadata.count
+        /// }
+        /// ```
+        ///
+        /// ## Important Notes:
+        /// - The returned value should be **positive** and **reasonable** (avoid extremely large values)
+        /// - Should be **consistent** for the same input (deterministic)
+        /// - **Performance**: This closure is called frequently during eviction, so keep it fast
+        /// - **Memory limit**: Total cost across all elements should not exceed `UsageLimitation.memory`
+        /// - **Default behavior**: Returns 0 if not specified, relying on automatic memory layout calculation
         let costProvider: (Element) -> Int
         
         /// Creates a new configuration with specified parameters.
@@ -117,7 +153,7 @@ extension MemoryCache {
         ///   - defaultTTLForNullValue: Default TTL for nil values (default: .infinity)
         ///   - ttlRandomizationRange: TTL randomization range (default: 0)
         ///   - keyValidator: Key validation closure (default: always true)
-        ///   - costProvider: Memory cost calculation closure in bytes (default: returns 0)
+        ///   - costProvider: Memory cost calculation closure in bytes. Should return actual memory usage for accurate eviction decisions (default: returns 0)
         init(
             enableThreadSynchronization: Bool = true,
             usageLimitation: UsageLimitation = .init(),
@@ -271,6 +307,14 @@ extension MemoryCache {
             increaseCost(for: nil)
             
             return evictedValues
+        }
+        
+        if cost(of: value) > configuration.usageLimitation.memory * 1024 * 1024 {
+            if let value {
+                return [value]
+            }else {
+                return []
+            }
         }
         
         // Step 3: Calculate final TTL with randomization
@@ -458,6 +502,6 @@ private extension MemoryCache {
     /// - Returns: The memory cost in bytes
     func cost(of value: Element?) -> Int {
         guard let value else { return 0 }
-        return MemoryLayout<Element>.size + configuration.costProvider(value)
+        return MemoryLayout<Element>.size + min(max(0, configuration.costProvider(value)), UsageLimitation.unlimitedMemoryUsage)
     }
 }

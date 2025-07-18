@@ -178,7 +178,45 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
         }
     }
 
-// MARK: - Stress/Long-Running Performance
+    // MARK: - Remove Expired Values Performance Tests
+
+    /// Measures performance of removing expired values.
+    func testRemoveExpiredValuesPerformance() {
+        let count = 10_000
+        let cache = TTLPriorityLRUQueue<Int, Int>(capacity: count)
+        
+        // Add values with short TTL
+        for i in 0..<count {
+            _ = cache.set(value: i, for: i, expiredIn: 0.01)
+        }
+        
+        // Wait for expiration
+        sleep(1)
+        
+        measure {
+            cache.removeExpiredValues()
+        }
+    }
+
+    /// Measures performance of mixed workload including removeExpiredValues().
+    func testMixedWorkloadWithExpirationPerformance() {
+        let count = 10_000
+        let cache = TTLPriorityLRUQueue<Int, Int>(capacity: 2000)
+        measure {
+            for i in 0..<count {
+                _ = cache.set(value: i, for: i, expiredIn: i % 2 == 0 ? 0.01 : 1000)
+                _ = cache.getValue(for: i)
+                if i % 3 == 0 {
+                    _ = cache.removeValue(for: i - 1)
+                }
+                if i % 10 == 0 {
+                    cache.removeExpiredValues() // Remove expired
+                }
+            }
+        }
+    }
+
+    // MARK: - Stress/Long-Running Performance
     /// Measures performance under long-running, high-churn workload.
     func testStressLongRunningPerformance() {
         let count = 50_000
@@ -188,6 +226,9 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
                 _ = cache.set(value: i, for: i, expiredIn: 1000)
                 if i % 2 == 0 {
                     _ = cache.removeValue(for: i - 1)
+                }
+                if i % 100 == 0 {
+                    cache.removeExpiredValues() // Remove expired
                 }
             }
         }

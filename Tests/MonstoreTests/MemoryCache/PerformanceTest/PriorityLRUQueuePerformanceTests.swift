@@ -147,7 +147,45 @@ final class PriorityLRUQueuePerformanceTests: XCTestCase {
         }
     }
 
-// MARK: - Stress/Long-Running Performance
+    // MARK: - Remove Value (No Parameter) Performance Tests
+
+    /// Measures performance of removing least recently used values.
+    func testRemoveValueNoParameterPerformance() {
+        let count = 10_000
+        let queue = PriorityLRUQueue<Int, Int>(capacity: count)
+        
+        // Pre-populate queue
+        for i in 0..<count {
+            _ = queue.setValue(i, for: i, with: Double(i % 10))
+        }
+        
+        measure {
+            // Remove all values using removeValue()
+            while queue.count > 0 {
+                _ = queue.removeValue()
+            }
+        }
+    }
+
+    /// Measures performance of mixed workload including removeValue().
+    func testMixedWorkloadWithRemoveValuePerformance() {
+        let count = 10_000
+        let queue = PriorityLRUQueue<Int, Int>(capacity: 2000)
+        measure {
+            for i in 0..<count {
+                _ = queue.setValue(i, for: i, with: Double(i % 10))
+                _ = queue.getValue(for: i)
+                if i % 3 == 0 {
+                    _ = queue.removeValue(for: i - 1)
+                }
+                if i % 5 == 0 {
+                    _ = queue.removeValue() // Remove LRU
+                }
+            }
+        }
+    }
+
+    // MARK: - Stress/Long-Running Performance
     /// Measures performance under long-running, high-churn workload.
     func testStressLongRunningPerformance() {
         let count = 50_000
@@ -157,6 +195,9 @@ final class PriorityLRUQueuePerformanceTests: XCTestCase {
                 _ = queue.setValue(i, for: i, with: Double(i % 10))
                 if i % 2 == 0 {
                     _ = queue.removeValue(for: i - 1)
+                }
+                if i % 100 == 0 {
+                    _ = queue.removeValue() // Remove LRU
                 }
             }
         }

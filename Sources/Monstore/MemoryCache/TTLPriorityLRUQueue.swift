@@ -11,7 +11,7 @@ import Foundation
 ///
 /// - Each entry has an expiration time (TTL), a priority, and is tracked for recency of use.
 /// - When the cache is full, expired entries are evicted first, then lower-priority entries, then least recently used.
-/// - Provides O(1) access and update for keys, and efficient expiration and eviction.
+/// - Provides O(1) average case for access and update by key, with efficient expiration and eviction.
 class TTLPriorityLRUQueue<Key: Hashable, Element> {
     /// The maximum number of elements the cache can hold.
     let capacity: Int
@@ -113,9 +113,33 @@ extension TTLPriorityLRUQueue {
     /// - Returns: The removed value, or nil if cache is empty
     @discardableResult
     func removeValue() -> Element? {
+        guard let root = ttlQueue.root else { return nil }
+        
+        if root.expirationTimeStamp < .now() {
+            return removeValue(for: root.key)
+        }
+        
         // Get the least recently used key from the LRU queue
         guard let leastRecentKey = lruQueue.getLeastRecentKey() else { return nil }
         return removeValue(for: leastRecentKey)
+    }
+    
+    /**
+     Removes all expired values from the cache.
+     
+     This method iterates through the TTL queue and removes all entries that have expired
+     based on their expiration timestamps. The removal is done efficiently by checking
+     the root of the TTL heap, which contains the earliest expiring entry.
+     
+     - Note: This operation has O(n) time complexity where n is the number of expired entries
+     */
+    func removeExpiredValues() {
+        while let root = ttlQueue.root {
+            if root.expirationTimeStamp >= .now() {
+                return
+            }
+            removeValue(for: root.key)
+        }
     }
 }
 

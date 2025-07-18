@@ -106,7 +106,7 @@ extension MemoryCache {
         /// Key validation function that returns true for valid keys. Fixed at initialization.
         let keyValidator: (Key) -> Bool
         
-        /// Function to calculate memory cost of elements. For classes, provide the actual memory usage (e.g., image data size). For value types, this is optional as pointer overhead is automatically calculated.
+        /// Function to calculate memory cost of elements. For classes, provide the actual memory usage (e.g., image data size). For value types, this is optional as memory layout is automatically calculated.
         let costProvider: (Element) -> Int
         
         /// Creates a new configuration with specified parameters.
@@ -351,6 +351,60 @@ extension MemoryCache {
         
         let cacheEntry = storageQueue.removeValue(for: key)
         return cacheEntry?.value
+    }
+    
+    /**
+     Removes and returns the least recently used value from the cache.
+     
+     This method removes the least recently used entry from the cache and returns its value.
+     The removal follows the cache's eviction policy (priority-based LRU).
+     
+     - Returns: The removed value, or nil if the cache is empty
+     
+     - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
+     */
+    @discardableResult
+    func removeValue() -> Element? {
+       acquireLockIfNeeded()
+       defer { releaseLockIfNeeded() }
+       
+       let cacheEntry = storageQueue.removeValue()
+       return cacheEntry?.value
+   }
+    
+    /**
+     Removes all expired values from the cache.
+     
+     This method iterates through the cache and removes all entries that have expired
+     based on their TTL (Time-to-Live) settings. This is useful for periodic cleanup
+     to free up memory and maintain cache efficiency.
+     
+     - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
+     */
+    func removeExpiredValues() {
+        acquireLockIfNeeded()
+        defer { releaseLockIfNeeded() }
+        
+        storageQueue.removeExpiredValues()
+    }
+    
+    /**
+     Removes cache entries to reduce the cache size to a specified percentage of its current size.
+     
+     This method first removes all expired values, then continues removing the least recently used
+     entries until the cache size reaches the specified percentage of its original size.
+     
+     - Parameter toPercent: The target percentage (0.0 to 1.0) of current cache size to retain
+     
+     - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
+     */
+    func removeValues(toPercent: Double) {
+        let percent = max(0, min(toPercent, 1))
+        let restCount = Int(percent * Double(storageQueue.count))
+        storageQueue.removeExpiredValues()
+        while storageQueue.count > restCount {
+            removeValue()
+        }
     }
 }
 

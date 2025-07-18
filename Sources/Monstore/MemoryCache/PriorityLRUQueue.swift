@@ -11,7 +11,7 @@ import Foundation
 ///
 /// - Elements with lower priority are evicted first.
 /// - Within the same priority, least recently used elements are evicted first.
-/// - Provides O(1) access, update, and removal by key.
+/// - Provides O(1) average case for access, update, and removal by key.
 class PriorityLRUQueue<K: Hashable, Element> {
     /// The maximum number of elements the queue can hold.
     let capacity: Int
@@ -122,6 +122,14 @@ class PriorityLRUQueue<K: Hashable, Element> {
         link.removeNode(node)
         removeLinkIfEmpty(of: node.priority)
         return node.value
+    }
+    
+    /// Removes and returns the least recently used value.
+    /// - Returns: The removed value, or nil if cache is empty
+    @discardableResult
+    func removeValue() -> Element? {
+        guard let key = getLeastRecentKey() else { return nil }
+        return removeValue(for: key)
     }
     
     /// Gets the least recently used key for eviction.

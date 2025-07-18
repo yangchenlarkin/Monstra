@@ -12,7 +12,7 @@ import Foundation
 /// - Each entry has an expiration time (TTL), a priority, and is tracked for recency of use.
 /// - When the cache is full, expired entries are evicted first, then lower-priority entries, then least recently used.
 /// - Provides O(1) access and update for keys, and efficient expiration and eviction.
-class TTLPriorityLRUQueue<Key: Hashable, Value> {
+class TTLPriorityLRUQueue<Key: Hashable, Element> {
     /// The maximum number of elements the cache can hold.
     let capacity: Int
     /// Heap for managing TTL expiration order.
@@ -65,7 +65,7 @@ extension TTLPriorityLRUQueue {
     ///   - duration: The TTL (in seconds) for the entry. Defaults to infinity (never expires).
     /// - Returns: The evicted value, if any.
     @discardableResult
-    func set(value: Value, for key: Key, priority: Double = .zero, expiredIn duration: TimeInterval = .infinity) -> Value? {
+    func set(value: Element, for key: Key, priority: Double = .zero, expiredIn duration: TimeInterval = .infinity) -> Element? {
         let now = CPUTimeStamp.now()
         // Check if the key already exists in the LRU queue
         if removeValue(for: key) != nil {
@@ -84,7 +84,8 @@ extension TTLPriorityLRUQueue {
     /// Retrieves the value for the given key if present and not expired.
     /// - Parameter key: The key to look up.
     /// - Returns: The value if present and valid, or nil if expired or missing.
-    func getValue(for key: Key) -> Value? {
+    @discardableResult
+    func getValue(for key: Key) -> Element? {
         guard let node = lruQueue.getValue(for:key) else { return nil }
         if node.expirationTimeStamp < .now() {
             _=removeValue(for: key)
@@ -96,7 +97,8 @@ extension TTLPriorityLRUQueue {
     /// Removes the value for the given key, if present.
     /// - Parameter key: The key to remove.
     /// - Returns: The removed value, or nil if not found.
-    func removeValue(for key: Key) -> Value? {
+    @discardableResult
+    func removeValue(for key: Key) -> Element? {
         if let node = lruQueue.removeValue(for: key) {
             if let nodeIndex = node.ttlIndex {
                 _=ttlQueue.remove(at: nodeIndex)
@@ -110,8 +112,8 @@ extension TTLPriorityLRUQueue {
 
 private extension TTLPriorityLRUQueue {
     /// Internal: Insert into TTL heap and update LRU queue.
-    func setToTTLQueue(now: CPUTimeStamp, value: Value, for key: Key, priority: Double, expiredIn duration: TimeInterval) -> Value? {
-        var res: Value? = nil
+    func setToTTLQueue(now: CPUTimeStamp, value: Element, for key: Key, priority: Double, expiredIn duration: TimeInterval) -> Element? {
+        var res: Element? = nil
         let node = Node(key: key, value: value, expirationTimeStamp: now + duration)
         if let pop = ttlQueue.insert(node, force: true) {
             _=lruQueue.removeValue(for: pop.key)
@@ -121,8 +123,8 @@ private extension TTLPriorityLRUQueue {
         return res
     }
     /// Internal: Insert into LRU queue and update TTL heap.
-    func setToLRUQueue(now: CPUTimeStamp, value: Value, for key: Key, priority: Double, expiredIn duration: TimeInterval) -> Value? {
-        var res: Value? = nil
+    func setToLRUQueue(now: CPUTimeStamp, value: Element, for key: Key, priority: Double, expiredIn duration: TimeInterval) -> Element? {
+        var res: Element? = nil
         let node = Node(key: key, value: value, expirationTimeStamp: now + duration)
         if let pop = lruQueue.setValue(node, for: key, with: priority), let ttlIndex = pop.ttlIndex {
             _=ttlQueue.remove(at: ttlIndex)
@@ -139,13 +141,13 @@ private extension TTLPriorityLRUQueue {
         /// The key for this entry.
         let key: Key
         /// The value for this entry.
-        let value: Value
+        let value: Element
         /// The expiration timestamp for this entry.
         let expirationTimeStamp: CPUTimeStamp
         /// The index of this node in the TTL heap, if present.
         var ttlIndex: Int?
         
-        init(key: Key, value: Value, expirationTimeStamp: CPUTimeStamp) {
+        init(key: Key, value: Element, expirationTimeStamp: CPUTimeStamp) {
             self.key = key
             self.value = value
             self.expirationTimeStamp = expirationTimeStamp

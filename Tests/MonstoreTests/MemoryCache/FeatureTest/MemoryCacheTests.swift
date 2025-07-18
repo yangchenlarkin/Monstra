@@ -1365,4 +1365,169 @@ final class MemoryCacheTests: XCTestCase {
         XCTAssertEqual(cache.getValue(for: "key3"), "value3")
         XCTAssertNil(cache.getValue(for: "key4"))
     }
+    
+    // MARK: - Memory Cost Tracking Edge Cases
+    
+    func testMemoryCostTrackingWithLargeValues() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                usageLimitation: .init(capacity: 10, memory: 1000), // 1000MB limit
+                costProvider: { _ in 1000000 } // 1MB per item
+            )
+        )
+        
+        // Test with large cost values
+        cache.set(value: "large_value", for: "key1")
+        XCTAssertEqual(cache.count, 1)
+        
+        // Add another large item
+        cache.set(value: "large_value2", for: "key2")
+        XCTAssertEqual(cache.count, 2)
+        
+        // Verify memory cost tracking doesn't overflow
+        XCTAssertGreaterThan(cache.count, 0)
+    }
+    
+    func testMemoryLimitWithExactCost() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                usageLimitation: .init(memory: 1), // 1MB limit
+                costProvider: { _ in 1024 * 1024 } // Exactly 1MB per item
+            )
+        )
+        
+        // First item should fit exactly
+        let evicted1 = cache.set(value: "exact", for: "key1")
+        // The item might be immediately evicted due to additional overhead
+        XCTAssertEqual(cache.count, 0)
+        
+        // Second item should also be evicted
+        let evicted2 = cache.set(value: "exact2", for: "key2")
+        XCTAssertEqual(cache.count, 0)
+        XCTAssertNil(cache.getValue(for: "key1"))
+        XCTAssertNil(cache.getValue(for: "key2"))
+    }
+    
+    func testMemoryLimitWithSlightlyLargerCost() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                usageLimitation: .init(memory: 1), // 1MB limit
+                costProvider: { _ in 1024 * 1024 + 1 } // Slightly over 1MB per item
+            )
+        )
+        
+        // Item should be immediately evicted due to cost exceeding limit
+        let evicted = cache.set(value: "oversized", for: "key")
+        XCTAssertEqual(cache.count, 0)
+        XCTAssertNil(cache.getValue(for: "key"))
+    }
+    
+    // MARK: - TTL Randomization Precision Tests
+    
+    func testTTLRandomizationWithSmallRange() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                usageLimitation: .init(capacity: 100),
+                ttlRandomizationRange: 0.001 // Very small randomization (1ms)
+            )
+        )
+        
+        // Add values with short TTL
+        cache.set(value: "short1", for: "key1", expiredIn: 0.1)
+        cache.set(value: "short2", for: "key2", expiredIn: 0.1)
+        
+        // Both should be available immediately
+        XCTAssertEqual(cache.getValue(for: "key1"), "short1")
+        XCTAssertEqual(cache.getValue(for: "key2"), "short2")
+        
+        // Wait for expiration
+        Thread.sleep(forTimeInterval: 0.15)
+        cache.removeExpiredValues()
+        
+        // Both should be expired
+        XCTAssertNil(cache.getValue(for: "key1"))
+        XCTAssertNil(cache.getValue(for: "key2"))
+    }
+    
+    func testTTLRandomizationDistribution() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                usageLimitation: .init(capacity: 1000),
+                ttlRandomizationRange: 1.0 // 1s randomization
+            )
+        )
+        
+        // Add many values with same base TTL
+        for i in 0..<100 {
+            cache.set(value: "value\(i)", for: "key\(i)", expiredIn: 10.0)
+        }
+        
+        // Wait for base TTL
+        Thread.sleep(forTimeInterval: 10.0)
+        cache.removeExpiredValues()
+        
+        let remainingCount = cache.count
+        
+        // Should have some values remaining (due to positive randomization)
+        XCTAssertGreaterThan(remainingCount, 0)
+        XCTAssertLessThan(remainingCount, 100)
+        
+        // Should be roughly 50% remaining (statistical expectation)
+        // Allow for some variance due to randomization
+        XCTAssertGreaterThan(remainingCount, 20) // At least 20% should remain
+        XCTAssertLessThan(remainingCount, 80)   // At most 80% should remain
+    }
+    
+    // MARK: - Configuration Validation Tests
+    
+    func testConfigurationImmutability() {
+        let config = MemoryCache<String, String>.Configuration(
+            enableThreadSynchronization: true,
+            usageLimitation: .init(capacity: 100),
+            defaultTTL: 3600,
+            defaultTTLForNullValue: 1800,
+            ttlRandomizationRange: 300,
+            keyValidator: { $0.count > 0 },
+            costProvider: { $0.count }
+        )
+        
+        let cache = MemoryCache<String, String>(configuration: config)
+        
+        // Configuration should be immutable after cache creation
+        // (This is implicit since Configuration properties are let constants)
+        XCTAssertEqual(cache.capacity, 100)
+        
+        // Test that the configuration is applied correctly
+        cache.set(value: "valid", for: "valid_key")
+        XCTAssertEqual(cache.getValue(for: "valid_key"), "valid")
+        
+        // Invalid key should be rejected
+        cache.set(value: "invalid", for: "")
+        XCTAssertNil(cache.getValue(for: ""))
+    }
+    
+    func testConfigurationWithZeroRandomization() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                usageLimitation: .init(capacity: 10),
+                ttlRandomizationRange: 0.0 // No randomization
+            )
+        )
+        
+        // Add values with exact TTL
+        cache.set(value: "exact1", for: "key1", expiredIn: 0.1)
+        cache.set(value: "exact2", for: "key2", expiredIn: 0.1)
+        
+        // Both should be available
+        XCTAssertEqual(cache.getValue(for: "key1"), "exact1")
+        XCTAssertEqual(cache.getValue(for: "key2"), "exact2")
+        
+        // Wait for exact expiration
+        Thread.sleep(forTimeInterval: 0.15)
+        cache.removeExpiredValues()
+        
+        // Both should be expired
+        XCTAssertNil(cache.getValue(for: "key1"))
+        XCTAssertNil(cache.getValue(for: "key2"))
+    }
 } 

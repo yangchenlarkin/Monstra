@@ -108,6 +108,15 @@ extension TTLPriorityLRUQueue {
         }
         return nil
     }
+    
+    /// Removes and returns the least recently used value.
+    /// - Returns: The removed value, or nil if cache is empty
+    @discardableResult
+    func removeValue() -> Element? {
+        // Get the least recently used key from the LRU queue
+        guard let leastRecentKey = lruQueue.getLeastRecentKey() else { return nil }
+        return removeValue(for: leastRecentKey)
+    }
 }
 
 private extension TTLPriorityLRUQueue {

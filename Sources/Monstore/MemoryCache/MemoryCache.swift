@@ -8,87 +8,132 @@
 import Foundation
 
 /**
- A high-performance, in-memory key-value cache with configurable thread safety.
+ A high-performance, in-memory key-value cache with configurable thread safety and memory management.
  
- Core Features:
- - TTL (time-to-live) expiration with automatic cleanup
- - Priority-based eviction (higher priority entries are retained longer)
- - LRU (least recently used) eviction within priority levels
- - Null value caching with separate TTL configuration
- - External key validation (validator is set at initialization)
- - TTL randomization to prevent cache stampede
- - Configurable thread safety (enabled by default)
+ ## Core Features
  
- Thread Safety:
- - When enableThreadSynchronization=true (default): All operations are synchronized using NSLock
- - When enableThreadSynchronization=false: No synchronization provided, caller must ensure thread safety
+ - **TTL (Time-to-Live) Expiration**: Automatic cleanup of expired entries
+ - **Priority-Based Eviction**: Higher priority entries are retained longer during eviction
+ - **LRU (Least Recently Used) Eviction**: Within priority levels, least recently used entries are evicted first
+ - **Null Value Caching**: Support for caching null/nil values with separate TTL configuration
+ - **External Key Validation**: Customizable key validation function set at initialization
+ - **TTL Randomization**: Prevents cache stampede by randomizing expiration times
+ - **Configurable Thread Safety**: Optional NSLock synchronization for concurrent access
+ - **Memory Usage Tracking**: Configurable memory limits with automatic eviction
  
- Performance Characteristics:
- - O(1) average case for get/set operations
- - Automatic expiration handling
- - Memory-efficient with configurable capacity limits
+ ## Thread Safety
  
- Example Usage:
+ - **Synchronized Mode** (`enableThreadSynchronization=true`): All operations are thread-safe using NSLock
+ - **Non-Synchronized Mode** (`enableThreadSynchronization=false`): No synchronization; caller must ensure thread safety
+ 
+ ## Performance Characteristics
+ 
+ - **Time Complexity**: O(1) average case for get/set operations
+ - **Memory Efficiency**: Configurable capacity and memory limits
+ - **Automatic Expiration**: Background cleanup of expired entries
+ - **Eviction Policy**: Priority-based LRU eviction with memory limit enforcement
+ 
+ ## Example Usage
+ 
  ```swift
- // Thread-synchronized cache with custom validation
- let cache = MemoryCache<String, Data>(
+ // Thread-synchronized cache with custom validation and memory limits
+ let imageCache = MemoryCache<String, UIImage>(
      configuration: .init(
          enableThreadSynchronization: true,
-         capacityLimitation: 1000,
-         defaultTTL: 60,
-         keyValidator: { $0.hasPrefix("https://") }
+         usageLimitation: .init(capacity: 1000, memory: 500), // 500MB limit
+         defaultTTL: 3600, // 1 hour
+         keyValidator: { $0.hasPrefix("https://") },
+         costProvider: { image in
+             guard let cgImage = image.cgImage else { return 0 }
+             return cgImage.bytesPerRow * cgImage.height
+         }
      )
  )
  
  // Non-synchronized cache for single-threaded scenarios
  let fastCache = MemoryCache<String, Int>(
-     configuration: .init(enableThreadSynchronization: false, capacityLimitation: 500)
+     configuration: .init(
+         enableThreadSynchronization: false,
+         usageLimitation: .init(capacity: 500, memory: 100)
+     )
  )
  ```
-*/
+ */
+
+/// Represents memory and capacity constraints for the cache.
+/// Used to configure cache limits for memory-sensitive or size-sensitive scenarios.
+struct UsageLimitation {
+    /// Maximum memory usage allowed (in MB).
+    static let unlimitedMemoryUsage: Int = 1024 * 1024 * 1024 // In MB, approximately 1024TB
+    
+    /// Maximum number of items allowed in the cache.
+    let capacity: Int
+    /// Maximum memory usage allowed (in MB).
+    let memory: Int
+    
+    /// Creates a new usage limitation with specified constraints.
+    /// - Parameters:
+    ///   - capacity: Maximum number of items (default: 1024)
+    ///   - memory: Maximum memory usage in MB (default: unlimited)
+    init(capacity: Int = 1024, memory: Int = Self.unlimitedMemoryUsage) {
+        self.capacity = max(0, capacity)
+        self.memory = min(max(0, memory), Self.unlimitedMemoryUsage)
+    }
+}
 
 extension MemoryCache {
     // MARK: - Configuration
     
-    /// Configuration options for the memory cache.
+    /// Configuration options for the memory cache behavior and limits.
     struct Configuration {
         /// Whether to enable thread synchronization using NSLock (default: true)
         /// When true: All cache operations are synchronized for thread safety
         /// When false: No synchronization, caller must ensure thread safety
         let enableThreadSynchronization: Bool
-        /// Maximum number of entries the cache can hold.
-        let capacityLimitation: Int
+        
+        /// Memory and capacity constraints for the cache.
+        let usageLimitation: UsageLimitation
+        
         /// Default TTL for non-null values (in seconds).
         let defaultTTL: TimeInterval
+        
         /// Default TTL for null values (in seconds).
         let defaultTTLForNullValue: TimeInterval
+        
         /// Randomization range for TTL values to prevent cache stampede (in seconds).
         let ttlRandomizationRange: TimeInterval
+        
         /// Key validation function that returns true for valid keys. Fixed at initialization.
-        let keyValidator: ((Key) -> Bool)
+        let keyValidator: (Key) -> Bool
+        
+        /// Function to calculate memory cost of elements. For classes, provide the actual memory usage (e.g., image data size). For value types, this is optional as pointer overhead is automatically calculated.
+        let costProvider: (Element) -> Int
         
         /// Creates a new configuration with specified parameters.
         /// - Parameters:
         ///   - enableThreadSynchronization: Enable NSLock synchronization for thread safety (default: true)
-        ///   - capacityLimitation: Maximum cache size (default: unlimited)
+        ///   - usageLimitation: Memory and capacity constraints (default: unlimited)
         ///   - defaultTTL: Default TTL for non-nil values (default: .infinity)
         ///   - defaultTTLForNullValue: Default TTL for nil values (default: .infinity)
         ///   - ttlRandomizationRange: TTL randomization range (default: 0)
         ///   - keyValidator: Key validation closure (default: always true)
+        ///   - costProvider: Memory cost calculation closure (default: returns 0)
         init(
             enableThreadSynchronization: Bool = true,
-            capacityLimitation: Int = 1024,
+            usageLimitation: UsageLimitation = .init(),
             defaultTTL: TimeInterval = .infinity,
             defaultTTLForNullValue: TimeInterval = .infinity,
             ttlRandomizationRange: TimeInterval = 0,
-            keyValidator: @escaping (Key) -> Bool = {_ in true}
+            keyValidator: @escaping (Key) -> Bool = {_ in true},
+            costProvider: @escaping (Element) -> Int = {_ in 0}
         ) {
             self.enableThreadSynchronization = enableThreadSynchronization
             self.defaultTTL = defaultTTL
             self.defaultTTLForNullValue = defaultTTLForNullValue
             self.ttlRandomizationRange = ttlRandomizationRange
-            self.capacityLimitation = max(0, capacityLimitation)
+            self.usageLimitation = usageLimitation
             self.keyValidator = keyValidator
+            self.costProvider = costProvider
         }
         
         /// Default configuration (thread-synchronized with NSLock, unlimited size, no expiration, all keys valid)
@@ -96,6 +141,10 @@ extension MemoryCache {
     }
 }
 
+/// A high-performance, in-memory key-value cache with configurable thread safety and memory management.
+/// 
+/// This cache provides automatic expiration, priority-based eviction, and memory usage tracking.
+/// It's designed for scenarios where you need fine-grained control over cache behavior and memory usage.
 class MemoryCache<Key: Hashable, Element> {
     // MARK: - Initialization
     
@@ -103,17 +152,22 @@ class MemoryCache<Key: Hashable, Element> {
     /// - Parameter configuration: The configuration for this cache instance.
     init(configuration: Configuration = .defaultConfig) {
         self.configuration = configuration
-        self.storageQueue = TTLPriorityLRUQueue(capacity: configuration.capacityLimitation)
+        self.storageQueue = TTLPriorityLRUQueue(capacity: configuration.usageLimitation.capacity)
     }
     
     // MARK: - Properties
     
     /// NSLock for thread synchronization (used when enableThreadSynchronization=true)
     private let lock = NSLock()
+    
     /// The configuration for this cache instance.
     private let configuration: Configuration
+    
     /// The underlying TTL-priority-LRU queue for storage.
     private let storageQueue: TTLPriorityLRUQueue<Key, CacheEntry>
+    
+    /// Current total memory cost of all cached entries in bytes.
+    private var totalCost: Int = 0
     
     /// Internal wrapper for cache entries to support null value caching.
     private struct CacheEntry {
@@ -139,7 +193,7 @@ extension MemoryCache {
         return storageQueue.isEmpty
     }
     
-    /// Returns true if the cache is full.
+    /// Returns true if the cache is at capacity.
     var isFull: Bool {
         acquireLockIfNeeded()
         defer { releaseLockIfNeeded() }
@@ -161,7 +215,11 @@ extension MemoryCache {
     }
     
     /**
-     Inserts or updates a value for the given key.
+     Inserts or updates a value for the given key with optional priority and expiration.
+     
+     This method handles both regular values and null values, applying appropriate TTL settings
+     and memory cost tracking. When the cache exceeds its memory limit, it automatically
+     evicts the least recently used entries.
      
      - Parameters:
        - value: The value to store (can be nil for null caching)
@@ -169,9 +227,9 @@ extension MemoryCache {
        - priority: The priority for eviction (higher is less likely to be evicted)
        - duration: The TTL (in seconds) for the entry. Defaults to configuration default
      
-     - Returns: The evicted value, if any
+     - Returns: Array of evicted values due to capacity or memory limits
      
-          - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
+     - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
      */
      @discardableResult
      func set(
@@ -179,22 +237,22 @@ extension MemoryCache {
         for key: Key,
         priority: Double = .zero,
         expiredIn duration: TimeInterval? = nil
-    ) -> Element? {
+    ) -> [Element] {
         acquireLockIfNeeded()
         defer { releaseLockIfNeeded() }
         
         // Step 1: Validate key using external validator
-        guard configuration.keyValidator(key) else { return nil }
+        guard configuration.keyValidator(key) else { return [] }
+        
+        var evictedValues: [Element] = []
         
         // Step 2: Handle null value caching
         if value == nil {
-            // Calculate TTL for null value
             let finalTTL = calculateFinalTTL(
                 originalDuration: duration ?? configuration.defaultTTLForNullValue,
                 isNullValue: true
             )
             
-            // Store null value in cache
             let cacheEntry = CacheEntry(value: nil)
             let evictedEntry = storageQueue.set(
                 value: cacheEntry,
@@ -202,7 +260,17 @@ extension MemoryCache {
                 priority: priority,
                 expiredIn: finalTTL
             )
-            return evictedEntry?.value
+            
+            // Handle evicted entry from storage queue
+            if let evictedValue = evictedEntry?.value {
+                decreaseCost(for: evictedValue)
+                evictedValues.append(evictedValue)
+            }
+            
+            // Null values have minimal cost, but we still track them
+            increaseCost(for: nil)
+            
+            return evictedValues
         }
         
         // Step 3: Calculate final TTL with randomization
@@ -211,7 +279,7 @@ extension MemoryCache {
             isNullValue: false
         )
         
-        // Step 4: Store in queue
+        // Step 4: Store in queue and handle evictions
         let cacheEntry = CacheEntry(value: value)
         let evictedEntry = storageQueue.set(
             value: cacheEntry,
@@ -219,16 +287,42 @@ extension MemoryCache {
             priority: priority,
             expiredIn: finalTTL
         )
-        return evictedEntry?.value
+        
+        // Handle evicted entry from storage queue
+        if let evictedValue = evictedEntry?.value {
+            decreaseCost(for: evictedValue)
+            evictedValues.append(evictedValue)
+        }
+        
+        // Add cost for new entry
+        increaseCost(for: value)
+        
+        // Step 5: Check memory limits and evict if necessary
+        let memoryLimitInBytes = configuration.usageLimitation.memory * 1024 * 1024 // Convert MB to bytes
+        while totalCost > memoryLimitInBytes {
+            // Get the least recently used entry to evict
+            if let evictedValue = storageQueue.removeValue()?.value {
+                decreaseCost(for: evictedValue)
+                evictedValues.append(evictedValue)
+            } else {
+                // If no more entries to evict, break to avoid infinite loop
+                break
+            }
+        }
+        
+        return evictedValues
     }
     
     /**
-     Retrieves the value for the given key if present and valid.
+     Retrieves the value for the given key if present and not expired.
+     
+     This method validates the key using the configured validator and returns the value
+     if it exists and hasn't expired. The access updates the LRU order of the entry.
      
      - Parameter key: The key to look up
      - Returns: The value if present and valid, or nil if expired, missing, or invalid
      
-          - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
+     - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
      */
      func getValue(for key: Key) -> Element? {
         acquireLockIfNeeded()
@@ -242,10 +336,13 @@ extension MemoryCache {
     /**
      Removes the value for the given key, if present.
      
+     This method removes the entry from the cache and updates the memory cost tracking.
+     The removed value is returned if it existed in the cache.
+     
      - Parameter key: The key to remove
      - Returns: The removed value, or nil if not found
      
-          - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
+     - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
      */
      @discardableResult
      func removeValue(for key: Key) -> Element? {
@@ -260,7 +357,7 @@ extension MemoryCache {
 // MARK: - Private Implementation
 
 private extension MemoryCache {
-    /// Calculates the final TTL with randomization applied.
+    /// Calculates the final TTL with randomization applied to prevent cache stampede.
     /// - Parameters:
     ///   - originalDuration: The original TTL duration
     ///   - isNullValue: Whether this is for a null value
@@ -288,5 +385,35 @@ private extension MemoryCache {
     func releaseLockIfNeeded() {
         guard configuration.enableThreadSynchronization else { return }
         lock.unlock()
+    }
+    
+    /// Increases the total memory cost by the cost of the given value.
+    /// - Parameter value: The value whose cost should be added
+    func increaseCost(for value: Element?) {
+        guard storageQueue.count > 0 else {
+            totalCost = 0
+            return
+        }
+        
+        totalCost += cost(of: value)
+    }
+    
+    /// Decreases the total memory cost by the cost of the given value.
+    /// - Parameter value: The value whose cost should be subtracted
+    func decreaseCost(for value: Element?) {
+        guard storageQueue.count > 0 else {
+            totalCost = 0
+            return
+        }
+        
+        totalCost -= cost(of: value)
+    }
+    
+    /// Calculates the memory cost of a value in bytes.
+    /// - Parameter value: The value to calculate cost for
+    /// - Returns: The memory cost in bytes
+    func cost(of value: Element?) -> Int {
+        guard let value else { return 0 }
+        return MemoryLayout<Element>.size + configuration.costProvider(value)
     }
 }

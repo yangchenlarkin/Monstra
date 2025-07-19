@@ -33,6 +33,8 @@ struct CacheStatistics {
     /// Number of cache misses
     private(set) var missCount: Int = 0
     
+    var report: ((Self, CacheResult) -> Void)? = nil
+    
     /// Total number of cache accesses
     var totalAccesses: Int {
         return invalidKeyCount + nullValueHitCount + nonNullValueHitCount + missCount
@@ -63,6 +65,7 @@ struct CacheStatistics {
         case .miss:
             missCount += 1
         }
+        report?(self, result)
     }
     
     /// Reset all statistics

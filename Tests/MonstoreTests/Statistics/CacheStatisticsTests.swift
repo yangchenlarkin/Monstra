@@ -34,6 +34,7 @@ final class CacheStatisticsTests: XCTestCase {
         XCTAssertEqual(statistics.hitRate, 0.0)
         XCTAssertEqual(statistics.successRate, 0.0)
         XCTAssertGreaterThan(statistics.tracingID, 0)
+        XCTAssertNil(statistics.report)
     }
     
     func testRecordInvalidKey() {
@@ -84,6 +85,220 @@ final class CacheStatisticsTests: XCTestCase {
         XCTAssertEqual(statistics.successRate, 0.0)
     }
     
+    // MARK: - Report Callback Tests
+    
+    func testReportCallbackWithInvalidKey() {
+        var reportedStatistics: CacheStatistics?
+        var reportedResult: CacheResult?
+        
+        statistics.report = { stats, result in
+            reportedStatistics = stats
+            reportedResult = result
+        }
+        
+        statistics.record(.invalidKey)
+        
+        XCTAssertNotNil(reportedStatistics)
+        XCTAssertEqual(reportedResult, .invalidKey)
+        XCTAssertEqual(reportedStatistics?.invalidKeyCount, 1)
+        XCTAssertEqual(reportedStatistics?.totalAccesses, 1)
+    }
+    
+    func testReportCallbackWithHitNullValue() {
+        var reportedStatistics: CacheStatistics?
+        var reportedResult: CacheResult?
+        
+        statistics.report = { stats, result in
+            reportedStatistics = stats
+            reportedResult = result
+        }
+        
+        statistics.record(.hitNullValue)
+        
+        XCTAssertNotNil(reportedStatistics)
+        XCTAssertEqual(reportedResult, .hitNullValue)
+        XCTAssertEqual(reportedStatistics?.nullValueHitCount, 1)
+        XCTAssertEqual(reportedStatistics?.totalAccesses, 1)
+    }
+    
+    func testReportCallbackWithHitNonNullValue() {
+        var reportedStatistics: CacheStatistics?
+        var reportedResult: CacheResult?
+        
+        statistics.report = { stats, result in
+            reportedStatistics = stats
+            reportedResult = result
+        }
+        
+        statistics.record(.hitNonNullValue)
+        
+        XCTAssertNotNil(reportedStatistics)
+        XCTAssertEqual(reportedResult, .hitNonNullValue)
+        XCTAssertEqual(reportedStatistics?.nonNullValueHitCount, 1)
+        XCTAssertEqual(reportedStatistics?.totalAccesses, 1)
+    }
+    
+    func testReportCallbackWithMiss() {
+        var reportedStatistics: CacheStatistics?
+        var reportedResult: CacheResult?
+        
+        statistics.report = { stats, result in
+            reportedStatistics = stats
+            reportedResult = result
+        }
+        
+        statistics.record(.miss)
+        
+        XCTAssertNotNil(reportedStatistics)
+        XCTAssertEqual(reportedResult, .miss)
+        XCTAssertEqual(reportedStatistics?.missCount, 1)
+        XCTAssertEqual(reportedStatistics?.totalAccesses, 1)
+    }
+    
+    func testReportCallbackWithNilReport() {
+        // Should not crash when report is nil
+        statistics.report = nil
+        
+        statistics.record(.hitNullValue)
+        statistics.record(.miss)
+        statistics.record(.invalidKey)
+        
+        // Should still record statistics correctly
+        XCTAssertEqual(statistics.totalAccesses, 3)
+        XCTAssertEqual(statistics.nullValueHitCount, 1)
+        XCTAssertEqual(statistics.missCount, 1)
+        XCTAssertEqual(statistics.invalidKeyCount, 1)
+    }
+    
+    func testReportCallbackWithMultipleRecords() {
+        var callCount = 0
+        var reportedResults: [CacheResult] = []
+        
+        statistics.report = { stats, result in
+            callCount += 1
+            reportedResults.append(result)
+        }
+        
+        statistics.record(.hitNullValue)
+        statistics.record(.hitNonNullValue)
+        statistics.record(.miss)
+        statistics.record(.invalidKey)
+        
+        XCTAssertEqual(callCount, 4)
+        XCTAssertEqual(reportedResults.count, 4)
+        XCTAssertEqual(reportedResults[0], .hitNullValue)
+        XCTAssertEqual(reportedResults[1], .hitNonNullValue)
+        XCTAssertEqual(reportedResults[2], .miss)
+        XCTAssertEqual(reportedResults[3], .invalidKey)
+    }
+    
+    func testReportCallbackWithStatisticsUpdate() {
+        var reportedTotalAccesses: [Int] = []
+        
+        statistics.report = { stats, result in
+            reportedTotalAccesses.append(stats.totalAccesses)
+        }
+        
+        statistics.record(.hitNullValue)
+        statistics.record(.hitNonNullValue)
+        statistics.record(.miss)
+        
+        XCTAssertEqual(reportedTotalAccesses.count, 3)
+        XCTAssertEqual(reportedTotalAccesses[0], 1)
+        XCTAssertEqual(reportedTotalAccesses[1], 2)
+        XCTAssertEqual(reportedTotalAccesses[2], 3)
+    }
+    
+    func testReportCallbackWithHitRateCalculation() {
+        var reportedHitRates: [Double] = []
+        
+        statistics.report = { stats, result in
+            reportedHitRates.append(stats.hitRate)
+        }
+        
+        statistics.record(.hitNullValue) // 1.0
+        statistics.record(.miss) // 0.5
+        statistics.record(.hitNonNullValue) // 0.67
+        
+        XCTAssertEqual(reportedHitRates.count, 3)
+        XCTAssertEqual(reportedHitRates[0], 1.0, accuracy: 0.01)
+        XCTAssertEqual(reportedHitRates[1], 0.5, accuracy: 0.01)
+        XCTAssertEqual(reportedHitRates[2], 0.67, accuracy: 0.01)
+    }
+    
+    func testReportCallbackWithSuccessRateCalculation() {
+        var reportedSuccessRates: [Double] = []
+        
+        statistics.report = { stats, result in
+            reportedSuccessRates.append(stats.successRate)
+        }
+        
+        statistics.record(.hitNullValue) // 1.0
+        statistics.record(.invalidKey) // 0.5
+        statistics.record(.hitNonNullValue) // 0.67
+        
+        XCTAssertEqual(reportedSuccessRates.count, 3)
+        XCTAssertEqual(reportedSuccessRates[0], 1.0, accuracy: 0.01)
+        XCTAssertEqual(reportedSuccessRates[1], 0.5, accuracy: 0.01)
+        XCTAssertEqual(reportedSuccessRates[2], 0.67, accuracy: 0.01)
+    }
+    
+    func testReportCallbackWithTracingID() {
+        var reportedTracingIDs: [UInt64] = []
+        
+        statistics.report = { stats, result in
+            reportedTracingIDs.append(stats.tracingID)
+        }
+        
+        statistics.record(.hitNullValue)
+        statistics.record(.miss)
+        
+        XCTAssertEqual(reportedTracingIDs.count, 2)
+        XCTAssertEqual(reportedTracingIDs[0], reportedTracingIDs[1]) // Same tracing ID
+        XCTAssertGreaterThan(reportedTracingIDs[0], 0)
+    }
+    
+    func testReportCallbackAfterReset() {
+        var callCount = 0
+        
+        statistics.report = { stats, result in
+            callCount += 1
+        }
+        
+        statistics.record(.hitNullValue)
+        statistics.reset()
+        statistics.record(.miss)
+        
+        XCTAssertEqual(callCount, 2) // Should be called for both records
+    }
+    
+    func testReportCallbackWithConcurrentAccess() {
+        let queue = DispatchQueue(label: "test", attributes: .concurrent)
+        let group = DispatchGroup()
+        var callCount = 0
+        let lock = NSLock()
+        
+        statistics.report = { stats, result in
+            lock.lock()
+            callCount += 1
+            lock.unlock()
+        }
+        
+        // Concurrent record operations
+        for _ in 0..<100 {
+            group.enter()
+            queue.async {
+                self.statistics.record(.hitNullValue)
+                group.leave()
+            }
+        }
+        
+        group.wait()
+        
+        // Should have called report for all operations
+        XCTAssertEqual(callCount, 100)
+    }
+    
     // MARK: - Hit Rate Calculation Tests
     
     func testHitRateWithMixedResults() {
@@ -93,9 +308,9 @@ final class CacheStatisticsTests: XCTestCase {
         statistics.record(.miss)
         statistics.record(.invalidKey)
         
-        // Hit rate should be 2/3 = 66.67% (excluding invalid key)
+        // Hit rate should be 2/3 = 0.6667 (excluding invalid key)
         XCTAssertEqual(statistics.hitRate, 0.6667, accuracy: 0.0001)
-        // Success rate should be 2/4 = 50% (including invalid key)
+        // Success rate should be 2/4 = 0.50 (including invalid key)
         XCTAssertEqual(statistics.successRate, 0.50, accuracy: 0.0001)
     }
     
@@ -241,7 +456,7 @@ final class CacheStatisticsTests: XCTestCase {
     func testPerformanceWithManyRecords() {
         measure {
             statistics.reset()
-            for i in 0..<10000 {
+            for _ in 0..<10000 {
                 statistics.record(.hitNonNullValue)
             }
         }

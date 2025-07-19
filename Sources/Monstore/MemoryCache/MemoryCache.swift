@@ -40,7 +40,7 @@ import Foundation
  let imageCache = MemoryCache<String, UIImage>(
      configuration: .init(
          enableThreadSynchronization: true,
-         usageLimitation: .init(capacity: 1000, memory: 500), // 500MB limit
+         memoryUsageLimitation: .init(capacity: 1000, memory: 500), // 500MB limit
          defaultTTL: 3600, // 1 hour
          keyValidator: { $0.hasPrefix("https://") },
          costProvider: { image in
@@ -54,7 +54,7 @@ import Foundation
  let fastCache = MemoryCache<String, Int>(
      configuration: .init(
          enableThreadSynchronization: false,
-         usageLimitation: .init(capacity: 500, memory: 100)
+         memoryUsageLimitation: .init(capacity: 500, memory: 100)
      )
  )
  ```
@@ -62,7 +62,7 @@ import Foundation
 
 /// Represents memory and capacity constraints for the cache.
 /// Used to configure cache limits for memory-sensitive or size-sensitive scenarios.
-struct UsageLimitation {
+struct MemoryUsageLimitation {
     /// Maximum memory usage allowed (in MB).
     static let unlimitedMemoryUsage: Int = 1024 * 1024 * 1024 // In MB, approximately 1024TB
     
@@ -92,7 +92,7 @@ extension MemoryCache {
         let enableThreadSynchronization: Bool
         
         /// Memory and capacity constraints for the cache.
-        let usageLimitation: UsageLimitation
+        let memoryUsageLimitation: MemoryUsageLimitation
         
         /// Default TTL for non-null values (in seconds).
         let defaultTTL: TimeInterval
@@ -141,14 +141,14 @@ extension MemoryCache {
         /// - The returned value should be **positive** and **reasonable** (avoid extremely large values)
         /// - Should be **consistent** for the same input (deterministic)
         /// - **Performance**: This closure is called frequently during eviction, so keep it fast
-        /// - **Memory limit**: Total cost across all elements should not exceed `UsageLimitation.memory`
+        /// - **Memory limit**: Total cost across all elements should not exceed `MemoryUsageLimitation.memory`
         /// - **Default behavior**: Returns 0 if not specified, relying on automatic memory layout calculation
         let costProvider: (Element) -> Int
         
         /// Creates a new configuration with specified parameters.
         /// - Parameters:
         ///   - enableThreadSynchronization: Enable NSLock synchronization for thread safety (default: true)
-        ///   - usageLimitation: Memory and capacity constraints (default: unlimited)
+        ///   - memoryUsageLimitation: Memory and capacity constraints (default: unlimited)
         ///   - defaultTTL: Default TTL for non-nil values (default: .infinity)
         ///   - defaultTTLForNullValue: Default TTL for nil values (default: .infinity)
         ///   - ttlRandomizationRange: TTL randomization range (default: 0)
@@ -156,7 +156,7 @@ extension MemoryCache {
         ///   - costProvider: Memory cost calculation closure in bytes. Should return actual memory usage for accurate eviction decisions (default: returns 0)
         init(
             enableThreadSynchronization: Bool = true,
-            usageLimitation: UsageLimitation = .init(),
+            memoryUsageLimitation: MemoryUsageLimitation = .init(),
             defaultTTL: TimeInterval = .infinity,
             defaultTTLForNullValue: TimeInterval = .infinity,
             ttlRandomizationRange: TimeInterval = 0,
@@ -167,7 +167,7 @@ extension MemoryCache {
             self.defaultTTL = defaultTTL
             self.defaultTTLForNullValue = defaultTTLForNullValue
             self.ttlRandomizationRange = ttlRandomizationRange
-            self.usageLimitation = usageLimitation
+            self.memoryUsageLimitation = memoryUsageLimitation
             self.keyValidator = keyValidator
             self.costProvider = costProvider
         }
@@ -188,7 +188,7 @@ class MemoryCache<Key: Hashable, Element> {
     /// - Parameter configuration: The configuration for this cache instance.
     init(configuration: Configuration = .defaultConfig) {
         self.configuration = configuration
-        self.storageQueue = TTLPriorityLRUQueue(capacity: configuration.usageLimitation.capacity)
+        self.storageQueue = TTLPriorityLRUQueue(capacity: configuration.memoryUsageLimitation.capacity)
     }
     
     // MARK: - Properties
@@ -309,7 +309,7 @@ extension MemoryCache {
             return evictedValues
         }
         
-        if cost(of: value) > configuration.usageLimitation.memory * 1024 * 1024 {
+        if cost(of: value) > configuration.memoryUsageLimitation.memory * 1024 * 1024 {
             if let value {
                 return [value]
             }else {
@@ -342,7 +342,7 @@ extension MemoryCache {
         increaseCost(for: value)
         
         // Step 5: Check memory limits and evict if necessary
-        let memoryLimitInBytes = configuration.usageLimitation.memory * 1024 * 1024 // Convert MB to bytes
+        let memoryLimitInBytes = configuration.memoryUsageLimitation.memory * 1024 * 1024 // Convert MB to bytes
         while totalCost > memoryLimitInBytes {
             // Get the least recently used entry to evict
             if let evictedValue = storageQueue.removeValue()?.value {
@@ -502,6 +502,6 @@ private extension MemoryCache {
     /// - Returns: The memory cost in bytes
     func cost(of value: Element?) -> Int {
         guard let value else { return 0 }
-        return MemoryLayout<Element>.size + min(max(0, configuration.costProvider(value)), UsageLimitation.unlimitedMemoryUsage)
+        return MemoryLayout<Element>.size + min(max(0, configuration.costProvider(value)), MemoryUsageLimitation.unlimitedMemoryUsage)
     }
 }

@@ -186,7 +186,7 @@ class MemoryCache<Key: Hashable, Element> {
     
     /// Creates a new memory cache with the specified configuration.
     /// - Parameter configuration: The configuration for this cache instance.
-    init(configuration: Configuration = .defaultConfig, statisticsReport: ((CacheStatistics, CacheResult) -> Void)? = nil) {
+    init(configuration: Configuration = .defaultConfig, statisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil) {
         self.configuration = configuration
         self.storageQueue = TTLPriorityLRUQueue(capacity: configuration.memoryUsageLimitation.capacity)
         self.statistics = .init(report: statisticsReport)
@@ -212,12 +212,6 @@ class MemoryCache<Key: Hashable, Element> {
     private struct CacheEntry {
         /// The actual value (can be nil for null caching).
         let value: Element?
-        /// Whether this entry represents a null value.
-        var isNullValue: Bool { value == nil }
-        
-        init(value: Element?) {
-            self.value = value
-        }
     }
 }
 
@@ -359,6 +353,31 @@ extension MemoryCache {
         return evictedValues
     }
     
+    
+    enum FetchResult {
+        case invalidKey
+        case hitNullValue
+        case hitNonNullValue(value: Element)
+        case miss
+        
+        var value: Element? {
+            switch self {
+            case .hitNonNullValue(let value):
+                return value
+            default:
+                return nil
+            }
+        }
+        
+        var isMiss: Bool {
+            switch self {
+            case .miss:
+                return true
+            default:
+                return false
+            }
+        }
+    }
     /**
      Retrieves the value for the given key if present and not expired.
      
@@ -370,26 +389,29 @@ extension MemoryCache {
      
      - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
      */
-    func getValue(for key: Key) -> Element? {
+    func getValue(for key: Key) -> FetchResult {
         acquireLockIfNeeded()
         defer { releaseLockIfNeeded() }
         
         guard configuration.keyValidator(key) else {
             statistics.record(.invalidKey)
-            return nil
+            return .invalidKey
         }
         
         let cacheEntry = storageQueue.getValue(for: key)
-        if let cacheEntry {
-            if cacheEntry.isNullValue {
-                statistics.record(.hitNullValue)
-            } else {
-                statistics.record(.hitNonNullValue)
-            }
-        } else {
+        
+        guard let cacheEntry else {
             statistics.record(.miss)
+            return .miss
         }
-        return cacheEntry?.value
+        
+        guard let value = cacheEntry.value else {
+            statistics.record(.hitNullValue)
+            return .hitNullValue
+        }
+        
+        statistics.record(.hitNonNullValue)
+        return .hitNonNullValue(value: value)
     }
     
     /**

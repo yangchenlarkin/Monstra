@@ -179,6 +179,384 @@ final class MemoryCacheTests: XCTestCase {
         XCTAssertEqual(cache.getValueDirect(for: "medium_key"), "medium")
     }
     
+    // MARK: - FetchResult API Tests
+    
+    func testFetchResultInvalidKey() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                keyValidator: { key in
+                    return key.hasPrefix("valid_")
+                }
+            )
+        )
+        
+        // Test invalid key
+        let result = cache.getValue(for: "invalid_key")
+        switch result {
+        case .invalidKey:
+            XCTAssertNil(result.value)
+            XCTAssertFalse(result.isMiss)
+        default:
+            XCTFail("Expected .invalidKey, got \(result)")
+        }
+        
+        // Test valid key that doesn't exist
+        let result2 = cache.getValue(for: "valid_nonexistent")
+        switch result2 {
+        case .miss:
+            XCTAssertNil(result2.value)
+            XCTAssertTrue(result2.isMiss)
+        default:
+            XCTFail("Expected .miss, got \(result2)")
+        }
+    }
+    
+    func testFetchResultHitNonNullValue() {
+        let cache = MemoryCache<String, String>()
+        
+        // Set a value
+        cache.set(value: "test_value", for: "test_key")
+        
+        // Test hit with non-null value
+        let result = cache.getValue(for: "test_key")
+        switch result {
+        case .hitNonNullValue(let value):
+            XCTAssertEqual(value, "test_value")
+            XCTAssertEqual(result.value, "test_value")
+            XCTAssertFalse(result.isMiss)
+        default:
+            XCTFail("Expected .hitNonNullValue, got \(result)")
+        }
+    }
+    
+    func testFetchResultHitNullValue() {
+        let cache = MemoryCache<String, String>()
+        
+        // Set a null value
+        cache.set(value: nil as String?, for: "null_key")
+        
+        // Test hit with null value
+        let result = cache.getValue(for: "null_key")
+        switch result {
+        case .hitNullValue:
+            XCTAssertNil(result.value)
+            XCTAssertFalse(result.isMiss)
+        default:
+            XCTFail("Expected .hitNullValue, got \(result)")
+        }
+    }
+    
+    func testFetchResultMiss() {
+        let cache = MemoryCache<String, String>()
+        
+        // Test miss for non-existent key
+        let result = cache.getValue(for: "nonexistent_key")
+        switch result {
+        case .miss:
+            XCTAssertNil(result.value)
+            XCTAssertTrue(result.isMiss)
+        default:
+            XCTFail("Expected .miss, got \(result)")
+        }
+    }
+    
+    func testFetchResultWithExpiredValue() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                memoryUsageLimitation: .init(capacity: 10),
+                defaultTTL: 0.1 // Very short TTL
+            )
+        )
+        
+        // Set a value
+        cache.set(value: "expired_value", for: "expired_key")
+        
+        // Value should exist immediately
+        let result1 = cache.getValue(for: "expired_key")
+        switch result1 {
+        case .hitNonNullValue(let value):
+            XCTAssertEqual(value, "expired_value")
+        default:
+            XCTFail("Expected .hitNonNullValue, got \(result1)")
+        }
+        
+        // Wait for expiration
+        Thread.sleep(forTimeInterval: 0.2)
+        
+        // Value should be expired (miss)
+        let result2 = cache.getValue(for: "expired_key")
+        switch result2 {
+        case .miss:
+            XCTAssertNil(result2.value)
+            XCTAssertTrue(result2.isMiss)
+        default:
+            XCTFail("Expected .miss, got \(result2)")
+        }
+    }
+    
+    func testFetchResultWithComplexKeyValidator() {
+        let cache = MemoryCache<Int, String>(
+            configuration: .init(
+                keyValidator: { key in
+                    return key > 0 && key <= 100 && key % 2 == 0 // Only even numbers 2-100
+                }
+            )
+        )
+        
+        // Test invalid keys
+        switch cache.getValue(for: 0) {
+        case .invalidKey: break // Expected
+        default: XCTFail("Expected .invalidKey for key 0")
+        }
+        switch cache.getValue(for: 101) {
+        case .invalidKey: break // Expected
+        default: XCTFail("Expected .invalidKey for key 101")
+        }
+        switch cache.getValue(for: 3) {
+        case .invalidKey: break // Expected
+        default: XCTFail("Expected .invalidKey for key 3")
+        }
+        
+        // Test valid keys
+        switch cache.getValue(for: 2) {
+        case .miss: break // Expected
+        default: XCTFail("Expected .miss for key 2")
+        }
+        switch cache.getValue(for: 4) {
+        case .miss: break // Expected
+        default: XCTFail("Expected .miss for key 4")
+        }
+        switch cache.getValue(for: 100) {
+        case .miss: break // Expected
+        default: XCTFail("Expected .miss for key 100")
+        }
+    }
+    
+    func testFetchResultWithNullValueExpiration() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                memoryUsageLimitation: .init(capacity: 10),
+                defaultTTLForNullValue: 0.1 // Short TTL for null values
+            )
+        )
+        
+        // Set a null value
+        cache.set(value: nil as String?, for: "null_key")
+        
+        // Null value should exist immediately
+        let result1 = cache.getValue(for: "null_key")
+        switch result1 {
+        case .hitNullValue: break // Expected
+        default: XCTFail("Expected .hitNullValue, got \(result1)")
+        }
+        
+        // Wait for expiration
+        Thread.sleep(forTimeInterval: 0.2)
+        
+        // Null value should be expired (miss)
+        let result2 = cache.getValue(for: "null_key")
+        switch result2 {
+        case .miss: break // Expected
+        default: XCTFail("Expected .miss, got \(result2)")
+        }
+    }
+    
+    func testFetchResultValueProperty() {
+        let cache = MemoryCache<String, String>()
+        
+        // Test with non-null value
+        cache.set(value: "test_value", for: "test_key")
+        let result1 = cache.getValue(for: "test_key")
+        XCTAssertEqual(result1.value, "test_value")
+        
+        // Test with null value
+        cache.set(value: nil as String?, for: "null_key")
+        let result2 = cache.getValue(for: "null_key")
+        XCTAssertNil(result2.value)
+        
+        // Test with miss
+        let result3 = cache.getValue(for: "nonexistent")
+        XCTAssertNil(result3.value)
+        
+        // Test with invalid key
+        let cacheWithValidator = MemoryCache<String, String>(
+            configuration: .init(keyValidator: { $0.hasPrefix("valid_") })
+        )
+        let result4 = cacheWithValidator.getValue(for: "invalid_key")
+        XCTAssertNil(result4.value)
+    }
+    
+    func testFetchResultIsMissProperty() {
+        let cache = MemoryCache<String, String>()
+        
+        // Test miss
+        let result1 = cache.getValue(for: "nonexistent")
+        XCTAssertTrue(result1.isMiss)
+        
+        // Test hit with non-null value
+        cache.set(value: "test_value", for: "test_key")
+        let result2 = cache.getValue(for: "test_key")
+        XCTAssertFalse(result2.isMiss)
+        
+        // Test hit with null value
+        cache.set(value: nil as String?, for: "null_key")
+        let result3 = cache.getValue(for: "null_key")
+        XCTAssertFalse(result3.isMiss)
+        
+        // Test invalid key
+        let cacheWithValidator = MemoryCache<String, String>(
+            configuration: .init(keyValidator: { $0.hasPrefix("valid_") })
+        )
+        let result4 = cacheWithValidator.getValue(for: "invalid_key")
+        XCTAssertFalse(result4.isMiss)
+    }
+    
+    func testFetchResultConcurrentAccess() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                enableThreadSynchronization: true,
+                memoryUsageLimitation: .init(capacity: 1000)
+            )
+        )
+        
+        let queue = DispatchQueue(label: "test_queue", attributes: .concurrent)
+        let group = DispatchGroup()
+        
+        // Concurrently set and get values
+        for i in 0..<100 {
+            group.enter()
+            queue.async {
+                cache.set(value: "value\(i)", for: "key\(i)")
+                let result = cache.getValue(for: "key\(i)")
+                switch result {
+                case .hitNonNullValue(let value):
+                    XCTAssertEqual(value, "value\(i)")
+                default:
+                    XCTFail("Expected .hitNonNullValue, got \(result)")
+                }
+                group.leave()
+            }
+        }
+        
+        group.wait()
+        
+        // Verify all values are accessible
+        for i in 0..<100 {
+            let result = cache.getValue(for: "key\(i)")
+            switch result {
+            case .hitNonNullValue(let value):
+                XCTAssertEqual(value, "value\(i)")
+            default:
+                XCTFail("Expected .hitNonNullValue, got \(result)")
+            }
+        }
+    }
+    
+    func testFetchResultWithStatisticsIntegration() {
+        _ = [MemoryCache<String, String>.FetchResult]()
+        
+        let cache = MemoryCache<String, String>(
+            configuration: .init(),
+            statisticsReport: { stats, record in
+                // This callback is called for each cache operation
+            }
+        )
+        
+        // Test various scenarios and verify statistics
+        cache.set(value: "test_value", for: "test_key")
+        
+        // Hit with non-null value
+        let result1 = cache.getValue(for: "test_key")
+        switch result1 {
+        case .hitNonNullValue(let value):
+            XCTAssertEqual(value, "test_value")
+        default:
+            XCTFail("Expected .hitNonNullValue, got \(result1)")
+        }
+        
+        // Hit with null value
+        cache.set(value: nil as String?, for: "null_key")
+        let result2 = cache.getValue(for: "null_key")
+        switch result2 {
+        case .hitNullValue: break // Expected
+        default: XCTFail("Expected .hitNullValue, got \(result2)")
+        }
+        
+        // Miss
+        let result3 = cache.getValue(for: "nonexistent")
+        switch result3 {
+        case .miss: break // Expected
+        default: XCTFail("Expected .miss, got \(result3)")
+        }
+        
+        // Invalid key
+        let cacheWithValidator = MemoryCache<String, String>(
+            configuration: .init(keyValidator: { $0.hasPrefix("valid_") })
+        )
+        let result4 = cacheWithValidator.getValue(for: "invalid_key")
+        switch result4 {
+        case .invalidKey: break // Expected
+        default: XCTFail("Expected .invalidKey, got \(result4)")
+        }
+        
+        // Verify statistics are recorded
+        let stats = cache.statistics
+        XCTAssertGreaterThan(stats.totalAccesses, 0)
+    }
+    
+    func testFetchResultEdgeCases() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                memoryUsageLimitation: .init(capacity: 1) // Very small capacity
+            )
+        )
+        
+        // Fill cache to capacity
+        cache.set(value: "first", for: "first_key")
+        
+        // Add second item, should evict first
+        cache.set(value: "second", for: "second_key")
+        
+        // First should be evicted (miss)
+        let result1 = cache.getValue(for: "first_key")
+        switch result1 {
+        case .miss: break // Expected
+        default: XCTFail("Expected .miss, got \(result1)")
+        }
+        
+        // Second should exist
+        let result2 = cache.getValue(for: "second_key")
+        switch result2 {
+        case .hitNonNullValue(let value):
+            XCTAssertEqual(value, "second")
+        default:
+            XCTFail("Expected .hitNonNullValue, got \(result2)")
+        }
+    }
+    
+    func testFetchResultWithEmptyCache() {
+        let cache = MemoryCache<String, String>()
+        
+        // Test miss on empty cache
+        let result = cache.getValue(for: "any_key")
+        switch result { case .miss: break; default: XCTFail("Expected .miss, got (result)"); }
+        XCTAssertNil(result.value)
+        XCTAssertTrue(result.isMiss)
+    }
+    
+    func testFetchResultWithZeroCapacity() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(memoryUsageLimitation: .init(capacity: 0))
+        )
+        
+        // Try to set value in zero-capacity cache
+        cache.set(value: "test", for: "test_key")
+        
+        // Should not be able to retrieve it
+        let result = cache.getValue(for: "test_key")
+        switch result { case .miss: break; default: XCTFail("Expected .miss, got (result)"); }
+    }
+    
     // MARK: - Performance Tests
     
     func testBulkOperations() {

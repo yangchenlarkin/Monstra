@@ -8,6 +8,14 @@
 import XCTest
 @testable import Monstore
 
+// Helper extension to make testing easier with the new FetchResult API
+extension MemoryCache {
+    /// Helper method for tests to get the value directly, similar to the old API
+    func getValueDirect(for key: Key) -> Element? {
+        return getValue(for: key).value
+    }
+}
+
 /// Comprehensive tests for MemoryCache functionality including key validation,
 /// null value caching, TTL randomization, and basic operations.
 final class MemoryCacheTests: XCTestCase {
@@ -19,11 +27,11 @@ final class MemoryCacheTests: XCTestCase {
         
         // Test basic set and get
         cache.set(value: "value1", for: "key1", priority: 1.0)
-        XCTAssertEqual(cache.getValue(for: "key1"), "value1")
+        XCTAssertEqual(cache.getValueDirect(for: "key1"), "value1")
         
         // Test nil value
         cache.set(value: nil as String?, for: "key2")
-        XCTAssertNil(cache.getValue(for: "key2"))
+        XCTAssertNil(cache.getValueDirect(for: "key2"))
     }
     
     func testCapacityLimit() {
@@ -39,7 +47,7 @@ final class MemoryCacheTests: XCTestCase {
         XCTAssertEqual(cache.count, 2)
         
         // The first key should be evicted
-        XCTAssertNil(cache.getValue(for: "key1"))
+        XCTAssertNil(cache.getValueDirect(for: "key1"))
     }
     
     // MARK: - Key Validation Tests
@@ -57,14 +65,14 @@ final class MemoryCacheTests: XCTestCase {
         
         // Valid keys should work
         cache.set(value: "value1", for: "valid")
-        XCTAssertEqual(cache.getValue(for: "valid"), "value1")
+        XCTAssertEqual(cache.getValueDirect(for: "valid"), "value1")
         
         // Invalid keys should be rejected
         cache.set(value: "value2", for: "")
-        XCTAssertNil(cache.getValue(for: ""))
+        XCTAssertNil(cache.getValueDirect(for: ""))
         
         cache.set(value: "value3", for: "toolongkeythatisinvalid")
-        XCTAssertNil(cache.getValue(for: "toolongkeythatisinvalid"))
+        XCTAssertNil(cache.getValueDirect(for: "toolongkeythatisinvalid"))
     }
     
     func testNumericKeyValidator() {
@@ -80,14 +88,14 @@ final class MemoryCacheTests: XCTestCase {
         
         // Valid keys should work
         cache.set(value: "value1", for: 1)
-        XCTAssertEqual(cache.getValue(for: 1), "value1")
+        XCTAssertEqual(cache.getValueDirect(for: 1), "value1")
         
         // Invalid keys should be rejected
         cache.set(value: "value2", for: 0)
-        XCTAssertNil(cache.getValue(for: 0))
+        XCTAssertNil(cache.getValueDirect(for: 0))
         
         cache.set(value: "value3", for: 1001)
-        XCTAssertNil(cache.getValue(for: 1001))
+        XCTAssertNil(cache.getValueDirect(for: 1001))
     }
     
     // MARK: - Null Value Caching Tests
@@ -99,7 +107,7 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: nil as String?, for: "null_key")
         
         // Should return nil (indicating the null value was cached)
-        let result = cache.getValue(for: "null_key")
+        let result = cache.getValueDirect(for: "null_key")
         XCTAssertNil(result)
         
         // The key should exist in the cache
@@ -118,13 +126,13 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: nil as String?, for: "null_key")
         
         // Should return nil immediately
-        XCTAssertNil(cache.getValue(for: "null_key"))
+        XCTAssertNil(cache.getValueDirect(for: "null_key"))
         
         // Wait for expiration
         Thread.sleep(forTimeInterval: 1.1)
         
         // Should return nil after expiration (key removed)
-        XCTAssertNil(cache.getValue(for: "null_key"))
+        XCTAssertNil(cache.getValueDirect(for: "null_key"))
     }
     
     // MARK: - TTL Randomization Tests
@@ -145,7 +153,7 @@ final class MemoryCacheTests: XCTestCase {
         
         // All values should be cached
         for i in 0..<5 {
-            XCTAssertEqual(cache.getValue(for: "key\(i)"), "value\(i)")
+            XCTAssertEqual(cache.getValueDirect(for: "key\(i)"), "value\(i)")
         }
     }
     
@@ -164,11 +172,11 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: "medium", for: "medium_key", priority: 5.0)
         
         // Low priority item should be evicted
-        XCTAssertNil(cache.getValue(for: "low_key"))
+        XCTAssertNil(cache.getValueDirect(for: "low_key"))
         
         // High and medium priority items should remain
-        XCTAssertEqual(cache.getValue(for: "high_key"), "high")
-        XCTAssertEqual(cache.getValue(for: "medium_key"), "medium")
+        XCTAssertEqual(cache.getValueDirect(for: "high_key"), "high")
+        XCTAssertEqual(cache.getValueDirect(for: "medium_key"), "medium")
     }
     
     // MARK: - Performance Tests
@@ -182,10 +190,10 @@ final class MemoryCacheTests: XCTestCase {
                 cache.set(value: i, for: "key\(i)")
             }
             
-            // Bulk read
-            for i in 0..<500 {
-                _ = cache.getValue(for: "key\(i)")
-            }
+                    // Bulk read
+        for i in 0..<500 {
+            _ = cache.getValueDirect(for: "key\(i)")
+        }
             
             // Bulk remove
             for i in 0..<500 {
@@ -304,9 +312,9 @@ final class MemoryCacheTests: XCTestCase {
         
         // Should only have valid items remaining
         XCTAssertEqual(cache.count, 3)
-        XCTAssertNotNil(cache.getValue(for: "valid1"))
-        XCTAssertNotNil(cache.getValue(for: "valid2"))
-        XCTAssertNotNil(cache.getValue(for: "valid3"))
+        XCTAssertNotNil(cache.getValueDirect(for: "valid1"))
+        XCTAssertNotNil(cache.getValueDirect(for: "valid2"))
+        XCTAssertNotNil(cache.getValueDirect(for: "valid3"))
     }
     
     // MARK: - Configuration & Property Tests
@@ -316,7 +324,7 @@ final class MemoryCacheTests: XCTestCase {
         
         // Test default behavior - should accept any key
         cache.set(value: 1, for: "any_key")
-        XCTAssertEqual(cache.getValue(for: "any_key"), 1)
+        XCTAssertEqual(cache.getValueDirect(for: "any_key"), 1)
         
         // Test default capacity
         XCTAssertEqual(cache.capacity, 1024)
@@ -340,10 +348,10 @@ final class MemoryCacheTests: XCTestCase {
         
         // Test custom key validator
         cache.set(value: 1, for: "test_key")
-        XCTAssertEqual(cache.getValue(for: "test_key"), 1)
+        XCTAssertEqual(cache.getValueDirect(for: "test_key"), 1)
         
         cache.set(value: 2, for: "invalid_key")
-        XCTAssertNil(cache.getValue(for: "invalid_key"))
+        XCTAssertNil(cache.getValueDirect(for: "invalid_key"))
     }
     
     func testPropertyAccess() {
@@ -388,15 +396,15 @@ final class MemoryCacheTests: XCTestCase {
         // Should not evict anything on first insert
         XCTAssertTrue(evicted1.count == 1 && evicted1[0] == "large_value")
         XCTAssertEqual(cache.count, 0)
-        XCTAssertNil(cache.getValue(for: "key1"))
+        XCTAssertNil(cache.getValueDirect(for: "key1"))
         
         // Add second item (should evict first due to memory limit)
         let evicted2 = cache.set(value: "large_value2", for: "key2")
         // After eviction, only key2 should remain
         XCTAssertTrue(evicted2.count == 1 && evicted2[0] == "large_value2")
         XCTAssertEqual(cache.count, 0)
-        XCTAssertNil(cache.getValue(for: "key1"))
-        XCTAssertNil(cache.getValue(for: "key2"))
+        XCTAssertNil(cache.getValueDirect(for: "key1"))
+        XCTAssertNil(cache.getValueDirect(for: "key2"))
     }
     
     func testCostProvider() {
@@ -432,7 +440,7 @@ final class MemoryCacheTests: XCTestCase {
         
         // Wait and check - should still be there
         Thread.sleep(forTimeInterval: 0.1)
-        XCTAssertEqual(cache.getValue(for: "key"), "value")
+        XCTAssertEqual(cache.getValueDirect(for: "key"), "value")
     }
     
     func testZeroTTL() {
@@ -445,7 +453,7 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: "value", for: "key", expiredIn: 0)
         
         // Should be immediately expired
-        XCTAssertNil(cache.getValue(for: "key"))
+        XCTAssertNil(cache.getValueDirect(for: "key"))
     }
     
     func testNegativeTTL() {
@@ -458,7 +466,7 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: "value", for: "key", expiredIn: -1)
         
         // Should be immediately expired
-        XCTAssertNil(cache.getValue(for: "key"))
+        XCTAssertNil(cache.getValueDirect(for: "key"))
     }
     
     func testTTLPrecision() {
@@ -472,11 +480,11 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: "value", for: "key", expiredIn: 0.001) // 1ms
         
         // Should be immediately available
-        XCTAssertEqual(cache.getValue(for: "key"), "value")
+        XCTAssertEqual(cache.getValueDirect(for: "key"), "value")
         
         // Wait and should be expired
         Thread.sleep(forTimeInterval: 0.002)
-        XCTAssertNil(cache.getValue(for: "key"))
+        XCTAssertNil(cache.getValueDirect(for: "key"))
     }
     
     // MARK: - Edge Cases Tests
@@ -487,7 +495,7 @@ final class MemoryCacheTests: XCTestCase {
         // Test operations on empty cache
         XCTAssertTrue(cache.isEmpty)
         XCTAssertEqual(cache.count, 0)
-        XCTAssertNil(cache.getValue(for: "nonexistent"))
+        XCTAssertNil(cache.getValueDirect(for: "nonexistent"))
         XCTAssertNil(cache.removeValue(for: "nonexistent"))
         XCTAssertNil(cache.removeValue())
         cache.removeExpiredValues() // Should not crash
@@ -499,12 +507,12 @@ final class MemoryCacheTests: XCTestCase {
         
         // Set initial value
         cache.set(value: "initial", for: "key")
-        XCTAssertEqual(cache.getValue(for: "key"), "initial")
+        XCTAssertEqual(cache.getValueDirect(for: "key"), "initial")
         
         // Overwrite with new value
         let evicted = cache.set(value: "updated", for: "key")
         XCTAssertEqual(evicted.count, 0) // No eviction when overwriting
-        XCTAssertEqual(cache.getValue(for: "key"), "updated")
+        XCTAssertEqual(cache.getValueDirect(for: "key"), "updated")
     }
     
     func testCapacityZero() {
@@ -519,7 +527,7 @@ final class MemoryCacheTests: XCTestCase {
         let evicted = cache.set(value: "value", for: "key")
         XCTAssertEqual(evicted.count, 0) // Value should be immediately evicted
         XCTAssertEqual(cache.count, 0)
-        XCTAssertNil(cache.getValue(for: "key"))
+        XCTAssertNil(cache.getValueDirect(for: "key"))
     }
     
     func testNegativeCapacity() {
@@ -543,8 +551,8 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: "high", for: "high_key", priority: Double.greatestFiniteMagnitude)
         
         XCTAssertEqual(cache.count, 2)
-        XCTAssertNotNil(cache.getValue(for: "low_key"))
-        XCTAssertNotNil(cache.getValue(for: "high_key"))
+        XCTAssertNotNil(cache.getValueDirect(for: "low_key"))
+        XCTAssertNotNil(cache.getValueDirect(for: "high_key"))
     }
     
     func testLRUEvictionOrder() {
@@ -558,15 +566,15 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: "third", for: "key3", priority: 1.0)
         
         // Access items to change LRU order
-        _ = cache.getValue(for: "key1") // Move key1 to front
+        _ = cache.getValueDirect(for: "key1") // Move key1 to front
         
         // Add fourth item - should evict key2 (least recently used)
         cache.set(value: "fourth", for: "key4", priority: 1.0)
         
-        XCTAssertNil(cache.getValue(for: "key2"))
-        XCTAssertNotNil(cache.getValue(for: "key1"))
-        XCTAssertNotNil(cache.getValue(for: "key3"))
-        XCTAssertNotNil(cache.getValue(for: "key4"))
+        XCTAssertNil(cache.getValueDirect(for: "key2"))
+        XCTAssertNotNil(cache.getValueDirect(for: "key1"))
+        XCTAssertNotNil(cache.getValueDirect(for: "key3"))
+        XCTAssertNotNil(cache.getValueDirect(for: "key4"))
     }
     
     // MARK: - Thread Safety Tests
@@ -578,7 +586,7 @@ final class MemoryCacheTests: XCTestCase {
         
         // Basic operations should work with thread safety enabled
         cache.set(value: 1, for: "key1")
-        XCTAssertEqual(cache.getValue(for: "key1"), 1)
+        XCTAssertEqual(cache.getValueDirect(for: "key1"), 1)
         XCTAssertEqual(cache.count, 1)
     }
     
@@ -589,7 +597,7 @@ final class MemoryCacheTests: XCTestCase {
         
         // Basic operations should work with thread safety disabled
         cache.set(value: 1, for: "key1")
-        XCTAssertEqual(cache.getValue(for: "key1"), 1)
+        XCTAssertEqual(cache.getValueDirect(for: "key1"), 1)
         XCTAssertEqual(cache.count, 1)
     }
     
@@ -620,15 +628,15 @@ final class MemoryCacheTests: XCTestCase {
         // Remove expired values
         cache.removeExpiredValues()
         XCTAssertEqual(cache.count, 4)
-        XCTAssertNil(cache.getValue(for: "key1"))
+        XCTAssertNil(cache.getValueDirect(for: "key1"))
         
         // Remove to 50%
         cache.removeValues(toPercent: 0.5)
         XCTAssertEqual(cache.count, 2)
         
         // High priority and normal should remain
-        XCTAssertNotNil(cache.getValue(for: "key2"))
-        XCTAssertNotNil(cache.getValue(for: "key3"))
+        XCTAssertNotNil(cache.getValueDirect(for: "key2"))
+        XCTAssertNotNil(cache.getValueDirect(for: "key3"))
     }
     
     func testStressScenario() {
@@ -739,7 +747,7 @@ final class MemoryCacheTests: XCTestCase {
         
         // Wait and check - should still be there (infinite TTL not randomized)
         Thread.sleep(forTimeInterval: 0.1)
-        XCTAssertEqual(cache.getValue(for: "key"), "value")
+        XCTAssertEqual(cache.getValueDirect(for: "key"), "value")
     }
     
     func testTTLRandomizationEdgeCases() {
@@ -756,8 +764,8 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: "medium", for: "key2", expiredIn: 5.0) // Should stay positive
         
         // Both should be available immediately
-        XCTAssertEqual(cache.getValue(for: "key1"), "short")
-        XCTAssertEqual(cache.getValue(for: "key2"), "medium")
+        XCTAssertEqual(cache.getValueDirect(for: "key1"), "short")
+        XCTAssertEqual(cache.getValueDirect(for: "key2"), "medium")
     }
     
     func testTTLRandomizationZeroRange() {
@@ -772,10 +780,10 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: "value", for: "key")
         
         // Should be available for exactly 1 second
-        XCTAssertEqual(cache.getValue(for: "key"), "value")
+        XCTAssertEqual(cache.getValueDirect(for: "key"), "value")
         
         Thread.sleep(forTimeInterval: 1.1)
-        XCTAssertNil(cache.getValue(for: "key"))
+        XCTAssertNil(cache.getValueDirect(for: "key"))
     }
     
     // MARK: - Cost Provider Integration Tests
@@ -826,8 +834,8 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: obj2, for: "key2")
         
         XCTAssertEqual(cache.count, 2)
-        XCTAssertEqual(cache.getValue(for: "key1")?.data, "test")
-        XCTAssertEqual(cache.getValue(for: "key2")?.number, 20)
+        XCTAssertEqual(cache.getValueDirect(for: "key1")?.data, "test")
+        XCTAssertEqual(cache.getValueDirect(for: "key2")?.number, 20)
     }
     
     // MARK: - Thread Safety Concurrent Access Tests
@@ -856,7 +864,7 @@ final class MemoryCacheTests: XCTestCase {
         for i in 0..<100 {
             group.enter()
             queue.async {
-                _ = cache.getValue(for: "key\(i)")
+                _ = cache.getValueDirect(for: "key\(i)")
                 group.leave()
             }
         }
@@ -878,7 +886,7 @@ final class MemoryCacheTests: XCTestCase {
         
         // Test basic operations without synchronization (should not crash)
         cache.set(value: 1, for: "key1")
-        XCTAssertEqual(cache.getValue(for: "key1"), 1)
+        XCTAssertEqual(cache.getValueDirect(for: "key1"), 1)
         XCTAssertEqual(cache.count, 1)
         
         // Test that operations work without thread safety
@@ -901,12 +909,12 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: nil as String?, for: "null_key")
         
         // Should return nil (indicating null value was cached)
-        XCTAssertNil(cache.getValue(for: "null_key"))
+        XCTAssertNil(cache.getValueDirect(for: "null_key"))
         
         // Test that null values don't interfere with regular values
         cache.set(value: "regular_value", for: "regular_key")
-        XCTAssertEqual(cache.getValue(for: "regular_key"), "regular_value")
-        XCTAssertNil(cache.getValue(for: "null_key"))
+        XCTAssertEqual(cache.getValueDirect(for: "regular_key"), "regular_value")
+        XCTAssertNil(cache.getValueDirect(for: "null_key"))
     }
     
     func testCacheEntryOverwriteBehavior() {
@@ -914,15 +922,15 @@ final class MemoryCacheTests: XCTestCase {
         
         // Set null value first
         cache.set(value: nil as String?, for: "key")
-        XCTAssertNil(cache.getValue(for: "key"))
+        XCTAssertNil(cache.getValueDirect(for: "key"))
         
         // Overwrite with regular value
         cache.set(value: "new_value", for: "key")
-        XCTAssertEqual(cache.getValue(for: "key"), "new_value")
+        XCTAssertEqual(cache.getValueDirect(for: "key"), "new_value")
         
         // Overwrite with null value again
         cache.set(value: nil as String?, for: "key")
-        XCTAssertNil(cache.getValue(for: "key"))
+        XCTAssertNil(cache.getValueDirect(for: "key"))
     }
     
     // MARK: - Memory Management Edge Cases Tests
@@ -939,7 +947,7 @@ final class MemoryCacheTests: XCTestCase {
         let evicted = cache.set(value: "value", for: "key")
         XCTAssertEqual(evicted.count, 1)
         XCTAssertEqual(cache.count, 0)
-        XCTAssertNil(cache.getValue(for: "key"))
+        XCTAssertNil(cache.getValueDirect(for: "key"))
     }
     
     func testMemoryLimitWithNegativeMemory() {
@@ -954,7 +962,7 @@ final class MemoryCacheTests: XCTestCase {
         let evicted = cache.set(value: "value", for: "key")
         XCTAssertEqual(evicted.count, 1)
         XCTAssertEqual(cache.count, 0)
-        XCTAssertNil(cache.getValue(for: "key"))
+        XCTAssertNil(cache.getValueDirect(for: "key"))
     }
     
     func testMemoryCostTrackingWithEmptyCache() {
@@ -997,7 +1005,7 @@ final class MemoryCacheTests: XCTestCase {
         
         // Should not crash with extreme values
         cache.set(value: "value", for: "key")
-        XCTAssertEqual(cache.getValue(for: "key"), "value")
+        XCTAssertEqual(cache.getValueDirect(for: "key"), "value")
     }
     
     func testConfigurationWithMinimalValues() {
@@ -1017,7 +1025,7 @@ final class MemoryCacheTests: XCTestCase {
         let evicted = cache.set(value: "value", for: "key")
         XCTAssertEqual(evicted.count, 0) // Rejected by validator
         XCTAssertEqual(cache.count, 0)
-        XCTAssertNil(cache.getValue(for: "key"))
+        XCTAssertNil(cache.getValueDirect(for: "key"))
     }
     
     // MARK: - Memory Cost Tracking Verification Tests
@@ -1089,8 +1097,8 @@ final class MemoryCacheTests: XCTestCase {
         // Second item should also be evicted
         cache.set(value: "large", for: "key2")
         XCTAssertEqual(cache.count, 0)
-        XCTAssertNil(cache.getValue(for: "key1"))
-        XCTAssertNil(cache.getValue(for: "key2"))
+        XCTAssertNil(cache.getValueDirect(for: "key1"))
+        XCTAssertNil(cache.getValueDirect(for: "key2"))
     }
     
     func testMemoryLimitWithExactByteCalculation() {
@@ -1167,7 +1175,7 @@ final class MemoryCacheTests: XCTestCase {
             )
         )
         intCache.set(value: 1000, for: "int_key")
-        XCTAssertEqual(intCache.getValue(for: "int_key"), 1000)
+        XCTAssertEqual(intCache.getValueDirect(for: "int_key"), 1000)
         
         // Test with Double
         let doubleCache = MemoryCache<String, Double>(
@@ -1178,7 +1186,7 @@ final class MemoryCacheTests: XCTestCase {
             )
         )
         doubleCache.set(value: 3.14, for: "double_key")
-        XCTAssertEqual(doubleCache.getValue(for: "double_key"), 3.14)
+        XCTAssertEqual(doubleCache.getValueDirect(for: "double_key"), 3.14)
         
         // Test with Bool
         let boolCache = MemoryCache<String, Bool>(
@@ -1189,7 +1197,7 @@ final class MemoryCacheTests: XCTestCase {
             )
         )
         boolCache.set(value: true, for: "bool_key")
-        XCTAssertEqual(boolCache.getValue(for: "bool_key"), true)
+        XCTAssertEqual(boolCache.getValueDirect(for: "bool_key"), true)
     }
     
     func testCostCalculationWithNilValues() {
@@ -1203,11 +1211,11 @@ final class MemoryCacheTests: XCTestCase {
         
         // Test cost calculation for nil values
         cache.set(value: nil as String?, for: "nil_key")
-        XCTAssertNil(cache.getValue(for: "nil_key"))
+        XCTAssertNil(cache.getValueDirect(for: "nil_key"))
         
         // Test cost calculation for empty strings
         cache.set(value: "", for: "empty_key")
-        XCTAssertEqual(cache.getValue(for: "empty_key"), "")
+        XCTAssertEqual(cache.getValueDirect(for: "empty_key"), "")
     }
     
     // MARK: - TTL Calculation Edge Cases
@@ -1222,11 +1230,11 @@ final class MemoryCacheTests: XCTestCase {
         
         // Test infinite TTL with randomization
         cache.set(value: "infinite", for: "key1", expiredIn: .infinity)
-        XCTAssertEqual(cache.getValue(for: "key1"), "infinite")
+        XCTAssertEqual(cache.getValueDirect(for: "key1"), "infinite")
         
         // Test infinite TTL for null values
         cache.set(value: nil, for: "key2")
-        XCTAssertNil(cache.getValue(for: "key2"))
+        XCTAssertNil(cache.getValueDirect(for: "key2"))
     }
     
     func testTTLRandomizationWithBulkValues() {
@@ -1264,7 +1272,7 @@ final class MemoryCacheTests: XCTestCase {
         // Verify that some values are still accessible after expiration
         var accessibleCount = 0
         for i in 0..<N {
-            if cache.getValue(for: "key\(i)") != nil {
+            if cache.getValueDirect(for: "key\(i)") != nil {
                 accessibleCount += 1
             }
         }
@@ -1295,7 +1303,7 @@ final class MemoryCacheTests: XCTestCase {
             group.enter()
             queue.async {
                 cache.set(value: i, for: "key\(i)")
-                _ = cache.getValue(for: "key\(i)")
+                _ = cache.getValueDirect(for: "key\(i)")
                 group.leave()
             }
         }
@@ -1316,7 +1324,7 @@ final class MemoryCacheTests: XCTestCase {
         
         // Operations without lock should still work
         cache.set(value: 1, for: "key1")
-        XCTAssertEqual(cache.getValue(for: "key1"), 1)
+        XCTAssertEqual(cache.getValueDirect(for: "key1"), 1)
         
         // But may have race conditions in concurrent scenarios
         // (This is expected behavior when thread safety is disabled)
@@ -1331,21 +1339,21 @@ final class MemoryCacheTests: XCTestCase {
         
         // Test regular value entry
         cache.set(value: "regular_value", for: "regular_key")
-        XCTAssertEqual(cache.getValue(for: "regular_key"), "regular_value")
+        XCTAssertEqual(cache.getValueDirect(for: "regular_key"), "regular_value")
         
         // Test null value entry
         cache.set(value: nil, for: "null_key")
-        XCTAssertNil(cache.getValue(for: "null_key"))
+        XCTAssertNil(cache.getValueDirect(for: "null_key"))
         
         // Test that both types of entries coexist
         XCTAssertEqual(cache.count, 2)
         
         // Test entry overwriting
         cache.set(value: "new_value", for: "regular_key")
-        XCTAssertEqual(cache.getValue(for: "regular_key"), "new_value")
+        XCTAssertEqual(cache.getValueDirect(for: "regular_key"), "new_value")
         
         cache.set(value: nil, for: "regular_key")
-        XCTAssertNil(cache.getValue(for: "regular_key"))
+        XCTAssertNil(cache.getValueDirect(for: "regular_key"))
     }
     
     func testCacheEntryWithMixedValueTypes() {
@@ -1360,10 +1368,10 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: nil, for: "key4")
         
         XCTAssertEqual(cache.count, 4)
-        XCTAssertEqual(cache.getValue(for: "key1"), "value1")
-        XCTAssertNil(cache.getValue(for: "key2"))
-        XCTAssertEqual(cache.getValue(for: "key3"), "value3")
-        XCTAssertNil(cache.getValue(for: "key4"))
+        XCTAssertEqual(cache.getValueDirect(for: "key1"), "value1")
+        XCTAssertNil(cache.getValueDirect(for: "key2"))
+        XCTAssertEqual(cache.getValueDirect(for: "key3"), "value3")
+        XCTAssertNil(cache.getValueDirect(for: "key4"))
     }
     
     // MARK: - Memory Cost Tracking Edge Cases
@@ -1404,8 +1412,8 @@ final class MemoryCacheTests: XCTestCase {
         // Second item should also be evicted
         cache.set(value: "exact2", for: "key2")
         XCTAssertEqual(cache.count, 0)
-        XCTAssertNil(cache.getValue(for: "key1"))
-        XCTAssertNil(cache.getValue(for: "key2"))
+        XCTAssertNil(cache.getValueDirect(for: "key1"))
+        XCTAssertNil(cache.getValueDirect(for: "key2"))
     }
     
     func testMemoryLimitWithSlightlyLargerCost() {
@@ -1419,7 +1427,7 @@ final class MemoryCacheTests: XCTestCase {
         // Item should be immediately evicted due to cost exceeding limit
         cache.set(value: "oversized", for: "key")
         XCTAssertEqual(cache.count, 0)
-        XCTAssertNil(cache.getValue(for: "key"))
+        XCTAssertNil(cache.getValueDirect(for: "key"))
     }
     
     // MARK: - TTL Randomization Precision Tests
@@ -1437,16 +1445,16 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: "short2", for: "key2", expiredIn: 0.1)
         
         // Both should be available immediately
-        XCTAssertEqual(cache.getValue(for: "key1"), "short1")
-        XCTAssertEqual(cache.getValue(for: "key2"), "short2")
+        XCTAssertEqual(cache.getValueDirect(for: "key1"), "short1")
+        XCTAssertEqual(cache.getValueDirect(for: "key2"), "short2")
         
         // Wait for expiration
         Thread.sleep(forTimeInterval: 0.15)
         cache.removeExpiredValues()
         
         // Both should be expired
-        XCTAssertNil(cache.getValue(for: "key1"))
-        XCTAssertNil(cache.getValue(for: "key2"))
+        XCTAssertNil(cache.getValueDirect(for: "key1"))
+        XCTAssertNil(cache.getValueDirect(for: "key2"))
     }
     
     func testTTLRandomizationDistribution() {
@@ -1499,11 +1507,11 @@ final class MemoryCacheTests: XCTestCase {
         
         // Test that the configuration is applied correctly
         cache.set(value: "valid", for: "valid_key")
-        XCTAssertEqual(cache.getValue(for: "valid_key"), "valid")
+        XCTAssertEqual(cache.getValueDirect(for: "valid_key"), "valid")
         
         // Invalid key should be rejected
         cache.set(value: "invalid", for: "")
-        XCTAssertNil(cache.getValue(for: ""))
+        XCTAssertNil(cache.getValueDirect(for: ""))
     }
     
     func testConfigurationWithZeroRandomization() {
@@ -1519,16 +1527,16 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: "exact2", for: "key2", expiredIn: 0.1)
         
         // Both should be available
-        XCTAssertEqual(cache.getValue(for: "key1"), "exact1")
-        XCTAssertEqual(cache.getValue(for: "key2"), "exact2")
+        XCTAssertEqual(cache.getValueDirect(for: "key1"), "exact1")
+        XCTAssertEqual(cache.getValueDirect(for: "key2"), "exact2")
         
         // Wait for exact expiration
         Thread.sleep(forTimeInterval: 0.15)
         cache.removeExpiredValues()
         
         // Both should be expired
-        XCTAssertNil(cache.getValue(for: "key1"))
-        XCTAssertNil(cache.getValue(for: "key2"))
+        XCTAssertNil(cache.getValueDirect(for: "key1"))
+        XCTAssertNil(cache.getValueDirect(for: "key2"))
     }
     
     // MARK: - Memory Overflow and Extreme Scenarios Tests
@@ -1578,7 +1586,7 @@ final class MemoryCacheTests: XCTestCase {
         
         cache.set(value: complexObj, for: "complex_key")
         XCTAssertEqual(cache.count, 1)
-        XCTAssertNotNil(cache.getValue(for: "complex_key"))
+        XCTAssertNotNil(cache.getValueDirect(for: "complex_key"))
     }
     
     func testMemoryCostTrackingAccuracy() {
@@ -1627,16 +1635,16 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: "micro2", for: "key2", expiredIn: 0.001)
         
         // Both should be available immediately
-        XCTAssertEqual(cache.getValue(for: "key1"), "micro1")
-        XCTAssertEqual(cache.getValue(for: "key2"), "micro2")
+        XCTAssertEqual(cache.getValueDirect(for: "key1"), "micro1")
+        XCTAssertEqual(cache.getValueDirect(for: "key2"), "micro2")
         
         // Wait for expiration
         Thread.sleep(forTimeInterval: 0.002)
         cache.removeExpiredValues()
         
         // Both should be expired
-        XCTAssertNil(cache.getValue(for: "key1"))
-        XCTAssertNil(cache.getValue(for: "key2"))
+        XCTAssertNil(cache.getValueDirect(for: "key1"))
+        XCTAssertNil(cache.getValueDirect(for: "key2"))
     }
     // MARK: - Concurrent Access Edge Cases Tests
     
@@ -1665,7 +1673,7 @@ final class MemoryCacheTests: XCTestCase {
         for i in 0..<50 {
             group.enter()
             queue.async {
-                _ = cache.getValue(for: "key\(i)")
+                _ = cache.getValueDirect(for: "key\(i)")
                 group.leave()
             }
         }
@@ -1734,7 +1742,7 @@ final class MemoryCacheTests: XCTestCase {
             group.enter()
             queue.async {
                 // Get operation
-                _ = cache.getValue(for: "key\(i)")
+                _ = cache.getValueDirect(for: "key\(i)")
                 group.leave()
             }
             
@@ -1777,7 +1785,7 @@ final class MemoryCacheTests: XCTestCase {
             
             // Bulk read
             for i in 0..<50000 {
-                _ = cache.getValue(for: "key\(i)")
+                _ = cache.getValueDirect(for: "key\(i)")
             }
             
             // Bulk remove
@@ -1798,7 +1806,7 @@ final class MemoryCacheTests: XCTestCase {
             // Rapid set/get cycles with small capacity
             for i in 0..<1000 {
                 cache.set(value: i, for: "key\(i)")
-                _ = cache.getValue(for: "key\(i)")
+                _ = cache.getValueDirect(for: "key\(i)")
                 _ = cache.removeValue(for: "key\(i)")
             }
         }
@@ -1817,7 +1825,7 @@ final class MemoryCacheTests: XCTestCase {
             // Very rapid set/get cycles
             for i in 0..<10000 {
                 cache.set(value: "value\(i)", for: "key\(i)")
-                _ = cache.getValue(for: "key\(i)")
+                _ = cache.getValueDirect(for: "key\(i)")
                 
                 if i % 10 == 0 {
                     _ = cache.removeValue(for: "key\(i)")
@@ -1842,7 +1850,7 @@ final class MemoryCacheTests: XCTestCase {
         // Should handle negative costs gracefully
         cache.set(value: "test", for: "key")
         XCTAssertEqual(cache.count, 1)
-        XCTAssertEqual(cache.getValue(for: "key"), "test")
+        XCTAssertEqual(cache.getValueDirect(for: "key"), "test")
     }
     
     func testBehaviorWithInvalidKeyValidator() {
@@ -1857,7 +1865,7 @@ final class MemoryCacheTests: XCTestCase {
         // Should handle invalid validator gracefully
         cache.set(value: "test", for: "key")
         XCTAssertEqual(cache.count, 0)
-        XCTAssertNil(cache.getValue(for: "key"))
+        XCTAssertNil(cache.getValueDirect(for: "key"))
     }
     
     func testBehaviorWithExtremeConfigurationValues() {
@@ -1876,7 +1884,7 @@ final class MemoryCacheTests: XCTestCase {
         
         // Should handle extreme values without crashing
         cache.set(value: "test", for: "key")
-        XCTAssertEqual(cache.getValue(for: "key"), "test")
+        XCTAssertEqual(cache.getValueDirect(for: "key"), "test")
     }
     
     // MARK: - Memory Pressure Scenarios Tests
@@ -1988,7 +1996,7 @@ final class MemoryCacheTests: XCTestCase {
                 cache.set(value: i, for: "key\(i)", priority: Double(i % 10), expiredIn: Double(i % 5))
                 
                 // Get value
-                _ = cache.getValue(for: "key\(i)")
+                _ = cache.getValueDirect(for: "key\(i)")
                 
                 // Remove expired values periodically
                 if i % 100 == 0 {
@@ -2033,8 +2041,8 @@ final class MemoryCacheTests: XCTestCase {
         // Add another item (should evict first)
         cache.set(value: "test2", for: "key2")
         XCTAssertEqual(cache.count, 0)
-        XCTAssertNil(cache.getValue(for: "key"))
-        XCTAssertNil(cache.getValue(for: "key2"))
+        XCTAssertNil(cache.getValueDirect(for: "key"))
+        XCTAssertNil(cache.getValueDirect(for: "key2"))
     }
     
     func testBoundaryConditionsWithMaximalValues() {
@@ -2053,7 +2061,7 @@ final class MemoryCacheTests: XCTestCase {
         // Test with maximal configuration
         cache.set(value: "test", for: "key")
         XCTAssertEqual(cache.count, 1)
-        XCTAssertEqual(cache.getValue(for: "key"), "test")
+        XCTAssertEqual(cache.getValueDirect(for: "key"), "test")
     }
     
     // MARK: - Memory Layout and Cost Calculation Tests
@@ -2091,7 +2099,7 @@ final class MemoryCacheTests: XCTestCase {
     // MARK: - Cache Statistics Tests
     
     func testStatisticsRecordingForGetValue() {
-        var reportedResults: [CacheResult] = []
+        var reportedResults: [CacheRecord] = []
         
         let cache = MemoryCache<String, String>(
             configuration: .init(
@@ -2106,30 +2114,30 @@ final class MemoryCacheTests: XCTestCase {
         )
         
         // Test invalid key
-        _ = cache.getValue(for: "invalid_key")
+        _ = cache.getValueDirect(for: "invalid_key")
         XCTAssertEqual(reportedResults.count, 1)
         XCTAssertEqual(reportedResults.last, .invalidKey)
         
         // Test miss
-        _ = cache.getValue(for: "valid_key")
+        _ = cache.getValueDirect(for: "valid_key")
         XCTAssertEqual(reportedResults.count, 2)
         XCTAssertEqual(reportedResults.last, .miss)
         
         // Test null value hit
         cache.set(value: nil, for: "valid_null_key")
-        _ = cache.getValue(for: "valid_null_key")
+        _ = cache.getValueDirect(for: "valid_null_key")
         XCTAssertEqual(reportedResults.count, 3)
         XCTAssertEqual(reportedResults.last, .hitNullValue)
         
         // Test non-null value hit
         cache.set(value: "test_value", for: "valid_test_key")
-        _ = cache.getValue(for: "valid_test_key")
+        _ = cache.getValueDirect(for: "valid_test_key")
         XCTAssertEqual(reportedResults.count, 4)
         XCTAssertEqual(reportedResults.last, .hitNonNullValue)
     }
     
     func testStatisticsRecordingForSetValue() {
-        var reportedResults: [CacheResult] = []
+        var reportedResults: [CacheRecord] = []
         
         let cache = MemoryCache<String, String>(
             configuration: .init(
@@ -2154,7 +2162,7 @@ final class MemoryCacheTests: XCTestCase {
         XCTAssertEqual(reportedResults.last, nil)
         
         // Test non-null value caching
-        _=cache.getValue(for: "valid_test_key")
+        _=cache.getValueDirect(for: "valid_test_key")
         XCTAssertEqual(reportedResults.count, 1)
         XCTAssertEqual(reportedResults.last, .miss)
     }
@@ -2174,10 +2182,10 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: nil, for: "key2")
         cache.set(value: "value3", for: "key3")
         
-        _ = cache.getValue(for: "key1")  // hit
-        _ = cache.getValue(for: "key2")  // null hit
-        _ = cache.getValue(for: "key4")  // miss
-        _ = cache.getValue(for: "")      // invalid key
+        _ = cache.getValueDirect(for: "key1")  // hit
+        _ = cache.getValueDirect(for: "key2")  // null hit
+        _ = cache.getValueDirect(for: "key4")  // miss
+        _ = cache.getValueDirect(for: "")      // invalid key
         
         let stats = cache.statistics
         
@@ -2201,11 +2209,11 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: nil, for: "key3")
         
         // Perform gets with known results
-        _ = cache.getValue(for: "key1")  // hit
-        _ = cache.getValue(for: "key2")  // hit
-        _ = cache.getValue(for: "key3")  // null hit
-        _ = cache.getValue(for: "key4")  // miss
-        _ = cache.getValue(for: "key5")  // miss
+        _ = cache.getValueDirect(for: "key1")  // hit
+        _ = cache.getValueDirect(for: "key2")  // hit
+        _ = cache.getValueDirect(for: "key3")  // null hit
+        _ = cache.getValueDirect(for: "key4")  // miss
+        _ = cache.getValueDirect(for: "key5")  // miss
         
         let stats = cache.statistics
         
@@ -2225,8 +2233,8 @@ final class MemoryCacheTests: XCTestCase {
         
         // Perform some operations
         cache.set(value: "value1", for: "key1")
-        _ = cache.getValue(for: "key1")
-        _ = cache.getValue(for: "key2")  // miss
+        _ = cache.getValueDirect(for: "key1")
+        _ = cache.getValueDirect(for: "key2")  // miss
         
         let statsBefore = cache.statistics
         XCTAssertGreaterThan(statsBefore.totalAccesses, 0)
@@ -2259,7 +2267,7 @@ final class MemoryCacheTests: XCTestCase {
         for i in 0..<1000 {
             group.enter()
             queue.async {
-                _ = cache.getValue(for: "key\(i % 100)")
+                _ = cache.getValueDirect(for: "key\(i % 100)")
                 group.leave()
             }
         }
@@ -2289,11 +2297,11 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: "value3", for: "key3")
         cache.set(value: "value4", for: "")  // invalid key
         
-        _ = cache.getValue(for: "key1")  // hit
-        _ = cache.getValue(for: "key2")  // null hit
-        _ = cache.getValue(for: "key4")  // miss
-        _ = cache.getValue(for: "")      // invalid key
-        _ = cache.getValue(for: "key3")  // hit
+        _ = cache.getValueDirect(for: "key1")  // hit
+        _ = cache.getValueDirect(for: "key2")  // null hit
+        _ = cache.getValueDirect(for: "key4")  // miss
+        _ = cache.getValueDirect(for: "")      // invalid key
+        _ = cache.getValueDirect(for: "key3")  // hit
         
         let stats = cache.statistics
         
@@ -2306,7 +2314,7 @@ final class MemoryCacheTests: XCTestCase {
     
     func testStatisticsReportCallback() {
         var callbackCount = 0
-        var lastResult: CacheResult?
+        var lastResult: CacheRecord?
         
         let cache = MemoryCache<String, String>(
             configuration: .init(
@@ -2320,8 +2328,8 @@ final class MemoryCacheTests: XCTestCase {
         
         // Perform operations
         cache.set(value: "test", for: "key1")
-        _ = cache.getValue(for: "key1")
-        _ = cache.getValue(for: "key2")  // miss
+        _ = cache.getValueDirect(for: "key1")
+        _ = cache.getValueDirect(for: "key2")  // miss
         
         XCTAssertEqual(callbackCount, 2)
         XCTAssertEqual(lastResult, .miss)
@@ -2339,13 +2347,13 @@ final class MemoryCacheTests: XCTestCase {
         cache.set(value: "test", for: "key1")
         
         // Get immediately (should hit)
-        _ = cache.getValue(for: "key1")
+        _ = cache.getValueDirect(for: "key1")
         
         // Wait for expiration
         Thread.sleep(forTimeInterval: 0.2)
         
         // Get after expiration (should miss)
-        _ = cache.getValue(for: "key1")
+        _ = cache.getValueDirect(for: "key1")
         
         let stats = cache.statistics
         

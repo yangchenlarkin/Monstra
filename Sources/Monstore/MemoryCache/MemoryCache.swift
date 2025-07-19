@@ -186,9 +186,10 @@ class MemoryCache<Key: Hashable, Element> {
     
     /// Creates a new memory cache with the specified configuration.
     /// - Parameter configuration: The configuration for this cache instance.
-    init(configuration: Configuration = .defaultConfig) {
+    init(configuration: Configuration = .defaultConfig, statisticsReport: ((CacheStatistics, CacheResult) -> Void)?) {
         self.configuration = configuration
         self.storageQueue = TTLPriorityLRUQueue(capacity: configuration.memoryUsageLimitation.capacity)
+        self.statistics = .init(report: statisticsReport)
     }
     
     // MARK: - Properties
@@ -204,6 +205,8 @@ class MemoryCache<Key: Hashable, Element> {
     
     /// Current total memory cost of all cached entries in bytes.
     private var totalCost: Int = 0
+    
+    private var statistics: CacheStatistics
     
     /// Internal wrapper for cache entries to support null value caching.
     private struct CacheEntry {
@@ -267,8 +270,8 @@ extension MemoryCache {
      
      - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
      */
-     @discardableResult
-     func set(
+    @discardableResult
+    func set(
         value: Element?,
         for key: Key,
         priority: Double = .zero,
@@ -368,11 +371,14 @@ extension MemoryCache {
      
      - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
      */
-     func getValue(for key: Key) -> Element? {
+    func getValue(for key: Key) -> Element? {
         acquireLockIfNeeded()
         defer { releaseLockIfNeeded() }
         
-        guard configuration.keyValidator(key) else { return nil }
+        guard configuration.keyValidator(key) else {
+            return nil
+        }
+        
         let cacheEntry = storageQueue.getValue(for: key)
         return cacheEntry?.value
     }
@@ -388,8 +394,8 @@ extension MemoryCache {
      
      - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
      */
-     @discardableResult
-     func removeValue(for key: Key) -> Element? {
+    @discardableResult
+    func removeValue(for key: Key) -> Element? {
         acquireLockIfNeeded()
         defer { releaseLockIfNeeded() }
         

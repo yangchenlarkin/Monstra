@@ -1,4 +1,4 @@
-# Monstore
+# monstra
 
 [![Swift](https://img.shields.io/badge/Swift-5.10-orange.svg)](https://swift.org)
 [![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20macOS%20%7C%20tvOS%20%7C%20watchOS-lightgrey.svg)](https://developer.apple.com)
@@ -29,14 +29,14 @@ A high-performance Swift package providing efficient memory caching utilities wi
 ## 🏗️ Architecture
 
 ```
-Monstore/
-├── Sources/Monstore/MemoryCache/
+monstra/
+├── Sources/monstra/MemoryCache/
 │   ├── LRUQueue.swift          # O(1) LRU cache implementation
 │   ├── TTLPriorityLRUQueue.swift   # LRU + TTL hybrid cache
 │   ├── Heap.swift              # Efficient heap data structure
 │   ├── CPUTimeStamp.swift      # High-precision timing utilities
 │   └── MemoryCache.swift       # Core caching functionality
-└── Tests/MonstoreTests/MemoryCache/
+└── Tests/monstraTests/MemoryCache/
     ├── LRUQueue/               # LRUQueue tests and benchmarks
     ├── TTLPriorityLRUQueue/        # TTL cache tests and benchmarks
     ├── Heap/                   # Heap performance tests
@@ -49,23 +49,23 @@ Monstore/
 
 #### Swift Package Manager
 
-Add Monstore to your `Package.swift`:
+Add monstra to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/yourusername/Monstore.git", from: "1.0.0")
+    .package(url: "https://github.com/yourusername/monstra.git", from: "1.0.0")
 ]
 ```
 
 Or add it directly in Xcode:
 1. File → Add Package Dependencies
-2. Enter the repository URL: `https://github.com/yourusername/Monstore.git`
+2. Enter the repository URL: `https://github.com/yourusername/monstra.git`
 3. Select the version you want to use
 
 ### Basic Usage
 
 ```swift
-import Monstore
+import monstore
 
 // Create an LRU cache with capacity 100
 let cache = LRUQueue<String, Int>(capacity: 100)
@@ -89,7 +89,7 @@ print(cache.isFull) // Whether cache is at capacity
 ### TTL Cache Usage
 
 ```swift
-import Monstore
+import monstore
 
 // Create TTL cache with automatic expiration
 let ttlCache = TTLPriorityLRUQueue<String, Int>(capacity: 100)
@@ -165,8 +165,8 @@ swift test --verbose
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/Monstore.git
-cd Monstore
+git clone https://github.com/yourusername/monstra.git
+cd monstra
 
 # Install development tools
 brew install swiftlint swiftformat sourcekitten

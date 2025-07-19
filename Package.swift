@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "Monstore",
+    name: "monstra",
     platforms: [
         .iOS(.v13),
         .macOS(.v10_15),
@@ -14,8 +14,8 @@ let package = Package(
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "Monstore",
-            targets: ["Monstore"]),
+            name: "monstore",
+            targets: ["monstore"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -25,15 +25,15 @@ let package = Package(
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "Monstore",
+            name: "monstore",
             dependencies: [],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug)),
                 .unsafeFlags(["-enable-testing"], .when(configuration: .debug))
             ]),
         .testTarget(
-            name: "MonstoreTests",
-            dependencies: ["Monstore"],
+            name: "monstoreTests",
+            dependencies: ["monstore"],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
             ]),

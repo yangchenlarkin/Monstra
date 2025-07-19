@@ -186,7 +186,7 @@ class MemoryCache<Key: Hashable, Element> {
     
     /// Creates a new memory cache with the specified configuration.
     /// - Parameter configuration: The configuration for this cache instance.
-    init(configuration: Configuration = .defaultConfig, statisticsReport: ((CacheStatistics, CacheResult) -> Void)?) {
+    init(configuration: Configuration = .defaultConfig, statisticsReport: ((CacheStatistics, CacheResult) -> Void)? = nil) {
         self.configuration = configuration
         self.storageQueue = TTLPriorityLRUQueue(capacity: configuration.memoryUsageLimitation.capacity)
         self.statistics = .init(report: statisticsReport)
@@ -206,18 +206,17 @@ class MemoryCache<Key: Hashable, Element> {
     /// Current total memory cost of all cached entries in bytes.
     private var totalCost: Int = 0
     
-    private var statistics: CacheStatistics
+    private(set) var statistics: CacheStatistics
     
     /// Internal wrapper for cache entries to support null value caching.
     private struct CacheEntry {
         /// The actual value (can be nil for null caching).
         let value: Element?
         /// Whether this entry represents a null value.
-        let isNullValue: Bool
+        var isNullValue: Bool { value == nil }
         
         init(value: Element?) {
             self.value = value
-            self.isNullValue = value == nil
         }
     }
 }
@@ -376,10 +375,20 @@ extension MemoryCache {
         defer { releaseLockIfNeeded() }
         
         guard configuration.keyValidator(key) else {
+            statistics.record(.invalidKey)
             return nil
         }
         
         let cacheEntry = storageQueue.getValue(for: key)
+        if let cacheEntry {
+            if cacheEntry.isNullValue {
+                statistics.record(.hitNullValue)
+            } else {
+                statistics.record(.hitNonNullValue)
+            }
+        } else {
+            statistics.record(.miss)
+        }
         return cacheEntry?.value
     }
     
@@ -455,6 +464,10 @@ extension MemoryCache {
         while storageQueue.count > restCount {
             removeValue()
         }
+    }
+    
+    func resetStatistics() {
+        statistics.reset()
     }
 }
 

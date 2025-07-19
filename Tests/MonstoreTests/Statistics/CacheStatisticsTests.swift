@@ -89,7 +89,7 @@ final class CacheStatisticsTests: XCTestCase {
     
     func testReportCallbackWithInvalidKey() {
         var reportedStatistics: CacheStatistics?
-        var reportedResult: CacheResult?
+        var reportedResult: CacheRecord?
         
         statistics.report = { stats, result in
             reportedStatistics = stats
@@ -106,7 +106,7 @@ final class CacheStatisticsTests: XCTestCase {
     
     func testReportCallbackWithHitNullValue() {
         var reportedStatistics: CacheStatistics?
-        var reportedResult: CacheResult?
+        var reportedResult: CacheRecord?
         
         statistics.report = { stats, result in
             reportedStatistics = stats
@@ -123,7 +123,7 @@ final class CacheStatisticsTests: XCTestCase {
     
     func testReportCallbackWithHitNonNullValue() {
         var reportedStatistics: CacheStatistics?
-        var reportedResult: CacheResult?
+        var reportedResult: CacheRecord?
         
         statistics.report = { stats, result in
             reportedStatistics = stats
@@ -140,7 +140,7 @@ final class CacheStatisticsTests: XCTestCase {
     
     func testReportCallbackWithMiss() {
         var reportedStatistics: CacheStatistics?
-        var reportedResult: CacheResult?
+        var reportedResult: CacheRecord?
         
         statistics.report = { stats, result in
             reportedStatistics = stats
@@ -172,7 +172,7 @@ final class CacheStatisticsTests: XCTestCase {
     
     func testReportCallbackWithMultipleRecords() {
         var callCount = 0
-        var reportedResults: [CacheResult] = []
+        var reportedResults: [CacheRecord] = []
         
         statistics.report = { stats, result in
             callCount += 1
@@ -527,14 +527,14 @@ final class CacheStatisticsTests: XCTestCase {
         XCTAssertGreaterThan(newTracingID, 0)
     }
     
-    // MARK: - CacheResult Enum Tests
+    // MARK: - CacheRecord Enum Tests
     
-    func testCacheResultEnum() {
+    func testCacheRecordEnum() {
         // Test all enum cases exist
-        let invalidKey: CacheResult = .invalidKey
-        let hitNullValue: CacheResult = .hitNullValue
-        let hitNonNullValue: CacheResult = .hitNonNullValue
-        let miss: CacheResult = .miss
+        let invalidKey: CacheRecord = .invalidKey
+        let hitNullValue: CacheRecord = .hitNullValue
+        let hitNonNullValue: CacheRecord = .hitNonNullValue
+        let miss: CacheRecord = .miss
         
         XCTAssertNotNil(invalidKey)
         XCTAssertNotNil(hitNullValue)

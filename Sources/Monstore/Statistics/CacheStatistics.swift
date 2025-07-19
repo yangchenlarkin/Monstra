@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum CacheResult {
+enum CacheRecord {
     case invalidKey
     case hitNullValue
     case hitNonNullValue
@@ -33,7 +33,7 @@ struct CacheStatistics {
     /// Number of cache misses
     private(set) var missCount: Int = 0
     
-    var report: ((Self, CacheResult) -> Void)? = nil
+    var report: ((Self, CacheRecord) -> Void)? = nil
     
     /// Total number of cache accesses
     var totalAccesses: Int {
@@ -54,7 +54,7 @@ struct CacheStatistics {
     }
     
     /// Record a cache result
-    mutating func record(_ result: CacheResult) {
+    mutating func record(_ result: CacheRecord) {
         switch result {
         case .invalidKey:
             invalidKeyCount += 1

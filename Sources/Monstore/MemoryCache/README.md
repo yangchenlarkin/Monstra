@@ -84,7 +84,7 @@ High-precision CPU timestamp for accurate time measurements:
 let imageCache = MemoryCache<String, UIImage>(
     configuration: .init(
         enableThreadSynchronization: true,
-        usageLimitation: .init(capacity: 1000, memory: 500), // 500MB limit
+        memoryUsageLimitation: .init(capacity: 1000, memory: 500), // 500MB limit
         defaultTTL: 3600, // 1 hour
         keyValidator: { $0.hasPrefix("https://") },
         costProvider: { image in
@@ -98,7 +98,7 @@ let imageCache = MemoryCache<String, UIImage>(
 let fastCache = MemoryCache<String, Int>(
     configuration: .init(
         enableThreadSynchronization: false,
-        usageLimitation: .init(capacity: 500, memory: 100)
+        memoryUsageLimitation: .init(capacity: 500, memory: 100)
     )
 )
 ```
@@ -107,7 +107,7 @@ let fastCache = MemoryCache<String, Int>(
 ```swift
 let config = MemoryCache.Configuration(
     enableThreadSynchronization: true,
-    usageLimitation: .init(capacity: 1000, memory: 100), // 100MB limit
+    memoryUsageLimitation: .init(capacity: 1000, memory: 100), // 100MB limit
     defaultTTL: 1800, // 30 minutes
     defaultTTLForNullValue: 300, // 5 minutes for null values
     ttlRandomizationRange: 60, // ±60 seconds randomization

@@ -15,7 +15,7 @@ final class MemoryCachePerformanceTests: XCTestCase {
     /// Measures bulk insertion and retrieval throughput.
     func testBulkInsertAndRetrievePerformance() {
         let count = 10_000
-        let cache = MemoryCache<Int, Int>(configuration: .init(usageLimitation: .init(capacity: count)))
+        let cache = MemoryCache<Int, Int>(configuration: .init(memoryUsageLimitation: .init(capacity: count)))
         measure {
             for i in 0..<count {
                 cache.set(value: i, for: i)
@@ -29,7 +29,7 @@ final class MemoryCachePerformanceTests: XCTestCase {
     /// Measures expiration performance under load.
     func testExpirationPerformance() {
         let count = 10_000
-        let cache = MemoryCache<Int, Int>(configuration: .init(usageLimitation: .init(capacity: count)))
+        let cache = MemoryCache<Int, Int>(configuration: .init(memoryUsageLimitation: .init(capacity: count)))
         for i in 0..<count {
             cache.set(value: i, for: i, expiredIn: 0.01)
         }
@@ -44,7 +44,7 @@ final class MemoryCachePerformanceTests: XCTestCase {
     /// Measures priority-based eviction performance under load.
     func testPriorityEvictionPerformance() {
         let count = 10_000
-        let cache = MemoryCache<Int, Int>(configuration: .init(usageLimitation: .init(capacity: 1000)))
+        let cache = MemoryCache<Int, Int>(configuration: .init(memoryUsageLimitation: .init(capacity: 1000)))
         measure {
             for i in 0..<count {
                 cache.set(value: i, for: i, priority: Double(i % 10))
@@ -55,7 +55,7 @@ final class MemoryCachePerformanceTests: XCTestCase {
     /// Measures LRU eviction performance under load.
     func testLRUEvictionPerformance() {
         let count = 10_000
-        let cache = MemoryCache<Int, Int>(configuration: .init(usageLimitation: .init(capacity: 1000)))
+        let cache = MemoryCache<Int, Int>(configuration: .init(memoryUsageLimitation: .init(capacity: 1000)))
         for i in 0..<1000 {
             cache.set(value: i, for: i)
         }
@@ -69,7 +69,7 @@ final class MemoryCachePerformanceTests: XCTestCase {
     /// Measures performance of a mixed workload (insert, get, remove).
     func testMixedWorkloadPerformance() {
         let count = 10_000
-        let cache = MemoryCache<Int, Int>(configuration: .init(usageLimitation: .init(capacity: 2000)))
+        let cache = MemoryCache<Int, Int>(configuration: .init(memoryUsageLimitation: .init(capacity: 2000)))
         measure {
             for i in 0..<count {
                 cache.set(value: i, for: i)
@@ -86,7 +86,7 @@ final class MemoryCachePerformanceTests: XCTestCase {
     /// Measures performance of removing least recently used values.
     func testRemoveValuePerformance() {
         let count = 10_000
-        let cache = MemoryCache<Int, Int>(configuration: .init(usageLimitation: .init(capacity: count)))
+        let cache = MemoryCache<Int, Int>(configuration: .init(memoryUsageLimitation: .init(capacity: count)))
         
         // Pre-populate cache
         for i in 0..<count {
@@ -104,7 +104,7 @@ final class MemoryCachePerformanceTests: XCTestCase {
     /// Measures performance of removing expired values.
     func testRemoveExpiredValuesPerformance() {
         let count = 10_000
-        let cache = MemoryCache<Int, Int>(configuration: .init(usageLimitation: .init(capacity: count)))
+        let cache = MemoryCache<Int, Int>(configuration: .init(memoryUsageLimitation: .init(capacity: count)))
         
         // Add values with short TTL
         for i in 0..<count {
@@ -122,7 +122,7 @@ final class MemoryCachePerformanceTests: XCTestCase {
     /// Measures performance of removing values to reach target percentage.
     func testRemoveValuesToPercentPerformance() {
         let count = 10_000
-        let cache = MemoryCache<Int, Int>(configuration: .init(usageLimitation: .init(capacity: count)))
+        let cache = MemoryCache<Int, Int>(configuration: .init(memoryUsageLimitation: .init(capacity: count)))
         
         // Pre-populate cache
         for i in 0..<count {
@@ -141,7 +141,7 @@ final class MemoryCachePerformanceTests: XCTestCase {
     /// Measures performance of mixed cache operations including new functions.
     func testMixedCacheOperationsPerformance() {
         let count = 10_000
-        let cache = MemoryCache<Int, Int>(configuration: .init(usageLimitation: .init(capacity: 2000)))
+        let cache = MemoryCache<Int, Int>(configuration: .init(memoryUsageLimitation: .init(capacity: 2000)))
         
         measure {
             for i in 0..<count {
@@ -168,7 +168,7 @@ final class MemoryCachePerformanceTests: XCTestCase {
     /// Measures performance for cache with capacity 1.
     func testSmallCapacity1Performance() {
         let cap = 1
-        let cache = MemoryCache<String, Int>(configuration: .init(usageLimitation: .init(capacity: cap)))
+        let cache = MemoryCache<String, Int>(configuration: .init(memoryUsageLimitation: .init(capacity: cap)))
         measure {
             for i in 0..<(cap * 1000) {
                 cache.set(value: i, for: "key\(i)")
@@ -181,7 +181,7 @@ final class MemoryCachePerformanceTests: XCTestCase {
     /// Measures performance for cache with capacity 10.
     func testSmallCapacity10Performance() {
         let cap = 10
-        let cache = MemoryCache<String, Int>(configuration: .init(usageLimitation: .init(capacity: cap)))
+        let cache = MemoryCache<String, Int>(configuration: .init(memoryUsageLimitation: .init(capacity: cap)))
         measure {
             for i in 0..<(cap * 1000) {
                 cache.set(value: i, for: "key\(i)")
@@ -196,7 +196,7 @@ final class MemoryCachePerformanceTests: XCTestCase {
     /// Measures performance under a randomized insert/get/remove workload.
     func testRandomizedWorkloadPerformance() {
         let count = 10_000
-        let cache = MemoryCache<Int, String>(configuration: .init(usageLimitation: .init(capacity: 1000)))
+        let cache = MemoryCache<Int, String>(configuration: .init(memoryUsageLimitation: .init(capacity: 1000)))
         var inserted = 0
         var removed = 0
         measure {
@@ -222,7 +222,7 @@ final class MemoryCachePerformanceTests: XCTestCase {
     /// Measures performance under long-running, high-churn workload.
     func testStressLongRunningPerformance() {
         let count = 50_000
-        let cache = MemoryCache<Int, Int>(configuration: .init(usageLimitation: .init(capacity: 1000)))
+        let cache = MemoryCache<Int, Int>(configuration: .init(memoryUsageLimitation: .init(capacity: 1000)))
         measure {
             for i in 0..<count {
                 cache.set(value: i, for: i, expiredIn: i % 3 == 0 ? 0.01 : 1000)

@@ -2087,4 +2087,270 @@ final class MemoryCacheTests: XCTestCase {
         XCTAssertEqual(intCache.count, 1)
         XCTAssertEqual(doubleCache.count, 1)
     }
-} 
+    
+    // MARK: - Cache Statistics Tests
+    
+    func testStatisticsRecordingForGetValue() {
+        var reportedResults: [CacheResult] = []
+        
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                memoryUsageLimitation: .init(capacity: 10),
+                keyValidator: { key in
+                    return key.hasPrefix("valid_")
+                }
+            ),
+            statisticsReport: { _, result in
+                reportedResults.append(result)
+            }
+        )
+        
+        // Test invalid key
+        _ = cache.getValue(for: "invalid_key")
+        XCTAssertEqual(reportedResults.count, 1)
+        XCTAssertEqual(reportedResults.last, .invalidKey)
+        
+        // Test miss
+        _ = cache.getValue(for: "valid_key")
+        XCTAssertEqual(reportedResults.count, 2)
+        XCTAssertEqual(reportedResults.last, .miss)
+        
+        // Test null value hit
+        cache.set(value: nil, for: "valid_null_key")
+        _ = cache.getValue(for: "valid_null_key")
+        XCTAssertEqual(reportedResults.count, 3)
+        XCTAssertEqual(reportedResults.last, .hitNullValue)
+        
+        // Test non-null value hit
+        cache.set(value: "test_value", for: "valid_test_key")
+        _ = cache.getValue(for: "valid_test_key")
+        XCTAssertEqual(reportedResults.count, 4)
+        XCTAssertEqual(reportedResults.last, .hitNonNullValue)
+    }
+    
+    func testStatisticsRecordingForSetValue() {
+        var reportedResults: [CacheResult] = []
+        
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                memoryUsageLimitation: .init(capacity: 10),
+                keyValidator: { key in
+                    return key.hasPrefix("valid_")
+                }
+            ),
+            statisticsReport: { _, result in
+                reportedResults.append(result)
+            }
+        )
+        
+        // Test invalid key in set
+        cache.set(value: "test", for: "invalid_key")
+        XCTAssertEqual(reportedResults.count, 0)
+        XCTAssertEqual(reportedResults.last, nil)
+        
+        // Test null value caching
+        cache.set(value: nil, for: "valid_null_key")
+        XCTAssertEqual(reportedResults.count, 0)
+        XCTAssertEqual(reportedResults.last, nil)
+        
+        // Test non-null value caching
+        _=cache.getValue(for: "valid_test_key")
+        XCTAssertEqual(reportedResults.count, 1)
+        XCTAssertEqual(reportedResults.last, .miss)
+    }
+    
+    func testStatisticsAccuracy() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                memoryUsageLimitation: .init(capacity: 100),
+                keyValidator: { key in
+                    return key.count > 0
+                }
+            )
+        )
+        
+        // Perform various operations
+        cache.set(value: "value1", for: "key1")
+        cache.set(value: nil, for: "key2")
+        cache.set(value: "value3", for: "key3")
+        
+        _ = cache.getValue(for: "key1")  // hit
+        _ = cache.getValue(for: "key2")  // null hit
+        _ = cache.getValue(for: "key4")  // miss
+        _ = cache.getValue(for: "")      // invalid key
+        
+        let stats = cache.statistics
+        
+        XCTAssertEqual(stats.invalidKeyCount, 1)
+        XCTAssertEqual(stats.nullValueHitCount, 1)
+        XCTAssertEqual(stats.nonNullValueHitCount, 1)
+        XCTAssertEqual(stats.missCount, 1)
+        XCTAssertEqual(stats.totalAccesses, 4)
+    }
+    
+    func testStatisticsHitRateCalculation() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                memoryUsageLimitation: .init(capacity: 100)
+            )
+        )
+        
+        // Set up some data
+        cache.set(value: "value1", for: "key1")
+        cache.set(value: "value2", for: "key2")
+        cache.set(value: nil, for: "key3")
+        
+        // Perform gets with known results
+        _ = cache.getValue(for: "key1")  // hit
+        _ = cache.getValue(for: "key2")  // hit
+        _ = cache.getValue(for: "key3")  // null hit
+        _ = cache.getValue(for: "key4")  // miss
+        _ = cache.getValue(for: "key5")  // miss
+        
+        let stats = cache.statistics
+        
+        // Hit rate should be 3/5 = 0.6 (excluding invalid keys)
+        XCTAssertEqual(stats.hitRate, 0.6, accuracy: 0.01)
+        
+        // Success rate should be 3/5 = 0.6 (including all accesses)
+        XCTAssertEqual(stats.successRate, 0.6, accuracy: 0.01)
+    }
+    
+    func testStatisticsReset() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                memoryUsageLimitation: .init(capacity: 100)
+            )
+        )
+        
+        // Perform some operations
+        cache.set(value: "value1", for: "key1")
+        _ = cache.getValue(for: "key1")
+        _ = cache.getValue(for: "key2")  // miss
+        
+        let statsBefore = cache.statistics
+        XCTAssertGreaterThan(statsBefore.totalAccesses, 0)
+        
+        // Reset statistics
+        cache.resetStatistics()
+        
+        let statsAfter = cache.statistics
+        XCTAssertEqual(statsAfter.totalAccesses, 0)
+        XCTAssertEqual(statsAfter.hitRate, 0.0)
+        XCTAssertEqual(statsAfter.successRate, 0.0)
+    }
+    
+    func testStatisticsWithConcurrentAccess() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                memoryUsageLimitation: .init(capacity: 1000)
+            )
+        )
+        
+        // Pre-populate cache
+        for i in 0..<100 {
+            cache.set(value: "value\(i)", for: "key\(i)")
+        }
+        
+        let queue = DispatchQueue(label: "stats", attributes: .concurrent)
+        let group = DispatchGroup()
+        
+        // Concurrent access
+        for i in 0..<1000 {
+            group.enter()
+            queue.async {
+                _ = cache.getValue(for: "key\(i % 100)")
+                group.leave()
+            }
+        }
+        
+        group.wait()
+        
+        let stats = cache.statistics
+        
+        // Should have recorded all operations
+        XCTAssertEqual(stats.totalAccesses, 1000)
+        XCTAssertGreaterThan(stats.hitRate, 0.0)
+    }
+    
+    func testStatisticsWithMixedOperations() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                memoryUsageLimitation: .init(capacity: 100),
+                keyValidator: { key in
+                    return key.count > 0 && key.count <= 10
+                }
+            )
+        )
+        
+        // Mix of operations
+        cache.set(value: "value1", for: "key1")
+        cache.set(value: nil, for: "key2")
+        cache.set(value: "value3", for: "key3")
+        cache.set(value: "value4", for: "")  // invalid key
+        
+        _ = cache.getValue(for: "key1")  // hit
+        _ = cache.getValue(for: "key2")  // null hit
+        _ = cache.getValue(for: "key4")  // miss
+        _ = cache.getValue(for: "")      // invalid key
+        _ = cache.getValue(for: "key3")  // hit
+        
+        let stats = cache.statistics
+        
+        XCTAssertEqual(stats.invalidKeyCount, 1)
+        XCTAssertEqual(stats.nullValueHitCount, 1)
+        XCTAssertEqual(stats.nonNullValueHitCount, 2)
+        XCTAssertEqual(stats.missCount, 1)
+        XCTAssertEqual(stats.totalAccesses, 5)
+    }
+    
+    func testStatisticsReportCallback() {
+        var callbackCount = 0
+        var lastResult: CacheResult?
+        
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                memoryUsageLimitation: .init(capacity: 100)
+            ),
+            statisticsReport: { stats, result in
+                callbackCount += 1
+                lastResult = result
+            }
+        )
+        
+        // Perform operations
+        cache.set(value: "test", for: "key1")
+        _ = cache.getValue(for: "key1")
+        _ = cache.getValue(for: "key2")  // miss
+        
+        XCTAssertEqual(callbackCount, 2)
+        XCTAssertEqual(lastResult, .miss)
+    }
+    
+    func testStatisticsWithExpiredValues() {
+        let cache = MemoryCache<String, String>(
+            configuration: .init(
+                memoryUsageLimitation: .init(capacity: 100),
+                defaultTTL: 0.1  // Very short TTL
+            )
+        )
+        
+        // Set value with short TTL
+        cache.set(value: "test", for: "key1")
+        
+        // Get immediately (should hit)
+        _ = cache.getValue(for: "key1")
+        
+        // Wait for expiration
+        Thread.sleep(forTimeInterval: 0.2)
+        
+        // Get after expiration (should miss)
+        _ = cache.getValue(for: "key1")
+        
+        let stats = cache.statistics
+        
+        XCTAssertEqual(stats.nonNullValueHitCount, 1)
+        XCTAssertEqual(stats.missCount, 1)
+        XCTAssertEqual(stats.totalAccesses, 2)
+    }
+}

@@ -14,6 +14,8 @@ MemoryCache provides a comprehensive caching solution with advanced features inc
 
 **Memory Usage Tracking** provides fine-grained control over cache memory consumption with automatic eviction when limits are exceeded. This prevents memory leaks and ensures your app maintains optimal performance even under high memory pressure, making it suitable for memory-constrained environments like mobile devices.
 
+**Performance Statistics** provides comprehensive cache performance monitoring with automatic tracking of hit rates, access patterns, and cache effectiveness. This enables data-driven optimization of cache strategies and helps identify performance bottlenecks in your application.
+
 ## Core Features
 
 ### Thread Safety
@@ -29,6 +31,7 @@ MemoryCache provides a comprehensive caching solution with advanced features inc
 - **External Key Validation**: Customizable key validation function set at initialization
 - **TTL Randomization**: Prevents cache stampede by randomizing expiration times
 - **Memory Usage Tracking**: Configurable memory limits with automatic eviction
+- **Performance Statistics**: Comprehensive cache performance monitoring with hit rate tracking
 
 ### Performance Characteristics
 - **Time Complexity**: O(1) average case for get/set operations
@@ -47,6 +50,7 @@ The main caching class that provides:
 - Null value caching with separate TTL configuration
 - External key validation
 - Memory limit enforcement with automatic eviction
+- Performance statistics tracking with hit rate and success rate calculation
 
 ### TTLPriorityLRUQueue
 A cache that combines TTL, priority, and LRU eviction policies:
@@ -142,6 +146,13 @@ let removedValue = cache.removeValue(for: "image_key")
 let isEmpty = cache.isEmpty
 let count = cache.count
 let capacity = cache.capacity
+
+// Access cache statistics
+let stats = cache.statistics
+print("Hit rate: \(stats.hitRate)")
+print("Success rate: \(stats.successRate)")
+print("Total accesses: \(stats.totalAccesses)")
+```
 ```
 
 ## Memory Cost Calculation
@@ -165,6 +176,38 @@ costProvider: { $0.count }
 costProvider: { obj in
     return obj.stringData.count + obj.binaryData.count + obj.metadata.count
 }
+```
+
+### Cache Statistics
+
+MemoryCache provides comprehensive performance monitoring with automatic statistics tracking:
+
+```swift
+// Create cache with statistics reporting
+let cache = MemoryCache<String, Data>(
+    configuration: .init(),
+    statisticsReport: { stats, result in
+        print("Cache operation: \(result), Hit rate: \(stats.hitRate)")
+    }
+)
+
+// Perform cache operations
+cache.set(value: data, for: "key1")
+_ = cache.getValue(for: "key1")  // hit
+_ = cache.getValue(for: "key2")  // miss
+
+// Access statistics
+let stats = cache.statistics
+print("Hit rate: \(stats.hitRate)")           // 0.5 (1 hit / 2 valid accesses)
+print("Success rate: \(stats.successRate)")   // 0.5 (1 hit / 2 total accesses)
+print("Invalid keys: \(stats.invalidKeyCount)")
+print("Null value hits: \(stats.nullValueHitCount)")
+print("Non-null value hits: \(stats.nonNullValueHitCount)")
+print("Misses: \(stats.missCount)")
+
+// Reset statistics for performance testing
+cache.resetStatistics()
+```
 ```
 
 ## Performance

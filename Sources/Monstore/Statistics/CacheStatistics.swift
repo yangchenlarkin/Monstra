@@ -42,13 +42,13 @@ struct CacheStatistics {
     var hitRate: Double {
         let validAccesses = nullValueHitCount + nonNullValueHitCount + missCount
         guard validAccesses > 0 else { return 0.0 }
-        return Double(nullValueHitCount + nonNullValueHitCount) / Double(validAccesses) * 100.0
+        return Double(nullValueHitCount + nonNullValueHitCount) / Double(validAccesses)
     }
     
     /// Overall success rate including invalid keys
     var successRate: Double {
         guard totalAccesses > 0 else { return 0.0 }
-        return Double(nullValueHitCount + nonNullValueHitCount) / Double(totalAccesses) * 100.0
+        return Double(nullValueHitCount + nonNullValueHitCount) / Double(totalAccesses)
     }
     
     /// Record a cache result

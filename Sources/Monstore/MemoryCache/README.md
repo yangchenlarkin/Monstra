@@ -234,4 +234,4 @@ import Monstore
 
 ## License
 
-This library is part of the Monstore framework. See the main LICENSE file for details. 
+This library is part of the monstra framework. See the main LICENSE file for details. 

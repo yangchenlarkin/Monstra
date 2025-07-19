@@ -65,7 +65,7 @@ Or add it directly in Xcode:
 ### Basic Usage
 
 ```swift
-import monstore
+import Monstore
 
 // Create an LRU cache with capacity 100
 let cache = LRUQueue<String, Int>(capacity: 100)
@@ -89,7 +89,7 @@ print(cache.isFull) // Whether cache is at capacity
 ### TTL Cache Usage
 
 ```swift
-import monstore
+import Monstore
 
 // Create TTL cache with automatic expiration
 let ttlCache = TTLPriorityLRUQueue<String, Int>(capacity: 100)

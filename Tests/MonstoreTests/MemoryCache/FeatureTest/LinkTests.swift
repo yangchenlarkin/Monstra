@@ -15,7 +15,7 @@ final class LinkTests: XCTestCase {
     func testEnqueueElement() {
         let link = Link<Int>(with: 3)
         
-        let result = link.enqueue(element: 1)
+        let result = link.enqueueFront(element: 1)
         XCTAssertNotNil(result.newNode)
         XCTAssertNil(result.evictedNode)
         XCTAssertEqual(link.count, 1)
@@ -26,9 +26,9 @@ final class LinkTests: XCTestCase {
     func testEnqueueMultipleElements() {
         let link = Link<Int>(with: 3)
         
-        let result1 = link.enqueue(element: 1)
-        let result2 = link.enqueue(element: 2)
-        let result3 = link.enqueue(element: 3)
+        let result1 = link.enqueueFront(element: 1)
+        let result2 = link.enqueueFront(element: 2)
+        let result3 = link.enqueueFront(element: 3)
         
         XCTAssertEqual(link.count, 3)
         XCTAssertEqual(link.front?.element, 3) // Most recent at front
@@ -42,7 +42,7 @@ final class LinkTests: XCTestCase {
         let link = Link<Int>(with: 3)
         let node = Link<Int>.Node(element: 1)
         
-        let evicted = link.enqueueNode(node)
+        let evicted = link.enqueueFront(node: node)
         XCTAssertNil(evicted)
         XCTAssertEqual(link.count, 1)
         XCTAssertEqual(link.front?.element, 1)
@@ -51,9 +51,9 @@ final class LinkTests: XCTestCase {
     
     func testDequeueBack() {
         let link = Link<Int>(with: 3)
-        link.enqueue(element: 1)
-        link.enqueue(element: 2)
-        link.enqueue(element: 3)
+        link.enqueueFront(element: 1)
+        link.enqueueFront(element: 2)
+        link.enqueueFront(element: 3)
         
         let removed = link.dequeueBack()
         XCTAssertEqual(removed?.element, 1) // Least recent
@@ -64,9 +64,9 @@ final class LinkTests: XCTestCase {
     
     func testDequeueFront() {
         let link = Link<Int>(with: 3)
-        link.enqueue(element: 1)
-        link.enqueue(element: 2)
-        link.enqueue(element: 3)
+        link.enqueueFront(element: 1)
+        link.enqueueFront(element: 2)
+        link.enqueueFront(element: 3)
         
         let removed = link.dequeueFront()
         XCTAssertEqual(removed?.element, 3) // Most recent
@@ -77,9 +77,9 @@ final class LinkTests: XCTestCase {
     
     func testRemoveNode() {
         let link = Link<Int>(with: 3)
-        link.enqueue(element: 1)
-        link.enqueue(element: 2)
-        link.enqueue(element: 3)
+        link.enqueueFront(element: 1)
+        link.enqueueFront(element: 2)
+        link.enqueueFront(element: 3)
         
         let middleNode = link.front?.next
         XCTAssertNotNil(middleNode)
@@ -96,9 +96,9 @@ final class LinkTests: XCTestCase {
     func testCapacityExceeded() {
         let link = Link<Int>(with: 2)
         
-        let result1 = link.enqueue(element: 1)
-        let result2 = link.enqueue(element: 2)
-        let result3 = link.enqueue(element: 3)
+        let result1 = link.enqueueFront(element: 1)
+        let result2 = link.enqueueFront(element: 2)
+        let result3 = link.enqueueFront(element: 3)
         
         XCTAssertEqual(link.count, 2)
         XCTAssertEqual(link.front?.element, 3)
@@ -112,7 +112,7 @@ final class LinkTests: XCTestCase {
     func testZeroCapacity() {
         let link = Link<Int>(with: 0)
         
-        let result = link.enqueue(element: 1)
+        let result = link.enqueueFront(element: 1)
         XCTAssertNil(result.newNode)
         XCTAssertNotNil(result.evictedNode)
         XCTAssertEqual(result.evictedNode?.element, 1)
@@ -122,7 +122,7 @@ final class LinkTests: XCTestCase {
     func testNegativeCapacity() {
         let link = Link<Int>(with: -1)
         
-        let result = link.enqueue(element: 1)
+        let result = link.enqueueFront(element: 1)
         XCTAssertNil(result.newNode)
         XCTAssertNotNil(result.evictedNode)
         XCTAssertEqual(result.evictedNode?.element, 1)
@@ -147,7 +147,7 @@ final class LinkTests: XCTestCase {
     
     func testSingleElementOperations() {
         let link = Link<Int>(with: 3)
-        link.enqueue(element: 1)
+        link.enqueueFront(element: 1)
         
         XCTAssertEqual(link.count, 1)
         XCTAssertEqual(link.front?.element, 1)
@@ -163,8 +163,8 @@ final class LinkTests: XCTestCase {
     
     func testRemoveFrontNode() {
         let link = Link<Int>(with: 3)
-        link.enqueue(element: 1)
-        link.enqueue(element: 2)
+        link.enqueueFront(element: 1)
+        link.enqueueFront(element: 2)
         
         let frontNode = link.front
         link.removeNode(frontNode!)
@@ -176,8 +176,8 @@ final class LinkTests: XCTestCase {
     
     func testRemoveBackNode() {
         let link = Link<Int>(with: 3)
-        link.enqueue(element: 1)
-        link.enqueue(element: 2)
+        link.enqueueFront(element: 1)
+        link.enqueueFront(element: 2)
         
         let backNode = link.back
         link.removeNode(backNode!)
@@ -189,9 +189,9 @@ final class LinkTests: XCTestCase {
     
     func testRemoveMiddleNode() {
         let link = Link<Int>(with: 3)
-        link.enqueue(element: 1)
-        link.enqueue(element: 2)
-        link.enqueue(element: 3)
+        link.enqueueFront(element: 1)
+        link.enqueueFront(element: 2)
+        link.enqueueFront(element: 3)
         
         let middleNode = link.front?.next
         link.removeNode(middleNode!)
@@ -246,9 +246,9 @@ final class LinkTests: XCTestCase {
         let link = Link<Int>(with: 3)
         
         // Enqueue 3 elements
-        link.enqueue(element: 1)
-        link.enqueue(element: 2)
-        link.enqueue(element: 3)
+        link.enqueueFront(element: 1)
+        link.enqueueFront(element: 2)
+        link.enqueueFront(element: 3)
         
         XCTAssertEqual(link.count, 3)
         XCTAssertEqual(link.front?.element, 3)
@@ -260,7 +260,7 @@ final class LinkTests: XCTestCase {
         XCTAssertEqual(link.count, 2)
         
         // Enqueue new element
-        link.enqueue(element: 4)
+        link.enqueueFront(element: 4)
         XCTAssertEqual(link.count, 3)
         XCTAssertEqual(link.front?.element, 4)
         XCTAssertEqual(link.back?.element, 2)
@@ -276,15 +276,15 @@ final class LinkTests: XCTestCase {
     func testRemoveAndReinsertNode() {
         let link = Link<Int>(with: 3)
         
-        link.enqueue(element: 1)
-        link.enqueue(element: 2)
-        link.enqueue(element: 3)
+        link.enqueueFront(element: 1)
+        link.enqueueFront(element: 2)
+        link.enqueueFront(element: 3)
         
         let middleNode = link.front?.next
         link.removeNode(middleNode!)
         
         // Reinsert the removed node
-        let evicted = link.enqueueNode(middleNode!)
+        let evicted = link.enqueueFront(node: middleNode!)
         XCTAssertNil(evicted)
         XCTAssertEqual(link.count, 3)
         XCTAssertEqual(link.front?.element, 2)
@@ -298,7 +298,7 @@ final class LinkTests: XCTestCase {
         
         // Enqueue many elements
         for i in 1...500 {
-            let result = link.enqueue(element: i)
+            let result = link.enqueueFront(element: i)
             XCTAssertNotNil(result.newNode)
             XCTAssertNil(result.evictedNode)
         }
@@ -309,10 +309,10 @@ final class LinkTests: XCTestCase {
         
         // Enqueue more to trigger eviction
         for i in 501...1000 {
-            let result = link.enqueue(element: i)
+            let result = link.enqueueFront(element: i)
             XCTAssertNotNil(result.newNode)
             // After capacity is reached, eviction should occur
-            XCTAssertNotNil(result.evictedNode)
+            XCTAssertNil(result.evictedNode)
         }
         
         XCTAssertEqual(link.count, 1000)
@@ -327,7 +327,7 @@ final class LinkTests: XCTestCase {
         
         measure {
             for i in 1...1000 {
-                link.enqueue(element: i)
+                link.enqueueFront(element: i)
             }
         }
     }
@@ -337,7 +337,7 @@ final class LinkTests: XCTestCase {
         
         // Pre-populate
         for i in 1...1000 {
-            link.enqueue(element: i)
+            link.enqueueFront(element: i)
         }
         
         measure {
@@ -352,7 +352,7 @@ final class LinkTests: XCTestCase {
         
         // Pre-populate
         for i in 1...1000 {
-            link.enqueue(element: i)
+            link.enqueueFront(element: i)
         }
         
         measure {
@@ -370,9 +370,9 @@ final class LinkTests: XCTestCase {
     func testNodeReferences() {
         let link = Link<Int>(with: 3)
         
-        link.enqueue(element: 1)
-        link.enqueue(element: 2)
-        link.enqueue(element: 3)
+        link.enqueueFront(element: 1)
+        link.enqueueFront(element: 2)
+        link.enqueueFront(element: 3)
         
         let frontNode = link.front
         let backNode = link.back
@@ -399,9 +399,9 @@ final class LinkTests: XCTestCase {
     func testStringElements() {
         let link = Link<String>(with: 3)
         
-        link.enqueue(element: "first")
-        link.enqueue(element: "second")
-        link.enqueue(element: "third")
+        link.enqueueFront(element: "first")
+        link.enqueueFront(element: "second")
+        link.enqueueFront(element: "third")
         
         XCTAssertEqual(link.count, 3)
         XCTAssertEqual(link.front?.element, "third")
@@ -420,9 +420,9 @@ final class LinkTests: XCTestCase {
         let element2 = TestStruct(id: 2, name: "two")
         let element3 = TestStruct(id: 3, name: "three")
         
-        link.enqueue(element: element1)
-        link.enqueue(element: element2)
-        link.enqueue(element: element3)
+        link.enqueueFront(element: element1)
+        link.enqueueFront(element: element2)
+        link.enqueueFront(element: element3)
         
         XCTAssertEqual(link.count, 3)
         XCTAssertEqual(link.front?.element.id, 3)
@@ -446,7 +446,7 @@ final class LinkTests: XCTestCase {
         let link = Link<Int>(with: 3)
         
         let node = Link<Int>.Node(element: 1)
-        link.enqueueNode(node)
+        link.enqueueFront(node: node)
         link.removeNode(node)
         
         XCTAssertEqual(link.count, 0)

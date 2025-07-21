@@ -39,7 +39,8 @@ public class Link<Element> {
     ///   - key: Key of the new element.
     ///   - element: Value of the new element.
     /// - Returns: Tuple of the new node and the evicted node (if any).
-    public func enqueue(element: Element) -> (newNode: Node?, evictedNode: Node?) {
+    @discardableResult
+    public func enqueueFront(element: Element) -> (newNode: Node?, evictedNode: Node?) {
         guard capacity > 0 else { return (nil, Node(element: element)) }
         let evictedNode: Node?
         if count == capacity {
@@ -63,7 +64,8 @@ public class Link<Element> {
     /// Removes the least recently used node if at capacity.
     /// - Parameter node: Node to enqueue.
     /// - Returns: Evicted node if any; otherwise nil.
-    public func enqueueNode(_ node: Node) -> Node? {
+    @discardableResult
+    public func enqueueFront(node: Node) -> Node? {
         guard capacity > 0 else { return node }
         let evictedNode: Node?
         if count == capacity {
@@ -84,6 +86,7 @@ public class Link<Element> {
     }
     /// Removes and returns the node at the back of the queue (least recently used).
     /// - Returns: The removed node, or nil if queue is empty.
+    @discardableResult
     public func dequeueBack() -> Node? {
         guard let oldBack = back else { return nil }
         back = oldBack.previous
@@ -98,6 +101,7 @@ public class Link<Element> {
     }
     /// Removes and returns the node at the front of the queue (most recently used).
     /// - Returns: The removed node, or nil if queue is empty.
+    @discardableResult
     public func dequeueFront() -> Node? {
         guard let oldFront = front else { return nil }
         front = oldFront.next

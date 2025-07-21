@@ -85,7 +85,7 @@ public class PriorityLRUQueue<K: Hashable, Element> {
             node.element.element = element
             node.element.priority = priority
             let link = getOrCreateLink(for: priority)
-            return link.enqueueNode(node)?.element.element
+            return link.enqueueFront(node: node)?.element.element
         }
         var evictedNode: LRUNode? = nil
         if count == capacity {
@@ -101,7 +101,7 @@ public class PriorityLRUQueue<K: Hashable, Element> {
         }
         let newNode = LRUNode(element: .init(key: key, element: element, priority: priority))
         keyNodeMap[key] = newNode
-        _=getOrCreateLink(for: priority).enqueueNode(newNode)
+        _=getOrCreateLink(for: priority).enqueueFront(node: newNode)
         return evictedNode?.element.element
     }
     
@@ -116,7 +116,7 @@ public class PriorityLRUQueue<K: Hashable, Element> {
             return nil
         }
         link.removeNode(node)
-        _=link.enqueueNode(node)
+        _=link.enqueueFront(node: node)
         return node.element.element
     }
     

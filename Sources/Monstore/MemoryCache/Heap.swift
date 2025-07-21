@@ -6,7 +6,7 @@
 //
 
 /// A generic heap (priority queue) supporting custom ordering and capacity limits.
-class Heap<Element> {
+public class Heap<Element> {
     /// Maximum number of elements the heap can store.
     private let capacity: Int
 
@@ -20,16 +20,16 @@ class Heap<Element> {
     private var storage: [Element]
 
     /// Callback triggered on insert, remove, and index changes.
-    var onEvent: ((Event) -> Void)? = nil
+    public var onEvent: ((Event) -> Void)? = nil
 
     /// The root element (highest priority), or nil if heap is empty.
-    var root: Element? { storage.first }
+    public var root: Element? { storage.first }
 
     /// All elements currently in the heap.
-    var elements: [Element] { storage }
+    public var elements: [Element] { storage }
 
     /// Initializes a heap with given capacity and comparison strategy.
-    required init(capacity: Int, compare: @escaping (Element, Element) -> ComparisonResult) {
+    public required init(capacity: Int, compare: @escaping (Element, Element) -> ComparisonResult) {
         self.capacity = max(0, capacity)
         self.count = 0
         self.compare = compare
@@ -40,7 +40,7 @@ class Heap<Element> {
 
 // MARK: - Static Min/Max Heaps for Comparable
 
-extension Heap where Element: Comparable {
+public extension Heap where Element: Comparable {
     /// Returns a max heap (largest elements at root).
     static func maxHeap(capacity: Int) -> Self {
         .init(capacity: capacity) {
@@ -62,7 +62,7 @@ extension Heap where Element: Comparable {
 
 // MARK: - Public Heap Operations
 
-extension Heap {
+public extension Heap {
     /// Inserts an element into the heap.
     /// - Parameters:
     ///   - element: Element to insert.
@@ -127,7 +127,7 @@ extension Heap {
 
 // MARK: - Event & Comparison Enums
 
-extension Heap {
+public extension Heap {
     /// Heap event used for notifications.
     enum Event {
         case insert(element: Element, at: Int)

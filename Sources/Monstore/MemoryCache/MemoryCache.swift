@@ -62,7 +62,7 @@ import Foundation
 
 /// Represents memory and capacity constraints for the cache.
 /// Used to configure cache limits for memory-sensitive or size-sensitive scenarios.
-struct MemoryUsageLimitation {
+public struct MemoryUsageLimitation {
     /// Maximum memory usage allowed (in MB).
     static let unlimitedMemoryUsage: Int = 1024 * 1024 * 1024 // In MB, approximately 1024TB
     
@@ -81,7 +81,7 @@ struct MemoryUsageLimitation {
     }
 }
 
-extension MemoryCache {
+public extension MemoryCache {
     // MARK: - Configuration
     
     /// Configuration options for the memory cache behavior and limits.
@@ -173,7 +173,7 @@ extension MemoryCache {
         }
         
         /// Default configuration (thread-synchronized with NSLock, unlimited size, no expiration, all keys valid)
-        static var defaultConfig: Configuration { .init() }
+        public static var defaultConfig: Configuration { .init() }
     }
 }
 
@@ -181,12 +181,12 @@ extension MemoryCache {
 /// 
 /// This cache provides automatic expiration, priority-based eviction, and memory usage tracking.
 /// It's designed for scenarios where you need fine-grained control over cache behavior and memory usage.
-class MemoryCache<Key: Hashable, Element> {
+public class MemoryCache<Key: Hashable, Element> {
     // MARK: - Initialization
     
     /// Creates a new memory cache with the specified configuration.
     /// - Parameter configuration: The configuration for this cache instance.
-    init(configuration: Configuration = .defaultConfig, statisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil) {
+    public init(configuration: Configuration = .defaultConfig, statisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil) {
         self.configuration = configuration
         self.storageQueue = TTLPriorityLRUQueue(capacity: configuration.memoryUsageLimitation.capacity)
         self.statistics = .init(report: statisticsReport)
@@ -217,7 +217,7 @@ class MemoryCache<Key: Hashable, Element> {
 
 // MARK: - Public API
 
-extension MemoryCache {
+public extension MemoryCache {
     /// Returns true if the cache is empty.
     var isEmpty: Bool {
         acquireLockIfNeeded()
@@ -352,7 +352,6 @@ extension MemoryCache {
         
         return evictedValues
     }
-    
     
     enum FetchResult {
         case invalidKey

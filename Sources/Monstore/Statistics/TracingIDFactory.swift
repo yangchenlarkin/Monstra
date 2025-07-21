@@ -8,7 +8,7 @@
 import Foundation
 
 /// Interfaces
-extension TracingIDFactory {
+public extension TracingIDFactory {
     mutating func safeNextStr() -> String {
         String(_safe_next())
     }
@@ -34,17 +34,17 @@ extension TracingIDFactory {
     }
 }
 
-struct TracingIDFactory {
+public struct TracingIDFactory {
     //Int64.max = 9,223,372,036,854,775,807
     //a leap year has a maximum of 31,622,400 seconds.
     private static let MAX_BASE_ID: Int64 = 100_000_000
-    private static let MAX_LOOP_COUNT: Int64 = 10_000_000_000
+    public static let MAX_LOOP_COUNT: Int64 = 10_000_000_000
     
     private let loopCount: Int64
     private let trackingIDBase: Int64
     private var requestTrackingID: Int64 = 0
     
-    init(loopCount: Int64 = Self.MAX_LOOP_COUNT) {
+    public init(loopCount: Int64 = Self.MAX_LOOP_COUNT) {
         let loopCount = max(0, min(loopCount, Self.MAX_LOOP_COUNT))
         self.loopCount = loopCount <= 0 ? loopCount + Self.MAX_LOOP_COUNT : loopCount
         

@@ -12,15 +12,15 @@ import Foundation
 /// - Elements with lower priority are evicted first.
 /// - Within the same priority, least recently used elements are evicted first.
 /// - Provides O(1) average case for access, update, and removal by key.
-class PriorityLRUQueue<K: Hashable, Element> {
+public class PriorityLRUQueue<K: Hashable, Element> {
     /// The maximum number of elements the queue can hold.
-    let capacity: Int
+    public let capacity: Int
     /// The current number of elements in the queue.
-    var count: Int { keyNodeMap.count }
+    public var count: Int { keyNodeMap.count }
     /// Indicates if the queue is empty.
-    var isEmpty: Bool { count == 0 }
+    public var isEmpty: Bool { count == 0 }
     /// Indicates if the queue is full.
-    var isFull: Bool { count == capacity }
+    public var isFull: Bool { count == capacity }
     /// Returns a string representation of the queue for debugging.
     var description: String {
         var elements = [String]()
@@ -43,7 +43,7 @@ class PriorityLRUQueue<K: Hashable, Element> {
     
     /// Initializes a new empty queue with specified capacity.
     /// - Parameter capacity: Maximum elements allowed; negative values treated as zero.
-    init(capacity: Int) {
+    public init(capacity: Int) {
         self.capacity = Swift.max(0, capacity)
         self.priorities.onEvent = { [weak self] in
             guard let self else { return }
@@ -65,7 +65,7 @@ class PriorityLRUQueue<K: Hashable, Element> {
     ///   - priority: The priority for eviction (higher is less likely to be evicted).
     /// - Returns: The evicted value, if any.
     @discardableResult
-    func setValue(_ value: Element, for key: K, with priority: Double = 0) -> Element? {
+    public func setValue(_ value: Element, for key: K, with priority: Double = 0) -> Element? {
         guard capacity > 0 else { return value }
         if let node = keyNodeMap[key] {
             // Key already exists: remove old node, update value, re-insert at front
@@ -100,7 +100,7 @@ class PriorityLRUQueue<K: Hashable, Element> {
     /// - Parameter key: The key to look up.
     /// - Returns: The value if present, or nil if not found.
     @discardableResult
-    func getValue(for key: K) -> Element? {
+    public func getValue(for key: K) -> Element? {
         guard let node = keyNodeMap[key] else { return nil }
         guard let link = links[node.priority] else {
             keyNodeMap.removeValue(forKey: key)
@@ -115,7 +115,7 @@ class PriorityLRUQueue<K: Hashable, Element> {
     /// - Parameter key: The key to remove.
     /// - Returns: The removed value, or nil if not found.
     @discardableResult
-    func removeValue(for key: K) -> Element? {
+    public func removeValue(for key: K) -> Element? {
         guard let node = keyNodeMap[key] else { return nil }
         keyNodeMap.removeValue(forKey: node.key)
         guard let link = links[node.priority] else { return node.value }
@@ -127,14 +127,14 @@ class PriorityLRUQueue<K: Hashable, Element> {
     /// Removes and returns the least recently used value.
     /// - Returns: The removed value, or nil if cache is empty
     @discardableResult
-    func removeValue() -> Element? {
+    public func removeValue() -> Element? {
         guard let key = getLeastRecentKey() else { return nil }
         return removeValue(for: key)
     }
     
     /// Gets the least recently used key for eviction.
     /// - Returns: The key of the least recently used entry, or nil if queue is empty
-    func getLeastRecentKey() -> K? {
+    public func getLeastRecentKey() -> K? {
         // Find the lowest priority first
         guard let minPriority = priorities.root else { return nil }
         guard let link = links[minPriority] else { return nil }

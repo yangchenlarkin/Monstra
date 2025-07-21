@@ -11,7 +11,7 @@ import Foundation
 ///
 /// - Provides nanosecond-level precision using mach timebase.
 /// - Supports arithmetic and comparison for time intervals and expiration checks.
-struct CPUTimeStamp {
+public struct CPUTimeStamp {
     /// The timestamp value in seconds since CPU start.
     private let timestampSeconds: TimeInterval
     
@@ -33,21 +33,21 @@ struct CPUTimeStamp {
     }
     
     /// A timestamp representing positive infinity (never expires).
-    static let infinity: Self = .init(timeInterval: .infinity)
+    public static let infinity: Self = .init(timeInterval: .infinity)
     
     /// Creates a timestamp representing the current moment.
-    static func now() -> Self { Self() }
+    public static func now() -> Self { Self() }
     
     /// A timestamp representing zero time (epoch).
-    static var zero: Self = Self(timeInterval: 0.0)
+    public static var zero: Self = Self(timeInterval: 0.0)
     
     /// Initialize with current CPU time.
-    init() {
+    public init() {
         self.init(rawTicks: mach_absolute_time())
     }
     
     /// Returns the time interval since CPU start in seconds.
-    func timeIntervalSinceCPUStart() -> TimeInterval { timestampSeconds }
+    public func timeIntervalSinceCPUStart() -> TimeInterval { timestampSeconds }
 }
 
 // MARK: - Protocol Conformance
@@ -56,13 +56,13 @@ extension CPUTimeStamp: Equatable {}
 
 extension CPUTimeStamp: Comparable {
     /// Implements comparison between timestamps.
-    static func < (lhs: Self, rhs: Self) -> Bool {
+    public static func < (lhs: Self, rhs: Self) -> Bool {
         lhs.timestampSeconds < rhs.timestampSeconds
     }
 }
 
 // MARK: - Arithmetic Operations
-extension CPUTimeStamp {
+public extension CPUTimeStamp {
     /// Adds a time interval to a timestamp.
     /// - Returns: A new timestamp offset by the specified interval.
     static func + (lhs: Self, rhs: TimeInterval) -> Self {

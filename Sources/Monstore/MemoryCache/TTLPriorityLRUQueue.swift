@@ -12,24 +12,24 @@ import Foundation
 /// - Each entry has an expiration time (TTL), a priority, and is tracked for recency of use.
 /// - When the cache is full, expired entries are evicted first, then lower-priority entries, then least recently used.
 /// - Provides O(1) average case for access and update by key, with efficient expiration and eviction.
-class TTLPriorityLRUQueue<Key: Hashable, Element> {
+public class TTLPriorityLRUQueue<Key: Hashable, Element> {
     /// The maximum number of elements the cache can hold.
-    let capacity: Int
+    public let capacity: Int
     /// Heap for managing TTL expiration order.
     fileprivate var ttlQueue: Heap<Node>
     /// Priority-based LRU queue for managing eviction order.
     fileprivate var lruQueue: PriorityLRUQueue<Key, Node>
     
     /// Returns true if the cache is empty.
-    var isEmpty: Bool { lruQueue.isEmpty }
+    public var isEmpty: Bool { lruQueue.isEmpty }
     /// Returns true if the cache is full.
-    var isFull: Bool { lruQueue.isFull }
+    public var isFull: Bool { lruQueue.isFull }
     /// The current number of elements in the cache.
-    var count: Int { lruQueue.count}
+    public var count: Int { lruQueue.count}
     
     /// Initializes a new empty cache with the specified capacity.
     /// - Parameter capacity: Maximum elements allowed; negative values are treated as zero.
-    init(capacity: Int) {
+    public init(capacity: Int) {
         self.capacity = Swift.max(0, capacity)
         ttlQueue = .init(capacity: capacity, compare: { n1, n2 in
             switch true {
@@ -56,7 +56,7 @@ class TTLPriorityLRUQueue<Key: Hashable, Element> {
     }
 }
 
-extension TTLPriorityLRUQueue {
+public extension TTLPriorityLRUQueue {
     /// Inserts or updates a value for the given key, with optional priority and TTL.
     /// - Parameters:
     ///   - value: The value to store.

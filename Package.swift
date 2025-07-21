@@ -16,6 +16,9 @@ let package = Package(
         .library(
             name: "Monstore",
             targets: ["Monstore"]),
+        .library(
+            name: "Monstask",
+            targets: ["Monstask"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -31,9 +34,22 @@ let package = Package(
                 .define("DEBUG", .when(configuration: .debug)),
                 .unsafeFlags(["-enable-testing"], .when(configuration: .debug))
             ]),
+        .target(
+            name: "Monstask",
+            dependencies: ["Monstore"],
+            swiftSettings: [
+                .define("DEBUG", .when(configuration: .debug)),
+                .unsafeFlags(["-enable-testing"], .when(configuration: .debug))
+            ]),
         .testTarget(
             name: "MonstoreTests",
             dependencies: ["Monstore"],
+            swiftSettings: [
+                .define("DEBUG", .when(configuration: .debug))
+            ]),
+        .testTarget(
+            name: "MonstaskTests",
+            dependencies: ["Monstask"],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
             ]),

@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum CacheRecord {
+public enum CacheRecord {
     case invalidKey
     case hitNullValue
     case hitNonNullValue
@@ -16,7 +16,7 @@ enum CacheRecord {
 
 
 /// Statistics tracker for cache performance monitoring
-struct CacheStatistics {
+public struct CacheStatistics {
     private(set) static var tracingIDFactory = TracingIDFactory()
     
     private(set) var tracingID = tracingIDFactory.unsafeNextUInt64()
@@ -33,28 +33,28 @@ struct CacheStatistics {
     /// Number of cache misses
     private(set) var missCount: Int = 0
     
-    var report: ((Self, CacheRecord) -> Void)? = nil
+    public var report: ((Self, CacheRecord) -> Void)? = nil
     
     /// Total number of cache accesses
-    var totalAccesses: Int {
+    public var totalAccesses: Int {
         return invalidKeyCount + nullValueHitCount + nonNullValueHitCount + missCount
     }
     
     /// Hit rate as a percentage (excluding invalid keys)
-    var hitRate: Double {
+    public var hitRate: Double {
         let validAccesses = nullValueHitCount + nonNullValueHitCount + missCount
         guard validAccesses > 0 else { return 0.0 }
         return Double(nullValueHitCount + nonNullValueHitCount) / Double(validAccesses)
     }
     
     /// Overall success rate including invalid keys
-    var successRate: Double {
+    public var successRate: Double {
         guard totalAccesses > 0 else { return 0.0 }
         return Double(nullValueHitCount + nonNullValueHitCount) / Double(totalAccesses)
     }
     
     /// Record a cache result
-    mutating func record(_ result: CacheRecord) {
+    public mutating func record(_ result: CacheRecord) {
         switch result {
         case .invalidKey:
             invalidKeyCount += 1
@@ -69,7 +69,7 @@ struct CacheStatistics {
     }
     
     /// Reset all statistics
-    mutating func reset() {
+    public mutating func reset() {
         tracingID = Self.tracingIDFactory.unsafeNextUInt64()
         invalidKeyCount = 0
         nullValueHitCount = 0

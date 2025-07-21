@@ -9,8 +9,8 @@ import Foundation
 
 public enum CacheRecord {
     case invalidKey
-    case hitNullValue
-    case hitNonNullValue
+    case hitNullElement
+    case hitNonNullElement
     case miss
 }
 
@@ -24,11 +24,11 @@ public struct CacheStatistics {
     /// Number of invalid key attempts
     private(set) var invalidKeyCount: Int = 0
     
-    /// Number of null value hits
-    private(set) var nullValueHitCount: Int = 0
+    /// Number of null element hits
+    private(set) var nullElementHitCount: Int = 0
     
-    /// Number of non-null value hits
-    private(set) var nonNullValueHitCount: Int = 0
+    /// Number of non-null element hits
+    private(set) var nonNullElementHitCount: Int = 0
     
     /// Number of cache misses
     private(set) var missCount: Int = 0
@@ -37,20 +37,20 @@ public struct CacheStatistics {
     
     /// Total number of cache accesses
     public var totalAccesses: Int {
-        return invalidKeyCount + nullValueHitCount + nonNullValueHitCount + missCount
+        return invalidKeyCount + nullElementHitCount + nonNullElementHitCount + missCount
     }
     
     /// Hit rate as a percentage (excluding invalid keys)
     public var hitRate: Double {
-        let validAccesses = nullValueHitCount + nonNullValueHitCount + missCount
+        let validAccesses = nullElementHitCount + nonNullElementHitCount + missCount
         guard validAccesses > 0 else { return 0.0 }
-        return Double(nullValueHitCount + nonNullValueHitCount) / Double(validAccesses)
+        return Double(nullElementHitCount + nonNullElementHitCount) / Double(validAccesses)
     }
     
     /// Overall success rate including invalid keys
     public var successRate: Double {
         guard totalAccesses > 0 else { return 0.0 }
-        return Double(nullValueHitCount + nonNullValueHitCount) / Double(totalAccesses)
+        return Double(nullElementHitCount + nonNullElementHitCount) / Double(totalAccesses)
     }
     
     /// Record a cache result
@@ -58,10 +58,10 @@ public struct CacheStatistics {
         switch result {
         case .invalidKey:
             invalidKeyCount += 1
-        case .hitNullValue:
-            nullValueHitCount += 1
-        case .hitNonNullValue:
-            nonNullValueHitCount += 1
+        case .hitNullElement:
+            nullElementHitCount += 1
+        case .hitNonNullElement:
+            nonNullElementHitCount += 1
         case .miss:
             missCount += 1
         }
@@ -72,8 +72,8 @@ public struct CacheStatistics {
     public mutating func reset() {
         tracingID = Self.tracingIDFactory.unsafeNextUInt64()
         invalidKeyCount = 0
-        nullValueHitCount = 0
-        nonNullValueHitCount = 0
+        nullElementHitCount = 0
+        nonNullElementHitCount = 0
         missCount = 0
     }
 } 

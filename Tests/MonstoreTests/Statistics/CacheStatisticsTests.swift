@@ -27,8 +27,8 @@ final class CacheStatisticsTests: XCTestCase {
     
     func testInitialState() {
         XCTAssertEqual(statistics.invalidKeyCount, 0)
-        XCTAssertEqual(statistics.nullValueHitCount, 0)
-        XCTAssertEqual(statistics.nonNullValueHitCount, 0)
+        XCTAssertEqual(statistics.nullElementHitCount, 0)
+        XCTAssertEqual(statistics.nonNullElementHitCount, 0)
         XCTAssertEqual(statistics.missCount, 0)
         XCTAssertEqual(statistics.totalAccesses, 0)
         XCTAssertEqual(statistics.hitRate, 0.0)
@@ -41,32 +41,32 @@ final class CacheStatisticsTests: XCTestCase {
         statistics.record(.invalidKey)
         
         XCTAssertEqual(statistics.invalidKeyCount, 1)
-        XCTAssertEqual(statistics.nullValueHitCount, 0)
-        XCTAssertEqual(statistics.nonNullValueHitCount, 0)
+        XCTAssertEqual(statistics.nullElementHitCount, 0)
+        XCTAssertEqual(statistics.nonNullElementHitCount, 0)
         XCTAssertEqual(statistics.missCount, 0)
         XCTAssertEqual(statistics.totalAccesses, 1)
         XCTAssertEqual(statistics.hitRate, 0.0) // No valid accesses
         XCTAssertEqual(statistics.successRate, 0.0)
     }
     
-    func testRecordNullValueHit() {
-        statistics.record(.hitNullValue)
+    func testRecordNullElementHit() {
+        statistics.record(.hitNullElement)
         
         XCTAssertEqual(statistics.invalidKeyCount, 0)
-        XCTAssertEqual(statistics.nullValueHitCount, 1)
-        XCTAssertEqual(statistics.nonNullValueHitCount, 0)
+        XCTAssertEqual(statistics.nullElementHitCount, 1)
+        XCTAssertEqual(statistics.nonNullElementHitCount, 0)
         XCTAssertEqual(statistics.missCount, 0)
         XCTAssertEqual(statistics.totalAccesses, 1)
         XCTAssertEqual(statistics.hitRate, 1.0)
         XCTAssertEqual(statistics.successRate, 1.0)
     }
     
-    func testRecordNonNullValueHit() {
-        statistics.record(.hitNonNullValue)
+    func testRecordNonNullElementHit() {
+        statistics.record(.hitNonNullElement)
         
         XCTAssertEqual(statistics.invalidKeyCount, 0)
-        XCTAssertEqual(statistics.nullValueHitCount, 0)
-        XCTAssertEqual(statistics.nonNullValueHitCount, 1)
+        XCTAssertEqual(statistics.nullElementHitCount, 0)
+        XCTAssertEqual(statistics.nonNullElementHitCount, 1)
         XCTAssertEqual(statistics.missCount, 0)
         XCTAssertEqual(statistics.totalAccesses, 1)
         XCTAssertEqual(statistics.hitRate, 1.0)
@@ -77,8 +77,8 @@ final class CacheStatisticsTests: XCTestCase {
         statistics.record(.miss)
         
         XCTAssertEqual(statistics.invalidKeyCount, 0)
-        XCTAssertEqual(statistics.nullValueHitCount, 0)
-        XCTAssertEqual(statistics.nonNullValueHitCount, 0)
+        XCTAssertEqual(statistics.nullElementHitCount, 0)
+        XCTAssertEqual(statistics.nonNullElementHitCount, 0)
         XCTAssertEqual(statistics.missCount, 1)
         XCTAssertEqual(statistics.totalAccesses, 1)
         XCTAssertEqual(statistics.hitRate, 0.0)
@@ -104,7 +104,7 @@ final class CacheStatisticsTests: XCTestCase {
         XCTAssertEqual(reportedStatistics?.totalAccesses, 1)
     }
     
-    func testReportCallbackWithHitNullValue() {
+    func testReportCallbackWithHitNullElement() {
         var reportedStatistics: CacheStatistics?
         var reportedResult: CacheRecord?
         
@@ -113,15 +113,15 @@ final class CacheStatisticsTests: XCTestCase {
             reportedResult = result
         }
         
-        statistics.record(.hitNullValue)
+        statistics.record(.hitNullElement)
         
         XCTAssertNotNil(reportedStatistics)
-        XCTAssertEqual(reportedResult, .hitNullValue)
-        XCTAssertEqual(reportedStatistics?.nullValueHitCount, 1)
+        XCTAssertEqual(reportedResult, .hitNullElement)
+        XCTAssertEqual(reportedStatistics?.nullElementHitCount, 1)
         XCTAssertEqual(reportedStatistics?.totalAccesses, 1)
     }
     
-    func testReportCallbackWithHitNonNullValue() {
+    func testReportCallbackWithHitNonNullElement() {
         var reportedStatistics: CacheStatistics?
         var reportedResult: CacheRecord?
         
@@ -130,11 +130,11 @@ final class CacheStatisticsTests: XCTestCase {
             reportedResult = result
         }
         
-        statistics.record(.hitNonNullValue)
+        statistics.record(.hitNonNullElement)
         
         XCTAssertNotNil(reportedStatistics)
-        XCTAssertEqual(reportedResult, .hitNonNullValue)
-        XCTAssertEqual(reportedStatistics?.nonNullValueHitCount, 1)
+        XCTAssertEqual(reportedResult, .hitNonNullElement)
+        XCTAssertEqual(reportedStatistics?.nonNullElementHitCount, 1)
         XCTAssertEqual(reportedStatistics?.totalAccesses, 1)
     }
     
@@ -159,13 +159,13 @@ final class CacheStatisticsTests: XCTestCase {
         // Should not crash when report is nil
         statistics.report = nil
         
-        statistics.record(.hitNullValue)
+        statistics.record(.hitNullElement)
         statistics.record(.miss)
         statistics.record(.invalidKey)
         
         // Should still record statistics correctly
         XCTAssertEqual(statistics.totalAccesses, 3)
-        XCTAssertEqual(statistics.nullValueHitCount, 1)
+        XCTAssertEqual(statistics.nullElementHitCount, 1)
         XCTAssertEqual(statistics.missCount, 1)
         XCTAssertEqual(statistics.invalidKeyCount, 1)
     }
@@ -179,15 +179,15 @@ final class CacheStatisticsTests: XCTestCase {
             reportedResults.append(result)
         }
         
-        statistics.record(.hitNullValue)
-        statistics.record(.hitNonNullValue)
+        statistics.record(.hitNullElement)
+        statistics.record(.hitNonNullElement)
         statistics.record(.miss)
         statistics.record(.invalidKey)
         
         XCTAssertEqual(callCount, 4)
         XCTAssertEqual(reportedResults.count, 4)
-        XCTAssertEqual(reportedResults[0], .hitNullValue)
-        XCTAssertEqual(reportedResults[1], .hitNonNullValue)
+        XCTAssertEqual(reportedResults[0], .hitNullElement)
+        XCTAssertEqual(reportedResults[1], .hitNonNullElement)
         XCTAssertEqual(reportedResults[2], .miss)
         XCTAssertEqual(reportedResults[3], .invalidKey)
     }
@@ -199,8 +199,8 @@ final class CacheStatisticsTests: XCTestCase {
             reportedTotalAccesses.append(stats.totalAccesses)
         }
         
-        statistics.record(.hitNullValue)
-        statistics.record(.hitNonNullValue)
+        statistics.record(.hitNullElement)
+        statistics.record(.hitNonNullElement)
         statistics.record(.miss)
         
         XCTAssertEqual(reportedTotalAccesses.count, 3)
@@ -216,9 +216,9 @@ final class CacheStatisticsTests: XCTestCase {
             reportedHitRates.append(stats.hitRate)
         }
         
-        statistics.record(.hitNullValue) // 1.0
+        statistics.record(.hitNullElement) // 1.0
         statistics.record(.miss) // 0.5
-        statistics.record(.hitNonNullValue) // 0.67
+        statistics.record(.hitNonNullElement) // 0.67
         
         XCTAssertEqual(reportedHitRates.count, 3)
         XCTAssertEqual(reportedHitRates[0], 1.0, accuracy: 0.01)
@@ -233,9 +233,9 @@ final class CacheStatisticsTests: XCTestCase {
             reportedSuccessRates.append(stats.successRate)
         }
         
-        statistics.record(.hitNullValue) // 1.0
+        statistics.record(.hitNullElement) // 1.0
         statistics.record(.invalidKey) // 0.5
-        statistics.record(.hitNonNullValue) // 0.67
+        statistics.record(.hitNonNullElement) // 0.67
         
         XCTAssertEqual(reportedSuccessRates.count, 3)
         XCTAssertEqual(reportedSuccessRates[0], 1.0, accuracy: 0.01)
@@ -250,7 +250,7 @@ final class CacheStatisticsTests: XCTestCase {
             reportedTracingIDs.append(stats.tracingID)
         }
         
-        statistics.record(.hitNullValue)
+        statistics.record(.hitNullElement)
         statistics.record(.miss)
         
         XCTAssertEqual(reportedTracingIDs.count, 2)
@@ -265,7 +265,7 @@ final class CacheStatisticsTests: XCTestCase {
             callCount += 1
         }
         
-        statistics.record(.hitNullValue)
+        statistics.record(.hitNullElement)
         statistics.reset()
         statistics.record(.miss)
         
@@ -288,7 +288,7 @@ final class CacheStatisticsTests: XCTestCase {
         for _ in 0..<100 {
             group.enter()
             queue.async {
-                self.statistics.record(.hitNullValue)
+                self.statistics.record(.hitNullElement)
                 group.leave()
             }
         }
@@ -303,8 +303,8 @@ final class CacheStatisticsTests: XCTestCase {
     
     func testHitRateWithMixedResults() {
         // 2 hits, 1 miss, 1 invalid key
-        statistics.record(.hitNullValue)
-        statistics.record(.hitNonNullValue)
+        statistics.record(.hitNullElement)
+        statistics.record(.hitNonNullElement)
         statistics.record(.miss)
         statistics.record(.invalidKey)
         
@@ -324,9 +324,9 @@ final class CacheStatisticsTests: XCTestCase {
     }
     
     func testHitRateWithOnlyHits() {
-        statistics.record(.hitNullValue)
-        statistics.record(.hitNonNullValue)
-        statistics.record(.hitNonNullValue)
+        statistics.record(.hitNullElement)
+        statistics.record(.hitNonNullElement)
+        statistics.record(.hitNonNullElement)
         
         XCTAssertEqual(statistics.hitRate, 1.0)
         XCTAssertEqual(statistics.successRate, 1.0)
@@ -342,8 +342,8 @@ final class CacheStatisticsTests: XCTestCase {
     }
     
     func testHitRateWithEqualHitsAndMisses() {
-        statistics.record(.hitNullValue)
-        statistics.record(.hitNonNullValue)
+        statistics.record(.hitNullElement)
+        statistics.record(.hitNonNullElement)
         statistics.record(.miss)
         statistics.record(.miss)
         
@@ -355,8 +355,8 @@ final class CacheStatisticsTests: XCTestCase {
     
     func testReset() {
         // Add some statistics
-        statistics.record(.hitNullValue)
-        statistics.record(.hitNonNullValue)
+        statistics.record(.hitNullElement)
+        statistics.record(.hitNonNullElement)
         statistics.record(.miss)
         statistics.record(.invalidKey)
         
@@ -369,8 +369,8 @@ final class CacheStatisticsTests: XCTestCase {
         
         // Verify everything is reset
         XCTAssertEqual(statistics.invalidKeyCount, 0)
-        XCTAssertEqual(statistics.nullValueHitCount, 0)
-        XCTAssertEqual(statistics.nonNullValueHitCount, 0)
+        XCTAssertEqual(statistics.nullElementHitCount, 0)
+        XCTAssertEqual(statistics.nonNullElementHitCount, 0)
         XCTAssertEqual(statistics.missCount, 0)
         XCTAssertEqual(statistics.totalAccesses, 0)
         XCTAssertEqual(statistics.hitRate, 0.0)
@@ -383,7 +383,7 @@ final class CacheStatisticsTests: XCTestCase {
     
     func testResetMultipleTimes() {
         // Record some data
-        statistics.record(.hitNullValue)
+        statistics.record(.hitNullElement)
         statistics.record(.miss)
         
         // Reset multiple times
@@ -405,10 +405,10 @@ final class CacheStatisticsTests: XCTestCase {
         statistics.record(.invalidKey)
         XCTAssertEqual(statistics.totalAccesses, 1)
         
-        statistics.record(.hitNullValue)
+        statistics.record(.hitNullElement)
         XCTAssertEqual(statistics.totalAccesses, 2)
         
-        statistics.record(.hitNonNullValue)
+        statistics.record(.hitNonNullElement)
         XCTAssertEqual(statistics.totalAccesses, 3)
         
         statistics.record(.miss)
@@ -418,10 +418,10 @@ final class CacheStatisticsTests: XCTestCase {
     func testTotalAccessesWithLargeNumbers() {
         // Add large numbers of each type
         for _ in 0..<1000 {
-            statistics.record(.hitNullValue)
+            statistics.record(.hitNullElement)
         }
         for _ in 0..<500 {
-            statistics.record(.hitNonNullValue)
+            statistics.record(.hitNonNullElement)
         }
         for _ in 0..<300 {
             statistics.record(.miss)
@@ -432,8 +432,8 @@ final class CacheStatisticsTests: XCTestCase {
         
         XCTAssertEqual(statistics.totalAccesses, 2000)
         XCTAssertEqual(statistics.invalidKeyCount, 200)
-        XCTAssertEqual(statistics.nullValueHitCount, 1000)
-        XCTAssertEqual(statistics.nonNullValueHitCount, 500)
+        XCTAssertEqual(statistics.nullElementHitCount, 1000)
+        XCTAssertEqual(statistics.nonNullElementHitCount, 500)
         XCTAssertEqual(statistics.missCount, 300)
     }
     
@@ -442,8 +442,8 @@ final class CacheStatisticsTests: XCTestCase {
     func testLargeNumberOfRecords() {
         // Record 1000 of each type
         for _ in 0..<1000 {
-            statistics.record(.hitNullValue)
-            statistics.record(.hitNonNullValue)
+            statistics.record(.hitNullElement)
+            statistics.record(.hitNonNullElement)
             statistics.record(.miss)
             statistics.record(.invalidKey)
         }
@@ -457,7 +457,7 @@ final class CacheStatisticsTests: XCTestCase {
         measure {
             statistics.reset()
             for _ in 0..<10000 {
-                statistics.record(.hitNonNullValue)
+                statistics.record(.hitNonNullElement)
             }
         }
         
@@ -470,8 +470,8 @@ final class CacheStatisticsTests: XCTestCase {
     func testPercentageCalculation() {
         // 25% each type
         for _ in 0..<250 {
-            statistics.record(.hitNullValue)
-            statistics.record(.hitNonNullValue)
+            statistics.record(.hitNullElement)
+            statistics.record(.hitNonNullElement)
             statistics.record(.miss)
             statistics.record(.invalidKey)
         }
@@ -495,8 +495,8 @@ final class CacheStatisticsTests: XCTestCase {
     func testPercentageCalculationWithOnlyHits() {
         // Only hits
         for _ in 0..<100 {
-            statistics.record(.hitNullValue)
-            statistics.record(.hitNonNullValue)
+            statistics.record(.hitNullElement)
+            statistics.record(.hitNonNullElement)
         }
         
         XCTAssertEqual(statistics.totalAccesses, 200)
@@ -532,13 +532,13 @@ final class CacheStatisticsTests: XCTestCase {
     func testCacheRecordEnum() {
         // Test all enum cases exist
         let invalidKey: CacheRecord = .invalidKey
-        let hitNullValue: CacheRecord = .hitNullValue
-        let hitNonNullValue: CacheRecord = .hitNonNullValue
+        let hitNullElement: CacheRecord = .hitNullElement
+        let hitNonNullElement: CacheRecord = .hitNonNullElement
         let miss: CacheRecord = .miss
         
         XCTAssertNotNil(invalidKey)
-        XCTAssertNotNil(hitNullValue)
-        XCTAssertNotNil(hitNonNullValue)
+        XCTAssertNotNil(hitNullElement)
+        XCTAssertNotNil(hitNonNullElement)
         XCTAssertNotNil(miss)
     }
     

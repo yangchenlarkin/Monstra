@@ -18,10 +18,10 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
         let cache = TTLPriorityLRUQueue<Int, Int>(capacity: count)
         measure {
             for i in 0..<count {
-                _ = cache.set(value: i, for: i, expiredIn: 1000)
+                _ = cache.set(element: i, for: i, expiredIn: 1000)
             }
             for i in 0..<count {
-                _ = cache.getValue(for: i)
+                _ = cache.getElement(for: i)
             }
         }
     }
@@ -31,12 +31,12 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
         let count = 10_000
         let cache = TTLPriorityLRUQueue<Int, Int>(capacity: count)
         for i in 0..<count {
-            _ = cache.set(value: i, for: i, expiredIn: 0.01)
+            _ = cache.set(element: i, for: i, expiredIn: 0.01)
         }
         sleep(1)
         measure {
             for i in 0..<count {
-                _ = cache.getValue(for: i)
+                _ = cache.getElement(for: i)
             }
         }
     }
@@ -47,7 +47,7 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
         let cache = TTLPriorityLRUQueue<Int, Int>(capacity: 1000)
         measure {
             for i in 0..<count {
-                _ = cache.set(value: i, for: i, priority: Double(i % 10), expiredIn: 1000)
+                _ = cache.set(element: i, for: i, priority: Double(i % 10), expiredIn: 1000)
             }
         }
     }
@@ -57,11 +57,11 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
         let count = 10_000
         let cache = TTLPriorityLRUQueue<Int, Int>(capacity: 1000)
         for i in 0..<1000 {
-            _ = cache.set(value: i, for: i, expiredIn: 1000)
+            _ = cache.set(element: i, for: i, expiredIn: 1000)
         }
         measure {
             for i in 1000..<count {
-                _ = cache.set(value: i, for: i, expiredIn: 1000)
+                _ = cache.set(element: i, for: i, expiredIn: 1000)
             }
         }
     }
@@ -72,10 +72,10 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
         let cache = TTLPriorityLRUQueue<Int, Int>(capacity: 2000)
         measure {
             for i in 0..<count {
-                _ = cache.set(value: i, for: i, expiredIn: 1000)
-                _ = cache.getValue(for: i)
+                _ = cache.set(element: i, for: i, expiredIn: 1000)
+                _ = cache.getElement(for: i)
                 if i % 3 == 0 {
-                    _ = cache.removeValue(for: i - 1)
+                    _ = cache.removeElement(for: i - 1)
                 }
             }
         }
@@ -88,9 +88,9 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: cap)
         measure {
             for i in 0..<(cap * 1000) {
-                _ = cache.set(value: i, for: "key\(i)", expiredIn: 1000)
-                _ = cache.getValue(for: "key\(i)")
-                _ = cache.removeValue(for: "key\(i)")
+                _ = cache.set(element: i, for: "key\(i)", expiredIn: 1000)
+                _ = cache.getElement(for: "key\(i)")
+                _ = cache.removeElement(for: "key\(i)")
             }
         }
     }
@@ -100,9 +100,9 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: cap)
         measure {
             for i in 0..<(cap * 1000) {
-                _ = cache.set(value: i, for: "key\(i)", expiredIn: 1000)
-                _ = cache.getValue(for: "key\(i)")
-                _ = cache.removeValue(for: "key\(i)")
+                _ = cache.set(element: i, for: "key\(i)", expiredIn: 1000)
+                _ = cache.getElement(for: "key\(i)")
+                _ = cache.removeElement(for: "key\(i)")
             }
         }
     }
@@ -112,9 +112,9 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: cap)
         measure {
             for i in 0..<(cap * 1000) {
-                _ = cache.set(value: i, for: "key\(i)", expiredIn: 1000)
-                _ = cache.getValue(for: "key\(i)")
-                _ = cache.removeValue(for: "key\(i)")
+                _ = cache.set(element: i, for: "key\(i)", expiredIn: 1000)
+                _ = cache.getElement(for: "key\(i)")
+                _ = cache.removeElement(for: "key\(i)")
             }
         }
     }
@@ -130,12 +130,12 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
             for _ in 0..<(count * 2) {
                 let op = Int.random(in: 0..<3)
                 if op == 0 && inserted < count {
-                    _ = cache.set(value: "val\(inserted)", for: inserted, expiredIn: 1000)
+                    _ = cache.set(element: "val\(inserted)", for: inserted, expiredIn: 1000)
                     inserted += 1
                 } else if op == 1 {
-                    _ = cache.getValue(for: Int.random(in: 0..<count))
+                    _ = cache.getElement(for: Int.random(in: 0..<count))
                 } else if removed < inserted {
-                    _ = cache.removeValue(for: removed)
+                    _ = cache.removeElement(for: removed)
                     removed += 1
                 }
             }
@@ -148,7 +148,7 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
         let count = 5000
         let cache = TTLPriorityLRUQueue<Int, Int>(capacity: count)
         for i in 0..<count {
-            _ = cache.set(value: i, for: i, expiredIn: 1000)
+            _ = cache.set(element: i, for: i, expiredIn: 1000)
         }
         var keys = Array(0..<count)
         keys.shuffle()
@@ -156,7 +156,7 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
         measure {
             while cache.count > 0 && removeIdx < keys.count {
                 let key = keys[removeIdx]
-                _ = cache.removeValue(for: key)
+                _ = cache.removeElement(for: key)
                 removeIdx += 1
             }
         }
@@ -168,49 +168,49 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
         let count = 5000
         let cache = TTLPriorityLRUQueue<Int, Int>(capacity: 1000)
         for i in 0..<count {
-            _ = cache.set(value: i, for: i, expiredIn: 0.01)
+            _ = cache.set(element: i, for: i, expiredIn: 0.01)
         }
         sleep(1)
         measure {
             for i in 0..<count {
-                _ = cache.getValue(for: i)
+                _ = cache.getElement(for: i)
             }
         }
     }
 
-    // MARK: - Remove Expired Values Performance Tests
+    // MARK: - Remove Expired Elements Performance Tests
 
-    /// Measures performance of removing expired values.
-    func testRemoveExpiredValuesPerformance() {
+    /// Measures performance of removing expired elements.
+    func testRemoveExpiredElementsPerformance() {
         let count = 10_000
         let cache = TTLPriorityLRUQueue<Int, Int>(capacity: count)
         
-        // Add values with short TTL
+        // Add elements with short TTL
         for i in 0..<count {
-            _ = cache.set(value: i, for: i, expiredIn: 0.01)
+            _ = cache.set(element: i, for: i, expiredIn: 0.01)
         }
         
         // Wait for expiration
         sleep(1)
         
         measure {
-            cache.removeExpiredValues()
+            cache.removeExpiredElements()
         }
     }
 
-    /// Measures performance of mixed workload including removeExpiredValues().
+    /// Measures performance of mixed workload including removeExpiredElements().
     func testMixedWorkloadWithExpirationPerformance() {
         let count = 10_000
         let cache = TTLPriorityLRUQueue<Int, Int>(capacity: 2000)
         measure {
             for i in 0..<count {
-                _ = cache.set(value: i, for: i, expiredIn: i % 2 == 0 ? 0.01 : 1000)
-                _ = cache.getValue(for: i)
+                _ = cache.set(element: i, for: i, expiredIn: i % 2 == 0 ? 0.01 : 1000)
+                _ = cache.getElement(for: i)
                 if i % 3 == 0 {
-                    _ = cache.removeValue(for: i - 1)
+                    _ = cache.removeElement(for: i - 1)
                 }
                 if i % 10 == 0 {
-                    cache.removeExpiredValues() // Remove expired
+                    cache.removeExpiredElements() // Remove expired
                 }
             }
         }
@@ -223,12 +223,12 @@ final class TTLPriorityLRUQueuePerformanceTests: XCTestCase {
         let cache = TTLPriorityLRUQueue<Int, Int>(capacity: 1000)
         measure {
             for i in 0..<count {
-                _ = cache.set(value: i, for: i, expiredIn: 1000)
+                _ = cache.set(element: i, for: i, expiredIn: 1000)
                 if i % 2 == 0 {
-                    _ = cache.removeValue(for: i - 1)
+                    _ = cache.removeElement(for: i - 1)
                 }
                 if i % 100 == 0 {
-                    cache.removeExpiredValues() // Remove expired
+                    cache.removeExpiredElements() // Remove expired
                 }
             }
         }

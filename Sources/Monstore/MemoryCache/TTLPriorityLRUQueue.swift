@@ -57,75 +57,75 @@ public class TTLPriorityLRUQueue<Key: Hashable, Element> {
 }
 
 public extension TTLPriorityLRUQueue {
-    /// Inserts or updates a value for the given key, with optional priority and TTL.
+    /// Inserts or updates a element for the given key, with optional priority and TTL.
     /// - Parameters:
-    ///   - value: The value to store.
-    ///   - key: The key to associate with the value.
+    ///   - element: The element to store.
+    ///   - key: The key to associate with the element.
     ///   - priority: The priority for eviction (higher is less likely to be evicted).
     ///   - duration: The TTL (in seconds) for the entry. Defaults to infinity (never expires).
-    /// - Returns: The evicted value, if any.
+    /// - Returns: The evicted element, if any.
     @discardableResult
-    func set(value: Element, for key: Key, priority: Double = .zero, expiredIn duration: TimeInterval = .infinity) -> Element? {
+    func set(element: Element, for key: Key, priority: Double = .zero, expiredIn duration: TimeInterval = .infinity) -> Element? {
         let now = CPUTimeStamp.now()
         // Check if the key already exists in the LRU queue
-        if removeValue(for: key) != nil {
-            return setToLRUQueue(now: now, value: value, for: key, priority: priority, expiredIn: duration)
+        if removeElement(for: key) != nil {
+            return setToLRUQueue(now: now, element: element, for: key, priority: priority, expiredIn: duration)
         } else {
             // If the key does not exist, check if the TTL heap root has expired
             if let ttlRoot = ttlQueue.root?.expirationTimeStamp, ttlRoot < now {
                 // If the root of TTL heap is expired, insert into the TTL heap
-                return setToTTLQueue(now: now, value: value, for: key, priority: priority, expiredIn: duration)
+                return setToTTLQueue(now: now, element: element, for: key, priority: priority, expiredIn: duration)
             }
             // Otherwise, insert into the LRU queue
-            return setToLRUQueue(now: now, value: value, for: key, priority: priority, expiredIn: duration)
+            return setToLRUQueue(now: now, element: element, for: key, priority: priority, expiredIn: duration)
         }
     }
     
-    /// Retrieves the value for the given key if present and not expired.
+    /// Retrieves the element for the given key if present and not expired.
     /// - Parameter key: The key to look up.
-    /// - Returns: The value if present and valid, or nil if expired or missing.
+    /// - Returns: The element if present and valid, or nil if expired or missing.
     @discardableResult
-    func getValue(for key: Key) -> Element? {
-        guard let node = lruQueue.getValue(for:key) else { return nil }
+    func getElement(for key: Key) -> Element? {
+        guard let node = lruQueue.getElement(for:key) else { return nil }
         if node.expirationTimeStamp < .now() {
-            _=removeValue(for: key)
+            _=removeElement(for: key)
             return nil
         }
-        return node.value
+        return node.element
     }
     
-    /// Removes the value for the given key, if present.
+    /// Removes the element for the given key, if present.
     /// - Parameter key: The key to remove.
-    /// - Returns: The removed value, or nil if not found.
+    /// - Returns: The removed element, or nil if not found.
     @discardableResult
-    func removeValue(for key: Key) -> Element? {
-        if let node = lruQueue.removeValue(for: key) {
+    func removeElement(for key: Key) -> Element? {
+        if let node = lruQueue.removeElement(for: key) {
             if let nodeIndex = node.ttlIndex {
                 _=ttlQueue.remove(at: nodeIndex)
-                return node.value
+                return node.element
             }
-            return node.value
+            return node.element
         }
         return nil
     }
     
-    /// Removes and returns the least recently used value.
-    /// - Returns: The removed value, or nil if cache is empty
+    /// Removes and returns the least recently used element.
+    /// - Returns: The removed element, or nil if cache is empty
     @discardableResult
-    func removeValue() -> Element? {
+    func removeElement() -> Element? {
         guard let root = ttlQueue.root else { return nil }
         
         if root.expirationTimeStamp < .now() {
-            return removeValue(for: root.key)
+            return removeElement(for: root.key)
         }
         
         // Get the least recently used key from the LRU queue
         guard let leastRecentKey = lruQueue.getLeastRecentKey() else { return nil }
-        return removeValue(for: leastRecentKey)
+        return removeElement(for: leastRecentKey)
     }
     
     /**
-     Removes all expired values from the cache.
+     Removes all expired elements from the cache.
      
      This method iterates through the TTL queue and removes all entries that have expired
      based on their expiration timestamps. The removal is done efficiently by checking
@@ -133,35 +133,35 @@ public extension TTLPriorityLRUQueue {
      
      - Note: This operation has O(n) time complexity where n is the number of expired entries
      */
-    func removeExpiredValues() {
+    func removeExpiredElements() {
         while let root = ttlQueue.root {
             if root.expirationTimeStamp >= .now() {
                 return
             }
-            removeValue(for: root.key)
+            removeElement(for: root.key)
         }
     }
 }
 
 private extension TTLPriorityLRUQueue {
     /// Internal: Insert into TTL heap and update LRU queue.
-    func setToTTLQueue(now: CPUTimeStamp, value: Element, for key: Key, priority: Double, expiredIn duration: TimeInterval) -> Element? {
+    func setToTTLQueue(now: CPUTimeStamp, element: Element, for key: Key, priority: Double, expiredIn duration: TimeInterval) -> Element? {
         var res: Element? = nil
-        let node = Node(key: key, value: value, expirationTimeStamp: now + duration)
+        let node = Node(key: key, element: element, expirationTimeStamp: now + duration)
         if let pop = ttlQueue.insert(node, force: true) {
-            _=lruQueue.removeValue(for: pop.key)
-            res = pop.value
+            _=lruQueue.removeElement(for: pop.key)
+            res = pop.element
         }
-        _=lruQueue.setValue(node, for: key, with: priority)
+        _=lruQueue.setElement(node, for: key, with: priority)
         return res
     }
     /// Internal: Insert into LRU queue and update TTL heap.
-    func setToLRUQueue(now: CPUTimeStamp, value: Element, for key: Key, priority: Double, expiredIn duration: TimeInterval) -> Element? {
+    func setToLRUQueue(now: CPUTimeStamp, element: Element, for key: Key, priority: Double, expiredIn duration: TimeInterval) -> Element? {
         var res: Element? = nil
-        let node = Node(key: key, value: value, expirationTimeStamp: now + duration)
-        if let pop = lruQueue.setValue(node, for: key, with: priority), let ttlIndex = pop.ttlIndex {
+        let node = Node(key: key, element: element, expirationTimeStamp: now + duration)
+        if let pop = lruQueue.setElement(node, for: key, with: priority), let ttlIndex = pop.ttlIndex {
             _=ttlQueue.remove(at: ttlIndex)
-            res = pop.value
+            res = pop.element
         }
         _=ttlQueue.insert(node, force: true)
         return res
@@ -169,20 +169,20 @@ private extension TTLPriorityLRUQueue {
 }
 
 private extension TTLPriorityLRUQueue {
-    /// Internal node type for tracking key, value, expiration, and heap index.
+    /// Internal node type for tracking key, element, expiration, and heap index.
     class Node {
         /// The key for this entry.
         let key: Key
-        /// The value for this entry.
-        let value: Element
+        /// The element for this entry.
+        let element: Element
         /// The expiration timestamp for this entry.
         let expirationTimeStamp: CPUTimeStamp
         /// The index of this node in the TTL heap, if present.
         var ttlIndex: Int?
         
-        init(key: Key, value: Element, expirationTimeStamp: CPUTimeStamp) {
+        init(key: Key, element: Element, expirationTimeStamp: CPUTimeStamp) {
             self.key = key
-            self.value = value
+            self.element = element
             self.expirationTimeStamp = expirationTimeStamp
             self.ttlIndex = nil
         }

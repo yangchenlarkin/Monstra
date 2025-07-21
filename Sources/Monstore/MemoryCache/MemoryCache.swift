@@ -15,7 +15,7 @@ import Foundation
  - **TTL (Time-to-Live) Expiration**: Automatic cleanup of expired entries
  - **Priority-Based Eviction**: Higher priority entries are retained longer during eviction
  - **LRU (Least Recently Used) Eviction**: Within priority levels, least recently used entries are evicted first
- - **Null Value Caching**: Support for caching null/nil values with separate TTL configuration
+ - **Null Element Caching**: Support for caching null/nil elements with separate TTL configuration
  - **External Key Validation**: Customizable key validation function set at initialization
  - **TTL Randomization**: Prevents cache stampede by randomizing expiration times
  - **Configurable Thread Safety**: Optional NSLock synchronization for concurrent access
@@ -94,13 +94,13 @@ public extension MemoryCache {
         /// Memory and capacity constraints for the cache.
         let memoryUsageLimitation: MemoryUsageLimitation
         
-        /// Default TTL for non-null values (in seconds).
+        /// Default TTL for non-null elements (in seconds).
         let defaultTTL: TimeInterval
         
-        /// Default TTL for null values (in seconds).
-        let defaultTTLForNullValue: TimeInterval
+        /// Default TTL for null elements (in seconds).
+        let defaultTTLForNullElement: TimeInterval
         
-        /// Randomization range for TTL values to prevent cache stampede (in seconds).
+        /// Randomization range for TTL elements to prevent cache stampede (in seconds).
         let ttlRandomizationRange: TimeInterval
         
         /// Key validation function that returns true for valid keys. Fixed at initialization.
@@ -109,13 +109,13 @@ public extension MemoryCache {
         /// Function to calculate memory cost of elements in bytes.
         ///
         /// This closure is called for each element to determine its memory footprint for eviction decisions.
-        /// The returned value should represent the actual memory usage in bytes.
+        /// The returned element should represent the actual memory usage in bytes.
         ///
         /// ## Usage Guidelines:
         /// - **For reference types (classes)**: Return the actual memory size (e.g., image data size, buffer length)
-        /// - **For value types**: Can return 0 as memory layout is automatically calculated by the system
+        /// - **For element types**: Can return 0 as memory layout is automatically calculated by the system
         /// - **For complex objects**: Sum up all contained data sizes (strings, arrays, etc.)
-        /// - **For nil values**: Return 0 (handled automatically by the cache)
+        /// - **For nil elements**: Return 0 (handled automatically by the cache)
         ///
         /// ## Examples:
         /// ```swift
@@ -138,7 +138,7 @@ public extension MemoryCache {
         /// ```
         ///
         /// ## Important Notes:
-        /// - The returned value should be **positive** and **reasonable** (avoid extremely large values)
+        /// - The returned element should be **positive** and **reasonable** (avoid extremely large elements)
         /// - Should be **consistent** for the same input (deterministic)
         /// - **Performance**: This closure is called frequently during eviction, so keep it fast
         /// - **Memory limit**: Total cost across all elements should not exceed `MemoryUsageLimitation.memory`
@@ -149,8 +149,8 @@ public extension MemoryCache {
         /// - Parameters:
         ///   - enableThreadSynchronization: Enable NSLock synchronization for thread safety (default: true)
         ///   - memoryUsageLimitation: Memory and capacity constraints (default: unlimited)
-        ///   - defaultTTL: Default TTL for non-nil values (default: .infinity)
-        ///   - defaultTTLForNullValue: Default TTL for nil values (default: .infinity)
+        ///   - defaultTTL: Default TTL for non-nil elements (default: .infinity)
+        ///   - defaultTTLForNullElement: Default TTL for nil elements (default: .infinity)
         ///   - ttlRandomizationRange: TTL randomization range (default: 0)
         ///   - keyValidator: Key validation closure (default: always true)
         ///   - costProvider: Memory cost calculation closure in bytes. Should return actual memory usage for accurate eviction decisions (default: returns 0)
@@ -158,14 +158,14 @@ public extension MemoryCache {
             enableThreadSynchronization: Bool = true,
             memoryUsageLimitation: MemoryUsageLimitation = .init(),
             defaultTTL: TimeInterval = .infinity,
-            defaultTTLForNullValue: TimeInterval = .infinity,
+            defaultTTLForNullElement: TimeInterval = .infinity,
             ttlRandomizationRange: TimeInterval = 0,
             keyValidator: @escaping (Key) -> Bool = {_ in true},
             costProvider: @escaping (Element) -> Int = {_ in 0}
         ) {
             self.enableThreadSynchronization = enableThreadSynchronization
             self.defaultTTL = defaultTTL
-            self.defaultTTLForNullValue = defaultTTLForNullValue
+            self.defaultTTLForNullElement = defaultTTLForNullElement
             self.ttlRandomizationRange = ttlRandomizationRange
             self.memoryUsageLimitation = memoryUsageLimitation
             self.keyValidator = keyValidator
@@ -178,7 +178,7 @@ public extension MemoryCache {
 }
 
 /// A high-performance, in-memory key-value cache with configurable thread safety and memory management.
-/// 
+///
 /// This cache provides automatic expiration, priority-based eviction, and memory usage tracking.
 /// It's designed for scenarios where you need fine-grained control over cache behavior and memory usage.
 public class MemoryCache<Key: Hashable, Element> {
@@ -208,10 +208,10 @@ public class MemoryCache<Key: Hashable, Element> {
     
     private(set) var statistics: CacheStatistics
     
-    /// Internal wrapper for cache entries to support null value caching.
+    /// Internal wrapper for cache entries to support null element caching.
     private struct CacheEntry {
-        /// The actual value (can be nil for null caching).
-        let value: Element?
+        /// The actual element (can be nil for null caching).
+        let element: Element?
     }
 }
 
@@ -247,25 +247,25 @@ public extension MemoryCache {
     }
     
     /**
-     Inserts or updates a value for the given key with optional priority and expiration.
+     Inserts or updates a element for the given key with optional priority and expiration.
      
-     This method handles both regular values and null values, applying appropriate TTL settings
+     This method handles both regular elements and null elements, applying appropriate TTL settings
      and memory cost tracking. When the cache exceeds its memory limit, it automatically
      evicts the least recently used entries.
      
      - Parameters:
-       - value: The value to store (can be nil for null caching)
-       - key: The key to associate with the value
+       - element: The element to store (can be nil for null caching)
+       - key: The key to associate with the element
        - priority: The priority for eviction (higher is less likely to be evicted)
        - duration: The TTL (in seconds) for the entry. Defaults to configuration default
      
-     - Returns: Array of evicted values due to capacity or memory limits
+     - Returns: Array of evicted elements due to capacity or memory limits
      
      - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
      */
     @discardableResult
     func set(
-        value: Element?,
+        element: Element?,
         for key: Key,
         priority: Double = .zero,
         expiredIn duration: TimeInterval? = nil
@@ -276,38 +276,38 @@ public extension MemoryCache {
         // Step 1: Validate key using external validator
         guard configuration.keyValidator(key) else { return [] }
         
-        var evictedValues: [Element] = []
+        var evictedElements: [Element] = []
         
-        // Step 2: Handle null value caching
-        if value == nil {
+        // Step 2: Handle null element caching
+        if element == nil {
             let finalTTL = calculateFinalTTL(
-                originalDuration: duration ?? configuration.defaultTTLForNullValue,
-                isNullValue: true
+                originalDuration: duration ?? configuration.defaultTTLForNullElement,
+                isNullElement: true
             )
             
-            let cacheEntry = CacheEntry(value: nil)
+            let cacheEntry = CacheEntry(element: nil)
             let evictedEntry = storageQueue.set(
-                value: cacheEntry,
+                element: cacheEntry,
                 for: key,
                 priority: priority,
                 expiredIn: finalTTL
             )
             
             // Handle evicted entry from storage queue
-            if let evictedValue = evictedEntry?.value {
-                decreaseCost(for: evictedValue)
-                evictedValues.append(evictedValue)
+            if let evictedElement = evictedEntry?.element {
+                decreaseCost(for: evictedElement)
+                evictedElements.append(evictedElement)
             }
             
-            // Null values have minimal cost, but we still track them
+            // Null elements have minimal cost, but we still track them
             increaseCost(for: nil)
             
-            return evictedValues
+            return evictedElements
         }
         
-        if cost(of: value) > configuration.memoryUsageLimitation.memory * 1024 * 1024 {
-            if let value {
-                return [value]
+        if cost(of: element) > configuration.memoryUsageLimitation.memory * 1024 * 1024 {
+            if let element {
+                return [element]
             }else {
                 return []
             }
@@ -316,53 +316,53 @@ public extension MemoryCache {
         // Step 3: Calculate final TTL with randomization
         let finalTTL = calculateFinalTTL(
             originalDuration: duration ?? configuration.defaultTTL,
-            isNullValue: false
+            isNullElement: false
         )
         
         // Step 4: Store in queue and handle evictions
-        let cacheEntry = CacheEntry(value: value)
+        let cacheEntry = CacheEntry(element: element)
         let evictedEntry = storageQueue.set(
-            value: cacheEntry,
+            element: cacheEntry,
             for: key,
             priority: priority,
             expiredIn: finalTTL
         )
         
         // Handle evicted entry from storage queue
-        if let evictedValue = evictedEntry?.value {
-            decreaseCost(for: evictedValue)
-            evictedValues.append(evictedValue)
+        if let evictedElement = evictedEntry?.element {
+            decreaseCost(for: evictedElement)
+            evictedElements.append(evictedElement)
         }
         
         // Add cost for new entry
-        increaseCost(for: value)
+        increaseCost(for: element)
         
         // Step 5: Check memory limits and evict if necessary
         let memoryLimitInBytes = configuration.memoryUsageLimitation.memory * 1024 * 1024 // Convert MB to bytes
         while totalCost > memoryLimitInBytes {
             // Get the least recently used entry to evict
-            if let evictedValue = storageQueue.removeValue()?.value {
-                decreaseCost(for: evictedValue)
-                evictedValues.append(evictedValue)
+            if let evictedElement = storageQueue.removeElement()?.element {
+                decreaseCost(for: evictedElement)
+                evictedElements.append(evictedElement)
             } else {
                 // If no more entries to evict, break to avoid infinite loop
                 break
             }
         }
         
-        return evictedValues
+        return evictedElements
     }
     
     enum FetchResult {
         case invalidKey
-        case hitNullValue
-        case hitNonNullValue(value: Element)
+        case hitNullElement
+        case hitNonNullElement(element: Element)
         case miss
         
-        var value: Element? {
+        var element: Element? {
             switch self {
-            case .hitNonNullValue(let value):
-                return value
+            case .hitNonNullElement(let element):
+                return element
             default:
                 return nil
             }
@@ -378,17 +378,17 @@ public extension MemoryCache {
         }
     }
     /**
-     Retrieves the value for the given key if present and not expired.
+     Retrieves the element for the given key if present and not expired.
      
-     This method validates the key using the configured validator and returns the value
+     This method validates the key using the configured validator and returns the element
      if it exists and hasn't expired. The access updates the LRU order of the entry.
      
      - Parameter key: The key to look up
-     - Returns: The value if present and valid, or nil if expired, missing, or invalid
+     - Returns: The element if present and valid, or nil if expired, missing, or invalid
      
      - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
      */
-    func getValue(for key: Key) -> FetchResult {
+    func getElement(for key: Key) -> FetchResult {
         acquireLockIfNeeded()
         defer { releaseLockIfNeeded() }
         
@@ -397,63 +397,63 @@ public extension MemoryCache {
             return .invalidKey
         }
         
-        let cacheEntry = storageQueue.getValue(for: key)
+        let cacheEntry = storageQueue.getElement(for: key)
         
         guard let cacheEntry else {
             statistics.record(.miss)
             return .miss
         }
         
-        guard let value = cacheEntry.value else {
-            statistics.record(.hitNullValue)
-            return .hitNullValue
+        guard let element = cacheEntry.element else {
+            statistics.record(.hitNullElement)
+            return .hitNullElement
         }
         
-        statistics.record(.hitNonNullValue)
-        return .hitNonNullValue(value: value)
+        statistics.record(.hitNonNullElement)
+        return .hitNonNullElement(element: element)
     }
     
     /**
-     Removes the value for the given key, if present.
+     Removes the element for the given key, if present.
      
      This method removes the entry from the cache and updates the memory cost tracking.
-     The removed value is returned if it existed in the cache.
+     The removed element is returned if it existed in the cache.
      
      - Parameter key: The key to remove
-     - Returns: The removed value, or nil if not found
+     - Returns: The removed element, or nil if not found
      
      - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
      */
     @discardableResult
-    func removeValue(for key: Key) -> Element? {
+    func removeElement(for key: Key) -> Element? {
         acquireLockIfNeeded()
         defer { releaseLockIfNeeded() }
         
-        let cacheEntry = storageQueue.removeValue(for: key)
-        return cacheEntry?.value
+        let cacheEntry = storageQueue.removeElement(for: key)
+        return cacheEntry?.element
     }
     
     /**
-     Removes and returns the least recently used value from the cache.
+     Removes and returns the least recently used element from the cache.
      
-     This method removes the least recently used entry from the cache and returns its value.
+     This method removes the least recently used entry from the cache and returns its element.
      The removal follows the cache's eviction policy (priority-based LRU).
      
-     - Returns: The removed value, or nil if the cache is empty
+     - Returns: The removed element, or nil if the cache is empty
      
      - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
      */
     @discardableResult
-    func removeValue() -> Element? {
+    func removeElement() -> Element? {
        acquireLockIfNeeded()
        defer { releaseLockIfNeeded() }
        
-       let cacheEntry = storageQueue.removeValue()
-       return cacheEntry?.value
+       let cacheEntry = storageQueue.removeElement()
+       return cacheEntry?.element
    }
     
     /**
-     Removes all expired values from the cache.
+     Removes all expired elements from the cache.
      
      This method iterates through the cache and removes all entries that have expired
      based on their TTL (Time-to-Live) settings. This is useful for periodic cleanup
@@ -461,29 +461,29 @@ public extension MemoryCache {
      
      - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
      */
-    func removeExpiredValues() {
+    func removeExpiredElements() {
         acquireLockIfNeeded()
         defer { releaseLockIfNeeded() }
         
-        storageQueue.removeExpiredValues()
+        storageQueue.removeExpiredElements()
     }
     
     /**
      Removes cache entries to reduce the cache size to a specified percentage of its current size.
      
-     This method first removes all expired values, then continues removing the least recently used
+     This method first removes all expired elements, then continues removing the least recently used
      entries until the cache size reaches the specified percentage of its original size.
      
      - Parameter toPercent: The target percentage (0.0 to 1.0) of current cache size to retain
      
      - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
      */
-    func removeValues(toPercent: Double) {
+    func removeElements(toPercent: Double) {
         let percent = max(0, min(toPercent, 1))
         let restCount = Int(percent * Double(storageQueue.count))
-        storageQueue.removeExpiredValues()
+        storageQueue.removeExpiredElements()
         while storageQueue.count > restCount {
-            removeValue()
+            removeElement()
         }
     }
     
@@ -498,9 +498,9 @@ private extension MemoryCache {
     /// Calculates the final TTL with randomization applied to prevent cache stampede.
     /// - Parameters:
     ///   - originalDuration: The original TTL duration
-    ///   - isNullValue: Whether this is for a null value
+    ///   - isNullElement: Whether this is for a null element
     /// - Returns: The final TTL with randomization applied
-    func calculateFinalTTL(originalDuration: TimeInterval, isNullValue: Bool) -> TimeInterval {
+    func calculateFinalTTL(originalDuration: TimeInterval, isNullElement: Bool) -> TimeInterval {
         // Don't randomize infinite TTL
         guard originalDuration != .infinity else { return originalDuration }
         
@@ -525,23 +525,23 @@ private extension MemoryCache {
         lock.unlock()
     }
     
-    /// Increases the total memory cost by the cost of the given value.
-    /// - Parameter value: The value whose cost should be added
-    func increaseCost(for value: Element?) {
-        totalCost += cost(of: value)
+    /// Increases the total memory cost by the cost of the given element.
+    /// - Parameter element: The element whose cost should be added
+    func increaseCost(for element: Element?) {
+        totalCost += cost(of: element)
     }
     
-    /// Decreases the total memory cost by the cost of the given value.
-    /// - Parameter value: The value whose cost should be subtracted
-    func decreaseCost(for value: Element?) {
-        totalCost = max(0, totalCost - cost(of: value))
+    /// Decreases the total memory cost by the cost of the given element.
+    /// - Parameter element: The element whose cost should be subtracted
+    func decreaseCost(for element: Element?) {
+        totalCost = max(0, totalCost - cost(of: element))
     }
     
-    /// Calculates the memory cost of a value in bytes.
-    /// - Parameter value: The value to calculate cost for
+    /// Calculates the memory cost of a element in bytes.
+    /// - Parameter element: The element to calculate cost for
     /// - Returns: The memory cost in bytes
-    func cost(of value: Element?) -> Int {
-        guard let value else { return 0 }
-        return MemoryLayout<Element>.size + min(max(0, configuration.costProvider(value)), MemoryUsageLimitation.unlimitedMemoryUsage)
+    func cost(of element: Element?) -> Int {
+        guard let element else { return 0 }
+        return MemoryLayout<Element>.size + min(max(0, configuration.costProvider(element)), MemoryUsageLimitation.unlimitedMemoryUsage)
     }
 }

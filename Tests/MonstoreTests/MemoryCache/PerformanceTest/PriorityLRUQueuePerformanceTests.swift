@@ -18,10 +18,10 @@ final class PriorityLRUQueuePerformanceTests: XCTestCase {
         let queue = PriorityLRUQueue<Int, Int>(capacity: count)
         measure {
             for i in 0..<count {
-                _ = queue.setValue(i, for: i, with: Double(i % 10))
+                _ = queue.setElement(i, for: i, with: Double(i % 10))
             }
             for i in 0..<count {
-                _ = queue.getValue(for: i)
+                _ = queue.getElement(for: i)
             }
         }
     }
@@ -31,11 +31,11 @@ final class PriorityLRUQueuePerformanceTests: XCTestCase {
         let count = 10_000
         let queue = PriorityLRUQueue<Int, Int>(capacity: 1000)
         for i in 0..<1000 {
-            _ = queue.setValue(i, for: i, with: Double(i % 10))
+            _ = queue.setElement(i, for: i, with: Double(i % 10))
         }
         measure {
             for i in 1000..<count {
-                _ = queue.setValue(i, for: i, with: Double(i % 10))
+                _ = queue.setElement(i, for: i, with: Double(i % 10))
             }
         }
     }
@@ -46,7 +46,7 @@ final class PriorityLRUQueuePerformanceTests: XCTestCase {
         let queue = PriorityLRUQueue<Int, Int>(capacity: 1000)
         measure {
             for i in 0..<count {
-                _ = queue.setValue(i, for: i, with: Double(i % 100))
+                _ = queue.setElement(i, for: i, with: Double(i % 100))
             }
         }
     }
@@ -57,10 +57,10 @@ final class PriorityLRUQueuePerformanceTests: XCTestCase {
         let queue = PriorityLRUQueue<Int, Int>(capacity: 2000)
         measure {
             for i in 0..<count {
-                _ = queue.setValue(i, for: i, with: Double(i % 10))
-                _ = queue.getValue(for: i)
+                _ = queue.setElement(i, for: i, with: Double(i % 10))
+                _ = queue.getElement(for: i)
                 if i % 3 == 0 {
-                    _ = queue.removeValue(for: i - 1)
+                    _ = queue.removeElement(for: i - 1)
                 }
             }
         }
@@ -73,9 +73,9 @@ final class PriorityLRUQueuePerformanceTests: XCTestCase {
         let queue = PriorityLRUQueue<String, Int>(capacity: cap)
         measure {
             for i in 0..<(cap * 1000) {
-                _ = queue.setValue(i, for: "key\(i)", with: Double(i % 2))
-                _ = queue.getValue(for: "key\(i)")
-                _ = queue.removeValue(for: "key\(i)")
+                _ = queue.setElement(i, for: "key\(i)", with: Double(i % 2))
+                _ = queue.getElement(for: "key\(i)")
+                _ = queue.removeElement(for: "key\(i)")
             }
         }
     }
@@ -85,9 +85,9 @@ final class PriorityLRUQueuePerformanceTests: XCTestCase {
         let queue = PriorityLRUQueue<String, Int>(capacity: cap)
         measure {
             for i in 0..<(cap * 1000) {
-                _ = queue.setValue(i, for: "key\(i)", with: Double(i % 2))
-                _ = queue.getValue(for: "key\(i)")
-                _ = queue.removeValue(for: "key\(i)")
+                _ = queue.setElement(i, for: "key\(i)", with: Double(i % 2))
+                _ = queue.getElement(for: "key\(i)")
+                _ = queue.removeElement(for: "key\(i)")
             }
         }
     }
@@ -97,9 +97,9 @@ final class PriorityLRUQueuePerformanceTests: XCTestCase {
         let queue = PriorityLRUQueue<String, Int>(capacity: cap)
         measure {
             for i in 0..<(cap * 1000) {
-                _ = queue.setValue(i, for: "key\(i)", with: Double(i % 2))
-                _ = queue.getValue(for: "key\(i)")
-                _ = queue.removeValue(for: "key\(i)")
+                _ = queue.setElement(i, for: "key\(i)", with: Double(i % 2))
+                _ = queue.getElement(for: "key\(i)")
+                _ = queue.removeElement(for: "key\(i)")
             }
         }
     }
@@ -115,12 +115,12 @@ final class PriorityLRUQueuePerformanceTests: XCTestCase {
             for _ in 0..<(count * 2) {
                 let op = Int.random(in: 0..<3)
                 if op == 0 && inserted < count {
-                    _ = queue.setValue("val\(inserted)", for: inserted, with: Double(inserted % 10))
+                    _ = queue.setElement("val\(inserted)", for: inserted, with: Double(inserted % 10))
                     inserted += 1
                 } else if op == 1 {
-                    _ = queue.getValue(for: Int.random(in: 0..<count))
+                    _ = queue.getElement(for: Int.random(in: 0..<count))
                 } else if removed < inserted {
-                    _ = queue.removeValue(for: removed)
+                    _ = queue.removeElement(for: removed)
                     removed += 1
                 }
             }
@@ -133,7 +133,7 @@ final class PriorityLRUQueuePerformanceTests: XCTestCase {
         let count = 5000
         let queue = PriorityLRUQueue<Int, Int>(capacity: count)
         for i in 0..<count {
-            _ = queue.setValue(i, for: i, with: Double(i % 10))
+            _ = queue.setElement(i, for: i, with: Double(i % 10))
         }
         var keys = Array(0..<count)
         keys.shuffle()
@@ -141,45 +141,45 @@ final class PriorityLRUQueuePerformanceTests: XCTestCase {
         measure {
             while queue.count > 0 && removeIdx < keys.count {
                 let key = keys[removeIdx]
-                _ = queue.removeValue(for: key)
+                _ = queue.removeElement(for: key)
                 removeIdx += 1
             }
         }
     }
 
-    // MARK: - Remove Value (No Parameter) Performance Tests
+    // MARK: - Remove Element (No Parameter) Performance Tests
 
-    /// Measures performance of removing least recently used values.
-    func testRemoveValueNoParameterPerformance() {
+    /// Measures performance of removing least recently used elements.
+    func testRemoveElementNoParameterPerformance() {
         let count = 10_000
         let queue = PriorityLRUQueue<Int, Int>(capacity: count)
         
         // Pre-populate queue
         for i in 0..<count {
-            _ = queue.setValue(i, for: i, with: Double(i % 10))
+            _ = queue.setElement(i, for: i, with: Double(i % 10))
         }
         
         measure {
-            // Remove all values using removeValue()
+            // Remove all elements using removeElement()
             while queue.count > 0 {
-                _ = queue.removeValue()
+                _ = queue.removeElement()
             }
         }
     }
 
-    /// Measures performance of mixed workload including removeValue().
-    func testMixedWorkloadWithRemoveValuePerformance() {
+    /// Measures performance of mixed workload including removeElement().
+    func testMixedWorkloadWithRemoveElementPerformance() {
         let count = 10_000
         let queue = PriorityLRUQueue<Int, Int>(capacity: 2000)
         measure {
             for i in 0..<count {
-                _ = queue.setValue(i, for: i, with: Double(i % 10))
-                _ = queue.getValue(for: i)
+                _ = queue.setElement(i, for: i, with: Double(i % 10))
+                _ = queue.getElement(for: i)
                 if i % 3 == 0 {
-                    _ = queue.removeValue(for: i - 1)
+                    _ = queue.removeElement(for: i - 1)
                 }
                 if i % 5 == 0 {
-                    _ = queue.removeValue() // Remove LRU
+                    _ = queue.removeElement() // Remove LRU
                 }
             }
         }
@@ -192,12 +192,12 @@ final class PriorityLRUQueuePerformanceTests: XCTestCase {
         let queue = PriorityLRUQueue<Int, Int>(capacity: 1000)
         measure {
             for i in 0..<count {
-                _ = queue.setValue(i, for: i, with: Double(i % 10))
+                _ = queue.setElement(i, for: i, with: Double(i % 10))
                 if i % 2 == 0 {
-                    _ = queue.removeValue(for: i - 1)
+                    _ = queue.removeElement(for: i - 1)
                 }
                 if i % 100 == 0 {
-                    _ = queue.removeValue() // Remove LRU
+                    _ = queue.removeElement() // Remove LRU
                 }
             }
         }

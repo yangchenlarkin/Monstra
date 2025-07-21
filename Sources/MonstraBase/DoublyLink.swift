@@ -1,21 +1,21 @@
 //
-//  Link.swift
-//  Monstore
+//  DoublyLink.swift
+//  Monstra
 //
 //  Created by Larkin on 2025/7/21.
 //
 
 import Foundation
 
-public extension Link {
+public extension DoublyLink {
     /// A node in the doubly linked list storing the element and links to adjacent nodes.
     class Node {
         /// The stored element value. Mutable.
-        public internal(set) var element: Element
+        public var element: Element
         /// Next node in the list (closer to the front).
-        var next: Node? = nil
+        public var next: Node? = nil
         /// Previous node in the list (closer to the back).
-        var previous: Node? = nil
+        public var previous: Node? = nil
         /// Initializes a new node with key, value and optional links.
         public init(element: Element, next: Node? = nil, previous: Node? = nil) {
             self.element = element
@@ -25,7 +25,7 @@ public extension Link {
     }
 }
 /// A doubly linked list for LRU management within a priority level.
-public class Link<Element> {
+public class DoublyLink<Element> {
     public private(set) var front: Node?
     public private(set) var back: Node?
     public private(set) var count = 0

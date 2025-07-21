@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import Monstore
+@testable import MonstraBase
 
 final class CPUTimeStampTests: XCTestCase {
     

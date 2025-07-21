@@ -5,9 +5,8 @@
 //  Created by Larkin on 2025/7/21.
 //
 
-import Foundation
 import XCTest
-@testable import Monstask
+@testable import MonstraBase
 
 final class RetryCountTests: XCTestCase {
     

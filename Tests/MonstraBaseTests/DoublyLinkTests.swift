@@ -1,19 +1,19 @@
 //
-//  LinkTests.swift
-//  MonstoreTests
+//  DoublyLinkTests.swift
+//  MonstraTests
 //
 //  Created by Larkin on 2025/7/21.
 //
 
 import XCTest
-@testable import Monstore
+@testable import MonstraBase
 
-final class LinkTests: XCTestCase {
+final class DoublyLinkTests: XCTestCase {
     
     // MARK: - Basic Operations Tests
     
     func testEnqueueElement() {
-        let link = Link<Int>(with: 3)
+        let link = DoublyLink<Int>(with: 3)
         
         let result = link.enqueueFront(element: 1)
         XCTAssertNotNil(result.newNode)
@@ -24,7 +24,7 @@ final class LinkTests: XCTestCase {
     }
     
     func testEnqueueMultipleElements() {
-        let link = Link<Int>(with: 3)
+        let link = DoublyLink<Int>(with: 3)
         
         let result1 = link.enqueueFront(element: 1)
         let result2 = link.enqueueFront(element: 2)
@@ -39,8 +39,8 @@ final class LinkTests: XCTestCase {
     }
     
     func testEnqueueNode() {
-        let link = Link<Int>(with: 3)
-        let node = Link<Int>.Node(element: 1)
+        let link = DoublyLink<Int>(with: 3)
+        let node = DoublyLink<Int>.Node(element: 1)
         
         let evicted = link.enqueueFront(node: node)
         XCTAssertNil(evicted)
@@ -50,7 +50,7 @@ final class LinkTests: XCTestCase {
     }
     
     func testDequeueBack() {
-        let link = Link<Int>(with: 3)
+        let link = DoublyLink<Int>(with: 3)
         link.enqueueFront(element: 1)
         link.enqueueFront(element: 2)
         link.enqueueFront(element: 3)
@@ -63,7 +63,7 @@ final class LinkTests: XCTestCase {
     }
     
     func testDequeueFront() {
-        let link = Link<Int>(with: 3)
+        let link = DoublyLink<Int>(with: 3)
         link.enqueueFront(element: 1)
         link.enqueueFront(element: 2)
         link.enqueueFront(element: 3)
@@ -76,7 +76,7 @@ final class LinkTests: XCTestCase {
     }
     
     func testRemoveNode() {
-        let link = Link<Int>(with: 3)
+        let link = DoublyLink<Int>(with: 3)
         link.enqueueFront(element: 1)
         link.enqueueFront(element: 2)
         link.enqueueFront(element: 3)
@@ -94,7 +94,7 @@ final class LinkTests: XCTestCase {
     // MARK: - Capacity Management Tests
     
     func testCapacityExceeded() {
-        let link = Link<Int>(with: 2)
+        let link = DoublyLink<Int>(with: 2)
         
         let result1 = link.enqueueFront(element: 1)
         let result2 = link.enqueueFront(element: 2)
@@ -110,7 +110,7 @@ final class LinkTests: XCTestCase {
     }
     
     func testZeroCapacity() {
-        let link = Link<Int>(with: 0)
+        let link = DoublyLink<Int>(with: 0)
         
         let result = link.enqueueFront(element: 1)
         XCTAssertNil(result.newNode)
@@ -120,7 +120,7 @@ final class LinkTests: XCTestCase {
     }
     
     func testNegativeCapacity() {
-        let link = Link<Int>(with: -1)
+        let link = DoublyLink<Int>(with: -1)
         
         let result = link.enqueueFront(element: 1)
         XCTAssertNil(result.newNode)
@@ -132,7 +132,7 @@ final class LinkTests: XCTestCase {
     // MARK: - Edge Cases Tests
     
     func testEmptyQueueOperations() {
-        let link = Link<Int>(with: 3)
+        let link = DoublyLink<Int>(with: 3)
         
         XCTAssertEqual(link.count, 0)
         XCTAssertNil(link.front)
@@ -146,7 +146,7 @@ final class LinkTests: XCTestCase {
     }
     
     func testSingleElementOperations() {
-        let link = Link<Int>(with: 3)
+        let link = DoublyLink<Int>(with: 3)
         link.enqueueFront(element: 1)
         
         XCTAssertEqual(link.count, 1)
@@ -162,7 +162,7 @@ final class LinkTests: XCTestCase {
     }
     
     func testRemoveFrontNode() {
-        let link = Link<Int>(with: 3)
+        let link = DoublyLink<Int>(with: 3)
         link.enqueueFront(element: 1)
         link.enqueueFront(element: 2)
         
@@ -175,7 +175,7 @@ final class LinkTests: XCTestCase {
     }
     
     func testRemoveBackNode() {
-        let link = Link<Int>(with: 3)
+        let link = DoublyLink<Int>(with: 3)
         link.enqueueFront(element: 1)
         link.enqueueFront(element: 2)
         
@@ -188,7 +188,7 @@ final class LinkTests: XCTestCase {
     }
     
     func testRemoveMiddleNode() {
-        let link = Link<Int>(with: 3)
+        let link = DoublyLink<Int>(with: 3)
         link.enqueueFront(element: 1)
         link.enqueueFront(element: 2)
         link.enqueueFront(element: 3)
@@ -206,9 +206,9 @@ final class LinkTests: XCTestCase {
     // MARK: - Node Properties Tests
     
     func testNodeProperties() {
-        let node1 = Link<Int>.Node(element: 1)
-        let node2 = Link<Int>.Node(element: 2)
-        let node3 = Link<Int>.Node(element: 3)
+        let node1 = DoublyLink<Int>.Node(element: 1)
+        let node2 = DoublyLink<Int>.Node(element: 2)
+        let node3 = DoublyLink<Int>.Node(element: 3)
         
         // Test initial state
         XCTAssertEqual(node1.element, 1)
@@ -228,9 +228,9 @@ final class LinkTests: XCTestCase {
     }
     
     func testNodeInitialization() {
-        let node1 = Link<Int>.Node(element: 1)
-        let node2 = Link<Int>.Node(element: 2, next: node1, previous: nil)
-        let node3 = Link<Int>.Node(element: 3, next: nil, previous: node2)
+        let node1 = DoublyLink<Int>.Node(element: 1)
+        let node2 = DoublyLink<Int>.Node(element: 2, next: node1, previous: nil)
+        let node3 = DoublyLink<Int>.Node(element: 3, next: nil, previous: node2)
         
         XCTAssertEqual(node1.element, 1)
         XCTAssertEqual(node2.element, 2)
@@ -243,7 +243,7 @@ final class LinkTests: XCTestCase {
     // MARK: - Complex Operations Tests
     
     func testMultipleEnqueueDequeueOperations() {
-        let link = Link<Int>(with: 3)
+        let link = DoublyLink<Int>(with: 3)
         
         // Enqueue 3 elements
         link.enqueueFront(element: 1)
@@ -274,7 +274,7 @@ final class LinkTests: XCTestCase {
     }
     
     func testRemoveAndReinsertNode() {
-        let link = Link<Int>(with: 3)
+        let link = DoublyLink<Int>(with: 3)
         
         link.enqueueFront(element: 1)
         link.enqueueFront(element: 2)
@@ -294,7 +294,7 @@ final class LinkTests: XCTestCase {
     // MARK: - Large Capacity Tests
     
     func testLargeCapacity() {
-        let link = Link<Int>(with: 1000)
+        let link = DoublyLink<Int>(with: 1000)
         
         // Enqueue many elements
         for i in 1...500 {
@@ -323,7 +323,7 @@ final class LinkTests: XCTestCase {
     // MARK: - Performance Tests
     
     func testPerformanceEnqueue() {
-        let link = Link<Int>(with: 1000)
+        let link = DoublyLink<Int>(with: 1000)
         
         measure {
             for i in 1...1000 {
@@ -333,7 +333,7 @@ final class LinkTests: XCTestCase {
     }
     
     func testPerformanceDequeueBack() {
-        let link = Link<Int>(with: 1000)
+        let link = DoublyLink<Int>(with: 1000)
         
         // Pre-populate
         for i in 1...1000 {
@@ -348,7 +348,7 @@ final class LinkTests: XCTestCase {
     }
     
     func testPerformanceRemoveNode() {
-        let link = Link<Int>(with: 1000)
+        let link = DoublyLink<Int>(with: 1000)
         
         // Pre-populate
         for i in 1...1000 {
@@ -368,7 +368,7 @@ final class LinkTests: XCTestCase {
     // MARK: - Memory Management Tests
     
     func testNodeReferences() {
-        let link = Link<Int>(with: 3)
+        let link = DoublyLink<Int>(with: 3)
         
         link.enqueueFront(element: 1)
         link.enqueueFront(element: 2)
@@ -397,7 +397,7 @@ final class LinkTests: XCTestCase {
     // MARK: - Generic Type Tests
     
     func testStringElements() {
-        let link = Link<String>(with: 3)
+        let link = DoublyLink<String>(with: 3)
         
         link.enqueueFront(element: "first")
         link.enqueueFront(element: "second")
@@ -414,7 +414,7 @@ final class LinkTests: XCTestCase {
             let name: String
         }
         
-        let link = Link<TestStruct>(with: 3)
+        let link = DoublyLink<TestStruct>(with: 3)
         
         let element1 = TestStruct(id: 1, name: "one")
         let element2 = TestStruct(id: 2, name: "two")
@@ -432,10 +432,10 @@ final class LinkTests: XCTestCase {
     // MARK: - Error Handling Tests
     
     func testRemoveNodeNotInQueue() {
-        let link = Link<Int>(with: 3)
+        let link = DoublyLink<Int>(with: 3)
         
         // Create a node that's not in the queue
-        let externalNode = Link<Int>.Node(element: 999)
+        let externalNode = DoublyLink<Int>.Node(element: 999)
         
         // This should not crash, but will decrease count even if node is not in queue
         link.removeNode(externalNode)
@@ -443,9 +443,9 @@ final class LinkTests: XCTestCase {
     }
     
     func testRemoveNodeFromEmptyQueue() {
-        let link = Link<Int>(with: 3)
+        let link = DoublyLink<Int>(with: 3)
         
-        let node = Link<Int>.Node(element: 1)
+        let node = DoublyLink<Int>.Node(element: 1)
         link.enqueueFront(node: node)
         link.removeNode(node)
         

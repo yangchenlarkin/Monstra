@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import Monstore
+@testable import MonstraBase
 
 /// Tests for TracingIDFactory functionality
 final class TracingIDFactoryTest: XCTestCase {

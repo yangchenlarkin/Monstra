@@ -7,6 +7,7 @@
 
 import Foundation
 import Monstore
+import MonstraBase
 
 public extension KVLightTasks {
     enum DataPovider {

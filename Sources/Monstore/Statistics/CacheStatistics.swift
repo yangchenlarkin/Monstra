@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MonstraBase
 
 public enum CacheRecord {
     case invalidKey

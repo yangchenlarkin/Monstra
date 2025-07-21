@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MonstraBase
 
 /// A priority-based LRU (Least Recently Used) queue that maintains separate LRU queues for each priority level.
 ///
@@ -19,7 +20,7 @@ public class PriorityLRUQueue<K: Hashable, Element> {
         fileprivate var priority: Double
         fileprivate var priorityIndex: Int? = nil /// Index of the priority in the heap for efficient removal
     }
-    private typealias LRULink = Link<LRUElement>
+    private typealias LRULink = DoublyLink<LRUElement>
     private typealias LRUNode = LRULink.Node
     
     /// The maximum number of elements the queue can hold.

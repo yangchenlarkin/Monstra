@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MonstraBase
 
 /// A cache that combines TTL (time-to-live), priority, and LRU (least recently used) eviction policies.
 ///

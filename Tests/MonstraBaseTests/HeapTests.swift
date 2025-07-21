@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import Monstore
+@testable import MonstraBase
 
 // MARK: - Types
 extension HeapTests {

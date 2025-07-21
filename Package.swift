@@ -19,6 +19,9 @@ let package = Package(
         .library(
             name: "Monstask",
             targets: ["Monstask"]),
+        .library(
+            name: "MonstraBase",
+            targets: ["MonstraBase"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -28,18 +31,31 @@ let package = Package(
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "Monstore",
+            name: "MonstraBase",
             dependencies: [],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug)),
                 .unsafeFlags(["-enable-testing"], .when(configuration: .debug))
             ]),
         .target(
-            name: "Monstask",
-            dependencies: ["Monstore"],
+            name: "Monstore",
+            dependencies: ["MonstraBase"],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug)),
                 .unsafeFlags(["-enable-testing"], .when(configuration: .debug))
+            ]),
+        .target(
+            name: "Monstask",
+            dependencies: ["MonstraBase", "Monstore"],
+            swiftSettings: [
+                .define("DEBUG", .when(configuration: .debug)),
+                .unsafeFlags(["-enable-testing"], .when(configuration: .debug))
+            ]),
+        .testTarget(
+            name: "MonstraBaseTests",
+            dependencies: ["MonstraBase"],
+            swiftSettings: [
+                .define("DEBUG", .when(configuration: .debug))
             ]),
         .testTarget(
             name: "MonstoreTests",

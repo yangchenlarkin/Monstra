@@ -7,7 +7,7 @@
 //  Performance tests for CPUTimeStamp: measures overhead of timestamp creation, arithmetic, and comparison.
 
 import XCTest
-@testable import Monstore
+@testable import MonstraBase
 
 /// Performance tests for CPUTimeStamp.
 final class CPUTimeStampPerformanceTests: XCTestCase {

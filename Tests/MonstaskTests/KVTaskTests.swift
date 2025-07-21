@@ -19,10 +19,13 @@ final class KVTaskTests: XCTestCase {
         // Put teardown code here. This method is called after the invocation of each test method in the class.
     }
 
-    func testKVTaskCreation() throws {
-        // Test that we can create a KVTask
-        let cache = MemoryCache<String, Int>()
-        let task = KVTask<String, Int>(cache: cache)
+    func testKVLightTasksCreation() throws {
+        // Test that we can create a KVLightTasks
+        let config = KVLightTasks<String, Int>.Config(
+            maxmumTaskNumberInQueue: 10,
+            dataProvider: .monofetch { _ in nil }
+        )
+        let task = KVLightTasks<String, Int>(config: config)
         
         XCTAssertNotNil(task)
     }

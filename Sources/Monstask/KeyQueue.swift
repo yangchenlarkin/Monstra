@@ -95,12 +95,38 @@ public class KeyQueue<K: Hashable> {
         return node.element
     }
     
+    /// Removes and returns multiple keys from the front of the queue (most recently used).
+    /// - Parameter count: The number of keys to dequeue. If count exceeds available keys, returns all available keys.
+    /// - Returns: Array of the most recently used keys, in order from most to least recent.
+    ///   Returns empty array if queue is empty or count is 0.
+    public func dequeueFront(count: UInt) -> [K] {
+        var res = [K]()
+        for _ in 0..<count {
+            guard let key = dequeueFront() else { break }
+            res.append(key)
+        }
+        return res
+    }
+    
     /// Removes and returns the key at the back of the queue (least recently used).
     /// - Returns: The least recently used key, or nil if the queue is empty.
     public func dequeueBack() -> K? {
         guard let node = link.dequeueBack() else { return nil }
         map.removeValue(forKey: node.element)
         return node.element
+    }
+    
+    /// Removes and returns multiple keys from the back of the queue (least recently used).
+    /// - Parameter count: The number of keys to dequeue. If count exceeds available keys, returns all available keys.
+    /// - Returns: Array of the least recently used keys, in order from least to most recent.
+    ///   Returns empty array if queue is empty or count is 0.
+    public func dequeueBack(count: UInt) -> [K] {
+        var res = [K]()
+        for _ in 0..<count {
+            guard let key = dequeueBack() else { break }
+            res.append(key)
+        }
+        return res
     }
     
     /// Removes a specific key from the queue.

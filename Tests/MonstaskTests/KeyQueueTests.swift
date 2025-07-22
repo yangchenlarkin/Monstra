@@ -113,6 +113,56 @@ final class KeyQueueTests: XCTestCase {
         XCTAssertNil(queue.dequeueFront())
     }
 
+    func testDequeueFrontWithCount() {
+        let queue = KeyQueue<String>(capacity: 5)
+        
+        // Empty queue
+        XCTAssertEqual(queue.dequeueFront(count: 3), [])
+        
+        // Single element
+        queue.enqueueFront(key: "A")
+        XCTAssertEqual(queue.dequeueFront(count: 1), ["A"])
+        XCTAssertTrue(queue.isEmpty)
+        
+        // Multiple elements - request less than available
+        queue.enqueueFront(key: "A")
+        queue.enqueueFront(key: "B")
+        queue.enqueueFront(key: "C")
+        
+        XCTAssertEqual(queue.dequeueFront(count: 2), ["C", "B"])
+        XCTAssertEqual(queue.count, 1)
+        XCTAssertEqual(queue.dequeueFront(), "A")
+        
+        // Multiple elements - request more than available
+        queue.enqueueFront(key: "A")
+        queue.enqueueFront(key: "B")
+        queue.enqueueFront(key: "C")
+        
+        XCTAssertEqual(queue.dequeueFront(count: 5), ["C", "B", "A"])
+        XCTAssertTrue(queue.isEmpty)
+    }
+
+    func testDequeueFrontWithCountZero() {
+        let queue = KeyQueue<String>(capacity: 3)
+        queue.enqueueFront(key: "A")
+        queue.enqueueFront(key: "B")
+        
+        XCTAssertEqual(queue.dequeueFront(count: 0), [])
+        XCTAssertEqual(queue.count, 2)
+    }
+
+    func testDequeueFrontWithCountLarge() {
+        let queue = KeyQueue<String>(capacity: 3)
+        queue.enqueueFront(key: "A")
+        queue.enqueueFront(key: "B")
+        queue.enqueueFront(key: "C")
+        
+        // Request more than available
+        let result = queue.dequeueFront(count: 10)
+        XCTAssertEqual(result, ["C", "B", "A"])
+        XCTAssertTrue(queue.isEmpty)
+    }
+
     func testDequeueBack() {
         let queue = KeyQueue<String>(capacity: 3)
         
@@ -135,6 +185,56 @@ final class KeyQueueTests: XCTestCase {
         XCTAssertNil(queue.dequeueBack())
     }
 
+    func testDequeueBackWithCount() {
+        let queue = KeyQueue<String>(capacity: 5)
+        
+        // Empty queue
+        XCTAssertEqual(queue.dequeueBack(count: 3), [])
+        
+        // Single element
+        queue.enqueueFront(key: "A")
+        XCTAssertEqual(queue.dequeueBack(count: 1), ["A"])
+        XCTAssertTrue(queue.isEmpty)
+        
+        // Multiple elements - request less than available
+        queue.enqueueFront(key: "A")
+        queue.enqueueFront(key: "B")
+        queue.enqueueFront(key: "C")
+        
+        XCTAssertEqual(queue.dequeueBack(count: 2), ["A", "B"])
+        XCTAssertEqual(queue.count, 1)
+        XCTAssertEqual(queue.dequeueBack(), "C")
+        
+        // Multiple elements - request more than available
+        queue.enqueueFront(key: "A")
+        queue.enqueueFront(key: "B")
+        queue.enqueueFront(key: "C")
+        
+        XCTAssertEqual(queue.dequeueBack(count: 5), ["A", "B", "C"])
+        XCTAssertTrue(queue.isEmpty)
+    }
+
+    func testDequeueBackWithCountZero() {
+        let queue = KeyQueue<String>(capacity: 3)
+        queue.enqueueFront(key: "A")
+        queue.enqueueFront(key: "B")
+        
+        XCTAssertEqual(queue.dequeueBack(count: 0), [])
+        XCTAssertEqual(queue.count, 2)
+    }
+
+    func testDequeueBackWithCountLarge() {
+        let queue = KeyQueue<String>(capacity: 3)
+        queue.enqueueFront(key: "A")
+        queue.enqueueFront(key: "B")
+        queue.enqueueFront(key: "C")
+        
+        // Request more than available
+        let result = queue.dequeueBack(count: 10)
+        XCTAssertEqual(result, ["A", "B", "C"])
+        XCTAssertTrue(queue.isEmpty)
+    }
+
     func testMixedDequeueOperations() {
         let queue = KeyQueue<String>(capacity: 5)
         
@@ -151,6 +251,130 @@ final class KeyQueueTests: XCTestCase {
         XCTAssertEqual(queue.dequeueBack(), "B")
         XCTAssertEqual(queue.dequeueFront(), "C")
         XCTAssertNil(queue.dequeueFront())
+    }
+
+    func testMixedDequeueWithCount() {
+        let queue = KeyQueue<String>(capacity: 6)
+        
+        queue.enqueueFront(key: "A")
+        queue.enqueueFront(key: "B")
+        queue.enqueueFront(key: "C")
+        queue.enqueueFront(key: "D")
+        queue.enqueueFront(key: "E")
+        queue.enqueueFront(key: "F")
+        
+        // Dequeue multiple from front
+        XCTAssertEqual(queue.dequeueFront(count: 2), ["F", "E"])
+        XCTAssertEqual(queue.count, 4)
+        
+        // Dequeue multiple from back
+        XCTAssertEqual(queue.dequeueBack(count: 2), ["A", "B"])
+        XCTAssertEqual(queue.count, 2)
+        
+        // Dequeue remaining
+        XCTAssertEqual(queue.dequeueFront(count: 3), ["D", "C"])
+        XCTAssertTrue(queue.isEmpty)
+    }
+
+    func testDequeueWithCountAfterLRU() {
+        let queue = KeyQueue<String>(capacity: 4)
+        
+        // Initial state: [A, B, C, D]
+        queue.enqueueFront(key: "A")
+        queue.enqueueFront(key: "B")
+        queue.enqueueFront(key: "C")
+        queue.enqueueFront(key: "D")
+        
+        // Access "B" to make it most recently used: [B, D, C, A]
+        queue.enqueueFront(key: "B")
+        
+        // Dequeue 2 from front
+        XCTAssertEqual(queue.dequeueFront(count: 2), ["B", "D"])
+        XCTAssertEqual(queue.count, 2)
+        
+        // Dequeue 2 from back
+        XCTAssertEqual(queue.dequeueBack(count: 2), ["A", "C"])
+        XCTAssertTrue(queue.isEmpty)
+    }
+
+    func testDequeueWithCountPerformance() {
+        let queue = KeyQueue<Int>(capacity: 1000)
+        
+        // Fill the queue
+        for i in 1...1000 {
+            queue.enqueueFront(key: i)
+        }
+        
+        // Dequeue in batches
+        let batch1 = queue.dequeueFront(count: 100)
+        XCTAssertEqual(batch1.count, 100)
+        XCTAssertEqual(batch1.first, 1000)
+        XCTAssertEqual(batch1.last, 901)
+        
+        let batch2 = queue.dequeueBack(count: 100)
+        XCTAssertEqual(batch2.count, 100)
+        XCTAssertEqual(batch2.first, 1)
+        XCTAssertEqual(batch2.last, 100)
+        
+        XCTAssertEqual(queue.count, 800)
+    }
+
+    func testDequeueWithCountEdgeCases() {
+        let queue = KeyQueue<String>(capacity: 3)
+        
+        // Test with UInt.max
+        queue.enqueueFront(key: "A")
+        queue.enqueueFront(key: "B")
+        queue.enqueueFront(key: "C")
+        
+        let result = queue.dequeueFront(count: UInt.max)
+        XCTAssertEqual(result, ["C", "B", "A"])
+        XCTAssertTrue(queue.isEmpty)
+        
+        // Test with zero count multiple times
+        queue.enqueueFront(key: "A")
+        queue.enqueueFront(key: "B")
+        
+        XCTAssertEqual(queue.dequeueFront(count: 0), [])
+        XCTAssertEqual(queue.dequeueBack(count: 0), [])
+        XCTAssertEqual(queue.count, 2)
+    }
+
+    func testDequeueWithCountConsistency() {
+        let queue = KeyQueue<String>(capacity: 5)
+        
+        queue.enqueueFront(key: "A")
+        queue.enqueueFront(key: "B")
+        queue.enqueueFront(key: "C")
+        queue.enqueueFront(key: "D")
+        queue.enqueueFront(key: "E")
+        
+        // Dequeue 3 from front, then 2 from back
+        let frontResult = queue.dequeueFront(count: 3)
+        let backResult = queue.dequeueBack(count: 2)
+        
+        XCTAssertEqual(frontResult, ["E", "D", "C"])
+        XCTAssertEqual(backResult, ["A", "B"])
+        XCTAssertTrue(queue.isEmpty)
+        
+        // Verify consistency with individual dequeue operations
+        queue.enqueueFront(key: "A")
+        queue.enqueueFront(key: "B")
+        queue.enqueueFront(key: "C")
+        
+        let individualResults = [
+            queue.dequeueFront(),
+            queue.dequeueFront(),
+            queue.dequeueFront()
+        ].compactMap { $0 }
+        
+        // Re-add elements for batch test
+        queue.enqueueFront(key: "A")
+        queue.enqueueFront(key: "B")
+        queue.enqueueFront(key: "C")
+        
+        let batchResult = queue.dequeueFront(count: 3)
+        XCTAssertEqual(individualResults, batchResult)
     }
 
     // MARK: - Removal Operations Tests

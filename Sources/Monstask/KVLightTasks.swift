@@ -30,7 +30,8 @@ public class KVLightTasks<K: Hashable, Element> {
     private let config: Config
     
     private var fetchingKeys = Set<K>()
-    private var lock = NSLock()
+    /// DispatchSemaphore for thread synchronization (used when enableThreadSynchronization=true)
+    private let semaphore = DispatchSemaphore(value: 1)
     
     public init(config: Config) {
         self.config = config

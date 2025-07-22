@@ -31,7 +31,7 @@ public class DoublyLink<Element> {
     public private(set) var count = 0
     public let capacity: Int
     public init(with capacity: Int) {
-        self.capacity = capacity
+        self.capacity = max(0, capacity)
     }
     /// Enqueues a new element at the front of the queue.
     /// If the queue is full, removes the least recently used (back) node.

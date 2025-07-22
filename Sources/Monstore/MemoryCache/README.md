@@ -19,7 +19,7 @@ MemoryCache provides a comprehensive caching solution with advanced features inc
 ## Core Features
 
 ### Thread Safety
-- **Synchronized Mode**: All operations are thread-safe using NSLock
+- **Synchronized Mode**: All operations are thread-safe using DispatchSemaphore
 - **Non-Synchronized Mode**: No synchronization; caller must ensure thread safety
 - **Configurable**: Choose thread safety level based on your use case
 
@@ -43,7 +43,7 @@ MemoryCache provides a comprehensive caching solution with advanced features inc
 
 ### MemoryCache
 The main caching class that provides:
-- Thread-safe get/set operations with optional NSLock synchronization
+- Thread-safe get/set operations with optional DispatchSemaphore synchronization
 - TTL-based expiration with randomization support
 - Memory cost tracking with customizable cost calculation
 - Priority and LRU eviction strategies

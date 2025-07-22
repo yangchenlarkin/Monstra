@@ -19,12 +19,12 @@ import MonstraBase
  - **Null Element Caching**: Support for caching null/nil elements with separate TTL configuration
  - **External Key Validation**: Customizable key validation function set at initialization
  - **TTL Randomization**: Prevents cache stampede by randomizing expiration times
- - **Configurable Thread Safety**: Optional NSLock synchronization for concurrent access
+ - **Configurable Thread Safety**: Optional DispatchSemaphore synchronization for concurrent access
  - **Memory Usage Tracking**: Configurable memory limits with automatic eviction
  
  ## Thread Safety
  
- - **Synchronized Mode** (`enableThreadSynchronization=true`): All operations are thread-safe using NSLock
+ - **Synchronized Mode** (`enableThreadSynchronization=true`): All operations are thread-safe using DispatchSemaphore
  - **Non-Synchronized Mode** (`enableThreadSynchronization=false`): No synchronization; caller must ensure thread safety
  
  ## Performance Characteristics
@@ -87,7 +87,7 @@ public extension MemoryCache {
     
     /// Configuration options for the memory cache behavior and limits.
     struct Configuration {
-        /// Whether to enable thread synchronization using NSLock (default: true)
+        /// Whether to enable thread synchronization using DispatchSemaphore (default: true)
         /// When true: All cache operations are synchronized for thread safety
         /// When false: No synchronization, caller must ensure thread safety
         let enableThreadSynchronization: Bool
@@ -148,7 +148,7 @@ public extension MemoryCache {
         
         /// Creates a new configuration with specified parameters.
         /// - Parameters:
-        ///   - enableThreadSynchronization: Enable NSLock synchronization for thread safety (default: true)
+        ///   - enableThreadSynchronization: Enable DispatchSemaphore synchronization for thread safety (default: true)
         ///   - memoryUsageLimitation: Memory and capacity constraints (default: unlimited)
         ///   - defaultTTL: Default TTL for non-nil elements (default: .infinity)
         ///   - defaultTTLForNullElement: Default TTL for nil elements (default: .infinity)
@@ -173,7 +173,7 @@ public extension MemoryCache {
             self.costProvider = costProvider
         }
         
-        /// Default configuration (thread-synchronized with NSLock, unlimited size, no expiration, all keys valid)
+        /// Default configuration (thread-synchronized with DispatchSemaphore, unlimited size, no expiration, all keys valid)
         public static var defaultConfig: Configuration { .init() }
     }
 }
@@ -195,8 +195,8 @@ public class MemoryCache<Key: Hashable, Element> {
     
     // MARK: - Properties
     
-    /// NSLock for thread synchronization (used when enableThreadSynchronization=true)
-    private let lock = NSLock()
+    /// DispatchSemaphore for thread synchronization (used when enableThreadSynchronization=true)
+    private let semaphore = DispatchSemaphore(value: 1)
     
     /// The configuration for this cache instance.
     private let configuration: Configuration
@@ -514,16 +514,16 @@ private extension MemoryCache {
         return originalDuration
     }
     
-    /// Acquires the NSLock if thread safety is enabled in configuration.
+    /// Acquires the DispatchSemaphore if thread safety is enabled in configuration.
     func acquireLockIfNeeded() {
         guard configuration.enableThreadSynchronization else { return }
-        lock.lock()
+        semaphore.wait()
     }
     
-    /// Releases the NSLock if thread safety is enabled in configuration.
+    /// Releases the DispatchSemaphore if thread safety is enabled in configuration.
     func releaseLockIfNeeded() {
         guard configuration.enableThreadSynchronization else { return }
-        lock.unlock()
+        semaphore.signal()
     }
     
     /// Increases the total memory cost by the cost of the given element.

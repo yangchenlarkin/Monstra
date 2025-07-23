@@ -40,13 +40,17 @@ public extension KVLightTasks {
         public let maxmumConcurrentRunningThreadNumber: Int
         public let retryCount: RetryCount
         public let keyPriority: KeyPriority
+        public let cacheConfig: MemoryCache<K, Element>.Configuration
+        public let cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)?
         
-        init(dataProvider: DataPovider, maxmumTaskNumberInQueue: Int = 1024, maxmumConcurrentRunningThreadNumber: Int = 4, retryCount: RetryCount = 0, keyPriority: KeyPriority = .LIFO) {
+        init(dataProvider: DataPovider, maxmumTaskNumberInQueue: Int = 1024, maxmumConcurrentRunningThreadNumber: Int = 4, retryCount: RetryCount = 0, keyPriority: KeyPriority = .LIFO, cacheConfig: MemoryCache<K, Element>.Configuration = .defaultConfig, cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil) {
             self.dataProvider = dataProvider
             self.maxmumTaskNumberInQueue = maxmumTaskNumberInQueue
             self.maxmumConcurrentRunningThreadNumber = maxmumConcurrentRunningThreadNumber
             self.retryCount = retryCount
             self.keyPriority = keyPriority
+            self.cacheConfig = cacheConfig
+            self.cacheStatisticsReport = cacheStatisticsReport
         }
     }
 }
@@ -66,12 +70,13 @@ public extension KVLightTasks {
 }
 
 public class KVLightTasks<K: Hashable, Element> {
-    private let cache = Monstore.MemoryCache<K, Element>()
-    private let keyQueue: KeyQueue<K>
     private let config: Config
+    private let cache: Monstore.MemoryCache<K, Element>
+    private let keyQueue: KeyQueue<K>
     
     public init(config: Config) {
         self.config = config
+        self.cache = .init(configuration: config.cacheConfig, statisticsReport: config.cacheStatisticsReport)
         self.keyQueue = .init(capacity: config.maxmumTaskNumberInQueue)
     }
     

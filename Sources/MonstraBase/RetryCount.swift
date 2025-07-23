@@ -84,7 +84,7 @@ public enum RetryCount {
     case count(count: UInt, intervalProxy: IntervalProxy = .fixed())
     case never
     
-    func next() -> Self {
+    public func next() -> Self {
         switch self {
         case .infinity(intervalProxy: let intervalProxy):
             return .infinity(intervalProxy: intervalProxy.next())
@@ -98,7 +98,7 @@ public enum RetryCount {
         }
     }
     
-    var timeInterval: TimeInterval? {
+    public var shouldRetry: TimeInterval? {
         switch self {
         case .infinity(intervalProxy: let intervalProxy):
             fallthrough
@@ -106,17 +106,6 @@ public enum RetryCount {
             return intervalProxy.timeInterval
         case .never:
             return nil
-        }
-    }
-    
-    var shouldRetry: Bool {
-        switch self {
-        case .infinity:
-            return true
-        case .count(let count, _):
-            return count > 0
-        case .never:
-            return false
         }
     }
 }

@@ -82,6 +82,8 @@ public class KVLightTasks<K: Hashable, Element> {
     /// DispatchSemaphore for thread synchronization (used when enableThreadSynchronization=true)
     private let semaphore = DispatchSemaphore(value: 1)
     private func fetchWithCallback(keys: [K], dispatchQueue: DispatchQueue? = nil, monoCallback: @escaping MonoresultCallback) {
+        semaphore.wait()
+        defer { semaphore.signal() }
         var remoteKeys = [K]()
         keys.forEach { key in
             switch cache.getElement(for: key) {
@@ -110,9 +112,6 @@ public class KVLightTasks<K: Hashable, Element> {
         
         if remoteKeys.count == 0 { return }
         
-        semaphore.wait()
-        defer { semaphore.signal() }
-        
         let _remoteKeys = remoteKeys.filter { monoresultCallbacks[$0] == nil }
         cacheMonoresultCallback(keys: remoteKeys, callback: monoCallback)
         
@@ -120,11 +119,10 @@ public class KVLightTasks<K: Hashable, Element> {
             guard let self else { return }
             semaphore.wait()
             defer { semaphore.signal() }
-            
             if case .success(let element) = res {
                 cache.set(element: element, for: key)
             }
-            consumeCallbacks(key: key, result: res)
+            consumeCallbacks(key: key, dispatchQueue: dispatchQueue, result: res)
         }
     }
     

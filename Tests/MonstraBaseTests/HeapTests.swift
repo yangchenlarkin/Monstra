@@ -651,4 +651,359 @@ final class HeapTests: XCTestCase {
         XCTAssertEqual(heap.insert(6), 3)
         XCTAssertEqual(heap.insert(7), 4)
     }
+    
+    // MARK: - SiftDown Tests (Focusing on uncovered scenarios)
+    
+    func testSiftDownIndirectlyThroughRemove() {
+        let heap = Heap<Int>.maxHeap(capacity: 10)
+        
+        // Create a heap where siftDown will be triggered during remove
+        heap.insert(20) // Root
+        heap.insert(15) // Left child
+        heap.insert(10) // Right child
+        heap.insert(5)  // Will be moved down
+        
+        // Remove root, which triggers siftDown
+        let removed = heap.remove()
+        XCTAssertEqual(removed, 20, "Should remove the root")
+        
+        // Should choose the larger child (15) to become new root
+        XCTAssertEqual(heap.root, 15, "Should promote larger child to root")
+    }
+    
+    func testSiftDownWithEqualChildrenIndirectly() {
+        let heap = Heap<Int>.maxHeap(capacity: 10)
+        
+        heap.insert(20) // Root
+        heap.insert(15) // Left child
+        heap.insert(15) // Right child (equal to left)
+        heap.insert(10) // Will be moved down
+        
+        // Remove root, which triggers siftDown
+        let removed = heap.remove()
+        XCTAssertEqual(removed, 20, "Should remove the root")
+        
+        // Should choose one of the equal children (implementation dependent)
+        XCTAssertEqual(heap.root, 15, "Should promote one of the equal children to root")
+    }
+    
+    func testSiftDownWithInvalidIndexIndirectly() {
+        let heap = Heap<Int>.maxHeap(capacity: 10)
+        heap.insert(10)
+        
+        // Try to remove from invalid index
+        let result = heap.remove(at: 5)
+        
+        // Should return nil for invalid index
+        XCTAssertNil(result, "Should return nil for invalid index")
+        XCTAssertEqual(heap.root, 10, "Heap should remain unchanged")
+    }
+    
+    func testSiftDownWithNegativeIndexIndirectly() {
+        let heap = Heap<Int>.maxHeap(capacity: 10)
+        heap.insert(10)
+        
+        // Try to remove from negative index
+        let result = heap.remove(at: -1)
+        
+        // Should return nil for negative index
+        XCTAssertNil(result, "Should return nil for negative index")
+        XCTAssertEqual(heap.root, 10, "Heap should remain unchanged")
+    }
+    
+    // MARK: - SiftUp Tests (Focusing on uncovered scenarios)
+    
+    func testSiftUpIndirectlyThroughInsert() {
+        let heap = Heap<Int>.maxHeap(capacity: 10)
+        
+        // Create a heap with multiple levels
+        heap.insert(10) // Root
+        heap.insert(5)  // Left child
+        heap.insert(3)  // Right child
+        heap.insert(2)  // Left-left child
+        heap.insert(1)  // Left-right child
+        
+        // Insert a large value, which triggers siftUp
+        heap.insert(20)
+        
+        // Should bubble up to root
+        XCTAssertEqual(heap.root, 20, "Large value should bubble up to root")
+    }
+    
+    func testSiftUpWithEqualParentIndirectly() {
+        let heap = Heap<Int>.maxHeap(capacity: 10)
+        
+        heap.insert(10) // Root
+        heap.insert(10) // Left child (equal to parent)
+        
+        // Insert another equal value
+        heap.insert(10)
+        
+        // Should handle equal values correctly
+        XCTAssertEqual(heap.root, 10, "Root should remain the same")
+    }
+    
+    func testSiftUpWithInvalidIndexIndirectly() {
+        let heap = Heap<Int>.maxHeap(capacity: 10)
+        heap.insert(10)
+        
+        // Try to remove from invalid index (which might trigger siftUp internally)
+        let result = heap.remove(at: 5)
+        
+        // Should return nil for invalid index
+        XCTAssertNil(result, "Should return nil for invalid index")
+        XCTAssertEqual(heap.root, 10, "Heap should remain unchanged")
+    }
+    
+    func testSiftUpWithNegativeIndexIndirectly() {
+        let heap = Heap<Int>.maxHeap(capacity: 10)
+        heap.insert(10)
+        
+        // Try to remove from negative index (which might trigger siftUp internally)
+        let result = heap.remove(at: -1)
+        
+        // Should return nil for negative index
+        XCTAssertNil(result, "Should return nil for negative index")
+        XCTAssertEqual(heap.root, 10, "Heap should remain unchanged")
+    }
+    
+    func testSiftUpWithRootIndexIndirectly() {
+        let heap = Heap<Int>.maxHeap(capacity: 10)
+        heap.insert(10)
+        
+        // Remove and re-insert root (which might trigger siftUp internally)
+        let removed = heap.remove()
+        heap.insert(removed!)
+        
+        // Should maintain the same root
+        XCTAssertEqual(heap.root, 10, "Root should remain the same")
+    }
+    
+    // MARK: - Insert with Force Tests (Focusing on uncovered scenarios)
+    
+    func testInsertWithForceAndHigherPriority() {
+        let heap = Heap<Int>.maxHeap(capacity: 2)
+        
+        heap.insert(10) // Root
+        heap.insert(5)  // Second element
+        
+        // Try to force insert a higher priority element
+        let result = heap.insert(20, force: true)
+        
+        // Should reject higher priority element when force is true
+        XCTAssertEqual(result, 20, "Should reject higher priority element")
+        XCTAssertEqual(heap.root, 10, "Root should remain unchanged")
+    }
+    
+    func testInsertWithForceAndLowerPriority() {
+        let heap = Heap<Int>.maxHeap(capacity: 2)
+        
+        heap.insert(10) // Root
+        heap.insert(5)  // Second element
+        
+        // Try to force insert a lower priority element
+        let result = heap.insert(3, force: true)
+        
+        // Should accept lower priority element and replace root
+        XCTAssertEqual(result, 10, "Should return displaced root")
+        XCTAssertEqual(heap.root, 5, "Root should be replaced")
+    }
+    
+    func testInsertWithForceAndEqualPriority() {
+        let heap = Heap<Int>.maxHeap(capacity: 2)
+        
+        heap.insert(10) // Root
+        heap.insert(5)  // Second element
+        
+        // Try to force insert an equal priority element
+        let result = heap.insert(10, force: true)
+        
+        // Should reject equal priority element when force is true
+        XCTAssertEqual(result, 10, "Should reject equal priority element")
+        XCTAssertEqual(heap.root, 10, "Root should remain unchanged")
+    }
+    
+    func testInsertWithForceAndEmptyHeap() {
+        let heap = Heap<Int>.maxHeap(capacity: 2)
+        
+        // Try to force insert into empty heap
+        let result = heap.insert(10, force: true)
+        
+        // Should insert normally
+        XCTAssertNil(result, "Should insert normally into empty heap")
+        XCTAssertEqual(heap.root, 10, "Should insert the element")
+    }
+    
+    func testInsertWithForceAndZeroCapacity() {
+        let heap = Heap<Int>.maxHeap(capacity: 0)
+        
+        // Try to force insert into zero capacity heap
+        let result = heap.insert(10, force: true)
+        
+        // Should return the element without inserting
+        XCTAssertEqual(result, 10, "Should return element without inserting")
+    }
+    
+    // MARK: - CompareAt Tests (Focusing on uncovered scenarios)
+    
+    func testCompareAtIndirectlyThroughHeapOperations() {
+        let heap = Heap<Int>.maxHeap(capacity: 10)
+        heap.insert(20) // Root
+        heap.insert(10) // Left child
+        
+        // The compareAt method is used internally during heap operations
+        // We can test it indirectly by verifying heap properties are maintained
+        
+        // Remove root and verify heap property is maintained
+        let removed = heap.remove()
+        XCTAssertEqual(removed, 20, "Should remove the root")
+        XCTAssertEqual(heap.root, 10, "Should promote child to root")
+        
+        // Insert a new element and verify heap property is maintained
+        heap.insert(15)
+        XCTAssertEqual(heap.root, 15, "Should maintain heap property")
+    }
+    
+    // MARK: - Heapify Tests (Focusing on uncovered scenarios)
+    
+    func testHeapifyIndirectlyThroughRemove() {
+        let heap = Heap<Int>.maxHeap(capacity: 10)
+        heap.insert(20) // Root
+        heap.insert(10) // Left child
+        heap.insert(5)  // Right child
+        
+        // Remove root, which triggers heapify internally
+        let removed = heap.remove()
+        XCTAssertEqual(removed, 20, "Should remove the root")
+        
+        // Should maintain heap property after removal
+        XCTAssertEqual(heap.root, 10, "Should promote child to root")
+    }
+    
+    func testHeapifyWithInvalidIndexIndirectly() {
+        let heap = Heap<Int>.maxHeap(capacity: 10)
+        heap.insert(10)
+        
+        // Try to remove from invalid index (which triggers heapify internally)
+        let result = heap.remove(at: 5)
+        
+        // Should return nil for invalid index
+        XCTAssertNil(result, "Should return nil for invalid index")
+        XCTAssertEqual(heap.root, 10, "Heap should remain unchanged")
+    }
+    
+    // MARK: - Edge Cases and Stress Tests
+    
+    func testHeapWithCustomComparison() {
+        let heap = Heap<String>(capacity: 10) { str1, str2 in
+            if str1.count > str2.count { return .moreTop }
+            if str1.count < str2.count { return .moreBottom }
+            return .equal
+        }
+        
+        heap.insert("a")      // 1 character
+        heap.insert("abc")    // 3 characters
+        heap.insert("ab")     // 2 characters
+        
+        // Should prioritize longer strings
+        XCTAssertEqual(heap.root, "abc", "Longest string should be at root")
+    }
+    
+    func testHeapWithEventCallbacks() {
+        var events: [Heap<Int>.Event] = []
+        let heap = Heap<Int>.maxHeap(capacity: 10)
+        heap.onEvent = { event in
+            events.append(event)
+        }
+        
+        heap.insert(10)
+        heap.insert(20)
+        heap.remove()
+        
+        // Should have recorded events
+        XCTAssertGreaterThan(events.count, 0, "Should record events")
+        
+        // Verify event types
+        let insertEvents = events.filter { if case .insert = $0 { return true }; return false }
+        let removeEvents = events.filter { if case .remove = $0 { return true }; return false }
+        let moveEvents = events.filter { if case .move = $0 { return true }; return false }
+        
+        XCTAssertGreaterThan(insertEvents.count, 0, "Should have insert events")
+        XCTAssertGreaterThan(removeEvents.count, 0, "Should have remove events")
+        XCTAssertGreaterThanOrEqual(moveEvents.count, 0, "May have move events")
+    }
+    
+    func testHeapPerformanceWithLargeDataset() {
+        let heap = Heap<Int>.maxHeap(capacity: 10000)
+        
+        measure {
+            for i in 0..<1000 {
+                heap.insert(i)
+            }
+            
+            for _ in 0..<1000 {
+                heap.remove()
+            }
+        }
+    }
+    
+    func testHeapWithRepeatedElements() {
+        let heap = Heap<Int>.maxHeap(capacity: 10)
+        
+        // Insert same element multiple times
+        heap.insert(10)
+        heap.insert(10)
+        heap.insert(10)
+        
+        // Should handle repeated elements correctly
+        XCTAssertEqual(heap.count, 3, "Should count repeated elements")
+        XCTAssertEqual(heap.root, 10, "Root should be the repeated element")
+    }
+    
+    func testHeapWithNegativeCapacity() {
+        let heap = Heap<Int>.maxHeap(capacity: -5)
+        
+        // Should handle negative capacity gracefully
+        let result = heap.insert(10)
+        XCTAssertEqual(result, 10, "Should return element without inserting")
+    }
+    
+    func testHeapWithZeroCapacity() {
+        let heap = Heap<Int>.maxHeap(capacity: 0)
+        
+        let result = heap.insert(10)
+        XCTAssertEqual(result, 10, "Should return element without inserting")
+        
+        let removed = heap.remove()
+        XCTAssertNil(removed, "Should not remove from zero capacity heap")
+    }
+    
+    func testHeapWithSingleElement() {
+        let heap = Heap<Int>.maxHeap(capacity: 1)
+        
+        heap.insert(10)
+        XCTAssertEqual(heap.root, 10, "Should have single element as root")
+        
+        let removed = heap.remove()
+        XCTAssertEqual(removed, 10, "Should remove the single element")
+        XCTAssertNil(heap.root, "Should be empty after removal")
+    }
+    
+    func testHeapWithSequentialAccess() {
+        let heap = Heap<Int>.maxHeap(capacity: 1000)
+        
+        // Test sequential access instead of concurrent access
+        for i in 0..<10 {
+            heap.insert(i)
+        }
+        
+        XCTAssertEqual(heap.count, 10, "Should have inserted all elements")
+        
+        // Verify heap property is maintained
+        var previous = heap.remove()
+        while let current = heap.remove() {
+            XCTAssertGreaterThanOrEqual(previous!, current, "Should maintain heap property")
+            previous = current
+        }
+    }
 }

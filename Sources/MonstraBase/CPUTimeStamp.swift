@@ -97,11 +97,4 @@ private extension CPUTimeStamp {
         let nanos = (ticks / UInt64(Self.timebaseInfo.denom)) * UInt64(Self.timebaseInfo.numer)
         return TimeInterval(nanos) / TimeInterval(NSEC_PER_SEC)
     }
-    
-    /// Converts seconds to CPU ticks using timebase info.
-    /// Handles potential overflow by performing calculations in steps.
-    static func convertSecondsToTicks(_ seconds: TimeInterval) -> UInt64 {
-        let nanos = seconds * TimeInterval(NSEC_PER_SEC)
-        return (UInt64(nanos) / UInt64(Self.timebaseInfo.numer)) * UInt64(Self.timebaseInfo.denom)
-    }
 }

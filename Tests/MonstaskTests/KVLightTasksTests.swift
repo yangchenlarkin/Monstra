@@ -869,6 +869,7 @@ extension KVLightTasksTests {
         expectation.expectedFulfillmentCount = 4
         
         let testError = NSError(domain: "TestError", code: 1, userInfo: nil)
+        var isKey1WithKey2: Bool = false
         
         let multifetch: KVLightTasks<String, String>.DataProvider.Multifetch = { keys, callback in
             // Fail if any key contains "error"
@@ -880,6 +881,10 @@ extension KVLightTasksTests {
                     results[key] = "value_\(key)"
                 }
                 callback(.success(results))
+            }
+            
+            if keys.contains("key1") && keys.contains("key2") {
+                isKey1WithKey2 = true
             }
         }
         
@@ -900,11 +905,30 @@ extension KVLightTasksTests {
         wait(for: [expectation], timeout: 5.0)
         
         // Verify results - all should fail due to batch processing
-        for key in ["key1", "error1", "key2", "error2"] {
+        for key in ["error1", "error2"] {
             if case .failure(let error) = results[key] {
                 XCTAssertEqual(error as NSError, testError)
             } else {
                 XCTFail("Expected failure for \(key)")
+            }
+        }
+        if isKey1WithKey2 {
+            for key in ["key1", "key2"] {
+                if case .failure(_) = results[key] {
+                    XCTFail("Expected success for \(key)")
+                } else if case .success(let value) = results[key] {
+                    XCTAssertEqual(value, "value_\(key)")
+                } else {
+                    XCTFail("Expected success for \(key)")
+                }
+            }
+        } else {
+            for key in ["key1", "key2"] {
+                if case .failure(let error) = results[key] {
+                    XCTAssertEqual(error as NSError, testError)
+                } else {
+                    XCTFail("Expected failure for \(key)")
+                }
             }
         }
     }

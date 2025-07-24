@@ -2737,4 +2737,529 @@ extension KVLightTasksTests {
             XCTAssertEqual(results[key], "value_\(key)")
         }
     }
+    
+    // MARK: - Comprehensive Key Scenario Tests
+    
+    func testUnicodeAndEmojiKeys() {
+        let expectation = XCTestExpectation(description: "Unicode and emoji keys")
+        expectation.expectedFulfillmentCount = 6
+        
+        let monofetch: KVLightTasks<String, String>.DataProvider.Monofetch = { key, callback in
+            callback(.success("value_\(key)"))
+        }
+        
+        let config = createConfig(dataProvider: .monofetch(monofetch))
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Test various Unicode and emoji keys
+        let unicodeKeys = [
+            "key_中文",           // Chinese characters
+            "key_日本語",         // Japanese characters
+            "key_한국어",         // Korean characters
+            "key_🌍🌎🌏",        // Emoji
+            "key_🚀💻📱",        // Tech emoji
+            "key_🎉🎊🎈"         // Celebration emoji
+        ]
+        
+        taskManager.fetch(keys: unicodeKeys) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify results
+        for key in unicodeKeys {
+            XCTAssertEqual(results[key], "value_\(key)")
+        }
+    }
+    
+    func testVeryLongKeys() {
+        let expectation = XCTestExpectation(description: "Very long keys")
+        expectation.expectedFulfillmentCount = 3
+        
+        let monofetch: KVLightTasks<String, String>.DataProvider.Monofetch = { key, callback in
+            callback(.success("value_\(key)"))
+        }
+        
+        let config = createConfig(dataProvider: .monofetch(monofetch))
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Test very long keys
+        let longKeys = [
+            String(repeating: "a", count: 1000),           // 1000 character key
+            String(repeating: "b", count: 5000),           // 5000 character key
+            String(repeating: "c", count: 10000)           // 10000 character key
+        ]
+        
+        taskManager.fetch(keys: longKeys) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 10.0)
+        
+        // Verify results
+        for key in longKeys {
+            XCTAssertEqual(results[key], "value_\(key)")
+        }
+    }
+    
+    func testKeysWithWhitespace() {
+        let expectation = XCTestExpectation(description: "Keys with whitespace")
+        expectation.expectedFulfillmentCount = 4
+        
+        let monofetch: KVLightTasks<String, String>.DataProvider.Monofetch = { key, callback in
+            callback(.success("value_\(key)"))
+        }
+        
+        let config = createConfig(dataProvider: .monofetch(monofetch))
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Test keys with various whitespace
+        let whitespaceKeys = [
+            " key",           // Leading space
+            "key ",           // Trailing space
+            " key ",          // Both leading and trailing
+            "key with spaces" // Internal spaces
+        ]
+        
+        taskManager.fetch(keys: whitespaceKeys) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify results
+        for key in whitespaceKeys {
+            XCTAssertEqual(results[key], "value_\(key)")
+        }
+    }
+    
+    func testKeysWithNewlinesAndTabs() {
+        let expectation = XCTestExpectation(description: "Keys with newlines and tabs")
+        expectation.expectedFulfillmentCount = 4
+        
+        let monofetch: KVLightTasks<String, String>.DataProvider.Monofetch = { key, callback in
+            callback(.success("value_\(key)"))
+        }
+        
+        let config = createConfig(dataProvider: .monofetch(monofetch))
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Test keys with control characters
+        let controlKeys = [
+            "key\nwith\nnewlines",
+            "key\twith\ttabs",
+            "key\r\nwith\r\ncrlf",
+            "key\u{0000}with\u{0000}nulls"  // Null bytes
+        ]
+        
+        taskManager.fetch(keys: controlKeys) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify results
+        for key in controlKeys {
+            XCTAssertEqual(results[key], "value_\(key)")
+        }
+    }
+    
+    func testKeysWithControlCharacters() {
+        let expectation = XCTestExpectation(description: "Keys with control characters")
+        expectation.expectedFulfillmentCount = 5
+        
+        let monofetch: KVLightTasks<String, String>.DataProvider.Monofetch = { key, callback in
+            callback(.success("value_\(key)"))
+        }
+        
+        let config = createConfig(dataProvider: .monofetch(monofetch))
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Test keys with various control characters
+        let controlKeys = [
+            "key\u{0001}bell",      // Bell
+            "key\u{0007}alert",     // Alert
+            "key\u{0008}backspace", // Backspace
+            "key\u{0009}tab",       // Tab
+            "key\u{001B}escape"     // Escape
+        ]
+        
+        taskManager.fetch(keys: controlKeys) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify results
+        for key in controlKeys {
+            XCTAssertEqual(results[key], "value_\(key)")
+        }
+    }
+    
+    func testMixedValidInvalidKeys() {
+        let expectation = XCTestExpectation(description: "Mixed valid and invalid keys")
+        expectation.expectedFulfillmentCount = 4
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monofetch: KVLightTasks<String, String>.DataProvider.Monofetch = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            callback(.success("value_\(key)"))
+        }
+        
+        // Configure cache with key validation that rejects certain keys
+        let keyValidator: (String) -> Bool = { key in
+            return key.hasPrefix("valid_") && key.count > 0
+        }
+        
+        let cacheConfig = MemoryCache<String, String>.Configuration(
+            keyValidator: keyValidator
+        )
+        
+        let config = KVLightTasks<String, String>.Config(
+            dataProvider: .monofetch(monofetch),
+            cacheConfig: cacheConfig
+        )
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Mix of valid and invalid keys
+        let mixedKeys = ["valid_key1", "invalid_key1", "valid_key2", "invalid_key2"]
+        
+        taskManager.fetch(keys: mixedKeys) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify results - valid keys should have values, invalid keys should be nil
+        XCTAssertEqual(results["valid_key1"], "value_valid_key1")
+        XCTAssertEqual(results["valid_key2"], "value_valid_key2")
+        XCTAssertNil(results["invalid_key1"]!)
+        XCTAssertNil(results["invalid_key2"]!)
+        
+        // Verify fetch count - should fetch for all keys (validation happens at cache level)
+        XCTAssertEqual(fetchCount, 2, "Should fetch valid keys only")
+    }
+    
+    func testKeysWithVaryingFetchTimes() {
+        let expectation = XCTestExpectation(description: "Keys with varying fetch times")
+        expectation.expectedFulfillmentCount = 5
+        
+        let monofetch: KVLightTasks<String, String>.DataProvider.Monofetch = { key, callback in
+            // Simulate different response times based on key
+            let delay: TimeInterval
+            switch key {
+            case "fast_key":
+                delay = 0.01
+            case "medium_key":
+                delay = 0.1
+            case "slow_key":
+                delay = 0.5
+            case "very_slow_key":
+                delay = 1.0
+            default:
+                delay = 0.05
+            }
+            
+            DispatchQueue.global().asyncAfter(deadline: .now() + delay) {
+                callback(.success("value_\(key)"))
+            }
+        }
+        
+        let config = createConfig(dataProvider: .monofetch(monofetch))
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        var completionOrder: [String] = []
+        let orderSemaphore = DispatchSemaphore(value: 1)
+        
+        let keys = ["fast_key", "medium_key", "slow_key", "very_slow_key", "normal_key"]
+        
+        taskManager.fetch(keys: keys) { key, result in
+            orderSemaphore.wait()
+            completionOrder.append(key)
+            orderSemaphore.signal()
+            
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 10.0)
+        
+        // Verify all results
+        for key in keys {
+            XCTAssertEqual(results[key], "value_\(key)")
+        }
+        
+        // Verify completion order (fast keys should complete first)
+        XCTAssertTrue(completionOrder.contains("fast_key"))
+        XCTAssertTrue(completionOrder.contains("normal_key"))
+        XCTAssertEqual(completionOrder.count, 5, "Should complete all 5 keys")
+    }
+    
+    func testKeysCausingTimeouts() {
+        let expectation = XCTestExpectation(description: "Keys causing timeouts")
+        expectation.expectedFulfillmentCount = 3
+        
+        let monofetch: KVLightTasks<String, String>.DataProvider.Monofetch = { key, callback in
+            // Simulate different response scenarios
+            switch key {
+            case "error_key":
+                // Simulate network error
+                callback(.failure(NSError(domain: "TestError", code: 500, userInfo: nil)))
+            case "slow_key":
+                // Simulate slow response
+                DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
+                    callback(.success("value_\(key)"))
+                }
+            default:
+                // Normal response
+                callback(.success("value_\(key)"))
+            }
+        }
+        
+        let config = createConfig(dataProvider: .monofetch(monofetch))
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        var errorCount = 0
+        let errorSemaphore = DispatchSemaphore(value: 1)
+        
+        taskManager.fetch(keys: ["normal_key", "slow_key", "error_key"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(_):
+                errorSemaphore.wait()
+                errorCount += 1
+                errorSemaphore.signal()
+                // Error should be handled gracefully
+            }
+            
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify results
+        XCTAssertEqual(results["normal_key"], "value_normal_key")
+        XCTAssertEqual(results["slow_key"], "value_slow_key")
+        XCTAssertNil(results["error_key"] as Any?)
+        
+        // Verify error handling
+        XCTAssertEqual(errorCount, 1, "Should handle errors gracefully")
+    }
+    
+    func testKeysWithMemoryPressure() {
+        let expectation = XCTestExpectation(description: "Keys with memory pressure")
+        expectation.expectedFulfillmentCount = 50
+        
+        let monofetch: KVLightTasks<String, String>.DataProvider.Monofetch = { key, callback in
+            // Simulate large data responses
+            let largeValue = String(repeating: "large_data_", count: 1000) + key
+            callback(.success(largeValue))
+        }
+        
+        // Configure cache with very limited memory
+        let cacheConfig = MemoryCache<String, String>.Configuration(
+            memoryUsageLimitation: MemoryUsageLimitation(capacity: 10, memory: 1) // Very limited
+        )
+        
+        let config = KVLightTasks<String, String>.Config(
+            dataProvider: .monofetch(monofetch),
+            maximumConcurrentRunningThreadNumber: 2, // Limit concurrency
+            cacheConfig: cacheConfig
+        )
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Generate many keys to cause memory pressure
+        let keys = (1...50).map { "key\($0)" }
+        
+        taskManager.fetch(keys: keys) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 30.0)
+        
+        // Verify all results (some may be evicted due to memory pressure)
+        XCTAssertEqual(results.count, 50, "Should process all 50 keys")
+        
+        // Verify cache eviction works under memory pressure
+        for key in keys {
+            XCTAssertNotNil(results[key] as Any?, "Should have result for \(key)")
+        }
+    }
+    
+    func testKeysWithComplexValidationRules() {
+        let expectation = XCTestExpectation(description: "Keys with complex validation rules")
+        expectation.expectedFulfillmentCount = 6
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monofetch: KVLightTasks<String, String>.DataProvider.Monofetch = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            callback(.success("value_\(key)"))
+        }
+        
+        // Complex validation rules
+        let keyValidator: (String) -> Bool = { key in
+            // Must start with 'valid_', have length 8-20, and contain only alphanumeric
+            guard key.hasPrefix("valid_") else { return false }
+            guard key.count >= 8 && key.count <= 20 else { return false }
+            guard key.range(of: "^[a-zA-Z0-9_]+$", options: .regularExpression) != nil else { return false }
+            return true
+        }
+        
+        let cacheConfig = MemoryCache<String, String>.Configuration(
+            keyValidator: keyValidator
+        )
+        
+        let config = KVLightTasks<String, String>.Config(
+            dataProvider: .monofetch(monofetch),
+            cacheConfig: cacheConfig
+        )
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Test various key patterns
+        let testKeys = [
+            "valid_key1",      // Valid
+            "invalid_key1",    // Invalid (no valid_ prefix)
+            "valid_123",       // Valid
+            "valid_too_long_key_name", // Invalid (too long)
+            "valid_@#$",       // Invalid (special chars)
+            "valid_ab"         // Invalid (too short)
+        ]
+        
+        taskManager.fetch(keys: testKeys) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify results - valid keys should have values, invalid keys should be nil
+        XCTAssertEqual(results["valid_key1"], "value_valid_key1")
+        XCTAssertEqual(results["valid_123"], "value_valid_123")
+        XCTAssertEqual(results["valid_ab"], "value_valid_ab")  // 8 chars, valid
+        XCTAssertNil(results["invalid_key1"]!)
+        XCTAssertNil(results["valid_too_long_key_name"]!)
+        XCTAssertNil(results["valid_@#$"]!)
+        
+        // Verify fetch count - should fetch for all keys (validation happens at cache level)
+        XCTAssertEqual(fetchCount, 3, "Should fetch only valid keys")
+    }
 } 

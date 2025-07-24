@@ -13,8 +13,8 @@ public extension KVLightTasks {
     enum DataPovider {
         public typealias MonofetchCallback = (Result<Element?, Error>)->Void
         public typealias MultifetchCallback = (Result<[K: Element?], Error>)->Void
-        public typealias Monofetch = (K, MonofetchCallback)->Void
-        public typealias Multifetch = ([K], MultifetchCallback)->Void
+        public typealias Monofetch = (K, @escaping MonofetchCallback)->Void
+        public typealias Multifetch = ([K], @escaping MultifetchCallback)->Void
         
         case monofetch(Monofetch)
         case multifetch(maxmumBatchCount: UInt, Multifetch)
@@ -40,9 +40,29 @@ public extension KVLightTasks {
         public let maxmumConcurrentRunningThreadNumber: Int
         public let retryCount: RetryCount
         public let keyPriority: KeyPriority
+        
+        /// Cache configuration that controls memory limits, TTL, key validation, and thread safety.
+        /// 
+        /// The keyValidator in this configuration is used to automatically filter out invalid keys
+        /// during fetch operations. Keys that fail validation will return nil without triggering
+        /// network requests, improving performance and preventing unnecessary API calls.
         public let cacheConfig: MemoryCache<K, Element>.Configuration
+        
+        /// Optional callback for cache statistics reporting
         public let cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)?
         
+        /// Initializes a new KVLightTasks configuration.
+        /// 
+        /// - Parameters:
+        ///   - dataProvider: The data provider for fetching elements
+        ///   - maxmumTaskNumberInQueue: Maximum number of tasks in the queue (default: 1024)
+        ///   - maxmumConcurrentRunningThreadNumber: Maximum concurrent threads (default: 4)
+        ///   - retryCount: Retry configuration for failed requests (default: 0)
+        ///   - keyPriority: Queue priority strategy (default: .LIFO)
+        ///   - cacheConfig: Cache configuration including key validation (default: .defaultConfig)
+        ///     - The keyValidator in cacheConfig automatically filters invalid keys
+        ///     - Invalid keys return nil without network requests
+        ///   - cacheStatisticsReport: Optional callback for cache statistics
         init(dataProvider: DataPovider, maxmumTaskNumberInQueue: Int = 1024, maxmumConcurrentRunningThreadNumber: Int = 4, retryCount: RetryCount = 0, keyPriority: KeyPriority = .LIFO, cacheConfig: MemoryCache<K, Element>.Configuration = .defaultConfig, cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil) {
             self.dataProvider = dataProvider
             self.maxmumTaskNumberInQueue = maxmumTaskNumberInQueue
@@ -56,10 +76,28 @@ public extension KVLightTasks {
 }
 
 public extension KVLightTasks {
+    /// Fetches a single key and returns the result via callback.
+    /// 
+    /// This method automatically handles cache validation and ignores invalid keys
+    /// as indicated by the cache configuration's keyValidator. Invalid keys will
+    /// return nil without triggering any network requests.
+    /// 
+    /// - Parameters:
+    ///   - key: The key to fetch
+    ///   - monoCallback: Callback that receives the result for the key
     func fetch(key: K, monoCallback: @escaping MonoresultCallback) {
         fetchWithCallback(keys: [key], dispatchQueue: .global(), monoCallback: monoCallback)
     }
     
+    /// Fetches multiple keys and returns results via callback for each key.
+    /// 
+    /// This method automatically handles cache validation and ignores invalid keys
+    /// as indicated by the cache configuration's keyValidator. Invalid keys will
+    /// return nil without triggering any network requests.
+    /// 
+    /// - Parameters:
+    ///   - keys: Array of keys to fetch
+    ///   - monoCallback: Callback that receives results for each key
     func fetch(keys: [K], monoCallback: @escaping MonoresultCallback) {
         fetchWithCallback(keys: keys, dispatchQueue: .global(), monoCallback: monoCallback)
     }
@@ -86,6 +124,21 @@ public class KVLightTasks<K: Hashable, Element> {
     //MARK: - fetch
     /// DispatchSemaphore for thread synchronization (used when enableThreadSynchronization=true)
     private let semaphore = DispatchSemaphore(value: 1)
+    
+    /// Internal method that handles the core fetching logic with cache integration.
+    /// 
+    /// This method processes keys in the following order:
+    /// 1. Checks cache for each key using the configured cache settings
+    /// 2. For cache hits (both null and non-null elements), immediately returns the cached value
+    /// 3. For cache misses, queues the key for remote fetching
+    /// 4. Automatically ignores invalid keys as defined by cacheConfig.keyValidator
+    ///    - Invalid keys return .success(nil) without any network requests
+    ///    - This prevents unnecessary network calls for keys that would be rejected by the cache
+    /// 
+    /// - Parameters:
+    ///   - keys: Array of keys to process
+    ///   - dispatchQueue: Optional dispatch queue for callback execution
+    ///   - monoCallback: Callback to receive results for each key
     private func fetchWithCallback(keys: [K], dispatchQueue: DispatchQueue? = nil, monoCallback: @escaping MonoresultCallback) {
         semaphore.wait()
         defer { semaphore.signal() }
@@ -253,16 +306,17 @@ public class KVLightTasks<K: Hashable, Element> {
     }
     
     //仅处理重试问题
-    private func _executeMonofetch(key: K, fetch: @escaping DataPovider.Monofetch, retryCount: RetryCount? = nil, callback: MonoresultCallback) {
-        fetch(key) { res in
+    private func _executeMonofetch(key: K, fetch: @escaping DataPovider.Monofetch, retryCount: RetryCount? = nil, callback: @escaping MonoresultCallback) {
+        fetch(key) { [weak self] res in
+            guard let self else { return }
             switch res {
             case .success(let element):
                 callback(key, .success(element))
             case .failure(let error):
-                let retryCount = retryCount ?? config.retryCount
+                let retryCount = retryCount ?? self.config.retryCount
                 if let timeInterval = retryCount.shouldRetry {
                     Thread.sleep(forTimeInterval: timeInterval)
-                    _executeMonofetch(key: key, fetch: fetch, retryCount: retryCount.next(), callback: callback)
+                    self._executeMonofetch(key: key, fetch: fetch, retryCount: retryCount.next(), callback: callback)
                 } else {
                     callback(key, .failure(error))
                 }
@@ -270,16 +324,17 @@ public class KVLightTasks<K: Hashable, Element> {
         }
     }
     
-    private func _executeMultifetch(keys: [K], fetch: @escaping DataPovider.Multifetch, retryCount: RetryCount? = nil, callback: MultiresultCallback) {
-        fetch(keys) { res in
+    private func _executeMultifetch(keys: [K], fetch: @escaping DataPovider.Multifetch, retryCount: RetryCount? = nil, callback: @escaping MultiresultCallback) {
+        fetch(keys) { [weak self] res in
+            guard let self else { return }
             switch res {
             case .success(let elements):
                 callback(keys.map { ($0, .success(elements[$0] ?? nil)) })
             case .failure(let error):
-                let retryCount = retryCount ?? config.retryCount
+                let retryCount = retryCount ?? self.config.retryCount
                 if let timeInterval = retryCount.shouldRetry {
                     Thread.sleep(forTimeInterval: timeInterval)
-                    _executeMultifetch(keys: keys, fetch: fetch, retryCount: retryCount.next(), callback: callback)
+                    self._executeMultifetch(keys: keys, fetch: fetch, retryCount: retryCount.next(), callback: callback)
                 } else {
                     callback(keys.map { ($0, .failure(error)) })
                 }

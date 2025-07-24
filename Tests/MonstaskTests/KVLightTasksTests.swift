@@ -8,6 +8,7 @@
 import XCTest
 @testable import Monstask
 @testable import MonstraBase
+@testable import Monstore
 
 final class KVLightTasksTests: XCTestCase {
     
@@ -1514,5 +1515,755 @@ extension KVLightTasksTests {
         
         // Verify fetch count
         XCTAssertEqual(fetchCount, 10, "Should fetch 10 times")
+    }
+} 
+
+// MARK: - Comprehensive Cache-Related Tests
+extension KVLightTasksTests {
+    
+    // MARK: - Cache Hit Scenarios (null and non-null elements)
+    func testCacheHitWithNullElements() {
+        let expectation = XCTestExpectation(description: "Cache hit with null elements")
+        expectation.expectedFulfillmentCount = 4
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monofetch: KVLightTasks<String, String?>.DataPovider.Monofetch = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            
+            // Return null for some keys
+            if key == "null_key" {
+                callback(.success(nil))
+            } else {
+                callback(.success("value_\(key)"))
+            }
+        }
+        
+        let config = KVLightTasks<String, String?>.Config(dataProvider: .monofetch(monofetch))
+        let taskManager = KVLightTasks<String, String?>(config: config)
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // First fetch - should hit network
+        taskManager.fetch(keys: ["key1", "null_key"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        // Second fetch - should hit cache
+        taskManager.fetch(keys: ["key1", "null_key"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify results
+        XCTAssertEqual(results["key1"], "value_key1")
+        XCTAssertNil(results["null_key"] as Any?)
+        
+        // Verify fetch count (should only be 2, not 4 due to caching)
+        XCTAssertEqual(fetchCount, 2, "Should only fetch 2 times due to caching")
+    }
+    
+    func testCacheHitWithNonNullElements() {
+        let expectation = XCTestExpectation(description: "Cache hit with non-null elements")
+        expectation.expectedFulfillmentCount = 4
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monofetch: KVLightTasks<String, String>.DataPovider.Monofetch = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            callback(.success("value_\(key)"))
+        }
+        
+        let config = KVLightTasks<String, String>.Config(dataProvider: .monofetch(monofetch))
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // First fetch - should hit network
+        taskManager.fetch(keys: ["key1", "key2"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        // Second fetch - should hit cache
+        taskManager.fetch(keys: ["key1", "key2"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify results
+        XCTAssertEqual(results["key1"], "value_key1")
+        XCTAssertEqual(results["key2"], "value_key2")
+        
+        // Verify fetch count (should only be 2, not 4 due to caching)
+        XCTAssertEqual(fetchCount, 2, "Should only fetch 2 times due to caching")
+    }
+    
+    // MARK: - Cache Miss Scenarios
+    func testCacheMissWithDifferentKeys() {
+        let expectation = XCTestExpectation(description: "Cache miss with different keys")
+        expectation.expectedFulfillmentCount = 4
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monofetch: KVLightTasks<String, String>.DataPovider.Monofetch = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            callback(.success("value_\(key)"))
+        }
+        
+        let config = KVLightTasks<String, String>.Config(dataProvider: .monofetch(monofetch))
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // First fetch - should hit network
+        taskManager.fetch(keys: ["key1", "key2"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        // Second fetch with different keys - should hit network again
+        taskManager.fetch(keys: ["key3", "key4"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify results
+        XCTAssertEqual(results["key1"], "value_key1")
+        XCTAssertEqual(results["key2"], "value_key2")
+        XCTAssertEqual(results["key3"], "value_key3")
+        XCTAssertEqual(results["key4"], "value_key4")
+        
+        // Verify fetch count (should be 4 for different keys)
+        XCTAssertEqual(fetchCount, 4, "Should fetch 4 times for different keys")
+    }
+    
+    // MARK: - Cache Eviction and TTL Expiration
+    func testCacheEvictionWithTTL() {
+        let expectation = XCTestExpectation(description: "Cache eviction with TTL")
+        expectation.expectedFulfillmentCount = 4
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monofetch: KVLightTasks<String, String>.DataPovider.Monofetch = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            callback(.success("value_\(key)"))
+        }
+        
+        // Configure cache with short TTL
+        let cacheConfig = MemoryCache<String, String>.Configuration(
+            defaultTTL: 0.1, // 100ms TTL
+            defaultTTLForNullElement: 0.1
+        )
+        
+        let config = KVLightTasks<String, String>.Config(
+            dataProvider: .monofetch(monofetch),
+            cacheConfig: cacheConfig
+        )
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // First fetch - should hit network
+        taskManager.fetch(keys: ["key1", "key2"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        // Wait for TTL to expire
+        Thread.sleep(forTimeInterval: 0.2)
+        
+        // Second fetch - should hit network again due to TTL expiration
+        taskManager.fetch(keys: ["key1", "key2"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify results
+        XCTAssertEqual(results["key1"], "value_key1")
+        XCTAssertEqual(results["key2"], "value_key2")
+        
+        // Verify fetch count (should be 4 due to TTL expiration)
+        XCTAssertEqual(fetchCount, 4, "Should fetch 4 times due to TTL expiration")
+    }
+    
+    func testCacheEvictionWithMemoryLimit() {
+        let expectation = XCTestExpectation(description: "Cache eviction with memory limit")
+        expectation.expectedFulfillmentCount = 5
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monofetch: KVLightTasks<String, String>.DataPovider.Monofetch = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            callback(.success("value_\(key)"))
+        }
+        
+        // Configure cache with memory limit
+        let memoryLimit = MemoryUsageLimitation(
+            capacity: 3,   // Max 3 items
+            memory: 1000   // 1000 MB limit
+        )
+        
+        let cacheConfig = MemoryCache<String, String>.Configuration(
+            memoryUsageLimitation: memoryLimit,
+            costProvider: { $0.count * 2 } // Each string costs 2x its length
+        )
+        
+        let config = KVLightTasks<String, String>.Config(
+            dataProvider: .monofetch(monofetch),
+            cacheConfig: cacheConfig
+        )
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // First fetch - should hit network
+        taskManager.fetch(keys: ["key1", "key2"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        // Second fetch with more keys - should trigger eviction
+        taskManager.fetch(keys: ["key3", "key4", "key5"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify results
+        XCTAssertEqual(results["key1"], "value_key1")
+        XCTAssertEqual(results["key2"], "value_key2")
+        XCTAssertEqual(results["key3"], "value_key3")
+        XCTAssertEqual(results["key4"], "value_key4")
+        XCTAssertEqual(results["key5"], "value_key5")
+        
+        // Verify fetch count (should be 5 due to eviction)
+        XCTAssertEqual(fetchCount, 5, "Should fetch 5 times due to cache eviction")
+    }
+    
+    // MARK: - Cache Statistics and Reporting
+    func testCacheStatisticsReporting() {
+        let expectation = XCTestExpectation(description: "Cache statistics reporting")
+        expectation.expectedFulfillmentCount = 4
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monofetch: KVLightTasks<String, String>.DataPovider.Monofetch = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            callback(.success("value_\(key)"))
+        }
+        
+        var reportedStats: [CacheStatistics] = []
+        let statsSemaphore = DispatchSemaphore(value: 1)
+        
+        let statisticsReport: (CacheStatistics, CacheRecord) -> Void = { stats, record in
+            statsSemaphore.wait()
+            reportedStats.append(stats)
+            statsSemaphore.signal()
+        }
+        
+        let config = KVLightTasks<String, String>.Config(
+            dataProvider: .monofetch(monofetch),
+            cacheStatisticsReport: statisticsReport
+        )
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // First fetch - should hit network
+        taskManager.fetch(keys: ["key1", "key2"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        // Second fetch - should hit cache
+        taskManager.fetch(keys: ["key1", "key2"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify results
+        XCTAssertEqual(results["key1"], "value_key1")
+        XCTAssertEqual(results["key2"], "value_key2")
+        
+        // Verify statistics were reported
+        XCTAssertGreaterThan(reportedStats.count, 0, "Should report cache statistics")
+        
+        // Verify fetch count (should only be 2 due to caching)
+        XCTAssertEqual(fetchCount, 2, "Should only fetch 2 times due to caching")
+    }
+    
+    // MARK: - Cache Configuration Options
+    func testCacheConfigurationWithCustomTTL() {
+        let expectation = XCTestExpectation(description: "Cache configuration with custom TTL")
+        expectation.expectedFulfillmentCount = 4
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monofetch: KVLightTasks<String, String>.DataPovider.Monofetch = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            callback(.success("value_\(key)"))
+        }
+        
+        // Configure cache with custom TTL
+        let cacheConfig = MemoryCache<String, String>.Configuration(
+            defaultTTL: 0.05, // 50ms TTL
+            defaultTTLForNullElement: 0.05,
+            ttlRandomizationRange: 0.01 // 10ms randomization
+        )
+        
+        let config = KVLightTasks<String, String>.Config(
+            dataProvider: .monofetch(monofetch),
+            cacheConfig: cacheConfig
+        )
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // First fetch - should hit network
+        taskManager.fetch(keys: ["key1", "key2"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        // Wait for TTL to expire
+        Thread.sleep(forTimeInterval: 0.1)
+        
+        // Second fetch - should hit network again due to TTL expiration
+        taskManager.fetch(keys: ["key1", "key2"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify results
+        XCTAssertEqual(results["key1"], "value_key1")
+        XCTAssertEqual(results["key2"], "value_key2")
+        
+        // Verify fetch count (should be 4 due to TTL expiration)
+        XCTAssertEqual(fetchCount, 4, "Should fetch 4 times due to TTL expiration")
+    }
+    
+    func testCacheConfigurationWithKeyValidation() {
+        let expectation = XCTestExpectation(description: "Cache configuration with key validation")
+        expectation.expectedFulfillmentCount = 1
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let keyValidator: (String) -> Bool = {
+            // Only accept keys that start with "valid_"
+            $0.hasPrefix("valid_")
+        }
+        
+        let monofetch: KVLightTasks<String, String>.DataPovider.Monofetch = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            if keyValidator(key) {
+                callback(.success("value_\(key)"))
+            } else {
+                callback(.success(nil))
+            }
+        }
+        
+        // Configure cache with key validation
+        let cacheConfig = MemoryCache<String, String>.Configuration(
+            keyValidator: keyValidator
+        )
+        
+        let config = KVLightTasks<String, String>.Config(
+            dataProvider: .monofetch(monofetch),
+            cacheConfig: cacheConfig
+        )
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Fetch with valid and invalid keys
+        taskManager.fetch(keys: ["valid_key", "invalid_key"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        
+        // Verify results - both keys should be processed (key validation only affects cache storage)
+        XCTAssertEqual(results["valid_key"], "value_valid_key")
+        XCTAssertEqual(results["invalid_key"], nil)
+        
+        // Verify fetch count (should be 2 for both keys)
+        XCTAssertEqual(fetchCount, 1, "Should fetch 1 times for only valid key")
+    }
+    
+    // MARK: - Concurrent Cache Access Patterns
+    func testConcurrentCacheAccess() {
+        let expectation = XCTestExpectation(description: "Concurrent cache access")
+        expectation.expectedFulfillmentCount = 20
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monofetch: KVLightTasks<String, String>.DataPovider.Monofetch = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            
+            // Simulate network delay
+            let callbackCopy = callback
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.01) {
+                callbackCopy(.success("value_\(key)"))
+            }
+        }
+        
+        let config = KVLightTasks<String, String>.Config(
+            dataProvider: .monofetch(monofetch),
+            maxmumConcurrentRunningThreadNumber: 4
+        )
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Concurrent fetches with overlapping keys
+        let keys = (1...10).map { "key\($0)" }
+        
+        // First batch of concurrent fetches
+        for i in 0..<5 {
+            taskManager.fetch(keys: [keys[i], keys[i+5]]) { key, result in
+                switch result {
+                case .success(let value):
+                    resultsSemaphore.wait()
+                    results[key] = value
+                    resultsSemaphore.signal()
+                case .failure(let error):
+                    XCTFail("Unexpected error: \(error)")
+                }
+                expectation.fulfill()
+            }
+        }
+        
+        // Second batch of concurrent fetches (should hit cache for some keys)
+        for i in 0..<5 {
+            taskManager.fetch(keys: [keys[i], keys[i+5]]) { key, result in
+                switch result {
+                case .success(let value):
+                    resultsSemaphore.wait()
+                    results[key] = value
+                    resultsSemaphore.signal()
+                case .failure(let error):
+                    XCTFail("Unexpected error: \(error)")
+                }
+                expectation.fulfill()
+            }
+        }
+        
+        wait(for: [expectation], timeout: 10.0)
+        
+        // Verify all results
+        for key in keys {
+            XCTAssertEqual(results[key], "value_\(key)")
+        }
+        
+        // Verify fetch count (should be 10 for unique keys, not 20 due to caching)
+        XCTAssertEqual(fetchCount, 10, "Should fetch 10 times for unique keys")
+    }
+    
+    func testConcurrentCacheAccessWithThreadSynchronization() {
+        let expectation = XCTestExpectation(description: "Concurrent cache access with thread synchronization")
+        expectation.expectedFulfillmentCount = 12
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monofetch: KVLightTasks<String, String>.DataPovider.Monofetch = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            
+            // Simulate network delay
+            let callbackCopy = callback
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.01) {
+                callbackCopy(.success("value_\(key)"))
+            }
+        }
+        
+        // Configure cache with thread synchronization
+        let cacheConfig = MemoryCache<String, String>.Configuration(
+            enableThreadSynchronization: true
+        )
+        
+        let config = KVLightTasks<String, String>.Config(
+            dataProvider: .monofetch(monofetch),
+            maxmumConcurrentRunningThreadNumber: 6,
+            cacheConfig: cacheConfig
+        )
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Multiple concurrent fetches with shared keys
+        let sharedKeys = ["shared1", "shared2", "shared3"]
+        let uniqueKeys = (1...6).map { "unique\($0)" }
+        
+        // First batch - fetch shared keys
+        taskManager.fetch(keys: sharedKeys) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        // Second batch - fetch unique keys
+        taskManager.fetch(keys: uniqueKeys) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        // Third batch - fetch shared keys again (should hit cache)
+        taskManager.fetch(keys: sharedKeys) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 10.0)
+        
+        // Verify all results
+        for key in sharedKeys {
+            XCTAssertEqual(results[key], "value_\(key)")
+        }
+        for key in uniqueKeys {
+            XCTAssertEqual(results[key], "value_\(key)")
+        }
+        
+        // Verify fetch count (should be 9 for unique keys, not 12 due to caching)
+        XCTAssertEqual(fetchCount, 9, "Should fetch 9 times for unique keys")
+    }
+    
+    func testCachePerformanceWithLargeDataSet() {
+        let expectation = XCTestExpectation(description: "Cache performance with large dataset")
+        expectation.expectedFulfillmentCount = 50
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monofetch: KVLightTasks<String, String>.DataPovider.Monofetch = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            callback(.success("value_\(key)"))
+        }
+        
+        // Configure cache with memory limits
+        let cacheConfig = MemoryCache<String, String>.Configuration(
+            memoryUsageLimitation: MemoryUsageLimitation(
+                capacity: 50,   // Max 50 items
+                memory: 1000    // 1000 MB limit
+            ),
+            costProvider: { $0.count * 2 } // Each string costs 2x its length
+        )
+        
+        let config = KVLightTasks<String, String>.Config(
+            dataProvider: .monofetch(monofetch),
+            maxmumConcurrentRunningThreadNumber: 8,
+            cacheConfig: cacheConfig
+        )
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Generate large dataset
+        let keys = (1...50).map { "key\($0)" }
+        
+        // Fetch all keys
+        taskManager.fetch(keys: keys) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 15.0)
+        
+        // Verify all results
+        for key in keys {
+            XCTAssertEqual(results[key], "value_\(key)")
+        }
+        
+        // Verify fetch count (should be 50 for unique keys)
+        XCTAssertEqual(fetchCount, 50, "Should fetch 50 times for unique keys")
     }
 } 

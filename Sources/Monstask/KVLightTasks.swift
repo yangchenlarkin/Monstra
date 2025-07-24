@@ -10,14 +10,14 @@ import Monstore
 import MonstraBase
 
 public extension KVLightTasks {
-    enum DataPovider {
+    enum DataProvider {
         public typealias MonofetchCallback = (Result<Element?, Error>)->Void
         public typealias MultifetchCallback = (Result<[K: Element?], Error>)->Void
         public typealias Monofetch = (K, @escaping MonofetchCallback)->Void
         public typealias Multifetch = ([K], @escaping MultifetchCallback)->Void
         
         case monofetch(Monofetch)
-        case multifetch(maxmumBatchCount: UInt, Multifetch)
+        case multifetch(maximumBatchCount: UInt, Multifetch)
     }
     
     struct Config {
@@ -25,10 +25,10 @@ public extension KVLightTasks {
             case LIFO
             case FIFO
         }
-        public let dataProvider: DataPovider
+        public let dataProvider: DataProvider
         
-        public let maxmumTaskNumberInQueue: Int
-        public let maxmumConcurrentRunningThreadNumber: Int
+        public let maximumTaskNumberInQueue: Int
+        public let maximumConcurrentRunningThreadNumber: Int
         public let retryCount: RetryCount
         public let keyPriority: KeyPriority
         
@@ -54,16 +54,16 @@ public extension KVLightTasks {
         ///     - The keyValidator in cacheConfig automatically filters invalid keys
         ///     - Invalid keys return nil without network requests
         ///   - cacheStatisticsReport: Optional callback for cache statistics
-        init(dataProvider: DataPovider,
-             maxmumTaskNumberInQueue: Int = 1024,
-             maxmumConcurrentRunningThreadNumber: Int = 4,
+        init(dataProvider: DataProvider,
+             maximumTaskNumberInQueue: Int = 1024,
+             maximumConcurrentRunningThreadNumber: Int = 4,
              retryCount: RetryCount = 0,
              keyPriority: KeyPriority = .LIFO,
              cacheConfig: MemoryCache<K, Element>.Configuration = .defaultConfig,
              cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil) {
             self.dataProvider = dataProvider
-            self.maxmumTaskNumberInQueue = maxmumTaskNumberInQueue
-            self.maxmumConcurrentRunningThreadNumber = maxmumConcurrentRunningThreadNumber
+            self.maximumTaskNumberInQueue = maximumTaskNumberInQueue
+            self.maximumConcurrentRunningThreadNumber = maximumConcurrentRunningThreadNumber
             self.retryCount = retryCount
             self.keyPriority = keyPriority
             self.cacheConfig = cacheConfig
@@ -81,9 +81,9 @@ public extension KVLightTasks {
     /// 
     /// - Parameters:
     ///   - key: The key to fetch
-    ///   - monoCallback: Callback that receives the result for the key
-    func fetch(key: K, monoCallback: @escaping MonoresultCallback) {
-        fetchWithCallback(keys: [key], dispatchQueue: .global(), monoCallback: monoCallback)
+    ///   - completion: Callback that receives the result for the key
+    func fetch(key: K, completion: @escaping ResultCallback) {
+        fetchWithCallback(keys: [key], dispatchQueue: .global(), completion: completion)
     }
     
     /// Fetches multiple keys and returns results via callback for each key.
@@ -94,9 +94,9 @@ public extension KVLightTasks {
     /// 
     /// - Parameters:
     ///   - keys: Array of keys to fetch
-    ///   - monoCallback: Callback that receives results for each key
-    func fetch(keys: [K], monoCallback: @escaping MonoresultCallback) {
-        fetchWithCallback(keys: keys, dispatchQueue: .global(), monoCallback: monoCallback)
+    ///   - completion: Callback that receives results for each key
+    func fetch(keys: [K], completion: @escaping ResultCallback) {
+        fetchWithCallback(keys: keys, dispatchQueue: .global(), completion: completion)
     }
     
 //    func fetch(keys: [K], mutiCallback: @escaping MultiresultCallback) {
@@ -105,13 +105,13 @@ public extension KVLightTasks {
 }
 
 public class KVLightTasks<K: Hashable, Element> {
-    public typealias MonoresultCallback = (K, Result<Element?, Error>) -> Void
-    public typealias MultiresultCallback = ([(K, Result<Element?, Error>)]) -> Void
+    public typealias ResultCallback = (K, Result<Element?, Error>) -> Void
+    public typealias BatchResultCallback = ([(K, Result<Element?, Error>)]) -> Void
     
     public init(config: Config) {
         self.config = config
         self.cache = .init(configuration: config.cacheConfig, statisticsReport: config.cacheStatisticsReport)
-        self.keyQueue = .init(capacity: config.maxmumTaskNumberInQueue)
+        self.keyQueue = .init(capacity: config.maximumTaskNumberInQueue)
     }
     
     private let config: Config
@@ -135,8 +135,8 @@ public class KVLightTasks<K: Hashable, Element> {
     /// - Parameters:
     ///   - keys: Array of keys to process
     ///   - dispatchQueue: Optional dispatch queue for callback execution
-    ///   - monoCallback: Callback to receive results for each key
-    private func fetchWithCallback(keys: [K], dispatchQueue: DispatchQueue? = nil, monoCallback: @escaping MonoresultCallback) {
+    ///   - completion: Callback to receive results for each key
+    private func fetchWithCallback(keys: [K], dispatchQueue: DispatchQueue? = nil, completion: @escaping ResultCallback) {
         semaphore.wait()
         defer { semaphore.signal() }
         var remoteKeys = [K]()
@@ -144,21 +144,21 @@ public class KVLightTasks<K: Hashable, Element> {
             switch cache.getElement(for: key) {
             case .invalidKey:
                 if let dispatchQueue {
-                    dispatchQueue.async { monoCallback(key, .success(nil)) }
+                    dispatchQueue.async { completion(key, .success(nil)) }
                 } else {
-                    monoCallback(key, .success(nil))
+                    completion(key, .success(nil))
                 }
             case .hitNullElement:
                 if let dispatchQueue {
-                    dispatchQueue.async { monoCallback(key, .success(nil)) }
+                    dispatchQueue.async { completion(key, .success(nil)) }
                 } else {
-                    monoCallback(key, .success(nil))
+                    completion(key, .success(nil))
                 }
             case .hitNonNullElement(element: let element):
                 if let dispatchQueue {
-                    dispatchQueue.async { monoCallback(key, .success(element)) }
+                    dispatchQueue.async { completion(key, .success(element)) }
                 } else {
-                    monoCallback(key, .success(element))
+                    completion(key, .success(element))
                 }
             case .miss:
                 remoteKeys.append(key)
@@ -167,10 +167,10 @@ public class KVLightTasks<K: Hashable, Element> {
         
         if remoteKeys.count == 0 { return }
         
-        let _remoteKeys = remoteKeys.filter { monoresultCallbacks[$0] == nil }
-        cacheMonoresultCallback(keys: remoteKeys, callback: monoCallback)
+        let _remoteKeys = remoteKeys.filter { resultCallbacks[$0] == nil }
+        cacheResultCallback(keys: remoteKeys, callback: completion)
         
-        startThread(keys: _remoteKeys) { [weak self] key, res in
+        startTaskExecution(keys: _remoteKeys) { [weak self] key, res in
             guard let self else { return }
             semaphore.wait()
             defer { semaphore.signal() }
@@ -182,35 +182,35 @@ public class KVLightTasks<K: Hashable, Element> {
     }
     
     //MARK: -  result callback allocation management
-    private var monoresultCallbacks: [K: [MonoresultCallback]] = .init()
-    private func cacheMonoresultCallback(keys: [K], callback: @escaping MonoresultCallback) {
+    private var resultCallbacks: [K: [ResultCallback]] = .init()
+    private func cacheResultCallback(keys: [K], callback: @escaping ResultCallback) {
         for key in keys {
-            if monoresultCallbacks[key] == nil {
-                monoresultCallbacks[key] = .init()
+            if resultCallbacks[key] == nil {
+                resultCallbacks[key] = .init()
             }
-            monoresultCallbacks[key]?.append(callback)
+            resultCallbacks[key]?.append(callback)
         }
     }
     private func consumeCallbacks(key: K, dispatchQueue: DispatchQueue? = nil, result: Result<Element?, Error>) {
-        monoresultCallbacks[key]?.forEach { callback in
+        resultCallbacks[key]?.forEach { callback in
             if let dispatchQueue {
                 dispatchQueue.async { callback(key, result) }
             } else {
                 callback(key, result)
             }
         }
-        monoresultCallbacks.removeValue(forKey: key)
+        resultCallbacks.removeValue(forKey: key)
     }
     
     //MARK: - thread & task execution management
-    private var threadCount: Int = 0
-    private func startThread(keys: [K], callback: @escaping MonoresultCallback) {
+    private var activeThreadCount: Int = 0
+    private func startTaskExecution(keys: [K], callback: @escaping ResultCallback) {
         if keys.count == 0 { return }
         
         switch config.dataProvider {
         case .monofetch(let monofetch):
-            let additionalThreadCount = min(config.maxmumConcurrentRunningThreadNumber - threadCount, keys.count)
-            threadCount += additionalThreadCount
+            let additionalThreadCount = min(config.maximumConcurrentRunningThreadNumber - activeThreadCount, keys.count)
+            activeThreadCount += additionalThreadCount
             
             for i in 0..<keys.count {
                 if i < additionalThreadCount {
@@ -219,19 +219,19 @@ public class KVLightTasks<K: Hashable, Element> {
                     keyQueue.enqueueFront(key: keys[i])
                 }
             }
-        case .multifetch(let maxmumBatchCount, let multifetch):
+        case .multifetch(let maximumBatchCount, let multifetch):
             var restKeys = keys
-            while threadCount < config.maxmumConcurrentRunningThreadNumber {
-                threadCount += 1
+            while activeThreadCount < config.maximumConcurrentRunningThreadNumber {
+                activeThreadCount += 1
                 
-                if restKeys.count <= maxmumBatchCount {
-                    _startOneMutifetchThread(keys: restKeys, batchCount: maxmumBatchCount, fetch: multifetch, callback: callback)
+                if restKeys.count <= maximumBatchCount {
+                    _startOneMultifetchThread(keys: restKeys, batchCount: maximumBatchCount, fetch: multifetch, callback: callback)
                     restKeys = []
                     break
                 } else {
-                    let _keys = Array(restKeys[0..<Int(maxmumBatchCount)])
-                    restKeys = Array(restKeys[Int(maxmumBatchCount)..<restKeys.count])
-                    _startOneMutifetchThread(keys: _keys, batchCount: maxmumBatchCount, fetch: multifetch, callback: callback)
+                    let _keys = Array(restKeys[0..<Int(maximumBatchCount)])
+                    restKeys = Array(restKeys[Int(maximumBatchCount)..<restKeys.count])
+                    _startOneMultifetchThread(keys: _keys, batchCount: maximumBatchCount, fetch: multifetch, callback: callback)
                 }
             }
             
@@ -241,21 +241,21 @@ public class KVLightTasks<K: Hashable, Element> {
         }
     }
     
-    //仅启动线程
-    private func _startOneMonofetchThread(key: K? = nil, fetch: @escaping DataPovider.Monofetch, callback: @escaping MonoresultCallback) {
+    // Start individual monofetch thread
+    private func _startOneMonofetchThread(key: K? = nil, fetch: @escaping DataProvider.Monofetch, callback: @escaping ResultCallback) {
         guard let key else {
-            let _key: K?
+            let nextKey: K?
             switch config.keyPriority {
             case .LIFO:
-                _key = keyQueue.dequeueFront()
+                nextKey = keyQueue.dequeueFront()
             case .FIFO:
-                _key = keyQueue.dequeueBack()
+                nextKey = keyQueue.dequeueBack()
             }
-            guard let _key else {
-                threadCount -= 1
+            guard let nextKey else {
+                activeThreadCount -= 1
                 return
             }
-            _startOneMonofetchThread(key: _key, fetch: fetch, callback: callback)
+            _startOneMonofetchThread(key: nextKey, fetch: fetch, callback: callback)
             return
         }
         
@@ -275,7 +275,7 @@ public class KVLightTasks<K: Hashable, Element> {
         }
     }
     
-    private func _startOneMutifetchThread(keys: [K]? = nil, batchCount: UInt, fetch: @escaping DataPovider.Multifetch, callback: @escaping MonoresultCallback) {
+    private func _startOneMultifetchThread(keys: [K]? = nil, batchCount: UInt, fetch: @escaping DataProvider.Multifetch, callback: @escaping ResultCallback) {
         guard let keys else {
             let _keys: [K]
             switch config.keyPriority {
@@ -284,11 +284,11 @@ public class KVLightTasks<K: Hashable, Element> {
             case .FIFO:
                 _keys = keyQueue.dequeueBack(count: batchCount)
             }
-            _startOneMutifetchThread(keys: _keys, batchCount: batchCount, fetch: fetch, callback: callback)
+            _startOneMultifetchThread(keys: _keys, batchCount: batchCount, fetch: fetch, callback: callback)
             return
         }
         guard keys.count > 0 else {
-            threadCount -= 1
+            activeThreadCount -= 1
             return
         }
         
@@ -296,14 +296,14 @@ public class KVLightTasks<K: Hashable, Element> {
             guard let self else { return }
             _executeMultifetch(keys: keys, fetch: fetch) { [weak self] res in
                 guard let self else { return }
-                _startOneMutifetchThread(batchCount: batchCount, fetch: fetch, callback: callback)
+                _startOneMultifetchThread(batchCount: batchCount, fetch: fetch, callback: callback)
                 res.forEach { callback($0.0, $0.1) }
             }
         }
     }
     
-    //仅处理重试问题
-    private func _executeMonofetch(key: K, fetch: @escaping DataPovider.Monofetch, retryCount: RetryCount? = nil, callback: @escaping MonoresultCallback) {
+    // Handle retry logic for monofetch operations
+    private func _executeMonofetch(key: K, fetch: @escaping DataProvider.Monofetch, retryCount: RetryCount? = nil, callback: @escaping ResultCallback) {
         fetch(key) { [weak self] res in
             guard let self else { return }
             switch res {
@@ -321,7 +321,7 @@ public class KVLightTasks<K: Hashable, Element> {
         }
     }
     
-    private func _executeMultifetch(keys: [K], fetch: @escaping DataPovider.Multifetch, retryCount: RetryCount? = nil, callback: @escaping MultiresultCallback) {
+    private func _executeMultifetch(keys: [K], fetch: @escaping DataProvider.Multifetch, retryCount: RetryCount? = nil, callback: @escaping BatchResultCallback) {
         fetch(keys) { [weak self] res in
             guard let self else { return }
             switch res {

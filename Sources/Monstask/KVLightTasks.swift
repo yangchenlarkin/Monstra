@@ -13,14 +13,21 @@ public extension KVLightTasks {
     enum DataProvider {
         public typealias MonofetchCallback = (Result<Element?, Error>)->Void
         public typealias MultifetchCallback = (Result<[K: Element?], Error>)->Void
+        
         public typealias Monofetch = (K, @escaping MonofetchCallback)->Void
+        public typealias AsyncMonofetch = (K) async throws -> Element?
         public typealias Multifetch = ([K], @escaping MultifetchCallback)->Void
+        public typealias AsyncMultifetch = ([K]) async throws -> [K: Element?]
         
         case monofetch(Monofetch)
+        case asyncMonofetch(AsyncMonofetch)
         case multifetch(maximumBatchCount: UInt, Multifetch)
+        case asyncMultifetch(maximumBatchCount: UInt, AsyncMultifetch)
     }
     
     struct Config {
+        fileprivate let privateDataProvider: PrivateDataProvider
+        
         public enum KeyPriority {
             case LIFO
             case FIFO
@@ -62,6 +69,36 @@ public extension KVLightTasks {
              cacheConfig: MemoryCache<K, Element>.Configuration = .defaultConfig,
              cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil) {
             self.dataProvider = dataProvider
+            
+            switch dataProvider {
+            case .monofetch(let monofetch):
+                self.privateDataProvider = .monofetch(monofetch)
+            case .multifetch(let maximumBatchCount, let multifetch):
+                self.privateDataProvider = .multifetch(maximumBatchCount: maximumBatchCount, multifetch)
+            case .asyncMonofetch(let asyncMonofetch):
+                self.privateDataProvider = .monofetch({ key, callback in
+                    Task {
+                        do {
+                            let res = try await asyncMonofetch(key)
+                            callback(.success(res))
+                        } catch(let error) {
+                            callback(.failure(error))
+                        }
+                    }
+                })
+            case .asyncMultifetch(let maximumBatchCount, let asyncMultifetch):
+                self.privateDataProvider = .multifetch(maximumBatchCount: maximumBatchCount, { keys, callback in
+                    Task {
+                        do {
+                            let res = try await asyncMultifetch(keys)
+                            callback(.success(res))
+                        } catch(let error) {
+                            callback(.failure(error))
+                        }
+                    }
+                })
+            }
+            
             self.maximumTaskNumberInQueue = maximumTaskNumberInQueue
             self.maximumConcurrentRunningThreadNumber = maximumConcurrentRunningThreadNumber
             self.retryCount = retryCount
@@ -131,12 +168,12 @@ public extension KVLightTasks {
         
         var results = [K: Result<Element?, Error>]()
         let resultsSemaphore = DispatchSemaphore(value: 1)
-        let _keys = Set<K>(keys)
+        let keysCount = Set<K>(keys).count
         fetchWithCallback(keys: keys) { key, result in
             resultsSemaphore.wait()
             results[key] = result
             
-            if results.count == _keys.count {
+            if results.count == keysCount {
                 DispatchQueue.global().async {
                     multiCallback(
                         keys.map { ($0, results[$0] ?? .success(nil)) }
@@ -224,10 +261,21 @@ public extension KVLightTasks {
             }
         }
     }
+    
+    convenience init(config: Config) {
+        self.init(config)
+    }
+}
+
+private extension KVLightTasks {
+    enum PrivateDataProvider {
+        case monofetch(DataProvider.Monofetch)
+        case multifetch(maximumBatchCount: UInt, DataProvider.Multifetch)
+    }
 }
 
 public class KVLightTasks<K: Hashable, Element> {
-    public init(config: Config) {
+    private init(_ config: Config) {
         self.config = config
         self.cache = .init(configuration: config.cacheConfig, statisticsReport: config.cacheStatisticsReport)
         self.keyQueue = .init(capacity: config.maximumTaskNumberInQueue)
@@ -327,7 +375,7 @@ public class KVLightTasks<K: Hashable, Element> {
         if keys.count == 0 { return }
         let _keys = Set<K>(keys)
         let keys = Array<K>(_keys)
-        switch config.dataProvider {
+        switch config.privateDataProvider {
         case .monofetch(let monofetch):
             let additionalThreadCount = min(config.maximumConcurrentRunningThreadNumber - activeThreadCount, keys.count)
             activeThreadCount += additionalThreadCount

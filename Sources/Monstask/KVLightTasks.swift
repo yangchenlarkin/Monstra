@@ -18,15 +18,6 @@ public extension KVLightTasks {
         
         case monofetch(Monofetch)
         case multifetch(maxmumBatchCount: UInt, Multifetch)
-        
-        var concurrentFetchCount: UInt {
-            switch self {
-            case .monofetch:
-                1
-            case .multifetch(let maxmumBatchCount, _):
-                maxmumBatchCount
-            }
-        }
     }
     
     struct Config {
@@ -63,7 +54,13 @@ public extension KVLightTasks {
         ///     - The keyValidator in cacheConfig automatically filters invalid keys
         ///     - Invalid keys return nil without network requests
         ///   - cacheStatisticsReport: Optional callback for cache statistics
-        init(dataProvider: DataPovider, maxmumTaskNumberInQueue: Int = 1024, maxmumConcurrentRunningThreadNumber: Int = 4, retryCount: RetryCount = 0, keyPriority: KeyPriority = .LIFO, cacheConfig: MemoryCache<K, Element>.Configuration = .defaultConfig, cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil) {
+        init(dataProvider: DataPovider,
+             maxmumTaskNumberInQueue: Int = 1024,
+             maxmumConcurrentRunningThreadNumber: Int = 4,
+             retryCount: RetryCount = 0,
+             keyPriority: KeyPriority = .LIFO,
+             cacheConfig: MemoryCache<K, Element>.Configuration = .defaultConfig,
+             cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil) {
             self.dataProvider = dataProvider
             self.maxmumTaskNumberInQueue = maxmumTaskNumberInQueue
             self.maxmumConcurrentRunningThreadNumber = maxmumConcurrentRunningThreadNumber
@@ -108,9 +105,8 @@ public extension KVLightTasks {
 }
 
 public class KVLightTasks<K: Hashable, Element> {
-    private let config: Config
-    private let cache: Monstore.MemoryCache<K, Element>
-    private let keyQueue: KeyQueue<K>
+    public typealias MonoresultCallback = (K, Result<Element?, Error>) -> Void
+    public typealias MultiresultCallback = ([(K, Result<Element?, Error>)]) -> Void
     
     public init(config: Config) {
         self.config = config
@@ -118,8 +114,9 @@ public class KVLightTasks<K: Hashable, Element> {
         self.keyQueue = .init(capacity: config.maxmumTaskNumberInQueue)
     }
     
-    public typealias MonoresultCallback = (K, Result<Element?, Error>) -> Void
-    public typealias MultiresultCallback = ([(K, Result<Element?, Error>)]) -> Void
+    private let config: Config
+    private let cache: Monstore.MemoryCache<K, Element>
+    private let keyQueue: KeyQueue<K>
     
     //MARK: - fetch
     /// DispatchSemaphore for thread synchronization (used when enableThreadSynchronization=true)

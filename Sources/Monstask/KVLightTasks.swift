@@ -106,11 +106,124 @@ public extension KVLightTasks {
         fetchWithCallback(keys: keys, dispatchQueue: .global(), completion: completion)
     }
     
-//    func fetch(keys: [K], mutiCallback: @escaping BatchResultCallback) {
-//        fetchWithCallback(keys: keys) { key, res in
-//            
-//        }
-//    }
+    /// Fetches multiple keys and returns results via batch callback.
+    /// 
+    /// This method automatically handles cache validation and ignores invalid keys
+    /// as indicated by the cache configuration's keyValidator. Invalid keys will
+    /// return nil without triggering any network requests.
+    /// 
+    /// **Important**: This method guarantees that the batch callback will be called
+    /// exactly once with all results, regardless of whether keys are found in cache
+    /// or require remote fetching. The callback receives an array of (key, result) tuples.
+    /// 
+    /// **Note**: Duplicate keys in the input array are handled by deduplication at the
+    /// unique key level, ensuring each unique key is fetched only once while still
+    /// providing results for all input keys including duplicates.
+    /// 
+    /// - Parameters:
+    ///   - keys: Array of keys to fetch (duplicates are allowed)
+    ///   - multiCallback: Batch callback that receives all results at once
+    func fetch(keys: [K], multiCallback: @escaping BatchResultCallback) {
+        guard keys.count > 0 else { 
+            multiCallback([])
+            return
+        }
+        
+        var results = [K: Result<Element?, Error>]()
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        let _keys = Set<K>(keys)
+        fetchWithCallback(keys: keys) { key, result in
+            resultsSemaphore.wait()
+            results[key] = result
+            
+            if results.count == _keys.count {
+                DispatchQueue.global().async {
+                    multiCallback(
+                        keys.map { ($0, results[$0] ?? .success(nil)) }
+                    )
+                }
+            }
+            
+            resultsSemaphore.signal()
+        }
+    }
+    
+    /// Fetches multiple keys and returns results asynchronously.
+    /// 
+    /// This method automatically handles cache validation and ignores invalid keys
+    /// as indicated by the cache configuration's keyValidator. Invalid keys will
+    /// return nil without triggering any network requests.
+    /// 
+    /// **Important**: This method guarantees that results will be returned for each key
+    /// in the input array, regardless of whether the key is found in cache or requires
+    /// remote fetching. For example, if you pass 5 keys, you will receive exactly 5 results.
+    /// 
+    /// **Note**: Duplicate keys in the input array are handled by deduplication at the
+    /// unique key level, ensuring each unique key is fetched only once while still
+    /// providing results for all input keys including duplicates.
+    /// 
+    /// This is the async/await version of the batch callback-based `fetch(keys:multiCallback:)` method.
+    /// It provides a more modern Swift concurrency interface for batch key fetching.
+    /// 
+    /// - Parameter keys: Array of keys to fetch (duplicates are allowed)
+    /// - Returns: Array of tuples containing (key, result) pairs
+    func asyncFetch(keys: [K]) async -> [(K, Result<Element?, Error>)] {
+        return await withCheckedContinuation { continuation in
+            var hasResumed = false
+            fetch(keys: keys, multiCallback: { results in
+                if !hasResumed {
+                    hasResumed = true
+                    continuation.resume(returning: results)
+                }
+            })
+        }
+    }
+    
+    /// Fetches a single key and returns the result asynchronously.
+    ///
+    /// This method automatically handles cache validation and ignores invalid keys
+    /// as indicated by the cache configuration's keyValidator. Invalid keys will
+    /// return nil without triggering any network requests.
+    ///
+    /// This is the async/await version of the callback-based `fetch(key:completion:)` method.
+    /// It provides a more modern Swift concurrency interface for single key fetching.
+    ///
+    /// - Parameter key: The key to fetch
+    /// - Returns: The fetched element, or nil if not found or invalid
+    /// - Throws: Any error that occurs during the fetch operation
+    func asyncFetchThrowing(key: K) async throws -> Element? {
+        return try await withCheckedThrowingContinuation { continuation in
+            fetch(key: key) { key, result in
+                switch result {
+                case .success(let element):
+                    continuation.resume(returning: element)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
+            }
+        }
+    }
+    
+    /// Fetches a single key and returns the result asynchronously.
+    /// 
+    /// This method automatically handles cache validation and ignores invalid keys
+    /// as indicated by the cache configuration's keyValidator. Invalid keys will
+    /// return nil without triggering any network requests.
+    /// 
+    /// This is the async/await version of the callback-based `fetch(key:completion:)` method.
+    /// It provides a more modern Swift concurrency interface for single key fetching.
+    /// Unlike `asyncFetchThrowing`, this method returns a `Result` type that encapsulates
+    /// both success and failure cases, allowing for more flexible error handling.
+    /// 
+    /// - Parameter key: The key to fetch
+    /// - Returns: A Result containing the fetched element or an error
+    func asyncFetch(key: K) async -> Result<Element?, Error> {
+        return await withCheckedContinuation { continuation in
+            fetch(key: key) { _, result in
+                continuation.resume(returning: result)
+            }
+        }
+    }
 }
 
 public class KVLightTasks<K: Hashable, Element> {

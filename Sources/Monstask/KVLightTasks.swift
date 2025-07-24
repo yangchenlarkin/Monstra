@@ -46,8 +46,8 @@ public extension KVLightTasks {
         /// 
         /// - Parameters:
         ///   - dataProvider: The data provider for fetching elements
-        ///   - maxmumTaskNumberInQueue: Maximum number of tasks in the queue (default: 1024)
-        ///   - maxmumConcurrentRunningThreadNumber: Maximum concurrent threads (default: 4)
+        ///   - maximumTaskNumberInQueue: Maximum number of tasks in the queue (default: 1024)
+        ///   - maximumConcurrentRunningThreadNumber: Maximum concurrent threads (default: 4)
         ///   - retryCount: Retry configuration for failed requests (default: 0)
         ///   - keyPriority: Queue priority strategy (default: .LIFO)
         ///   - cacheConfig: Cache configuration including key validation (default: .defaultConfig)

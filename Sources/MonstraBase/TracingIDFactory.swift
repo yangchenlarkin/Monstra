@@ -9,11 +9,11 @@ import Foundation
 
 /// Interfaces
 public extension TracingIDFactory {
-    mutating func safeNextStr() -> String {
+    mutating func safeNextString() -> String {
         String(_safe_next())
     }
     
-    mutating func unsafeNextStr() -> String {
+    mutating func unsafeNextString() -> String {
         String(_unsafe_next())
     }
     
@@ -35,18 +35,18 @@ public extension TracingIDFactory {
 }
 
 public struct TracingIDFactory {
-    //Int64.max = 9,223,372,036,854,775,807
-    //a leap year has a maximum of 31,622,400 seconds.
-    private static let MAX_BASE_ID: Int64 = 100_000_000
-    public static let MAX_LOOP_COUNT: Int64 = 10_000_000_000
+    // Int64.max = 9,223,372,036,854,775,807
+    // A leap year has a maximum of 31,622,400 seconds.
+    private static let maximumBaseID: Int64 = 100_000_000
+    public static let maximumLoopCount: Int64 = 10_000_000_000
     
     private let loopCount: Int64
     private let trackingIDBase: Int64
     private var requestTrackingID: Int64 = 0
     
-    public init(loopCount: Int64 = Self.MAX_LOOP_COUNT) {
-        let loopCount = max(0, min(loopCount, Self.MAX_LOOP_COUNT))
-        self.loopCount = loopCount <= 0 ? loopCount + Self.MAX_LOOP_COUNT : loopCount
+    public init(loopCount: Int64 = Self.maximumLoopCount) {
+        let loopCount = max(0, min(loopCount, Self.maximumLoopCount))
+        self.loopCount = loopCount <= 0 ? loopCount + Self.maximumLoopCount : loopCount
         
         self.trackingIDBase = {
             let timeIntervalSince1970 = Int64(Date().timeIntervalSince1970)
@@ -54,15 +54,15 @@ public struct TracingIDFactory {
             let now = Date()
             let calendar = Calendar.current
             guard let utcTimeZone = TimeZone(identifier: "UTC") else {
-                return timeIntervalSince1970 % Self.MAX_BASE_ID // no more than 8 digits
+                return timeIntervalSince1970 % Self.maximumBaseID // no more than 8 digits
             }
             var calendarUTC = calendar
             calendarUTC.timeZone = utcTimeZone
 
-            // 获取当前年份（UTC时区）
+            // Get current year (UTC timezone)
             let currentYear = calendarUTC.component(.year, from: now)
 
-            // 创建当前年初时间点（UTC时区）
+            // Create current year start time point (UTC timezone)
             let dateComponents = DateComponents(
                 timeZone: utcTimeZone,
                 year: currentYear,
@@ -73,12 +73,12 @@ public struct TracingIDFactory {
                 second: 0
             )
             guard let startOfYear = calendarUTC.date(from: dateComponents) else {
-                return timeIntervalSince1970 % Self.MAX_BASE_ID // no more than 8 digits
+                return timeIntervalSince1970 % Self.maximumBaseID // no more than 8 digits
             }
 
-            // 计算时间间隔并转换为Int64（秒）
+            // Calculate time interval and convert to Int64 (seconds)
             let timeIntervalSinceStartOfYear = Int64(now.timeIntervalSince(startOfYear))
-            return timeIntervalSinceStartOfYear % Self.MAX_BASE_ID // no more than 8 digits
+            return timeIntervalSinceStartOfYear % Self.maximumBaseID // no more than 8 digits
         }()
     }
     

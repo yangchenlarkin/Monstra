@@ -53,8 +53,8 @@ final class TracingIDFactoryTest: XCTestCase {
     
     func testSafeNextStr() {
         var factory = TracingIDFactory()
-        let id1 = factory.safeNextStr()
-        let id2 = factory.safeNextStr()
+        let id1 = factory.safeNextString()
+        let id2 = factory.safeNextString()
         
         XCTAssertFalse(id1.isEmpty)
         XCTAssertFalse(id2.isEmpty)
@@ -63,10 +63,10 @@ final class TracingIDFactoryTest: XCTestCase {
         XCTAssertTrue(id2.rangeOfCharacter(from: CharacterSet.decimalDigits.inverted) == nil)
     }
     
-    func testUnsafeNextStr() {
+    func testUnsafeNextString() {
         var factory = TracingIDFactory()
-        let id1 = factory.unsafeNextStr()
-        let id2 = factory.unsafeNextStr()
+        let id1 = factory.unsafeNextString()
+        let id2 = factory.unsafeNextString()
         
         XCTAssertFalse(id1.isEmpty)
         XCTAssertFalse(id2.isEmpty)
@@ -234,7 +234,7 @@ final class TracingIDFactoryTest: XCTestCase {
             XCTAssertGreaterThan(id, 0)
             XCTAssertLessThan(id, Int64.max)
             
-            let strId = factory.safeNextStr()
+            let strId = factory.safeNextString()
             XCTAssertGreaterThan(strId.count, 0)
             XCTAssertLessThan(strId.count, 20) // Reasonable string length
         }
@@ -310,7 +310,7 @@ final class TracingIDFactoryTest: XCTestCase {
         
         for _ in 0..<100 {
             _ = factory.safeNextInt64()
-            let strId = factory.safeNextStr()
+            let strId = factory.safeNextString()
             
             // String ID should be convertible back to integer
             if let convertedId = Int64(strId) {

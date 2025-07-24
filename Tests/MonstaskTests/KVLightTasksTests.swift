@@ -3262,4 +3262,222 @@ extension KVLightTasksTests {
         // Verify fetch count - should fetch for all keys (validation happens at cache level)
         XCTAssertEqual(fetchCount, 3, "Should fetch only valid keys")
     }
+    
+    // MARK: - High-Concurrency Duplicate Key Scenarios
+    
+    func testHighConcurrencyWithDuplicateKeys() {
+        let expectation = XCTestExpectation(description: "High concurrency with duplicate keys")
+        expectation.expectedFulfillmentCount = 100 // 10 operations × 10 keys each
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monofetch: KVLightTasks<String, String>.DataProvider.Monofetch = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            
+            // Simulate network delay
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.01) {
+                callback(.success("value_\(key)"))
+            }
+        }
+        
+        let config = KVLightTasks<String, String>.Config(
+            dataProvider: .monofetch(monofetch),
+            maximumConcurrentRunningThreadNumber: 8
+        )
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Create 10 concurrent operations, each with the same set of keys
+        let sharedKeys = ["key1", "key2", "key3", "key4", "key5", "key6", "key7", "key8", "key9", "key10"]
+        
+        // Launch 10 concurrent fetch operations
+        for _ in 0..<10 {
+            DispatchQueue.global().async {
+                taskManager.fetch(keys: sharedKeys) { key, result in
+                    switch result {
+                    case .success(let value):
+                        resultsSemaphore.wait()
+                        results[key] = value
+                        resultsSemaphore.signal()
+                    case .failure(let error):
+                        XCTFail("Unexpected error: \(error)")
+                    }
+                    
+                    expectation.fulfill()
+                }
+            }
+        }
+        
+        wait(for: [expectation], timeout: 30.0)
+        
+        // Verify all results
+        for key in sharedKeys {
+            XCTAssertEqual(results[key], "value_\(key)")
+        }
+        
+        // Verify fetch count - should only fetch each unique key once despite 10 concurrent operations
+        XCTAssertEqual(fetchCount, 10, "Should fetch each unique key only once, not 10 times")
+    }
+    
+    func testCacheStampedePrevention() {
+        let expectation = XCTestExpectation(description: "Cache stampede prevention")
+        expectation.expectedFulfillmentCount = 25
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        var concurrentFetchCount = 0
+        let concurrentSemaphore = DispatchSemaphore(value: 1)
+        var maximumCurrentConcurrent = 0
+        
+        let monofetch: KVLightTasks<String, String>.DataProvider.Monofetch = { key, callback in
+            concurrentSemaphore.wait()
+            concurrentFetchCount += 1
+            maximumCurrentConcurrent = max(concurrentFetchCount, maximumCurrentConcurrent)
+            concurrentSemaphore.signal()
+            
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            
+            // Simulate slow network response
+            DispatchQueue.global().async {
+                concurrentSemaphore.wait()
+                concurrentFetchCount -= 1
+                concurrentSemaphore.signal()
+                
+                callback(.success("value_\(key)"))
+            }
+        }
+        
+        let config = KVLightTasks<String, String>.Config(
+            dataProvider: .monofetch(monofetch),
+            maximumConcurrentRunningThreadNumber: 4
+        )
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Create 5 concurrent operations with overlapping keys
+        let keySets = [
+            ["key1", "key2", "key3", "key4", "key5"],           // Set 1
+            ["key1", "key2", "key6", "key7", "key8"],           // Set 2 (overlaps with Set 1)
+            ["key3", "key4", "key9", "key10", "key11"],         // Set 3 (overlaps with Set 1)
+            ["key6", "key7", "key12", "key13", "key14"],        // Set 4 (overlaps with Set 2)
+            ["key9", "key10", "key15", "key16", "key17"],       // Set 5 (overlaps with Set 3)
+        ]
+        
+        // Launch concurrent operations
+        for (index, keys) in keySets.enumerated() {
+            DispatchQueue.global().asyncAfter(deadline: .now() + Double(index) * 0.01) {
+                taskManager.fetch(keys: keys) { key, result in
+                    switch result {
+                    case .success(let value):
+                        resultsSemaphore.wait()
+                        results[key] = value
+                        resultsSemaphore.signal()
+                    case .failure(let error):
+                        XCTFail("Unexpected error: \(error)")
+                    }
+                    
+                    expectation.fulfill()
+                }
+            }
+        }
+        
+        wait(for: [expectation], timeout: 30.0)
+        
+        // Verify all results
+        let allKeys = Set(keySets.flatMap { $0 })
+        for key in allKeys {
+            XCTAssertEqual(results[key], "value_\(key)")
+        }
+        
+        // Verify fetch count - should only fetch each unique key once
+        XCTAssertEqual(fetchCount, allKeys.count, "Should fetch each unique key only once")
+        
+        // Verify no excessive concurrent fetches (stampede prevention)
+        XCTAssertLessThanOrEqual(concurrentFetchCount, 4, "Should not have excessive concurrent fetches")
+        
+        XCTAssertLessThanOrEqual(maximumCurrentConcurrent, config.maximumConcurrentRunningThreadNumber)
+    }
+    
+    func testThreadSafetyWithDuplicateKeys() {
+        let expectation = XCTestExpectation(description: "Thread safety with duplicate keys")
+        expectation.expectedFulfillmentCount = 7 * 20
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monofetch: KVLightTasks<String, String>.DataProvider.Monofetch = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            
+            // Simulate varying response times
+            let delay = Double.random(in: 0.01...0.05)
+            DispatchQueue.global().asyncAfter(deadline: .now() + delay) {
+                callback(.success("value_\(key)"))
+            }
+        }
+        
+        let config = KVLightTasks<String, String>.Config(
+            dataProvider: .monofetch(monofetch),
+            maximumConcurrentRunningThreadNumber: 6
+        )
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var resultCount = 0
+        var results: [String: Int] = [:] // Count how many times each key was processed
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Create 20 concurrent operations with heavy key overlap
+        let baseKeys = ["key1", "key2", "key3", "key4", "key5"]
+        
+        for operationIndex in 0..<20 {
+            DispatchQueue.global().async {
+                // Each operation fetches the same base keys plus some unique keys
+                let operationKeys = baseKeys + ["unique_\(operationIndex)_1", "unique_\(operationIndex)_2"]
+                
+                taskManager.fetch(keys: operationKeys) { key, result in
+                    switch result {
+                    case .success:
+                        resultsSemaphore.wait()
+                        results[key] = (results[key] ?? 0) + 1
+                        resultCount += 1
+                        resultsSemaphore.signal()
+                    case .failure(let error):
+                        XCTFail("Unexpected error: \(error)")
+                    }
+                    
+                    expectation.fulfill()
+                }
+            }
+        }
+        
+        wait(for: [expectation], timeout: 60.0)
+        
+        // Verify all base keys were processed exactly 20 times (once per operation)
+        for key in baseKeys {
+            XCTAssertEqual(results[key], 20, "Key \(key) should be processed exactly 20 times")
+        }
+        
+        // Verify unique keys were processed exactly once each
+        for operationIndex in 0..<20 {
+            XCTAssertEqual(results["unique_\(operationIndex)_1"], 1, "Unique key should be processed once")
+            XCTAssertEqual(results["unique_\(operationIndex)_2"], 1, "Unique key should be processed once")
+        }
+        
+        // Verify total result count
+        XCTAssertEqual(resultCount, 140, "Should have exactly 140 results")
+        
+        // Verify fetch count - should only fetch each unique key once
+        let uniqueKeys = Set(baseKeys + (0..<20).flatMap { ["unique_\($0)_1", "unique_\($0)_2"] })
+        XCTAssertEqual(fetchCount, uniqueKeys.count, "Should fetch each unique key only once")
+    }
 } 

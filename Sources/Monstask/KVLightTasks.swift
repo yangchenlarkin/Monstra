@@ -73,6 +73,8 @@ public extension KVLightTasks {
 }
 
 public extension KVLightTasks {
+    typealias ResultCallback = (K, Result<Element?, Error>) -> Void
+    typealias BatchResultCallback = ([(K, Result<Element?, Error>)]) -> Void
     /// Fetches a single key and returns the result via callback.
     /// 
     /// This method automatically handles cache validation and ignores invalid keys
@@ -92,22 +94,26 @@ public extension KVLightTasks {
     /// as indicated by the cache configuration's keyValidator. Invalid keys will
     /// return nil without triggering any network requests.
     /// 
+    /// **Important**: This method guarantees that the completion callback will be called
+    /// exactly once for each key in the input array, regardless of whether the key
+    /// is found in cache or requires remote fetching. For example, if you pass 5 keys,
+    /// the completion callback will be called exactly 5 times, once for each key.
+    /// 
     /// - Parameters:
     ///   - keys: Array of keys to fetch
-    ///   - completion: Callback that receives results for each key
+    ///   - completion: Callback that receives results for each key (called once per key)
     func fetch(keys: [K], completion: @escaping ResultCallback) {
         fetchWithCallback(keys: keys, dispatchQueue: .global(), completion: completion)
     }
     
-//    func fetch(keys: [K], mutiCallback: @escaping MultiresultCallback) {
-//        
+//    func fetch(keys: [K], mutiCallback: @escaping BatchResultCallback) {
+//        fetchWithCallback(keys: keys) { key, res in
+//            
+//        }
 //    }
 }
 
 public class KVLightTasks<K: Hashable, Element> {
-    public typealias ResultCallback = (K, Result<Element?, Error>) -> Void
-    public typealias BatchResultCallback = ([(K, Result<Element?, Error>)]) -> Void
-    
     public init(config: Config) {
         self.config = config
         self.cache = .init(configuration: config.cacheConfig, statisticsReport: config.cacheStatisticsReport)
@@ -206,7 +212,8 @@ public class KVLightTasks<K: Hashable, Element> {
     private var activeThreadCount: Int = 0
     private func startTaskExecution(keys: [K], callback: @escaping ResultCallback) {
         if keys.count == 0 { return }
-        
+        let _keys = Set<K>(keys)
+        let keys = Array<K>(_keys)
         switch config.dataProvider {
         case .monofetch(let monofetch):
             let additionalThreadCount = min(config.maximumConcurrentRunningThreadNumber - activeThreadCount, keys.count)

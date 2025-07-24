@@ -3,13 +3,13 @@
 ## KVLightTasks Enhancements
 
 ### 1. Add Cache-Related Test Cases for KVLightTasks
-- [ ] Add comprehensive test cases for cache functionality in KVLightTasks
-- [ ] Test cache hit scenarios (null and non-null elements)
-- [ ] Test cache miss scenarios
-- [ ] Test cache eviction and TTL expiration
-- [ ] Test cache statistics and reporting
-- [ ] Test cache configuration options
-- [ ] Test concurrent cache access patterns
+- [x] Add comprehensive test cases for cache functionality in KVLightTasks
+- [x] Test cache hit scenarios (null and non-null elements)
+- [x] Test cache miss scenarios
+- [x] Test cache eviction and TTL expiration
+- [x] Test cache statistics and reporting
+- [x] Test cache configuration options
+- [x] Test concurrent cache access patterns
 
 ### 2. Add Structured Concurrency Interfaces to KVLightTasks
 - [ ] Implement async/await interfaces for KVLightTasks
@@ -28,6 +28,20 @@
 - [ ] Handle partial failures gracefully
 - [ ] Add timeout support for batch operations
 - [ ] Implement proper error aggregation for batch failures
+
+### 4. Check KVLightTasksTests for Batch Processing Order Issues
+- [ ] Review all test cases that use batch fetch data providers (multifetch/asyncMultifetch)
+- [ ] Identify tests where keys are mixed (success/failure keys together)
+- [ ] Check for tests where `Set<K>(keys)` conversion affects batch ordering
+- [ ] Found problematic test cases:
+  - `testErrorPropagationInBatches` (line 866): Tests mixed success/failure keys in batches
+  - `testMultifetchErrorHandling` (line 406): Tests error_key with normal keys in same batch
+  - `testMixedValidInvalidKeys` (line 2983): Tests valid/invalid keys mixed together
+  - `testKeysWithComplexValidationRules` (line 3216): Tests various key patterns mixed
+  - `testAsyncMonofetchDataProviderWithErrors` (line 3862): Tests error_key with normal keys
+  - `testAsyncMultifetchDataProviderWithErrors` (line 3981): Tests error_key in batch with other keys
+- [ ] These tests may have non-deterministic behavior due to Set conversion losing key order
+- [ ] Consider adding explicit batch ordering tests or documenting the non-deterministic nature
 
 ## Implementation Notes
 

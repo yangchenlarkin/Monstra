@@ -11,22 +11,22 @@ import MonstraBase
 
 public extension KVLightTasks {
     enum DataProvider {
-        public typealias MonofetchCallback = (Result<Element?, Error>)->Void
-        public typealias MultifetchCallback = (Result<[K: Element?], Error>)->Void
+        public typealias MonoprovideCallback = (Result<Element?, Error>)->Void
+        public typealias MultiprovideCallback = (Result<[K: Element?], Error>)->Void
         
-        public typealias Monofetch = (K, @escaping MonofetchCallback)->Void
-        public typealias AsyncMonofetch = (K) async throws -> Element?
-        public typealias SyncMonofetch = (K) throws -> Element?
-        public typealias Multifetch = ([K], @escaping MultifetchCallback)->Void
-        public typealias AsyncMultifetch = ([K]) async throws -> [K: Element?]
-        public typealias SyncMultifetch = ([K]) throws -> [K: Element?]
+        public typealias Monoprovide = (K, @escaping MonoprovideCallback)->Void
+        public typealias AsyncMonoprovide = (K) async throws -> Element?
+        public typealias SyncMonoprovide = (K) throws -> Element?
+        public typealias Multiprovide = ([K], @escaping MultiprovideCallback)->Void
+        public typealias AsyncMultiprovide = ([K]) async throws -> [K: Element?]
+        public typealias SyncMultiprovide = ([K]) throws -> [K: Element?]
         
-        case monofetch(Monofetch)
-        case asyncMonofetch(AsyncMonofetch)
-        case syncMonofetch(SyncMonofetch)
-        case multifetch(maximumBatchCount: UInt, Multifetch)
-        case asyncMultifetch(maximumBatchCount: UInt, AsyncMultifetch)
-        case syncMultifetch(maximumBatchCount: UInt, SyncMultifetch)
+        case monoprovide(Monoprovide)
+        case asyncMonoprovide(AsyncMonoprovide)
+        case syncMonoprovide(SyncMonoprovide)
+        case multiprovide(maximumBatchCount: UInt = 20, Multiprovide)
+        case asyncMultiprovide(maximumBatchCount: UInt = 20, AsyncMultiprovide)
+        case syncMultiprovide(maximumBatchCount: UInt = 20, SyncMultiprovide)
     }
     
     struct Config {
@@ -46,7 +46,7 @@ public extension KVLightTasks {
         /// Cache configuration that controls memory limits, TTL, key validation, and thread safety.
         /// 
         /// The keyValidator in this configuration is used to automatically filter out invalid keys
-        /// during fetch operations. Keys that fail validation will return nil without triggering
+        /// during provide operations. Keys that fail validation will return nil without triggering
         /// network requests, improving performance and preventing unnecessary API calls.
         public let cacheConfig: MemoryCache<K, Element>.Configuration
         
@@ -56,8 +56,8 @@ public extension KVLightTasks {
         /// Initializes a new KVLightTasks configuration.
         /// 
         /// - Parameters:
-        ///   - dataProvider: The data provider for fetching elements
-        ///   - maximumTaskNumberInQueue: Maximum number of tasks in the queue (default: 1024)
+        ///   - dataProvider: The data provider for providing elements
+        ///   - maximumTaskNumberInQueue: Maximum number of tasks in the queue (default: 16)
         ///   - maximumConcurrentRunningThreadNumber: Maximum concurrent threads (default: 4)
         ///   - retryCount: Retry configuration for failed requests (default: 0)
         ///   - keyPriority: Queue priority strategy (default: .LIFO)
@@ -66,7 +66,7 @@ public extension KVLightTasks {
         ///     - Invalid keys return nil without network requests
         ///   - cacheStatisticsReport: Optional callback for cache statistics
         init(dataProvider: DataProvider,
-             maximumTaskNumberInQueue: Int = 1024,
+             maximumTaskNumberInQueue: Int = 256,
              maximumConcurrentRunningThreadNumber: Int = 4,
              retryCount: RetryCount = 0,
              keyPriority: KeyPriority = .LIFO,
@@ -75,45 +75,45 @@ public extension KVLightTasks {
             self.dataProvider = dataProvider
             
             switch dataProvider {
-            case .monofetch(let monofetch):
-                self.privateDataProvider = .monofetch(monofetch)
-            case .multifetch(let maximumBatchCount, let multifetch):
-                self.privateDataProvider = .multifetch(maximumBatchCount: maximumBatchCount, multifetch)
-            case .asyncMonofetch(let asyncMonofetch):
-                self.privateDataProvider = .monofetch({ key, callback in
+            case .monoprovide(let monoprovide):
+                self.privateDataProvider = .monoprovide(monoprovide)
+            case .multiprovide(let maximumBatchCount, let multiprovide):
+                self.privateDataProvider = .multiprovide(maximumBatchCount: maximumBatchCount, multiprovide)
+            case .asyncMonoprovide(let asyncMonoprovide):
+                self.privateDataProvider = .monoprovide({ key, callback in
                     Task {
                         do {
-                            let res = try await asyncMonofetch(key)
+                            let res = try await asyncMonoprovide(key)
                             callback(.success(res))
                         } catch(let error) {
                             callback(.failure(error))
                         }
                     }
                 })
-            case .asyncMultifetch(let maximumBatchCount, let asyncMultifetch):
-                self.privateDataProvider = .multifetch(maximumBatchCount: maximumBatchCount, { keys, callback in
+            case .asyncMultiprovide(let maximumBatchCount, let asyncMultiprovide):
+                self.privateDataProvider = .multiprovide(maximumBatchCount: maximumBatchCount, { keys, callback in
                     Task {
                         do {
-                            let res = try await asyncMultifetch(keys)
+                            let res = try await asyncMultiprovide(keys)
                             callback(.success(res))
                         } catch(let error) {
                             callback(.failure(error))
                         }
                     }
                 })
-            case .syncMonofetch(let syncMonofetch):
-                self.privateDataProvider = .monofetch({ key, callback in
+            case .syncMonoprovide(let syncMonoprovide):
+                self.privateDataProvider = .monoprovide({ key, callback in
                     do {
-                        let res = try syncMonofetch(key)
+                        let res = try syncMonoprovide(key)
                         callback(.success(res))
                     } catch(let error) {
                         callback(.failure(error))
                     }
                 })
-            case .syncMultifetch(let maximumBatchCount, let syncMultifetch):
-                self.privateDataProvider = .multifetch(maximumBatchCount: maximumBatchCount, { keys, callback in
+            case .syncMultiprovide(let maximumBatchCount, let syncMultiprovide):
+                self.privateDataProvider = .multiprovide(maximumBatchCount: maximumBatchCount, { keys, callback in
                     do {
-                        let res = try syncMultifetch(keys)
+                        let res = try syncMultiprovide(keys)
                         callback(.success(res))
                     } catch(let error) {
                         callback(.failure(error))
@@ -135,6 +135,39 @@ public extension KVLightTasks {
 public extension KVLightTasks {
     typealias ResultCallback = (K, Result<Element?, Error>) -> Void
     typealias BatchResultCallback = ([(K, Result<Element?, Error>)]) -> Void
+    
+    convenience init(config: Config) {
+        self.init(config)
+    }
+    
+    convenience init(dataProvider: DataProvider) {
+        self.init(Config(dataProvider: dataProvider))
+    }
+    
+    convenience init(_ provide: @escaping DataProvider.Monoprovide) {
+        self.init(dataProvider: .monoprovide(provide))
+    }
+    
+    convenience init(_ provide: @escaping DataProvider.AsyncMonoprovide) {
+        self.init(dataProvider: .asyncMonoprovide(provide))
+    }
+    
+    convenience init(_ provide: @escaping DataProvider.SyncMonoprovide) {
+        self.init(dataProvider: .syncMonoprovide(provide))
+    }
+    
+    convenience init(maximumBatchCount: UInt = 20, _ provide: @escaping DataProvider.Multiprovide) {
+        self.init(dataProvider: .multiprovide(maximumBatchCount: maximumBatchCount, provide))
+    }
+    
+    convenience init(maximumBatchCount: UInt = 20, _ provide: @escaping DataProvider.AsyncMultiprovide) {
+        self.init(dataProvider: .asyncMultiprovide(maximumBatchCount: maximumBatchCount, provide))
+    }
+    
+    convenience init(maximumBatchCount: UInt = 20, _ provide: @escaping DataProvider.SyncMultiprovide) {
+        self.init(dataProvider: .syncMultiprovide(maximumBatchCount: maximumBatchCount, provide))
+    }
+    
     /// Fetches a single key and returns the result via callback.
     /// 
     /// This method automatically handles cache validation and ignores invalid keys
@@ -284,16 +317,12 @@ public extension KVLightTasks {
             }
         }
     }
-    
-    convenience init(config: Config) {
-        self.init(config)
-    }
 }
 
 private extension KVLightTasks {
     enum PrivateDataProvider {
-        case monofetch(DataProvider.Monofetch)
-        case multifetch(maximumBatchCount: UInt, DataProvider.Multifetch)
+        case monoprovide(DataProvider.Monoprovide)
+        case multiprovide(maximumBatchCount: UInt, DataProvider.Multiprovide)
     }
 }
 
@@ -403,30 +432,30 @@ public class KVLightTasks<K: Hashable, Element> {
             return true
         }
         switch config.privateDataProvider {
-        case .monofetch(let monofetch):
+        case .monoprovide(let monoprovide):
             let additionalThreadCount = min(config.maximumConcurrentRunningThreadNumber - activeThreadCount, keys.count)
             activeThreadCount += additionalThreadCount
             
             for i in 0..<keys.count {
                 if i < additionalThreadCount {
-                    _startOneMonofetchThread(key: keys[i], fetch: monofetch, callback: callback)
+                    _startOneMonoprovideThread(key: keys[i], provide: monoprovide, callback: callback)
                 } else {
                     keyQueue.enqueueFront(key: keys[i])
                 }
             }
-        case .multifetch(let maximumBatchCount, let multifetch):
+        case .multiprovide(let maximumBatchCount, let multiprovide):
             var restKeys = keys
             while activeThreadCount < config.maximumConcurrentRunningThreadNumber {
                 activeThreadCount += 1
                 
                 if restKeys.count <= maximumBatchCount {
-                    _startOneMultifetchThread(keys: restKeys, batchCount: maximumBatchCount, fetch: multifetch, callback: callback)
+                    _startOneMultiprovideThread(keys: restKeys, batchCount: maximumBatchCount, provide: multiprovide, callback: callback)
                     restKeys = []
                     break
                 } else {
                     let _keys = Array(restKeys[0..<Int(maximumBatchCount)])
                     restKeys = Array(restKeys[Int(maximumBatchCount)..<restKeys.count])
-                    _startOneMultifetchThread(keys: _keys, batchCount: maximumBatchCount, fetch: multifetch, callback: callback)
+                    _startOneMultiprovideThread(keys: _keys, batchCount: maximumBatchCount, provide: multiprovide, callback: callback)
                 }
             }
             
@@ -436,8 +465,8 @@ public class KVLightTasks<K: Hashable, Element> {
         }
     }
     
-    // Start individual monofetch thread
-    private func _startOneMonofetchThread(key: K? = nil, fetch: @escaping DataProvider.Monofetch, callback: @escaping ResultCallback) {
+    // Start individual monoprovide thread
+    private func _startOneMonoprovideThread(key: K? = nil, provide: @escaping DataProvider.Monoprovide, callback: @escaping ResultCallback) {
         guard let key else {
             let nextKey: K?
             switch config.keyPriority {
@@ -450,19 +479,19 @@ public class KVLightTasks<K: Hashable, Element> {
                 activeThreadCount -= 1
                 return
             }
-            _startOneMonofetchThread(key: nextKey, fetch: fetch, callback: callback)
+            _startOneMonoprovideThread(key: nextKey, provide: provide, callback: callback)
             return
         }
         
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
             
-            _executeMonofetch(key: key, fetch: fetch) { [weak self] key, res in
+            _executeMonoprovide(key: key, provide: provide) { [weak self] key, res in
                 guard let self else { return }
                 switch res {
                 case .success(let element):
                     callback(key, .success(element))
-                    _startOneMonofetchThread(fetch: fetch, callback: callback)
+                    _startOneMonoprovideThread(provide: provide, callback: callback)
                 case .failure(let error):
                     callback(key, .failure(error))
                 }
@@ -470,7 +499,7 @@ public class KVLightTasks<K: Hashable, Element> {
         }
     }
     
-    private func _startOneMultifetchThread(keys: [K]? = nil, batchCount: UInt, fetch: @escaping DataProvider.Multifetch, callback: @escaping ResultCallback) {
+    private func _startOneMultiprovideThread(keys: [K]? = nil, batchCount: UInt, provide: @escaping DataProvider.Multiprovide, callback: @escaping ResultCallback) {
         guard let keys else {
             let _keys: [K]
             switch config.keyPriority {
@@ -479,7 +508,7 @@ public class KVLightTasks<K: Hashable, Element> {
             case .FIFO:
                 _keys = keyQueue.dequeueBack(count: batchCount)
             }
-            _startOneMultifetchThread(keys: _keys, batchCount: batchCount, fetch: fetch, callback: callback)
+            _startOneMultiprovideThread(keys: _keys, batchCount: batchCount, provide: provide, callback: callback)
             return
         }
         guard keys.count > 0 else {
@@ -489,17 +518,17 @@ public class KVLightTasks<K: Hashable, Element> {
         
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
-            _executeMultifetch(keys: keys, fetch: fetch) { [weak self] res in
+            _executeMultiprovide(keys: keys, provide: provide) { [weak self] res in
                 guard let self else { return }
-                _startOneMultifetchThread(batchCount: batchCount, fetch: fetch, callback: callback)
+                _startOneMultiprovideThread(batchCount: batchCount, provide: provide, callback: callback)
                 res.forEach { callback($0.0, $0.1) }
             }
         }
     }
     
-    // Handle retry logic for monofetch operations
-    private func _executeMonofetch(key: K, fetch: @escaping DataProvider.Monofetch, retryCount: RetryCount? = nil, callback: @escaping ResultCallback) {
-        fetch(key) { [weak self] res in
+    // Handle retry logic for monoprovide operations
+    private func _executeMonoprovide(key: K, provide: @escaping DataProvider.Monoprovide, retryCount: RetryCount? = nil, callback: @escaping ResultCallback) {
+        provide(key) { [weak self] res in
             guard let self else { return }
             switch res {
             case .success(let element):
@@ -508,7 +537,7 @@ public class KVLightTasks<K: Hashable, Element> {
                 let retryCount = retryCount ?? self.config.retryCount
                 if let timeInterval = retryCount.shouldRetry {
                     Thread.sleep(forTimeInterval: timeInterval)
-                    self._executeMonofetch(key: key, fetch: fetch, retryCount: retryCount.next(), callback: callback)
+                    self._executeMonoprovide(key: key, provide: provide, retryCount: retryCount.next(), callback: callback)
                 } else {
                     callback(key, .failure(error))
                 }
@@ -516,8 +545,8 @@ public class KVLightTasks<K: Hashable, Element> {
         }
     }
     
-    private func _executeMultifetch(keys: [K], fetch: @escaping DataProvider.Multifetch, retryCount: RetryCount? = nil, callback: @escaping BatchResultCallback) {
-        fetch(keys) { [weak self] res in
+    private func _executeMultiprovide(keys: [K], provide: @escaping DataProvider.Multiprovide, retryCount: RetryCount? = nil, callback: @escaping BatchResultCallback) {
+        provide(keys) { [weak self] res in
             guard let self else { return }
             switch res {
             case .success(let elements):
@@ -526,7 +555,7 @@ public class KVLightTasks<K: Hashable, Element> {
                 let retryCount = retryCount ?? self.config.retryCount
                 if let timeInterval = retryCount.shouldRetry {
                     Thread.sleep(forTimeInterval: timeInterval)
-                    self._executeMultifetch(keys: keys, fetch: fetch, retryCount: retryCount.next(), callback: callback)
+                    self._executeMultiprovide(keys: keys, provide: provide, retryCount: retryCount.next(), callback: callback)
                 } else {
                     callback(keys.map { ($0, .failure(error)) })
                 }

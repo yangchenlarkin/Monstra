@@ -16,13 +16,17 @@ public extension KVLightTasks {
         
         public typealias Monofetch = (K, @escaping MonofetchCallback)->Void
         public typealias AsyncMonofetch = (K) async throws -> Element?
+        public typealias SyncMonofetch = (K) throws -> Element?
         public typealias Multifetch = ([K], @escaping MultifetchCallback)->Void
         public typealias AsyncMultifetch = ([K]) async throws -> [K: Element?]
+        public typealias SyncMultifetch = ([K]) throws -> [K: Element?]
         
         case monofetch(Monofetch)
         case asyncMonofetch(AsyncMonofetch)
+        case syncMonofetch(SyncMonofetch)
         case multifetch(maximumBatchCount: UInt, Multifetch)
         case asyncMultifetch(maximumBatchCount: UInt, AsyncMultifetch)
+        case syncMultifetch(maximumBatchCount: UInt, SyncMultifetch)
     }
     
     struct Config {
@@ -97,7 +101,26 @@ public extension KVLightTasks {
                         }
                     }
                 })
+            case .syncMonofetch(let syncMonofetch):
+                self.privateDataProvider = .monofetch({ key, callback in
+                    do {
+                        let res = try syncMonofetch(key)
+                        callback(.success(res))
+                    } catch(let error) {
+                        callback(.failure(error))
+                    }
+                })
+            case .syncMultifetch(let maximumBatchCount, let syncMultifetch):
+                self.privateDataProvider = .multifetch(maximumBatchCount: maximumBatchCount, { keys, callback in
+                    do {
+                        let res = try syncMultifetch(keys)
+                        callback(.success(res))
+                    } catch(let error) {
+                        callback(.failure(error))
+                    }
+                })
             }
+            
             
             self.maximumTaskNumberInQueue = maximumTaskNumberInQueue
             self.maximumConcurrentRunningThreadNumber = maximumConcurrentRunningThreadNumber

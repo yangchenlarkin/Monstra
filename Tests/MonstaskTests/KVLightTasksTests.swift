@@ -223,6 +223,40 @@ extension KVLightTasksTests {
         XCTAssertEqual(results["key2"], "value_key2")
         XCTAssertEqual(results["key3"], "value_key3")
     }
+    
+    func testConvenienceInitWithDefaultBatchCount() {
+        let expectation = XCTestExpectation(description: "Convenience init with default batch count")
+        expectation.expectedFulfillmentCount = 3
+        
+        // Test using the default maximumBatchCount value (20)
+        let taskManager = KVLightTasks<String, String> { keys, callback in
+            var results: [String: String?] = [:]
+            for key in keys {
+                results[key] = "value_\(key)"
+            }
+            callback(.success(results))
+        }
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        taskManager.fetch(keys: ["key1", "key2", "key3"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        XCTAssertEqual(results["key1"], "value_key1")
+        XCTAssertEqual(results["key2"], "value_key2")
+        XCTAssertEqual(results["key3"], "value_key3")
+    }
 }
 
 // MARK: - Original Monoprovide Tests

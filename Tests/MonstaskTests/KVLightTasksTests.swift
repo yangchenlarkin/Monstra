@@ -20,8 +20,214 @@ final class KVLightTasksTests: XCTestCase {
     }
 }
 
+// MARK: - Convenience Initializer Tests
+extension KVLightTasksTests {
+    
+    func testConvenienceInitWithConfig() {
+        let expectation = XCTestExpectation(description: "Convenience init with config")
+        expectation.expectedFulfillmentCount = 1
+        
+        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+            callback(.success("value_\(key)"))
+        }
+        
+        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasks<String, String>(config: config)
+        
+        var result: String?
+        
+        taskManager.fetch(key: "test_key") { key, res in
+            switch res {
+            case .success(let value):
+                result = value
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        XCTAssertEqual(result, "value_test_key")
+    }
+    
+    func testConvenienceInitWithDataProvider() {
+        let expectation = XCTestExpectation(description: "Convenience init with data provider")
+        expectation.expectedFulfillmentCount = 1
+        
+        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+            callback(.success("value_\(key)"))
+        }
+        
+        let taskManager = KVLightTasks<String, String>(dataProvider: .monoprovide(monoprovide))
+        
+        var result: String?
+        
+        taskManager.fetch(key: "test_key") { key, res in
+            switch res {
+            case .success(let value):
+                result = value
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        XCTAssertEqual(result, "value_test_key")
+    }
+    
+    func testConvenienceInitWithMonoprovide() {
+        let expectation = XCTestExpectation(description: "Convenience init with monoprovide")
+        expectation.expectedFulfillmentCount = 1
+        
+        let taskManager = KVLightTasks<String, String> { key, callback in
+            callback(.success("value_\(key)"))
+        }
+        
+        var result: String?
+        
+        taskManager.fetch(key: "test_key") { key, res in
+            switch res {
+            case .success(let value):
+                result = value
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        XCTAssertEqual(result, "value_test_key")
+    }
+    
+    func testConvenienceInitWithAsyncMonoprovide() async throws {
+        let taskManager = KVLightTasks<String, String> { key in
+            // Simulate async work
+            try await Task.sleep(nanoseconds: 10_000_000) // 10ms
+            return "value_\(key)"
+        }
+        
+        let result = try await taskManager.asyncFetchThrowing(key: "test_key")
+        XCTAssertEqual(result, "value_test_key")
+    }
+    
+    func testConvenienceInitWithSyncMonoprovide() {
+        let expectation = XCTestExpectation(description: "Convenience init with sync monoprovide")
+        expectation.expectedFulfillmentCount = 1
+        
+        let taskManager = KVLightTasks<String, String> { key in
+            return "value_\(key)"
+        }
+        
+        var result: String?
+        
+        taskManager.fetch(key: "test_key") { key, res in
+            switch res {
+            case .success(let value):
+                result = value
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        XCTAssertEqual(result, "value_test_key")
+    }
+    
+    func testConvenienceInitWithMultiprovide() {
+        let expectation = XCTestExpectation(description: "Convenience init with multiprovide")
+        expectation.expectedFulfillmentCount = 3
+        
+        let taskManager = KVLightTasks<String, String>(maximumBatchCount: 2) { keys, callback in
+            var results: [String: String?] = [:]
+            for key in keys {
+                results[key] = "value_\(key)"
+            }
+            callback(.success(results))
+        }
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        taskManager.fetch(keys: ["key1", "key2", "key3"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        XCTAssertEqual(results["key1"], "value_key1")
+        XCTAssertEqual(results["key2"], "value_key2")
+        XCTAssertEqual(results["key3"], "value_key3")
+    }
+    
+    func testConvenienceInitWithAsyncMultiprovide() async throws {
+        let taskManager = KVLightTasks<String, String>(maximumBatchCount: 2) { keys in
+            // Simulate async work
+            try await Task.sleep(nanoseconds: 10_000_000) // 10ms
+            var results: [String: String?] = [:]
+            for key in keys {
+                results[key] = "value_\(key)"
+            }
+            return results
+        }
+        
+        let results = await taskManager.asyncFetch(keys: ["key1", "key2", "key3"])
+        
+        for (key, result) in results {
+            switch result {
+            case .success(let value):
+                XCTAssertEqual(value, "value_\(key)")
+            case .failure(let error):
+                XCTFail("Unexpected error for key \(key): \(error)")
+            }
+        }
+    }
+    
+    func testConvenienceInitWithSyncMultiprovide() {
+        let expectation = XCTestExpectation(description: "Convenience init with sync multiprovide")
+        expectation.expectedFulfillmentCount = 3
+        
+        let taskManager = KVLightTasks<String, String>(maximumBatchCount: 2) { keys in
+            var results: [String: String?] = [:]
+            for key in keys {
+                results[key] = "value_\(key)"
+            }
+            return results
+        }
+        
+        var results: [String: String?] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        taskManager.fetch(keys: ["key1", "key2", "key3"]) { key, result in
+            switch result {
+            case .success(let value):
+                resultsSemaphore.wait()
+                results[key] = value
+                resultsSemaphore.signal()
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 5.0)
+        XCTAssertEqual(results["key1"], "value_key1")
+        XCTAssertEqual(results["key2"], "value_key2")
+        XCTAssertEqual(results["key3"], "value_key3")
+    }
+}
+
 // MARK: - Original Monoprovide Tests
 extension KVLightTasksTests {
+    
     func testMonoprovideBasicFunctionality() {
         let expectation = XCTestExpectation(description: "Monoprovide basic functionality")
         expectation.expectedFulfillmentCount = 3

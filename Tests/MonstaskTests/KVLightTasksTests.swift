@@ -891,7 +891,6 @@ extension KVLightTasksTests {
         expectation.expectedFulfillmentCount = 4
         
         let testError = NSError(domain: "TestError", code: 1, userInfo: nil)
-        var isKey1WithKey2: Bool = false
         
         let multifetch: KVLightTasks<String, String>.DataProvider.Multifetch = { keys, callback in
             // Fail if any key contains "error"
@@ -905,9 +904,6 @@ extension KVLightTasksTests {
                 callback(.success(results))
             }
             
-            if keys.contains("key1") && keys.contains("key2") {
-                isKey1WithKey2 = true
-            }
         }
         
         let config = KVLightTasks<String, String>.Config(dataProvider: .multifetch(maximumBatchCount: 2, multifetch))
@@ -917,7 +913,7 @@ extension KVLightTasksTests {
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
         // Test with mixed success/failure in batches
-        taskManager.fetch(keys: ["key1", "error1", "key2", "error2"]) { key, result in
+        taskManager.fetch(keys: ["key1", "key1", "error1", "key1", "key2", "key2", "key2", "error2", "key2", "key2", "key2"]) { key, result in
             fetchSemaphore.wait()
             results[key] = result
             fetchSemaphore.signal()
@@ -934,23 +930,11 @@ extension KVLightTasksTests {
                 XCTFail("Expected failure for \(key)")
             }
         }
-        if isKey1WithKey2 {
-            for key in ["key1", "key2"] {
-                if case .failure(_) = results[key] {
-                    XCTFail("Expected success for \(key)")
-                } else if case .success(let value) = results[key] {
-                    XCTAssertEqual(value, "value_\(key)")
-                } else {
-                    XCTFail("Expected success for \(key)")
-                }
-            }
-        } else {
-            for key in ["key1", "key2"] {
-                if case .failure(let error) = results[key] {
-                    XCTAssertEqual(error as NSError, testError)
-                } else {
-                    XCTFail("Expected failure for \(key)")
-                }
+        for key in ["key1", "key2"] {
+            if case .failure(let error) = results[key] {
+                XCTAssertEqual(error as NSError, testError)
+            } else {
+                XCTFail("Expected failure for \(key)")
             }
         }
     }
@@ -4057,9 +4041,8 @@ extension KVLightTasksTests {
         wait(for: [expectation], timeout: 10.0)
         
         // Verify results - all should have errors due to batch failure
-        XCTAssertLessThan(errorCount, 3, "Error count should be less than 3 since error_key may be batched alone or with one other key")
-        XCTAssertGreaterThan(errorCount, 0, "Error count should be greater than 0 since error_key will always cause an error")
-        XCTAssertEqual(errorCount + results.count, 3, "Total processed keys (errors + successes) should equal input key count")
+        XCTAssertEqual(errorCount, 2, "")
+        XCTAssertEqual(results.count, 1, "Total processed keys (errors + successes) should equal input key count")
         XCTAssertEqual(fetchCount, 1, "Should fetch exactly once since batch size is 2 and we have 3 keys")
     }
     

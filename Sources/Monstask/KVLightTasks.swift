@@ -396,8 +396,12 @@ public class KVLightTasks<K: Hashable, Element> {
     private var activeThreadCount: Int = 0
     private func startTaskExecution(keys: [K], callback: @escaping ResultCallback) {
         if keys.count == 0 { return }
-        let _keys = Set<K>(keys)
-        let keys = Array<K>(_keys)
+        var _keys = Set<K>()
+        let keys = keys.filter { key in
+            if _keys.contains(key) { return false }
+            _keys.insert(key)
+            return true
+        }
         switch config.privateDataProvider {
         case .monofetch(let monofetch):
             let additionalThreadCount = min(config.maximumConcurrentRunningThreadNumber - activeThreadCount, keys.count)

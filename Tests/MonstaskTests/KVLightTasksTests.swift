@@ -514,6 +514,28 @@ extension KVLightTasksTests {
         XCTAssertNotNil(multiManager)
     }
     
+    func testConfigWithSyncMonofetchDataProvider() {
+        let syncMonofetch: KVLightTasks<String, String>.DataProvider.SyncMonofetch = { key in
+            return "value_\(key)"
+        }
+        let config = KVLightTasks<String, String>.Config(dataProvider: .syncMonofetch(syncMonofetch))
+        let taskManager = KVLightTasks<String, String>(config: config)
+        XCTAssertNotNil(taskManager)
+    }
+
+    func testConfigWithMultifetchDataProvider() {
+        let multifetch: KVLightTasks<String, String>.DataProvider.Multifetch = { keys, callback in
+            var results: [String: String?] = [:]
+            for key in keys {
+                results[key] = "value_\(key)"
+            }
+            callback(.success(results))
+        }
+        let config = KVLightTasks<String, String>.Config(dataProvider: .multifetch(maximumBatchCount: 2, multifetch))
+        let taskManager = KVLightTasks<String, String>(config: config)
+        XCTAssertNotNil(taskManager)
+    }
+    
     // MARK: - Cache Integration Tests
     func testCacheHitScenarios() {
         let expectation = XCTestExpectation(description: "Cache hit scenarios")

@@ -1,5 +1,5 @@
 //
-//  KVLightTasksTests.swift
+//  KVLightTasksManagerTests.swift
 //  MonstaskTests
 //
 //  Created by Test Generator on 2025/1/27.
@@ -10,29 +10,29 @@ import XCTest
 @testable import MonstraBase
 @testable import Monstore
 
-final class KVLightTasksTests: XCTestCase {
+final class KVLightTasksManagerTests: XCTestCase {
     
     // MARK: - Test Configuration
     private func createConfig(
-        dataProvider: KVLightTasks<String, String>.DataProvider
-    ) -> KVLightTasks<String, String>.Config {
-        return KVLightTasks<String, String>.Config(dataProvider: dataProvider)
+        dataProvider: KVLightTasksManager<String, String>.DataProvider
+    ) -> KVLightTasksManager<String, String>.Config {
+        return KVLightTasksManager<String, String>.Config(dataProvider: dataProvider)
     }
 }
 
 // MARK: - Convenience Initializer Tests
-extension KVLightTasksTests {
+extension KVLightTasksManagerTests {
     
     func testConvenienceInitWithConfig() {
         let expectation = XCTestExpectation(description: "Convenience init with config")
         expectation.expectedFulfillmentCount = 1
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var result: String?
         
@@ -54,11 +54,11 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Convenience init with data provider")
         expectation.expectedFulfillmentCount = 1
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
-        let taskManager = KVLightTasks<String, String>(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasksManager<String, String>(dataProvider: .monoprovide(monoprovide))
         
         var result: String?
         
@@ -80,7 +80,7 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Convenience init with monoprovide")
         expectation.expectedFulfillmentCount = 1
         
-        let taskManager = KVLightTasks<String, String> { key, callback in
+        let taskManager = KVLightTasksManager<String, String> { key, callback in
             callback(.success("value_\(key)"))
         }
         
@@ -101,7 +101,7 @@ extension KVLightTasksTests {
     }
     
     func testConvenienceInitWithAsyncMonoprovide() async throws {
-        let taskManager = KVLightTasks<String, String> { key in
+        let taskManager = KVLightTasksManager<String, String> { key in
             // Simulate async work
             try await Task.sleep(nanoseconds: 10_000_000) // 10ms
             return "value_\(key)"
@@ -115,7 +115,7 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Convenience init with sync monoprovide")
         expectation.expectedFulfillmentCount = 1
         
-        let taskManager = KVLightTasks<String, String> { key in
+        let taskManager = KVLightTasksManager<String, String> { key in
             return "value_\(key)"
         }
         
@@ -139,7 +139,7 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Convenience init with multiprovide")
         expectation.expectedFulfillmentCount = 3
         
-        let taskManager = KVLightTasks<String, String>(maximumBatchCount: 2) { keys, callback in
+        let taskManager = KVLightTasksManager<String, String>(maximumBatchCount: 2) { keys, callback in
             var results: [String: String?] = [:]
             for key in keys {
                 results[key] = "value_\(key)"
@@ -169,7 +169,7 @@ extension KVLightTasksTests {
     }
     
     func testConvenienceInitWithAsyncMultiprovide() async throws {
-        let taskManager = KVLightTasks<String, String>(maximumBatchCount: 2) { keys in
+        let taskManager = KVLightTasksManager<String, String>(maximumBatchCount: 2) { keys in
             // Simulate async work
             try await Task.sleep(nanoseconds: 10_000_000) // 10ms
             var results: [String: String?] = [:]
@@ -195,7 +195,7 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Convenience init with sync multiprovide")
         expectation.expectedFulfillmentCount = 3
         
-        let taskManager = KVLightTasks<String, String>(maximumBatchCount: 2) { keys in
+        let taskManager = KVLightTasksManager<String, String>(maximumBatchCount: 2) { keys in
             var results: [String: String?] = [:]
             for key in keys {
                 results[key] = "value_\(key)"
@@ -229,7 +229,7 @@ extension KVLightTasksTests {
         expectation.expectedFulfillmentCount = 3
         
         // Test using the default maximumBatchCount value (20)
-        let taskManager = KVLightTasks<String, String> { keys, callback in
+        let taskManager = KVLightTasksManager<String, String> { keys, callback in
             var results: [String: String?] = [:]
             for key in keys {
                 results[key] = "value_\(key)"
@@ -260,18 +260,18 @@ extension KVLightTasksTests {
 }
 
 // MARK: - Original Monoprovide Tests
-extension KVLightTasksTests {
+extension KVLightTasksManagerTests {
     
     func testMonoprovideBasicFunctionality() {
         let expectation = XCTestExpectation(description: "Monoprovide basic functionality")
         expectation.expectedFulfillmentCount = 3
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -300,12 +300,12 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Single key fetch")
         expectation.expectedFulfillmentCount = 1
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var result: String?
         
@@ -330,7 +330,7 @@ extension KVLightTasksTests {
         
         let testError = NSError(domain: "TestError", code: 1, userInfo: nil)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             if key == "error_key" {
                 callback(.failure(testError))
             } else {
@@ -339,7 +339,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: Result<String?, Error>] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -374,7 +374,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -383,7 +383,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var firstFetchResults: [String: String?] = [:]
         var secondFetchResults: [String: String?] = [:]
@@ -434,12 +434,12 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Monoprovide empty key set")
         expectation.expectedFulfillmentCount = 1  // Fixed: must be greater than 0
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             XCTFail("Should not be called with empty key set")
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         taskManager.fetch(keys: []) { key, result in
             XCTFail("Should not be called with empty key set")
@@ -454,12 +454,12 @@ extension KVLightTasksTests {
 }
 
 // MARK: - Original Multiprovide Tests
-extension KVLightTasksTests {
+extension KVLightTasksManagerTests {
     func testMultiprovideBasicFunctionality() {
         let expectation = XCTestExpectation(description: "Multiprovide basic functionality")
         expectation.expectedFulfillmentCount = 6
         
-        let multiprovide: KVLightTasks<String, String>.DataProvider.Multiprovide = { keys, callback in
+        let multiprovide: KVLightTasksManager<String, String>.DataProvider.Multiprovide = { keys, callback in
             var results: [String: String?] = [:]
             for key in keys {
                 results[key] = "value_\(key)"
@@ -468,7 +468,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .multiprovide(maximumBatchCount: 3, multiprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -501,7 +501,7 @@ extension KVLightTasksTests {
         var batchCount = 0
         let batchSemaphore = DispatchSemaphore(value: 1)
         
-        let multiprovide: KVLightTasks<String, String>.DataProvider.Multiprovide = { keys, callback in
+        let multiprovide: KVLightTasksManager<String, String>.DataProvider.Multiprovide = { keys, callback in
             batchSemaphore.wait()
             batchCount += 1
             batchSemaphore.signal()
@@ -514,7 +514,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .multiprovide(maximumBatchCount: 3, multiprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -551,7 +551,7 @@ extension KVLightTasksTests {
         var batchCount = 0
         let batchSemaphore = DispatchSemaphore(value: 1)
         
-        let multiprovide: KVLightTasks<String, String>.DataProvider.Multiprovide = { keys, callback in
+        let multiprovide: KVLightTasksManager<String, String>.DataProvider.Multiprovide = { keys, callback in
             batchSemaphore.wait()
             batchCount += 1
             batchSemaphore.signal()
@@ -564,7 +564,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .multiprovide(maximumBatchCount: 3, multiprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -601,7 +601,7 @@ extension KVLightTasksTests {
         var batchCount = 0
         let batchSemaphore = DispatchSemaphore(value: 1)
         
-        let multiprovide: KVLightTasks<String, String>.DataProvider.Multiprovide = { keys, callback in
+        let multiprovide: KVLightTasksManager<String, String>.DataProvider.Multiprovide = { keys, callback in
             batchSemaphore.wait()
             batchCount += 1
             batchSemaphore.signal()
@@ -614,7 +614,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .multiprovide(maximumBatchCount: 100, multiprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let fetchSemaphore = DispatchSemaphore(value: 1)
@@ -650,7 +650,7 @@ extension KVLightTasksTests {
         
         let testError = NSError(domain: "TestError", code: 1, userInfo: nil)
         
-        let multiprovide: KVLightTasks<String, String>.DataProvider.Multiprovide = { keys, callback in
+        let multiprovide: KVLightTasksManager<String, String>.DataProvider.Multiprovide = { keys, callback in
             // Simulate error for any batch containing error_key
             if keys.contains("error_key") {
                 callback(.failure(testError))
@@ -664,7 +664,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .multiprovide(maximumBatchCount: 2, multiprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: Result<String?, Error>] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -697,12 +697,12 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Multiprovide empty key set")
         expectation.expectedFulfillmentCount = 1
         
-        let multiprovide: KVLightTasks<String, String>.DataProvider.Multiprovide = { keys, callback in
+        let multiprovide: KVLightTasksManager<String, String>.DataProvider.Multiprovide = { keys, callback in
             XCTFail("Should not be called with empty key set")
         }
         
         let config = createConfig(dataProvider: .multiprovide(maximumBatchCount: 3, multiprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         taskManager.fetch(keys: []) { key, result in
             XCTFail("Should not be called with empty key set")
@@ -717,26 +717,26 @@ extension KVLightTasksTests {
 } 
 
 // MARK: - Comprehensive Tests
-extension KVLightTasksTests {
+extension KVLightTasksManagerTests {
     
     // MARK: - Configuration & Initialization Tests
     func testConfigInitialization() {
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         XCTAssertNotNil(taskManager)
     }
     
     func testConfigWithDifferentDataProviders() {
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
-        let multiprovide: KVLightTasks<String, String>.DataProvider.Multiprovide = { keys, callback in
+        let multiprovide: KVLightTasksManager<String, String>.DataProvider.Multiprovide = { keys, callback in
             var results: [String: String?] = [:]
             for key in keys {
                 results[key] = "value_\(key)"
@@ -744,35 +744,35 @@ extension KVLightTasksTests {
             callback(.success(results))
         }
         
-        let monoConfig = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
-        let multiConfig = KVLightTasks<String, String>.Config(dataProvider: .multiprovide(maximumBatchCount: 3, multiprovide))
+        let monoConfig = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        let multiConfig = KVLightTasksManager<String, String>.Config(dataProvider: .multiprovide(maximumBatchCount: 3, multiprovide))
         
-        let monoManager = KVLightTasks<String, String>(config: monoConfig)
-        let multiManager = KVLightTasks<String, String>(config: multiConfig)
+        let monoManager = KVLightTasksManager<String, String>(config: monoConfig)
+        let multiManager = KVLightTasksManager<String, String>(config: multiConfig)
         
         XCTAssertNotNil(monoManager)
         XCTAssertNotNil(multiManager)
     }
     
     func testConfigWithSyncMonoprovideDataProvider() {
-        let syncMonoprovide: KVLightTasks<String, String>.DataProvider.SyncMonoprovide = { key in
+        let syncMonoprovide: KVLightTasksManager<String, String>.DataProvider.SyncMonoprovide = { key in
             return "value_\(key)"
         }
-        let config = KVLightTasks<String, String>.Config(dataProvider: .syncMonoprovide(syncMonoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .syncMonoprovide(syncMonoprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         XCTAssertNotNil(taskManager)
     }
 
     func testConfigWithMultiprovideDataProvider() {
-        let multiprovide: KVLightTasks<String, String>.DataProvider.Multiprovide = { keys, callback in
+        let multiprovide: KVLightTasksManager<String, String>.DataProvider.Multiprovide = { keys, callback in
             var results: [String: String?] = [:]
             for key in keys {
                 results[key] = "value_\(key)"
             }
             callback(.success(results))
         }
-        let config = KVLightTasks<String, String>.Config(dataProvider: .multiprovide(maximumBatchCount: 2, multiprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .multiprovide(maximumBatchCount: 2, multiprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         XCTAssertNotNil(taskManager)
     }
     
@@ -784,15 +784,15 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -841,15 +841,15 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -886,7 +886,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -895,8 +895,8 @@ extension KVLightTasksTests {
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -933,7 +933,7 @@ extension KVLightTasksTests {
         var attemptCount = 0
         let testError = NSError(domain: "TestError", code: 1, userInfo: nil)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             attemptCount += 1
             if attemptCount < 3 {
                 callback(.failure(testError))
@@ -942,8 +942,8 @@ extension KVLightTasksTests {
             }
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide), retryCount: 10)
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide), retryCount: 10)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var result: String?
         
@@ -970,7 +970,7 @@ extension KVLightTasksTests {
         var attemptCount = 0
         let testError = NSError(domain: "TestError", code: 1, userInfo: nil)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             attemptCount += 1
             if attemptCount < 3 {
                 callback(.failure(testError))
@@ -979,8 +979,8 @@ extension KVLightTasksTests {
             }
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         taskManager.fetch(key: "retry_key") { key, res in
             switch res {
@@ -1003,12 +1003,12 @@ extension KVLightTasksTests {
         
         let testError = NSError(domain: "TestError", code: 1, userInfo: nil)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.failure(testError))
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var result: Result<String?, Error>?
         
@@ -1034,7 +1034,7 @@ extension KVLightTasksTests {
         var batchCount = 0
         let batchSemaphore = DispatchSemaphore(value: 1)
         
-        let multiprovide: KVLightTasks<String, String>.DataProvider.Multiprovide = { keys, callback in
+        let multiprovide: KVLightTasksManager<String, String>.DataProvider.Multiprovide = { keys, callback in
             batchSemaphore.wait()
             batchCount += 1
             batchSemaphore.signal()
@@ -1046,8 +1046,8 @@ extension KVLightTasksTests {
             callback(.success(results))
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .multiprovide(maximumBatchCount: 2, multiprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .multiprovide(maximumBatchCount: 2, multiprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -1083,7 +1083,7 @@ extension KVLightTasksTests {
         var batchCount = 0
         let batchSemaphore = DispatchSemaphore(value: 1)
         
-        let multiprovide: KVLightTasks<String, String>.DataProvider.Multiprovide = { keys, callback in
+        let multiprovide: KVLightTasksManager<String, String>.DataProvider.Multiprovide = { keys, callback in
             batchSemaphore.wait()
             batchCount += 1
             batchSemaphore.signal()
@@ -1095,8 +1095,8 @@ extension KVLightTasksTests {
             callback(.success(results))
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .multiprovide(maximumBatchCount: 1, multiprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .multiprovide(maximumBatchCount: 1, multiprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -1132,7 +1132,7 @@ extension KVLightTasksTests {
         
         let testError = NSError(domain: "TestError", code: 1, userInfo: nil)
         
-        let multiprovide: KVLightTasks<String, String>.DataProvider.Multiprovide = { keys, callback in
+        let multiprovide: KVLightTasksManager<String, String>.DataProvider.Multiprovide = { keys, callback in
             // Fail if any key contains "error"
             if keys.contains(where: { $0.contains("error") }) {
                 callback(.failure(testError))
@@ -1146,8 +1146,8 @@ extension KVLightTasksTests {
             
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .multiprovide(maximumBatchCount: 2, multiprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .multiprovide(maximumBatchCount: 2, multiprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: Result<String?, Error>] = [:]
         let fetchSemaphore = DispatchSemaphore(value: 1)
@@ -1186,12 +1186,12 @@ extension KVLightTasksTests {
         
         let startTime = Date()
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -1228,7 +1228,7 @@ extension KVLightTasksTests {
 } 
 
 // MARK: - Missing Tests (Key Priority, Thread Synchronization, etc.)
-extension KVLightTasksTests {
+extension KVLightTasksManagerTests {
     
     // MARK: - Key Priority Tests (LIFO vs FIFO)
     func testKeyPriorityLIFO() {
@@ -1238,7 +1238,7 @@ extension KVLightTasksTests {
         var fetchOrder: [String] = []
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchOrder.append(key)
             fetchSemaphore.signal()
@@ -1247,12 +1247,12 @@ extension KVLightTasksTests {
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             maximumConcurrentRunningThreadNumber: 2,
             keyPriority: .LIFO
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -1290,7 +1290,7 @@ extension KVLightTasksTests {
         var fetchOrder: [String] = []
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchOrder.append(key)
             fetchSemaphore.signal()
@@ -1299,12 +1299,12 @@ extension KVLightTasksTests {
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             maximumConcurrentRunningThreadNumber: 2,
             keyPriority: .FIFO
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -1344,7 +1344,7 @@ extension KVLightTasksTests {
         var maxConcurrentAccess = 0
         let accessSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             accessSemaphore.wait()
             concurrentAccessCount += 1
             maxConcurrentAccess = max(maxConcurrentAccess, concurrentAccessCount)
@@ -1360,11 +1360,11 @@ extension KVLightTasksTests {
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             maximumConcurrentRunningThreadNumber: 2
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -1401,7 +1401,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -1409,8 +1409,8 @@ extension KVLightTasksTests {
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var callbackCount1 = 0
         var callbackCount2 = 0
@@ -1462,7 +1462,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -1470,8 +1470,8 @@ extension KVLightTasksTests {
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -1525,14 +1525,14 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Dispatch queue integration")
         expectation.expectedFulfillmentCount = 2
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             // Note: We can't easily determine the current queue in this context
             // The dispatch queue integration is handled internally by the KVLightTasks
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -1562,15 +1562,15 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Weak reference handling")
         expectation.expectedFulfillmentCount = 1
         
-        var taskManager: KVLightTasks<String, String>?
+        var taskManager: KVLightTasksManager<String, String>?
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             // Simulate network delay without async dispatch
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
-        taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        taskManager = KVLightTasksManager<String, String>(config: config)
         
         var result: String?
         
@@ -1603,7 +1603,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -1612,11 +1612,11 @@ extension KVLightTasksTests {
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             maximumConcurrentRunningThreadNumber: 2
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -1697,7 +1697,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -1705,11 +1705,11 @@ extension KVLightTasksTests {
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             maximumConcurrentRunningThreadNumber: 1  // Use 1 instead of 0
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -1744,7 +1744,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -1752,11 +1752,11 @@ extension KVLightTasksTests {
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             maximumConcurrentRunningThreadNumber: 100
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -1789,7 +1789,7 @@ extension KVLightTasksTests {
 } 
 
 // MARK: - Comprehensive Cache-Related Tests
-extension KVLightTasksTests {
+extension KVLightTasksManagerTests {
     
     // MARK: - Cache Hit Scenarios (null and non-null elements)
     func testCacheHitWithNullElements() {
@@ -1799,7 +1799,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String?>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String?>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -1812,8 +1812,8 @@ extension KVLightTasksTests {
             }
         }
         
-        let config = KVLightTasks<String, String?>.Config(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String?>(config: config)
+        let config = KVLightTasksManager<String, String?>.Config(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasksManager<String, String?>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -1861,15 +1861,15 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -1918,15 +1918,15 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
             callback(.success("value_\(key)"))
         }
         
-        let config = KVLightTasks<String, String>.Config(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let config = KVLightTasksManager<String, String>.Config(dataProvider: .monoprovide(monoprovide))
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -1977,7 +1977,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -1990,11 +1990,11 @@ extension KVLightTasksTests {
             defaultTTLForNullElement: 0.1
         )
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             cacheConfig: cacheConfig
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -2045,7 +2045,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -2063,11 +2063,11 @@ extension KVLightTasksTests {
             costProvider: { $0.count * 2 } // Each string costs 2x its length
         )
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             cacheConfig: cacheConfig
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -2119,7 +2119,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -2135,11 +2135,11 @@ extension KVLightTasksTests {
             statsSemaphore.signal()
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             cacheStatisticsReport: statisticsReport
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -2191,7 +2191,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -2205,11 +2205,11 @@ extension KVLightTasksTests {
             ttlRandomizationRange: 0.01 // 10ms randomization
         )
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             cacheConfig: cacheConfig
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -2265,7 +2265,7 @@ extension KVLightTasksTests {
             $0.hasPrefix("valid_")
         }
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -2281,11 +2281,11 @@ extension KVLightTasksTests {
             keyValidator: keyValidator
         )
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             cacheConfig: cacheConfig
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -2321,7 +2321,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -2333,11 +2333,11 @@ extension KVLightTasksTests {
             }
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             maximumConcurrentRunningThreadNumber: 4
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -2393,7 +2393,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -2410,12 +2410,12 @@ extension KVLightTasksTests {
             enableThreadSynchronization: true
         )
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             maximumConcurrentRunningThreadNumber: 6,
             cacheConfig: cacheConfig
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -2484,7 +2484,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -2500,12 +2500,12 @@ extension KVLightTasksTests {
             costProvider: { $0.count * 2 } // Each string costs 2x its length
         )
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             maximumConcurrentRunningThreadNumber: 8,
             cacheConfig: cacheConfig
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -2546,12 +2546,12 @@ extension KVLightTasksTests {
         var callbackCount = 0
         let callbackSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -2594,7 +2594,7 @@ extension KVLightTasksTests {
         var callbackCount = 0
         let callbackSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
@@ -2603,11 +2603,11 @@ extension KVLightTasksTests {
             memoryUsageLimitation: MemoryUsageLimitation(capacity: 10, memory: 100)
         )
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             cacheConfig: cacheConfig
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -2666,7 +2666,7 @@ extension KVLightTasksTests {
         var callbackCount = 0
         let callbackSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
@@ -2675,11 +2675,11 @@ extension KVLightTasksTests {
             memoryUsageLimitation: MemoryUsageLimitation(capacity: 10, memory: 100)
         )
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             cacheConfig: cacheConfig
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -2740,7 +2740,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -2748,7 +2748,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -2793,7 +2793,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -2801,7 +2801,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -2834,7 +2834,7 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Callback order consistency")
         expectation.expectedFulfillmentCount = 5
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             // Simulate different response times
             let delay = key == "key1" ? 0.1 : 0.05
             DispatchQueue.global().asyncAfter(deadline: .now() + delay) {
@@ -2843,7 +2843,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var callbackOrder: [String] = []
         let orderSemaphore = DispatchSemaphore(value: 1)
@@ -2873,7 +2873,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -2885,12 +2885,12 @@ extension KVLightTasksTests {
             memoryUsageLimitation: MemoryUsageLimitation(capacity: 50, memory: 100)
         )
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             maximumConcurrentRunningThreadNumber: 8,
             cacheConfig: cacheConfig
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -2926,12 +2926,12 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Callback exception handling")
         expectation.expectedFulfillmentCount = 3
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -2974,12 +2974,12 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Special character keys")
         expectation.expectedFulfillmentCount = 4
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -3014,12 +3014,12 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Unicode and emoji keys")
         expectation.expectedFulfillmentCount = 6
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -3059,12 +3059,12 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Very long keys")
         expectation.expectedFulfillmentCount = 3
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -3101,12 +3101,12 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Keys with whitespace")
         expectation.expectedFulfillmentCount = 4
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -3144,12 +3144,12 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Keys with newlines and tabs")
         expectation.expectedFulfillmentCount = 4
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -3187,12 +3187,12 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Keys with control characters")
         expectation.expectedFulfillmentCount = 5
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             callback(.success("value_\(key)"))
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -3234,7 +3234,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -3250,11 +3250,11 @@ extension KVLightTasksTests {
             keyValidator: keyValidator
         )
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             cacheConfig: cacheConfig
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -3291,7 +3291,7 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Keys with varying fetch times")
         expectation.expectedFulfillmentCount = 5
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             // Simulate different response times based on key
             let delay: TimeInterval
             switch key {
@@ -3313,7 +3313,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -3356,7 +3356,7 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Keys causing timeouts")
         expectation.expectedFulfillmentCount = 3
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             // Simulate different response scenarios
             switch key {
             case "error_key":
@@ -3374,7 +3374,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -3412,7 +3412,7 @@ extension KVLightTasksTests {
         let expectation = XCTestExpectation(description: "Keys with memory pressure")
         expectation.expectedFulfillmentCount = 50
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             // Simulate large data responses
             let largeValue = String(repeating: "large_data_", count: 1000) + key
             callback(.success(largeValue))
@@ -3423,12 +3423,12 @@ extension KVLightTasksTests {
             memoryUsageLimitation: MemoryUsageLimitation(capacity: 10, memory: 1) // Very limited
         )
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             maximumConcurrentRunningThreadNumber: 2, // Limit concurrency
             cacheConfig: cacheConfig
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -3467,7 +3467,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -3487,11 +3487,11 @@ extension KVLightTasksTests {
             keyValidator: keyValidator
         )
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             cacheConfig: cacheConfig
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -3542,7 +3542,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -3553,11 +3553,11 @@ extension KVLightTasksTests {
             }
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             maximumConcurrentRunningThreadNumber: 8
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -3604,7 +3604,7 @@ extension KVLightTasksTests {
         let concurrentSemaphore = DispatchSemaphore(value: 1)
         var maximumCurrentConcurrent = 0
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             concurrentSemaphore.wait()
             concurrentFetchCount += 1
             maximumCurrentConcurrent = max(concurrentFetchCount, maximumCurrentConcurrent)
@@ -3624,11 +3624,11 @@ extension KVLightTasksTests {
             }
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             maximumConcurrentRunningThreadNumber: 4
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -3684,7 +3684,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -3696,11 +3696,11 @@ extension KVLightTasksTests {
             }
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
             maximumConcurrentRunningThreadNumber: 6
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var resultCount = 0
         var results: [String: Int] = [:] // Count how many times each key was processed
@@ -3759,7 +3759,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -3767,7 +3767,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         do {
             let result = try await taskManager.asyncFetchThrowing(key: "test_key")
@@ -3787,7 +3787,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -3795,7 +3795,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         let result = await taskManager.asyncFetch(key: "test_key")
         
@@ -3817,7 +3817,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -3825,7 +3825,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         let keys = ["key1", "key2", "key3", "key4", "key5"]
         let results = await taskManager.asyncFetch(keys: keys)
@@ -3852,7 +3852,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -3860,7 +3860,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         // Test with duplicate keys
         let keys = ["key1", "key1", "key2", "key2", "key3"]
@@ -3890,7 +3890,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -3903,7 +3903,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         let keys = ["key1", "error_key", "key2"]
         let results = await taskManager.asyncFetch(keys: keys)
@@ -3936,7 +3936,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -3949,7 +3949,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         do {
             _ = try await taskManager.asyncFetchThrowing(key: "error_key")
@@ -3969,7 +3969,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -3977,7 +3977,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         let keys = ["key1", "key2", "key3", "key4", "key5"]
         
@@ -4006,7 +4006,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let monoprovide: KVLightTasks<String, String>.DataProvider.Monoprovide = { key, callback in
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
             fetchSemaphore.wait()
             fetchCount += 1
             fetchSemaphore.signal()
@@ -4014,7 +4014,7 @@ extension KVLightTasksTests {
         }
         
         let config = createConfig(dataProvider: .monoprovide(monoprovide))
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         // Test with duplicate keys
         let keys = ["key1", "key1", "key2", "key2", "key3"]
@@ -4049,7 +4049,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let asyncMonoprovide: KVLightTasks<String, String>.DataProvider.AsyncMonoprovide = { key in
+        let asyncMonoprovide: KVLightTasksManager<String, String>.DataProvider.AsyncMonoprovide = { key in
             // Simulate async work
             try await Task.sleep(nanoseconds: 10_000_000) // 10ms
             
@@ -4061,10 +4061,10 @@ extension KVLightTasksTests {
             return "value_\(key)"
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .asyncMonoprovide(asyncMonoprovide)
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -4113,7 +4113,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let asyncMonoprovide: KVLightTasks<String, String>.DataProvider.AsyncMonoprovide = { key in
+        let asyncMonoprovide: KVLightTasksManager<String, String>.DataProvider.AsyncMonoprovide = { key in
             if key == "error_key" {
                 throw NSError(domain: "TestError", code: 500, userInfo: nil)
             }
@@ -4129,10 +4129,10 @@ extension KVLightTasksTests {
             return "value_\(key)"
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .asyncMonoprovide(asyncMonoprovide)
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         var errorCount = 0
@@ -4171,7 +4171,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let asyncMultiprovide: KVLightTasks<String, String>.DataProvider.AsyncMultiprovide = { keys in
+        let asyncMultiprovide: KVLightTasksManager<String, String>.DataProvider.AsyncMultiprovide = { keys in
             // Simulate async work
             try await Task.sleep(nanoseconds: 10_000_000) // 10ms
             
@@ -4187,10 +4187,10 @@ extension KVLightTasksTests {
             return results
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .asyncMultiprovide(maximumBatchCount: 3, asyncMultiprovide)
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -4232,7 +4232,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let asyncMultiprovide: KVLightTasks<String, String>.DataProvider.AsyncMultiprovide = { keys in
+        let asyncMultiprovide: KVLightTasksManager<String, String>.DataProvider.AsyncMultiprovide = { keys in
             // Simulate async work
             try await Task.sleep(nanoseconds: 10_000_000) // 10ms
             
@@ -4253,10 +4253,10 @@ extension KVLightTasksTests {
             return results
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .asyncMultiprovide(maximumBatchCount: 2, asyncMultiprovide)
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         var errorCount = 0
@@ -4293,7 +4293,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let asyncMonoprovide: KVLightTasks<String, String>.DataProvider.AsyncMonoprovide = { key in
+        let asyncMonoprovide: KVLightTasksManager<String, String>.DataProvider.AsyncMonoprovide = { key in
             // Simulate async work
             try await Task.sleep(nanoseconds: 10_000_000) // 10ms
             
@@ -4305,10 +4305,10 @@ extension KVLightTasksTests {
             return "value_\(key)"
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .asyncMonoprovide(asyncMonoprovide)
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)
@@ -4358,7 +4358,7 @@ extension KVLightTasksTests {
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
         
-        let asyncMonoprovide: KVLightTasks<String, String>.DataProvider.AsyncMonoprovide = { key in
+        let asyncMonoprovide: KVLightTasksManager<String, String>.DataProvider.AsyncMonoprovide = { key in
             // Simulate async work with varying delays
             let delay = key == "slow_key" ? 50_000_000 : 10_000_000 // 50ms vs 10ms
             try await Task.sleep(nanoseconds: UInt64(delay))
@@ -4371,11 +4371,11 @@ extension KVLightTasksTests {
             return "value_\(key)"
         }
         
-        let config = KVLightTasks<String, String>.Config(
+        let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .asyncMonoprovide(asyncMonoprovide),
             maximumConcurrentRunningThreadNumber: 3
         )
-        let taskManager = KVLightTasks<String, String>(config: config)
+        let taskManager = KVLightTasksManager<String, String>(config: config)
         
         var results: [String: String?] = [:]
         let resultsSemaphore = DispatchSemaphore(value: 1)

@@ -1,5 +1,5 @@
 //
-//  KVLightTasks.swift
+//  KVLightTasksManager.swift
 //  Monstask
 //
 //  Created by Larkin on 2025/7/20.
@@ -9,7 +9,7 @@ import Foundation
 import Monstore
 import MonstraBase
 
-public extension KVLightTasks {
+public extension KVLightTasksManager {
     enum DataProvider {
         public typealias MonoprovideCallback = (Result<Element?, Error>)->Void
         public typealias MultiprovideCallback = (Result<[K: Element?], Error>)->Void
@@ -53,7 +53,7 @@ public extension KVLightTasks {
         /// Optional callback for cache statistics reporting
         public let cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)?
         
-        /// Initializes a new KVLightTasks configuration.
+        /// Initializes a new KVLightTasksManager configuration.
         /// 
         /// - Parameters:
         ///   - dataProvider: The data provider for providing elements
@@ -132,7 +132,7 @@ public extension KVLightTasks {
     }
 }
 
-public extension KVLightTasks {
+public extension KVLightTasksManager {
     typealias ResultCallback = (K, Result<Element?, Error>) -> Void
     typealias BatchResultCallback = ([(K, Result<Element?, Error>)]) -> Void
     
@@ -319,14 +319,14 @@ public extension KVLightTasks {
     }
 }
 
-private extension KVLightTasks {
+private extension KVLightTasksManager {
     enum PrivateDataProvider {
         case monoprovide(DataProvider.Monoprovide)
         case multiprovide(maximumBatchCount: UInt, DataProvider.Multiprovide)
     }
 }
 
-public class KVLightTasks<K: Hashable, Element> {
+public class KVLightTasksManager<K: Hashable, Element> {
     private init(_ config: Config) {
         self.config = config
         self.cache = .init(configuration: config.cacheConfig, statisticsReport: config.cacheStatisticsReport)

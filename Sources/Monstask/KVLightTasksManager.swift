@@ -168,6 +168,10 @@ public extension KVLightTasksManager {
         self.init(dataProvider: .syncMultiprovide(maximumBatchCount: maximumBatchCount, provide))
     }
     
+    enum Errors: Error {
+        case evictedByKeyPriority
+    }
+    
     /// Fetches a single key and returns the result via callback.
     /// 
     /// This method automatically handles cache validation and ignores invalid keys
@@ -431,36 +435,44 @@ public class KVLightTasksManager<K: Hashable, Element> {
             _keys.insert(key)
             return true
         }
-        switch config.privateDataProvider {
-        case .monoprovide(let monoprovide):
-            let additionalThreadCount = min(config.maximumConcurrentRunningThreadNumber - activeThreadCount, keys.count)
-            activeThreadCount += additionalThreadCount
-            
-            for i in 0..<keys.count {
-                if i < additionalThreadCount {
-                    _startOneMonoprovideThread(key: keys[i], provide: monoprovide, callback: callback)
-                } else {
-                    keyQueue.enqueueFront(key: keys[i])
-                }
-            }
-        case .multiprovide(let maximumBatchCount, let multiprovide):
-            var restKeys = keys
-            while activeThreadCount < config.maximumConcurrentRunningThreadNumber {
-                activeThreadCount += 1
+        switch config.keyPriority {
+        case .LIFO:
+            switch config.privateDataProvider {
+            case .monoprovide(let monoprovide):
+                let additionalThreadCount = min(config.maximumConcurrentRunningThreadNumber - activeThreadCount, keys.count)
+                activeThreadCount += additionalThreadCount
                 
-                if restKeys.count <= maximumBatchCount {
-                    _startOneMultiprovideThread(keys: restKeys, batchCount: maximumBatchCount, provide: multiprovide, callback: callback)
-                    restKeys = []
-                    break
-                } else {
-                    let _keys = Array(restKeys[0..<Int(maximumBatchCount)])
-                    restKeys = Array(restKeys[Int(maximumBatchCount)..<restKeys.count])
-                    _startOneMultiprovideThread(keys: _keys, batchCount: maximumBatchCount, provide: multiprovide, callback: callback)
+                for i in 0..<keys.count {
+                    if i < additionalThreadCount {
+                        _startOneMonoprovideThread(key: keys[i], provide: monoprovide, callback: callback)
+                    } else {
+                        _pushKeyIntoKeyQueue(key: keys[i], callback: callback)
+                    }
+                }
+                
+            case .multiprovide(let maximumBatchCount, let multiprovide):
+                var restKeys = keys
+                while activeThreadCount < config.maximumConcurrentRunningThreadNumber {
+                    activeThreadCount += 1
+                    
+                    if restKeys.count <= maximumBatchCount {
+                        _startOneMultiprovideThread(keys: restKeys, batchCount: maximumBatchCount, provide: multiprovide, callback: callback)
+                        restKeys = []
+                        break
+                    } else {
+                        let _keys = Array(restKeys[0..<Int(maximumBatchCount)])
+                        restKeys = Array(restKeys[Int(maximumBatchCount)..<restKeys.count])
+                        _startOneMultiprovideThread(keys: _keys, batchCount: maximumBatchCount, provide: multiprovide, callback: callback)
+                    }
+                }
+                
+                for key in restKeys {
+                    _pushKeyIntoKeyQueue(key: key, callback: callback)
                 }
             }
-            
-            for key in restKeys {
-                keyQueue.enqueueFront(key: key)
+        case .FIFO:
+            for key in keys {
+                _pushKeyIntoKeyQueue(key: key, callback: callback)
             }
         }
     }
@@ -559,6 +571,23 @@ public class KVLightTasksManager<K: Hashable, Element> {
                 } else {
                     callback(keys.map { ($0, .failure(error)) })
                 }
+            }
+        }
+    }
+    
+    private func _pushKeyIntoKeyQueue(key: K, callback: @escaping ResultCallback) {
+        switch config.keyPriority {
+        case .LIFO:
+            // For LIFO priority: when queue is full, evict oldest keys (FIFO eviction)
+            // This ensures newest keys get priority and oldest keys are removed
+            if let e = keyQueue.enqueueFront(key: key, evictedStrategy: .FIFO) {
+                callback(e, .failure(Errors.evictedByKeyPriority))
+            }
+        case .FIFO:
+            // For FIFO priority: when queue is full, reject new keys (LIFO eviction)
+            // This maintains strict order by not evicting existing keys
+            if let e = keyQueue.enqueueFront(key: key, evictedStrategy: .LIFO) {
+                callback(e, .failure(Errors.evictedByKeyPriority))
             }
         }
     }

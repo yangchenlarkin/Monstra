@@ -73,7 +73,7 @@ public class KeyQueue<K: Hashable> {
     /// Enqueues a key at the front of the queue (most recently used position).
     /// If the key already exists, it is moved to the front (LRU behavior).
     /// - Parameter key: The key to enqueue.
-    public func enqueueFront(key: K) {
+    public func enqueueFront(key: K, evictedStrategy: DoublyLink<K>.EvictedStrategy) -> K? {
         let node: DoublyLink<K>.Node
         if let _node = map[key] {
             // Key already exists: remove from current position and re-insert at front
@@ -84,7 +84,7 @@ public class KeyQueue<K: Hashable> {
             node = DoublyLink<K>.Node(element: key)
             map[key] = node
         }
-        link.enqueueFront(node: node)
+        return link.enqueueFront(node: node, evictedStrategy: evictedStrategy)?.element
     }
     
     /// Removes and returns the key at the front of the queue (most recently used).
@@ -148,4 +148,8 @@ public extension KeyQueue {
     var isFull: Bool { count == capacity }
     /// Indicates if the queue is empty.
     var isEmpty: Bool { count == 0 }
+    
+    func contains(key: K) -> Bool {
+        map.keys.contains(key)
+    }
 }

@@ -346,7 +346,7 @@ public class KVLightTasksManager<K: Hashable, Element> {
     private let semaphore = DispatchSemaphore(value: 1)
     
     /// Internal method that handles the core fetching logic with cache integration.
-    /// 
+    ///
     /// This method processes keys in the following order:
     /// 1. Checks cache for each key using the configured cache settings
     /// 2. For cache hits (both null and non-null elements), immediately returns the cached value
@@ -354,7 +354,7 @@ public class KVLightTasksManager<K: Hashable, Element> {
     /// 4. Automatically ignores invalid keys as defined by cacheConfig.keyValidator
     ///    - Invalid keys return .success(nil) without any network requests
     ///    - This prevents unnecessary network calls for keys that would be rejected by the cache
-    /// 
+    ///
     /// - Parameters:
     ///   - keys: Array of keys to process
     ///   - dispatchQueue: Optional dispatch queue for callback execution
@@ -362,27 +362,16 @@ public class KVLightTasksManager<K: Hashable, Element> {
     private func fetchWithCallback(keys: [K], dispatchQueue: DispatchQueue? = nil, completion: @escaping ResultCallback) {
         semaphore.wait()
         defer { semaphore.signal() }
+        let dispatchQueue = dispatchQueue ?? DispatchQueue.global()
         var remoteKeys = [K]()
         keys.forEach { key in
             switch cache.getElement(for: key) {
             case .invalidKey:
-                if let dispatchQueue {
-                    dispatchQueue.async { completion(key, .success(nil)) }
-                } else {
-                    completion(key, .success(nil))
-                }
+                dispatchQueue.async { completion(key, .success(nil)) }
             case .hitNullElement:
-                if let dispatchQueue {
-                    dispatchQueue.async { completion(key, .success(nil)) }
-                } else {
-                    completion(key, .success(nil))
-                }
+                dispatchQueue.async { completion(key, .success(nil)) }
             case .hitNonNullElement(element: let element):
-                if let dispatchQueue {
-                    dispatchQueue.async { completion(key, .success(element)) }
-                } else {
-                    completion(key, .success(element))
-                }
+                dispatchQueue.async { completion(key, .success(element)) }
             case .miss:
                 remoteKeys.append(key)
             }
@@ -394,13 +383,15 @@ public class KVLightTasksManager<K: Hashable, Element> {
         cacheResultCallback(keys: remoteKeys, callback: completion)
         
         startTaskExecution(keys: _remoteKeys) { [weak self] key, res in
-            guard let self else { return }
-            semaphore.wait()
-            defer { semaphore.signal() }
-            if case .success(let element) = res {
-                cache.set(element: element, for: key)
+            DispatchQueue.global().async {
+                guard let self else { return }
+                self.semaphore.wait()
+                defer { self.semaphore.signal() }
+                if case .success(let element) = res {
+                    self.cache.set(element: element, for: key)
+                }
+                self.consumeCallbacks(key: key, dispatchQueue: dispatchQueue, result: res)
             }
-            consumeCallbacks(key: key, dispatchQueue: dispatchQueue, result: res)
         }
     }
     
@@ -414,13 +405,9 @@ public class KVLightTasksManager<K: Hashable, Element> {
             resultCallbacks[key]?.append(callback)
         }
     }
-    private func consumeCallbacks(key: K, dispatchQueue: DispatchQueue? = nil, result: Result<Element?, Error>) {
+    private func consumeCallbacks(key: K, dispatchQueue: DispatchQueue, result: Result<Element?, Error>) {
         resultCallbacks[key]?.forEach { callback in
-            if let dispatchQueue {
-                dispatchQueue.async { callback(key, result) }
-            } else {
-                callback(key, result)
-            }
+            dispatchQueue.async { callback(key, result) }
         }
         resultCallbacks.removeValue(forKey: key)
     }
@@ -435,45 +422,38 @@ public class KVLightTasksManager<K: Hashable, Element> {
             _keys.insert(key)
             return true
         }
-        switch config.keyPriority {
-        case .LIFO:
-            switch config.privateDataProvider {
-            case .monoprovide(let monoprovide):
-                let additionalThreadCount = min(config.maximumConcurrentRunningThreadNumber - activeThreadCount, keys.count)
-                activeThreadCount += additionalThreadCount
-                
-                for i in 0..<keys.count {
-                    if i < additionalThreadCount {
-                        _startOneMonoprovideThread(key: keys[i], provide: monoprovide, callback: callback)
-                    } else {
-                        _pushKeyIntoKeyQueue(key: keys[i], callback: callback)
-                    }
-                }
-                
-            case .multiprovide(let maximumBatchCount, let multiprovide):
-                var restKeys = keys
-                while activeThreadCount < config.maximumConcurrentRunningThreadNumber {
-                    activeThreadCount += 1
-                    
-                    if restKeys.count <= maximumBatchCount {
-                        _startOneMultiprovideThread(keys: restKeys, batchCount: maximumBatchCount, provide: multiprovide, callback: callback)
-                        restKeys = []
-                        break
-                    } else {
-                        let _keys = Array(restKeys[0..<Int(maximumBatchCount)])
-                        restKeys = Array(restKeys[Int(maximumBatchCount)..<restKeys.count])
-                        _startOneMultiprovideThread(keys: _keys, batchCount: maximumBatchCount, provide: multiprovide, callback: callback)
-                    }
-                }
-                
-                for key in restKeys {
-                    _pushKeyIntoKeyQueue(key: key, callback: callback)
+        
+        switch config.privateDataProvider {
+        case .monoprovide(let monoprovide):
+            let additionalThreadCount = min(config.maximumConcurrentRunningThreadNumber - activeThreadCount, keys.count)
+            activeThreadCount += additionalThreadCount
+            
+            for i in 0..<keys.count {
+                if i < additionalThreadCount {
+                    _startOneMonoprovideThread(key: keys[i], provide: monoprovide, callback: callback)
                 }
             }
-        case .FIFO:
-            for key in keys {
-                _pushKeyIntoKeyQueue(key: key, callback: callback)
+            if additionalThreadCount < keys.count {
+                _pushKeyIntoKeyQueue(keys: keys[additionalThreadCount...], callback: callback)
             }
+            
+        case .multiprovide(let maximumBatchCount, let multiprovide):
+            var restKeys = keys
+            while activeThreadCount < config.maximumConcurrentRunningThreadNumber {
+                activeThreadCount += 1
+                
+                if restKeys.count <= maximumBatchCount {
+                    _startOneMultiprovideThread(keys: restKeys, batchCount: maximumBatchCount, provide: multiprovide, callback: callback)
+                    restKeys = []
+                    break
+                } else {
+                    let _keys = Array(restKeys[0..<Int(maximumBatchCount)])
+                    restKeys = Array(restKeys[Int(maximumBatchCount)..<restKeys.count])
+                    _startOneMultiprovideThread(keys: _keys, batchCount: maximumBatchCount, provide: multiprovide, callback: callback)
+                }
+            }
+            
+            _pushKeyIntoKeyQueue(keys: restKeys[...], callback: callback)
         }
     }
     
@@ -499,13 +479,17 @@ public class KVLightTasksManager<K: Hashable, Element> {
             guard let self else { return }
             
             _executeMonoprovide(key: key, provide: provide) { [weak self] key, res in
-                guard let self else { return }
-                switch res {
-                case .success(let element):
-                    callback(key, .success(element))
-                    _startOneMonoprovideThread(provide: provide, callback: callback)
-                case .failure(let error):
-                    callback(key, .failure(error))
+                DispatchQueue.global().async { [weak self] in
+                    guard let self else { return }
+                    semaphore.wait()
+                    defer { semaphore.signal() }
+                    switch res {
+                    case .success(let element):
+                        callback(key, .success(element))
+                        _startOneMonoprovideThread(provide: provide, callback: callback)
+                    case .failure(let error):
+                        callback(key, .failure(error))
+                    }
                 }
             }
         }
@@ -531,9 +515,13 @@ public class KVLightTasksManager<K: Hashable, Element> {
         DispatchQueue.global().async { [weak self] in
             guard let self else { return }
             _executeMultiprovide(keys: keys, provide: provide) { [weak self] res in
-                guard let self else { return }
-                _startOneMultiprovideThread(batchCount: batchCount, provide: provide, callback: callback)
-                res.forEach { callback($0.0, $0.1) }
+                DispatchQueue.global().async { [weak self] in
+                    guard let self else { return }
+                    semaphore.wait()
+                    defer { semaphore.signal() }
+                    _startOneMultiprovideThread(batchCount: batchCount, provide: provide, callback: callback)
+                    res.forEach { res in DispatchQueue.global().async { callback(res.0, res.1) } }
+                }
             }
         }
     }
@@ -575,19 +563,24 @@ public class KVLightTasksManager<K: Hashable, Element> {
         }
     }
     
-    private func _pushKeyIntoKeyQueue(key: K, callback: @escaping ResultCallback) {
-        switch config.keyPriority {
+    private func _pushKeyIntoKeyQueue(keys: ArraySlice<K>, callback: @escaping ResultCallback) {
+        guard keys.count > 0 else { return }
+        switch self.config.keyPriority {
         case .LIFO:
             // For LIFO priority: when queue is full, evict oldest keys (FIFO eviction)
             // This ensures newest keys get priority and oldest keys are removed
-            if let e = keyQueue.enqueueFront(key: key, evictedStrategy: .FIFO) {
-                callback(e, .failure(Errors.evictedByKeyPriority))
+            for key in keys {
+                if let e = self.keyQueue.enqueueFront(key: key, evictedStrategy: .FIFO) {
+                    callback(e, .failure(Errors.evictedByKeyPriority))
+                }
             }
         case .FIFO:
             // For FIFO priority: when queue is full, reject new keys (LIFO eviction)
             // This maintains strict order by not evicting existing keys
-            if let e = keyQueue.enqueueFront(key: key, evictedStrategy: .LIFO) {
-                callback(e, .failure(Errors.evictedByKeyPriority))
+            for key in keys {
+                if let e = self.keyQueue.enqueueFront(key: key, evictedStrategy: .LIFO) {
+                    callback(e, .failure(Errors.evictedByKeyPriority))
+                }
             }
         }
     }

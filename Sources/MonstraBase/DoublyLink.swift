@@ -60,16 +60,27 @@ public class DoublyLink<Element> {
         count += 1
         return (newNode, evictedNode)
     }
+    
+    public enum EvictedStrategy {
+        case FIFO
+        case LIFO
+    }
+    
     /// Enqueues an existing node to the front of the queue.
     /// Removes the least recently used node if at capacity.
     /// - Parameter node: Node to enqueue.
     /// - Returns: Evicted node if any; otherwise nil.
     @discardableResult
-    public func enqueueFront(node: Node) -> Node? {
+    public func enqueueFront(node: Node, evictedStrategy: EvictedStrategy = .FIFO) -> Node? {
         guard capacity > 0 else { return node }
         let evictedNode: Node?
         if count == capacity {
-            evictedNode = dequeueBack()
+            switch evictedStrategy {
+            case .FIFO:
+                evictedNode = dequeueBack()
+            case .LIFO:
+                return node
+            }
         } else {
             evictedNode = nil
         }

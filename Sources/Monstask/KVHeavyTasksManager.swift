@@ -24,6 +24,11 @@ import Foundation
 import MonstraBase
 import Monstore
 
+public struct KVHeavyTaskProgress {
+    let totalFraction: Double
+    let completedFraction: Double
+}
+
 /// Protocol defining the interface for heavy task handlers.
 /// 
 /// Heavy task handlers are responsible for executing individual heavy computational tasks.
@@ -36,7 +41,7 @@ public protocol KVHeavyTaskHandler: AnyObject {
     associatedtype Element
     
     /// Callback type for progress updates during task execution
-    typealias ProgressCallback = ()->Void
+    typealias ProgressCallback = (KVHeavyTaskProgress)->Void
     /// Callback type for task completion results
     typealias ResultCallback = (Result<Element?, Error>)->Void
     
@@ -50,7 +55,7 @@ public protocol KVHeavyTaskHandler: AnyObject {
     /// - Parameters:
     ///   - progressCallback: Optional callback for progress updates
     ///   - resultCallback: Required callback for task completion results
-    init(progressCallback: ProgressCallback?, resultCallback: @escaping ProgressCallback)
+    init(progressCallback: ProgressCallback?, resultCallback: @escaping ResultCallback)
     
     /// Starts execution of the heavy task identified by the given key
     /// - Parameter key: The unique identifier for the task to execute
@@ -133,6 +138,16 @@ public extension KVHeavyTasksManager {
     }
 }
 
+/// The manager automatically uses the same key and element types as the task handler:
+/// - `K`: Same as TaskHandler.K (the key type for identifying tasks)
+/// - `Element`: Same as TaskHandler.Element (the result type from completed tasks)
+public extension KVHeavyTasksManager {
+    /// Type alias ensuring K is the same as TaskHandler's associated type
+    typealias K = TaskHandler.K
+    /// Type alias ensuring Element is the same as TaskHandler's associated type
+    typealias Element = TaskHandler.Element
+}
+
 /// Manager for heavy computational tasks that require significant resources and time.
 /// 
 /// KVHeavyTasksManager coordinates the execution of heavy tasks through task handlers.
@@ -140,20 +155,55 @@ public extension KVHeavyTasksManager {
 /// comprehensive lifecycle management for resource-intensive operations.
 /// 
 /// - `TaskHandler`: The type of task handler that conforms to KVHeavyTaskHandler protocol
-/// 
-/// The manager automatically uses the same key and element types as the task handler:
-/// - `K`: Same as TaskHandler.K (the key type for identifying tasks)
-/// - `Element`: Same as TaskHandler.Element (the result type from completed tasks)
 public class KVHeavyTasksManager<TaskHandler: KVHeavyTaskHandler> {
-    /// Type alias ensuring K is the same as TaskHandler's associated type
-    public typealias K = TaskHandler.K
-    /// Type alias ensuring Element is the same as TaskHandler's associated type
-    public typealias Element = TaskHandler.Element
+    private init(_ config: Config) {
+        self.config = config
+        self.cache = .init(configuration: config.cacheConfig, statisticsReport: config.cacheStatisticsReport)
+        self.keyQueue = .init(capacity: config.maximumTaskNumberInQueue)
+        self.pausedTaskHandles = .init(capacity: config.maximumTaskNumberInQueue)
+        self.runningTaskHandlers = .init(capacity: config.maximumTaskNumberInQueue)
+    }
     
-    // TODO: Implement task queue management
-    // TODO: Implement priority-based scheduling
-    // TODO: Implement concurrent execution control
-    // TODO: Implement caching integration
-    // TODO: Implement retry mechanisms
-    // TODO: Implement progress tracking
+    private let config: Config
+    private let cache: Monstore.MemoryCache<K, Element>
+    private let keyQueue: KeyQueue<TaskHandlerWrapper>
+    private let pausedTaskHandles: KeyQueue<TaskHandlerWrapper>
+    private let runningTaskHandlers: KeyQueue<TaskHandlerWrapper>
+}
+
+private extension KVHeavyTasksManager {
+    private func start(_ key: K) {
+        let wrapper = TaskHandlerWrapper(key: key)
+        if !keyQueue.contains(key: wrapper) && !pausedTaskHandles.contains(key: wrapper) && !runningTaskHandlers.contains(key: wrapper) {
+            if keyQueue.count + pausedTaskHandles.count + runningTaskHandlers.count < config.maximumTaskNumberInQueue {
+//                keyQueue.enqueueFront(key: wrapper)
+            } else {
+                switch config.keyPriority {
+                case .LIFO(.await):
+                    return
+                case .LIFO(.cancel):
+                    return
+                case .LIFO(.pause):
+                    return
+                case .FIFO:
+                    return
+                }
+            }
+        }
+    }
+}
+
+private extension KVHeavyTasksManager {
+    struct TaskHandlerWrapper: Hashable {
+        let key: K
+        var taskHandler: TaskHandler?
+        
+        static func == (lhs: KVHeavyTasksManager<TaskHandler>.TaskHandlerWrapper, rhs: KVHeavyTasksManager<TaskHandler>.TaskHandlerWrapper) -> Bool {
+            lhs.key == rhs.key
+        }
+        
+        func hash(into hasher: inout Hasher) {
+            hasher.combine(key)
+        }
+    }
 }

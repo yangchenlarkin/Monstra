@@ -1788,6 +1788,605 @@ extension KVLightTasksManagerTests {
     }
 } 
 
+// MARK: - Excessive Key Handling Tests
+extension KVLightTasksManagerTests {
+    
+    // MARK: - Queue Capacity and Eviction Tests
+    func testQueueCapacityExceededWithLIFOPriority() {
+        let expectation = XCTestExpectation(description: "Queue capacity exceeded with LIFO priority")
+        expectation.expectedFulfillmentCount = 5 // 3 successful + 2 evicted
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            
+            // Simulate slow network to ensure queue fills up
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
+                callback(.success("value_\(key)"))
+            }
+        }
+        
+        // Configure with small queue capacity to trigger eviction
+        let config = KVLightTasksManager<String, String>.Config(
+            dataProvider: .monoprovide(monoprovide),
+            maximumTaskNumberInQueue: 3, // Small capacity to trigger eviction
+            maximumConcurrentRunningThreadNumber: 1, // Single thread to ensure queue usage
+            keyPriority: .LIFO
+        )
+        let taskManager = KVLightTasksManager<String, String>(config: config)
+        
+        var results: [String: Result<String?, Error>] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Fetch more keys than queue capacity
+        taskManager.fetch(keys: ["key1", "key2", "key3", "key4", "key5"]) { key, result in
+            resultsSemaphore.wait()
+            results[key] = result
+            resultsSemaphore.signal()
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 10.0)
+        
+        // Verify that some keys succeeded and some were evicted
+        var successCount = 0
+        var evictionCount = 0
+        
+        for (key, result) in results {
+            switch result {
+            case .success(let value):
+                XCTAssertEqual(value, "value_\(key)")
+                successCount += 1
+            case .failure(let error):
+                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                    evictionCount += 1
+                } else {
+                    XCTFail("Unexpected error type: \(error)")
+                }
+            }
+        }
+        
+        // Should have some successful fetches and some evictions
+        XCTAssertGreaterThan(successCount, 0, "Should have some successful fetches")
+        XCTAssertGreaterThan(evictionCount, 0, "Should have some evicted keys")
+        XCTAssertEqual(successCount + evictionCount, 5, "Total should be 5")
+    }
+    
+    func testQueueCapacityExceededWithFIFOPriority() {
+        let expectation = XCTestExpectation(description: "Queue capacity exceeded with FIFO priority")
+        expectation.expectedFulfillmentCount = 5 // 3 successful + 2 rejected
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            
+            // Simulate slow network to ensure queue fills up
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
+                callback(.success("value_\(key)"))
+            }
+        }
+        
+        // Configure with small queue capacity to trigger rejection
+        let config = KVLightTasksManager<String, String>.Config(
+            dataProvider: .monoprovide(monoprovide),
+            maximumTaskNumberInQueue: 3, // Small capacity to trigger rejection
+            maximumConcurrentRunningThreadNumber: 1, // Single thread to ensure queue usage
+            keyPriority: .FIFO
+        )
+        let taskManager = KVLightTasksManager<String, String>(config: config)
+        
+        var results: [String: Result<String?, Error>] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Fetch more keys than queue capacity
+        taskManager.fetch(keys: ["key1", "key2", "key3", "key4", "key5"]) { key, result in
+            resultsSemaphore.wait()
+            results[key] = result
+            resultsSemaphore.signal()
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 10.0)
+        
+        // Verify that some keys succeeded and some were rejected
+        var successCount = 0
+        var rejectionCount = 0
+        
+        for (key, result) in results {
+            switch result {
+            case .success(let value):
+                XCTAssertEqual(value, "value_\(key)")
+                successCount += 1
+            case .failure(let error):
+                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                    rejectionCount += 1
+                } else {
+                    XCTFail("Unexpected error type: \(error)")
+                }
+            }
+        }
+        
+        // Should have some successful fetches and some rejections
+        XCTAssertGreaterThan(successCount, 0, "Should have some successful fetches")
+        XCTAssertGreaterThan(rejectionCount, 0, "Should have some rejected keys")
+        XCTAssertEqual(successCount + rejectionCount, 5, "Total should be 5")
+    }
+    
+    func testEvictionStrategyLIFOWithFIFOEviction() {
+        let expectation = XCTestExpectation(description: "LIFO priority with FIFO eviction")
+        expectation.expectedFulfillmentCount = 4
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            
+            // Simulate slow network
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.05) {
+                callback(.success("value_\(key)"))
+            }
+        }
+        
+        // Configure with very small queue capacity
+        let config = KVLightTasksManager<String, String>.Config(
+            dataProvider: .monoprovide(monoprovide),
+            maximumTaskNumberInQueue: 2, // Very small capacity
+            maximumConcurrentRunningThreadNumber: 1,
+            keyPriority: .LIFO
+        )
+        let taskManager = KVLightTasksManager<String, String>(config: config)
+        
+        var results: [String: Result<String?, Error>] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Fetch keys that will trigger eviction
+        taskManager.fetch(keys: ["key1", "key2", "key3", "key4"]) { key, result in
+            resultsSemaphore.wait()
+            results[key] = result
+            resultsSemaphore.signal()
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 10.0)
+        
+        // Verify eviction behavior
+        var successCount = 0
+        var evictionCount = 0
+        
+        for (key, result) in results {
+            switch result {
+            case .success(let value):
+                XCTAssertEqual(value, "value_\(key)")
+                successCount += 1
+            case .failure(let error):
+                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                    evictionCount += 1
+                } else {
+                    XCTFail("Unexpected error type: \(error)")
+                }
+            }
+        }
+        
+        // With LIFO priority and FIFO eviction, newer keys should be prioritized
+        XCTAssertGreaterThan(successCount, 0, "Should have successful fetches")
+        XCTAssertGreaterThan(evictionCount, 0, "Should have evicted keys")
+    }
+    
+    func testEvictionStrategyFIFOWithLIFOEviction() {
+        let expectation = XCTestExpectation(description: "FIFO priority with LIFO eviction")
+        expectation.expectedFulfillmentCount = 4
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            
+            // Simulate slow network
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.05) {
+                callback(.success("value_\(key)"))
+            }
+        }
+        
+        // Configure with very small queue capacity
+        let config = KVLightTasksManager<String, String>.Config(
+            dataProvider: .monoprovide(monoprovide),
+            maximumTaskNumberInQueue: 2, // Very small capacity
+            maximumConcurrentRunningThreadNumber: 1,
+            keyPriority: .FIFO
+        )
+        let taskManager = KVLightTasksManager<String, String>(config: config)
+        
+        var results: [String: Result<String?, Error>] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Fetch keys that will trigger rejection
+        taskManager.fetch(keys: ["key1", "key2", "key3", "key4"]) { key, result in
+            resultsSemaphore.wait()
+            results[key] = result
+            resultsSemaphore.signal()
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 10.0)
+        
+        // Verify rejection behavior
+        var successCount = 0
+        var rejectionCount = 0
+        
+        for (key, result) in results {
+            switch result {
+            case .success(let value):
+                XCTAssertEqual(value, "value_\(key)")
+                successCount += 1
+            case .failure(let error):
+                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                    rejectionCount += 1
+                } else {
+                    XCTFail("Unexpected error type: \(error)")
+                }
+            }
+        }
+        
+        // With FIFO priority and LIFO eviction, new keys should be rejected
+        XCTAssertGreaterThan(successCount, 0, "Should have successful fetches")
+        XCTAssertGreaterThan(rejectionCount, 0, "Should have rejected keys")
+    }
+    
+    func testConcurrentExcessiveKeyHandling() {
+        let expectation = XCTestExpectation(description: "Concurrent excessive key handling")
+        expectation.expectedFulfillmentCount = 20
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            
+            // Simulate network delay
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.02) {
+                callback(.success("value_\(key)"))
+            }
+        }
+        
+        // Configure with limited capacity
+        let config = KVLightTasksManager<String, String>.Config(
+            dataProvider: .monoprovide(monoprovide),
+            maximumTaskNumberInQueue: 5, // Limited capacity
+            maximumConcurrentRunningThreadNumber: 2,
+            keyPriority: .LIFO
+        )
+        let taskManager = KVLightTasksManager<String, String>(config: config)
+        
+        var results: [String: Result<String?, Error>] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Concurrent fetches that will exceed capacity
+        let keys = (1...20).map { "key\($0)" }
+        
+        for key in keys {
+            taskManager.fetch(key: key) { key, result in
+                resultsSemaphore.wait()
+                results[key] = result
+                resultsSemaphore.signal()
+                expectation.fulfill()
+            }
+        }
+        
+        wait(for: [expectation], timeout: 15.0)
+        
+        // Verify results
+        var successCount = 0
+        var evictionCount = 0
+        
+        for (key, result) in results {
+            switch result {
+            case .success(let value):
+                XCTAssertEqual(value, "value_\(key)")
+                successCount += 1
+            case .failure(let error):
+                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                    evictionCount += 1
+                } else {
+                    XCTFail("Unexpected error type: \(error)")
+                }
+            }
+        }
+        
+        // Should have some successful fetches and some evictions
+        XCTAssertGreaterThan(successCount, 0, "Should have successful fetches")
+        XCTAssertGreaterThan(evictionCount, 0, "Should have evicted keys")
+        XCTAssertEqual(successCount + evictionCount, 20, "Total should be 20")
+    }
+    
+    func testExcessiveKeyHandlingWithMultiprovide() {
+        let expectation = XCTestExpectation(description: "Excessive key handling with multiprovide")
+        expectation.expectedFulfillmentCount = 15
+        
+        var batchCount = 0
+        let batchSemaphore = DispatchSemaphore(value: 1)
+        
+        let multiprovide: KVLightTasksManager<String, String>.DataProvider.Multiprovide = { keys, callback in
+            batchSemaphore.wait()
+            batchCount += 1
+            batchSemaphore.signal()
+            
+            // Simulate slow batch processing
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) {
+                var results: [String: String?] = [:]
+                for key in keys {
+                    results[key] = "value_\(key)"
+                }
+                callback(.success(results))
+            }
+        }
+        
+        // Configure with limited capacity
+        let config = KVLightTasksManager<String, String>.Config(
+            dataProvider: .multiprovide(maximumBatchCount: 3, multiprovide),
+            maximumTaskNumberInQueue: 6, // Limited capacity
+            maximumConcurrentRunningThreadNumber: 2,
+            keyPriority: .LIFO
+        )
+        let taskManager = KVLightTasksManager<String, String>(config: config)
+        
+        var results: [String: Result<String?, Error>] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Fetch more keys than queue capacity
+        let keys = (1...15).map { "key\($0)" }
+        
+        taskManager.fetch(keys: keys) { key, result in
+            resultsSemaphore.wait()
+            results[key] = result
+            resultsSemaphore.signal()
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 20.0)
+        
+        // Verify results
+        var successCount = 0
+        var evictionCount = 0
+        
+        for (key, result) in results {
+            switch result {
+            case .success(let value):
+                XCTAssertEqual(value, "value_\(key)")
+                successCount += 1
+            case .failure(let error):
+                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                    evictionCount += 1
+                } else {
+                    XCTFail("Unexpected error type: \(error)")
+                }
+            }
+        }
+        
+        // Should have some successful fetches and some evictions
+        XCTAssertGreaterThan(successCount, 0, "Should have successful fetches")
+        XCTAssertGreaterThan(evictionCount, 0, "Should have evicted keys")
+        XCTAssertEqual(successCount + evictionCount, 15, "Total should be 15")
+    }
+    
+    func testExcessiveKeyHandlingWithRetry() {
+        let expectation = XCTestExpectation(description: "Excessive key handling with retry")
+        expectation.expectedFulfillmentCount = 8
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            
+            // Simulate network delay
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.05) {
+                callback(.success("value_\(key)"))
+            }
+        }
+        
+        // Configure with retry and limited capacity
+        let config = KVLightTasksManager<String, String>.Config(
+            dataProvider: .monoprovide(monoprovide),
+            maximumTaskNumberInQueue: 3, // Limited capacity
+            maximumConcurrentRunningThreadNumber: 1,
+            retryCount: 2,
+            keyPriority: .LIFO
+        )
+        let taskManager = KVLightTasksManager<String, String>(config: config)
+        
+        var results: [String: Result<String?, Error>] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Fetch more keys than queue capacity
+        taskManager.fetch(keys: ["key1", "key2", "key3", "key4", "key5", "key6", "key7", "key8"]) { key, result in
+            resultsSemaphore.wait()
+            results[key] = result
+            resultsSemaphore.signal()
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 15.0)
+        
+        // Verify results
+        var successCount = 0
+        var evictionCount = 0
+        
+        for (key, result) in results {
+            switch result {
+            case .success(let value):
+                XCTAssertEqual(value, "value_\(key)")
+                successCount += 1
+            case .failure(let error):
+                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                    evictionCount += 1
+                } else {
+                    XCTFail("Unexpected error type: \(error)")
+                }
+            }
+        }
+        
+        // Should have some successful fetches and some evictions
+        XCTAssertGreaterThan(successCount, 0, "Should have successful fetches")
+        XCTAssertGreaterThan(evictionCount, 0, "Should have evicted keys")
+        XCTAssertEqual(successCount + evictionCount, 8, "Total should be 8")
+    }
+    
+    func testExcessiveKeyHandlingWithCacheIntegration() {
+        let expectation = XCTestExpectation(description: "Excessive key handling with cache integration")
+        expectation.expectedFulfillmentCount = 10
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            
+            // Simulate network delay
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.03) {
+                callback(.success("value_\(key)"))
+            }
+        }
+        
+        // Configure with cache and limited capacity
+        let cacheConfig = MemoryCache<String, String>.Configuration(
+            memoryUsageLimitation: MemoryUsageLimitation(capacity: 10, memory: 100)
+        )
+        
+        let config = KVLightTasksManager<String, String>.Config(
+            dataProvider: .monoprovide(monoprovide),
+            maximumTaskNumberInQueue: 4, // Limited capacity
+            maximumConcurrentRunningThreadNumber: 2,
+            keyPriority: .LIFO,
+            cacheConfig: cacheConfig
+        )
+        let taskManager = KVLightTasksManager<String, String>(config: config)
+        
+        var results: [String: Result<String?, Error>] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // First fetch - some keys will be cached
+        taskManager.fetch(keys: ["key1", "key2", "key3", "key4", "key5"]) { key, result in
+            resultsSemaphore.wait()
+            results[key] = result
+            resultsSemaphore.signal()
+            expectation.fulfill()
+        }
+        
+        // Second fetch - some keys will hit cache, some will be evicted
+        taskManager.fetch(keys: ["key1", "key2", "key6", "key7", "key8"]) { key, result in
+            resultsSemaphore.wait()
+            results[key] = result
+            resultsSemaphore.signal()
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 15.0)
+        
+        // Verify results
+        var successCount = 0
+        var evictionCount = 0
+        
+        for (key, result) in results {
+            switch result {
+            case .success(let value):
+                XCTAssertEqual(value, "value_\(key)")
+                successCount += 1
+            case .failure(let error):
+                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                    evictionCount += 1
+                } else {
+                    XCTFail("Unexpected error type: \(error)")
+                }
+            }
+        }
+        
+        // Should have some successful fetches and some evictions
+        XCTAssertGreaterThan(successCount, 0, "Should have successful fetches")
+        XCTAssertGreaterThan(evictionCount, 0, "Should have evicted keys")
+        XCTAssertEqual(successCount + evictionCount, 8, "Total should be 10")
+    }
+    
+    func testExcessiveKeyHandlingErrorTypes() {
+        let expectation = XCTestExpectation(description: "Excessive key handling error types")
+        expectation.expectedFulfillmentCount = 6
+        
+        var fetchCount = 0
+        let fetchSemaphore = DispatchSemaphore(value: 1)
+        
+        let monoprovide: KVLightTasksManager<String, String>.DataProvider.Monoprovide = { key, callback in
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
+            
+            // Simulate network delay
+            DispatchQueue.global().asyncAfter(deadline: .now() + 0.05) {
+                callback(.success("value_\(key)"))
+            }
+        }
+        
+        // Configure with very limited capacity
+        let config = KVLightTasksManager<String, String>.Config(
+            dataProvider: .monoprovide(monoprovide),
+            maximumTaskNumberInQueue: 2, // Very limited capacity
+            maximumConcurrentRunningThreadNumber: 1,
+            keyPriority: .LIFO
+        )
+        let taskManager = KVLightTasksManager<String, String>(config: config)
+        
+        var results: [String: Result<String?, Error>] = [:]
+        let resultsSemaphore = DispatchSemaphore(value: 1)
+        
+        // Fetch more keys than capacity
+        taskManager.fetch(keys: ["key1", "key2", "key3", "key4", "key5", "key6"]) { key, result in
+            resultsSemaphore.wait()
+            results[key] = result
+            resultsSemaphore.signal()
+            expectation.fulfill()
+        }
+        
+        wait(for: [expectation], timeout: 10.0)
+        
+        // Verify error types
+        var evictionErrors = 0
+        
+        for (key, result) in results {
+            switch result {
+            case .success(let value):
+                XCTAssertEqual(value, "value_\(key)")
+            case .failure(let error):
+                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                    evictionErrors += 1
+                } else {
+                    XCTFail("Should only have evictedByKeyPriority errors, got: \(error)")
+                }
+            }
+        }
+        
+        // Should have some eviction errors
+        XCTAssertGreaterThan(evictionErrors, 0, "Should have eviction errors")
+    }
+}
+
 // MARK: - Comprehensive Cache-Related Tests
 extension KVLightTasksManagerTests {
     

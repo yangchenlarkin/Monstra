@@ -25,66 +25,49 @@ import MonstraBase
 import Monstore
 
 public struct KVHeavyTaskProgress<T: UnsignedInteger> {
-    public let totalUnitCount: T
+    public let totalUnitCount: T?
     public let completedUnitCount: T
     
-    public init(totalUnitCount: T, completedUnitCount: T) {
+    public init(totalUnitCount: T?, completedUnitCount: T) {
         self.totalUnitCount = totalUnitCount
         self.completedUnitCount = completedUnitCount
     }
     
-    public var completedProportion: Double {
+    public var completedProportion: Double? {
+        guard let totalUnitCount else { return nil }
         guard totalUnitCount > 0 else { return 0.0 }
         if completedUnitCount == totalUnitCount { return 1.0 }
         return min(1, Double(completedUnitCount) / Double(totalUnitCount))
     }
     
     /// Returns the progress as a percentage from 0.0 to 100.0
-    public var percentage: Double {
+    public var percentage: Double? {
+        guard let completedProportion else { return nil }
         return completedProportion * 100.0
     }
     
     /// Returns true if the task is completed (completedFraction >= totalFraction)
-    public var isCompleted: Bool {
+    public var isCompleted: Bool? {
+        guard let totalUnitCount else { return nil }
         return completedUnitCount >= totalUnitCount
     }
     
     /// Returns the remaining fraction to be completed
-    public var remainingUnitCount: T {
+    public var remainingUnitCount: T? {
+        guard let totalUnitCount else { return nil }
         return max(0, totalUnitCount - completedUnitCount)
     }
     
     /// Returns the remaining proportion from 0.0 to 1.0
-    public var remainingProportion: Double {
+    public var remainingProportion: Double? {
+        guard let completedProportion else { return nil }
         return 1.0 - completedProportion
-    }
-}
-
-// MARK: - Extensions for different numeric types
-
-/// Extension for floating-point types providing exact precision calculations
-extension KVHeavyTaskProgress where T: BinaryFloatingPoint {
-    /// Returns the progress as a proportion with exact precision for floating-point types
-    public var completedProportionExact: T {
-        guard totalUnitCount > 0 else { return 0 }
-        return completedUnitCount / totalUnitCount
-    }
-    
-    /// Returns the percentage with exact precision for floating-point types
-    public var percentageExact: T {
-        return completedProportionExact * 100
-    }
-    
-    /// Returns the remaining proportion with exact precision for floating-point types
-    public var remainingProportionExact: T {
-        return 1 - completedProportionExact
     }
 }
 
 public enum KVHeavyTaskResult<Success, Failure> where Failure: Error {
     case success(Success)
     case failure(Failure)
-    case cancel
 }
 
 /// Protocol defining the interface for heavy task handlers.
@@ -94,7 +77,7 @@ public enum KVHeavyTaskResult<Success, Failure> where Failure: Error {
 /// 
 /// - `K`: The key type used to identify tasks (must be Hashable)
 /// - `Element`: The result type returned by completed tasks
-public protocol KVHeavyTaskDataProvider: AnyObject {
+public protocol KVHeavyTaskDataProvider {
     associatedtype K: Hashable
     associatedtype Element
     associatedtype T: UnsignedInteger
@@ -104,6 +87,7 @@ public protocol KVHeavyTaskDataProvider: AnyObject {
     /// Callback type for task completion results
     typealias ResultCallback = (K, KVHeavyTaskResult<Element?, Error>)->Void
     
+    var key: K { get }
     /// Callback invoked during task execution to report progress
     var progressCallback: ProgressCallback? { get }
     /// Callback invoked when task completes (successfully or with error)
@@ -114,20 +98,14 @@ public protocol KVHeavyTaskDataProvider: AnyObject {
     /// - Parameters:
     ///   - progressCallback: Optional callback for progress updates
     ///   - resultCallback: Required callback for task completion results
-    init(progressCallback: ProgressCallback?, resultCallback: @escaping ResultCallback)
+    init(key: K, progressCallback: ProgressCallback?, resultCallback: @escaping ResultCallback)
     
     /// Starts execution of the heavy task identified by the given key
     /// - Parameter key: The unique identifier for the task to execute
-    func start(key: K)
+    func start()
     
-    /// Pauses the currently executing task (if any)
-    func pause()
-    
-    /// Resumes a previously paused task
-    func resume()
-    
-    /// Cancels the currently executing task
-    func cancel()
+    /// Stops the currently executing task, 返回是否需要清除DataProvider
+    func stop() -> Bool
 }
 
 /// Configuration and data provider types for KVHeavyTasksManager
@@ -140,8 +118,7 @@ public extension KVHeavyTasksManager {
         /// - `pause`: The last inserted task will pause all current running tasks and resume them later
         public enum LIFOStrategy {
             case await
-            case cancel
-            case pause
+            case stop
         }
         
         /// Defines the priority strategy for task execution order.
@@ -240,9 +217,7 @@ private extension KVHeavyTasksManager {
                 switch config.keyPriority {
                 case .LIFO(.await):
                     return
-                case .LIFO(.cancel):
-                    return
-                case .LIFO(.pause):
+                case .LIFO(.stop):
                     return
                 case .FIFO:
                     return

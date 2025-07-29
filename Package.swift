@@ -22,6 +22,10 @@ let package = Package(
         .library(
             name: "MonstraBase",
             targets: ["MonstraBase"]),
+        // Example executable
+        .executable(
+            name: "KVHeavyTasksManagerExample",
+            targets: ["KVHeavyTasksManagerExample"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -50,6 +54,13 @@ let package = Package(
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug)),
                 .unsafeFlags(["-enable-testing"], .when(configuration: .debug))
+            ]),
+        // Example executable target
+        .executableTarget(
+            name: "KVHeavyTasksManagerExample",
+            dependencies: ["Monstask"],
+            swiftSettings: [
+                .define("DEBUG", .when(configuration: .debug))
             ]),
         .testTarget(
             name: "MonstraBaseTests",

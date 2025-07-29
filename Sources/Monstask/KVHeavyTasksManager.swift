@@ -28,6 +28,11 @@ public struct KVHeavyTaskProgress<T: UnsignedInteger> {
     public let totalUnitCount: T
     public let completedUnitCount: T
     
+    public init(totalUnitCount: T, completedUnitCount: T) {
+        self.totalUnitCount = totalUnitCount
+        self.completedUnitCount = completedUnitCount
+    }
+    
     public var completedProportion: Double {
         guard totalUnitCount > 0 else { return 0.0 }
         if completedUnitCount == totalUnitCount { return 1.0 }
@@ -176,7 +181,7 @@ public extension KVHeavyTasksManager {
         ///   - keyPriority: Priority strategy for task execution (default: .LIFO(.await))
         ///   - cacheConfig: Cache configuration for heavy task results (default: .defaultConfig)
         ///   - cacheStatisticsReport: Optional callback for cache statistics
-        init(maximumTaskNumberInQueue: Int = 50,
+        public init(maximumTaskNumberInQueue: Int = 50,
              maximumConcurrentRunningThreadNumber: Int = 4,
              retryCount: RetryCount = 0,
              keyPriority: KeyPriority = .LIFO(.await),
@@ -210,7 +215,7 @@ public extension KVHeavyTasksManager {
 /// 
 /// - `TaskHandler`: The type of task handler that conforms to KVHeavyTaskHandler protocol
 public class KVHeavyTasksManager<TaskHandler: KVHeavyTaskDataProvider> {
-    private init(_ config: Config) {
+    public init(config: Config) {
         self.config = config
         self.cache = .init(configuration: config.cacheConfig, statisticsReport: config.cacheStatisticsReport)
         self.keyQueue = .init(capacity: config.maximumTaskNumberInQueue)

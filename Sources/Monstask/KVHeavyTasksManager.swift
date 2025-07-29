@@ -24,9 +24,56 @@ import Foundation
 import MonstraBase
 import Monstore
 
-public struct KVHeavyTaskProgress {
-    let totalFraction: Double
-    let completedFraction: Double
+public struct KVHeavyTaskProgress<T: UnsignedInteger> {
+    public let totalUnitCount: T
+    public let completedUnitCount: T
+    
+    public var completedProportion: Double {
+        guard totalUnitCount > 0 else { return 0.0 }
+        if completedUnitCount == totalUnitCount { return 1.0 }
+        return min(1, Double(completedUnitCount) / Double(totalUnitCount))
+    }
+    
+    /// Returns the progress as a percentage from 0.0 to 100.0
+    public var percentage: Double {
+        return completedProportion * 100.0
+    }
+    
+    /// Returns true if the task is completed (completedFraction >= totalFraction)
+    public var isCompleted: Bool {
+        return completedUnitCount >= totalUnitCount
+    }
+    
+    /// Returns the remaining fraction to be completed
+    public var remainingUnitCount: T {
+        return max(0, totalUnitCount - completedUnitCount)
+    }
+    
+    /// Returns the remaining proportion from 0.0 to 1.0
+    public var remainingProportion: Double {
+        return 1.0 - completedProportion
+    }
+}
+
+// MARK: - Extensions for different numeric types
+
+/// Extension for floating-point types providing exact precision calculations
+extension KVHeavyTaskProgress where T: BinaryFloatingPoint {
+    /// Returns the progress as a proportion with exact precision for floating-point types
+    public var completedProportionExact: T {
+        guard totalUnitCount > 0 else { return 0 }
+        return completedUnitCount / totalUnitCount
+    }
+    
+    /// Returns the percentage with exact precision for floating-point types
+    public var percentageExact: T {
+        return completedProportionExact * 100
+    }
+    
+    /// Returns the remaining proportion with exact precision for floating-point types
+    public var remainingProportionExact: T {
+        return 1 - completedProportionExact
+    }
 }
 
 /// Protocol defining the interface for heavy task handlers.
@@ -39,14 +86,15 @@ public struct KVHeavyTaskProgress {
 public protocol KVHeavyTaskHandler: AnyObject {
     associatedtype K: Hashable
     associatedtype Element
+    associatedtype T: UnsignedInteger
     
     /// Callback type for progress updates during task execution
-    typealias ProgressCallback = (KVHeavyTaskProgress)->Void
+    typealias ProgressCallback = (K, KVHeavyTaskProgress<T>)->Void
     /// Callback type for task completion results
-    typealias ResultCallback = (Result<Element?, Error>)->Void
+    typealias ResultCallback = (K, KVHeavyTaskResult<Element?, Error>)->Void
     
     /// Callback invoked during task execution to report progress
-    var progressCallback: ProgressCallback { get }
+    var progressCallback: ProgressCallback? { get }
     /// Callback invoked when task completes (successfully or with error)
     var resultCallback: ResultCallback { get }
     
@@ -69,6 +117,12 @@ public protocol KVHeavyTaskHandler: AnyObject {
     
     /// Cancels the currently executing task
     func cancel()
+}
+
+public enum KVHeavyTaskResult<Success, Failure> where Failure: Error {
+    case success(Success)
+    case failure(Failure)
+    case cancel
 }
 
 /// Configuration and data provider types for KVHeavyTasksManager

@@ -76,6 +76,12 @@ extension KVHeavyTaskProgress where T: BinaryFloatingPoint {
     }
 }
 
+public enum KVHeavyTaskResult<Success, Failure> where Failure: Error {
+    case success(Success)
+    case failure(Failure)
+    case cancel
+}
+
 /// Protocol defining the interface for heavy task handlers.
 /// 
 /// Heavy task handlers are responsible for executing individual heavy computational tasks.
@@ -83,7 +89,7 @@ extension KVHeavyTaskProgress where T: BinaryFloatingPoint {
 /// 
 /// - `K`: The key type used to identify tasks (must be Hashable)
 /// - `Element`: The result type returned by completed tasks
-public protocol KVHeavyTaskHandler: AnyObject {
+public protocol KVHeavyTaskDataProvider: AnyObject {
     associatedtype K: Hashable
     associatedtype Element
     associatedtype T: UnsignedInteger
@@ -117,12 +123,6 @@ public protocol KVHeavyTaskHandler: AnyObject {
     
     /// Cancels the currently executing task
     func cancel()
-}
-
-public enum KVHeavyTaskResult<Success, Failure> where Failure: Error {
-    case success(Success)
-    case failure(Failure)
-    case cancel
 }
 
 /// Configuration and data provider types for KVHeavyTasksManager
@@ -209,7 +209,7 @@ public extension KVHeavyTasksManager {
 /// comprehensive lifecycle management for resource-intensive operations.
 /// 
 /// - `TaskHandler`: The type of task handler that conforms to KVHeavyTaskHandler protocol
-public class KVHeavyTasksManager<TaskHandler: KVHeavyTaskHandler> {
+public class KVHeavyTasksManager<TaskHandler: KVHeavyTaskDataProvider> {
     private init(_ config: Config) {
         self.config = config
         self.cache = .init(configuration: config.cacheConfig, statisticsReport: config.cacheStatisticsReport)

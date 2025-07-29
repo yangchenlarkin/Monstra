@@ -34,7 +34,7 @@ extension KVHeavyTasksManagerTests {
         }
     }
     
-    class TaskHandler: Monstask.KVHeavyTaskHandler {
+    class DataProvider: Monstask.KVHeavyTaskDataProvider {
         typealias T = UInt
         typealias K = String
         typealias Element = String
@@ -88,7 +88,7 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         let expectation = XCTestExpectation(description: "5 steps and 1 result should callback")
         expectation.expectedFulfillmentCount = 6
         
-        let taskHandler = TaskHandler { key, progress in
+        let taskHandler = DataProvider { key, progress in
             print(progress)
             expectation.fulfill()
         } resultCallback: { key, res in

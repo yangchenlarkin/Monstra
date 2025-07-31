@@ -17,6 +17,24 @@
             "name": "Release KVHeavyTasksManagerExample",
             "program": "${workspaceFolder:Monstra}/.build/release/KVHeavyTasksManagerExample",
             "preLaunchTask": "swift: Build Release KVHeavyTasksManagerExample"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Monstra}",
+            "name": "Debug KVHeavyTaskDataProviderExample",
+            "program": "${workspaceFolder:Monstra}/.build/debug/KVHeavyTaskDataProviderExample",
+            "preLaunchTask": "swift: Build Debug KVHeavyTaskDataProviderExample"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:Monstra}",
+            "name": "Release KVHeavyTaskDataProviderExample",
+            "program": "${workspaceFolder:Monstra}/.build/release/KVHeavyTaskDataProviderExample",
+            "preLaunchTask": "swift: Build Release KVHeavyTaskDataProviderExample"
         }
     ]
 }

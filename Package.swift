@@ -24,8 +24,8 @@ let package = Package(
             targets: ["MonstraBase"]),
         // Example executable
         .executable(
-            name: "KVHeavyTasksManagerExample",
-            targets: ["KVHeavyTasksManagerExample"]),
+            name: "KVHeavyTaskDataProviderExample",
+            targets: ["KVHeavyTaskDataProviderExample"]),
     ],
     dependencies: [
         // Dependencies declare other packages that this package depends on.
@@ -57,9 +57,9 @@ let package = Package(
             ]),
         // Example executable target
         .executableTarget(
-            name: "KVHeavyTasksManagerExample",
+            name: "KVHeavyTaskDataProviderExample",
             dependencies: ["Monstask", "Alamofire"],
-            path: "Examples/KVHeavyTasksManagerExample",
+            path: "Examples/KVHeavyTaskDataProviderExample",
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
             ]),

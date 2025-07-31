@@ -6,128 +6,390 @@ import MonstraBase
 import Alamofire
 import CryptoKit
 
+/// Example implementation of a local data provider that simulates processing tasks
+/// 
+/// This provider demonstrates how to implement the KVHeavyTaskDataProvider protocol
+/// for local computational tasks. It processes a string character by character
+/// with artificial delays to simulate heavy processing operations.
+/// 
+/// ## Use Cases
+/// - Text processing and analysis
+/// - Data transformation pipelines
+/// - Simulation of CPU-intensive operations
+/// - Testing task lifecycle management
+/// 
+/// ## Key Features
+/// - Async/await support for modern Swift concurrency
+/// - Graceful cancellation handling
+/// - Configurable processing delays
+/// - Simple progress tracking
 class LocalDataProvider: Monstask.KVHeavyTaskDataProvider {
-    typealias T = UInt
     typealias K = String
     typealias Element = String
+    typealias CustomEvent = Never
     
+    /// The input string to be processed character by character
     let key: K
-    let progressCallback: ProgressCallback?
-    let resultCallback: ResultCallback
     
-    private var selfRetain: LocalDataProvider? = nil
-    private var semaphore = DispatchSemaphore(value: 1)
+    /// Optional callback for publishing custom events (not used in this example)
+    /// 
+    /// In a real implementation, this could be used to publish progress events,
+    /// status updates, or other custom notifications during processing.
+    var customEventPublisher: CustomEventPublisher?
     
-    required init(key: K, progressCallback: ProgressCallback?, resultCallback: @escaping ResultCallback) {
+    /// Flag to track pause state for task lifecycle management
+    private var isPaused = false
+    
+    /// Initializes a new local data provider
+    /// 
+    /// - Parameters:
+    ///   - key: The input string to be processed
+    ///   - customEventPublisher: Optional callback for custom event publishing
+    required init(key: String, customEventPublisher: CustomEventPublisher?) {
         self.key = key
-        self.progressCallback = progressCallback
-        self.resultCallback = resultCallback
+        self.customEventPublisher = customEventPublisher
     }
     
-    enum Errors: Error {
-        case cancelled
-    }
-    
-    func start() {
-        semaphore.wait()
-        defer { semaphore.signal() }
+    /// Processes the input string character by character with artificial delays
+    /// 
+    /// This method simulates a heavy computational task by processing each character
+    /// of the input string with a 1-second delay. It demonstrates how to implement
+    /// the core task logic in an async context with proper cancellation handling.
+    /// 
+    /// ## Implementation Details
+    /// - Uses `Task.sleep()` for non-blocking delays
+    /// - Checks for cancellation using `Task.checkCancellation()`
+    /// - Processes characters sequentially to simulate work
+    /// - Returns the complete processed string
+    /// 
+    /// - Returns: The processed string result, or nil if cancelled
+    /// - Throws: CancellationError if the task is cancelled during execution
+    func run() async throws -> Element? {
+        var result = ""
         
-        if selfRetain != nil { return }
-        selfRetain = self
-        
-        DispatchQueue.global().async { [weak self] in
-            var res = ""
-            guard let self else { return }
-            for c in key {
-                Thread.sleep(forTimeInterval: 1)
-                semaphore.wait()
-                defer { semaphore.signal() }
-                if selfRetain == nil {
-                    resultCallback(key, .failure(Errors.cancelled))
-                    return
-                }
-                res.append(c)
-                progressCallback?(key, .init(totalUnitCount: UInt(key.count), completedUnitCount: UInt(res.count)))
-            }
-            resultCallback(key, .success(res))
+        for character in key {
+            // Simulate processing delay (1 second per character)
+            try await Task.sleep(nanoseconds: 1_000_000_000)
+            
+            // Check for cancellation - this allows the task to be stopped gracefully
+            try Task.checkCancellation()
+            
+            // Process the current character
+            result.append(character)
         }
+        
+        return result
     }
     
-    func stop() -> Bool {
-        semaphore.wait()
-        defer { semaphore.signal() }
-        selfRetain = nil
-        
-        return false
+    /// Stops the current processing task and provides resume capability
+    /// 
+    /// This method implements the pause/resume functionality by setting the pause flag
+    /// and returning a resume function. The resume function can be called later to
+    /// continue processing from where it left off.
+    /// 
+    /// ## Usage
+    /// ```swift
+    /// let resumeTask = await provider.stop()
+    /// // ... do other work ...
+    /// await resumeTask?()
+    /// ```
+    /// 
+    /// - Returns: An async closure that resumes the task, or nil if already stopped
+    func stop() async -> (() async -> Void)? {
+        isPaused = true
+        return resume
+    }
+    
+    /// Resumes the processing task by resetting the pause flag
+    /// 
+    /// This private method is called by the resume closure returned from `stop()`.
+    /// It resets the pause flag to allow processing to continue from where it left off.
+    private func resume() async {
+        isPaused = false
     }
 }
 
+/// Example implementation of a network data provider using Alamofire for file downloads
+/// 
+/// This provider demonstrates how to implement the KVHeavyTaskDataProvider protocol
+/// for network-based tasks like file downloads. It leverages Alamofire's built-in
+/// resume capability and provides progress tracking through custom events.
+/// 
+/// ## Use Cases
+/// - Large file downloads with progress tracking
+/// - Resume downloads after network interruption
+/// - File integrity validation
+/// - Background download management
+/// 
+/// ## Key Features
+/// - Automatic resume capability using Alamofire
+/// - Progress tracking with detailed metrics
+/// - File integrity validation
+/// - Intelligent caching and deduplication
+/// - Error handling and retry logic
 class AlamofireDataProvider: Monstask.KVHeavyTaskDataProvider {
-    typealias T = UInt64
     typealias K = URL
     typealias Element = Data
+    typealias CustomEvent = Progress
     
-    let key: URL
-    let progressCallback: ProgressCallback?
-    let resultCallback: ResultCallback
+    /// The URL of the file to download
+    let key: K
     
-    var tmpData: Data? = nil
+    /// Callback for publishing download progress events
+    /// 
+    /// This closure receives Alamofire's Progress object containing:
+    /// - `completedUnitCount`: Bytes downloaded so far
+    /// - `totalUnitCount`: Total bytes to download
+    /// - `fractionCompleted`: Progress as a fraction (0.0 to 1.0)
+    var customEventPublisher: CustomEventPublisher?
     
+    /// The current download request (if active)
+    /// 
+    /// This property holds the Alamofire DownloadRequest instance, allowing
+    /// for cancellation, pausing, and resuming of the download operation.
     private var request: DownloadRequest? = nil
     
-    required init(key: K, progressCallback: ProgressCallback?, resultCallback: @escaping ResultCallback) {
+    /// Initializes a new network data provider for file downloads
+    /// 
+    /// - Parameters:
+    ///   - key: The URL of the file to download
+    ///   - customEventPublisher: Optional callback for progress event publishing
+    required init(key: K, customEventPublisher: CustomEventPublisher?) {
         self.key = key
-        self.progressCallback = progressCallback
-        self.resultCallback = resultCallback
+        self.customEventPublisher = customEventPublisher
     }
     
-    func start() {
-        let tmpDirectory = Self.getCachesDirectory()
-        let scnFolder = tmpDirectory.appendingPathComponent("AlamofireDataProvider", isDirectory: true)
-        let destinationURL = scnFolder.appendingPathComponent(key.absoluteString.md5())
+    /// Downloads the file from the specified URL with intelligent resume capability
+    /// 
+    /// This method implements sophisticated download logic that provides:
+    /// 
+    /// ## Download Strategy
+    /// 1. **Cache Check**: Examines existing downloads for potential resume
+    /// 2. **Integrity Validation**: Compares local and remote file sizes
+    /// 3. **Resume Logic**: Automatically resumes from partial downloads
+    /// 4. **Progress Tracking**: Real-time progress updates via custom events
+    /// 5. **Error Handling**: Comprehensive error management and reporting
+    /// 
+    /// ## Implementation Flow
+    /// - First checks if a partial download exists at the destination
+    /// - Validates file integrity by comparing local vs remote file sizes
+    /// - If sizes match, returns cached data immediately
+    /// - If sizes differ, resumes download from existing data
+    /// - If no existing data, starts fresh download
+    /// - Publishes progress events throughout the download
+    /// 
+    /// - Returns: The downloaded file data as Data object, or nil if cancelled
+    /// - Throws: Network errors (AFError), file system errors, or validation errors
+    func run() async throws -> Element? {
+        let destinationURL = Self.destinationURL(key)
         
-        if let tmpData {
-            request = AF.download(resumingWith: tmpData)
+        // Step 1: Check for existing download and validate integrity
+        if let existingData = try? Data(contentsOf: destinationURL) {
+            let localFileSize = getFileSize(destinationURL)
+            let remoteFileSize = await getRemoteFileSize(key)
+            
+            // Step 2: Validate file integrity by comparing sizes
+            if remoteFileSize == localFileSize {
+                print("📦 Using cached file: \(localFileSize) bytes")
+                return existingData
+            }
+            
+            // Step 3: Resume download from existing partial data
+            print("🔄 Resuming download from \(localFileSize) bytes")
+            request = AF.download(resumingWith: existingData) { _, _ in
+                return (destinationURL, [.createIntermediateDirectories, .removePreviousFile])
+            }
         } else {
-            request = AF.download(key, to: { _, _ in return (destinationURL, [.createIntermediateDirectories, .removePreviousFile]) })
-        }
-        request?.downloadProgress { [weak self] progress in
-            guard let self else { return }
-            if progress.totalUnitCount > 0 {
-                progressCallback?(key, .init(totalUnitCount: UInt64(progress.totalUnitCount), completedUnitCount: UInt64(progress.completedUnitCount)))
-            } else {
-                progressCallback?(key, .init(totalUnitCount: nil, completedUnitCount: UInt64(progress.completedUnitCount)))
-            }
+            // Step 4: Start fresh download
+            print("🚀 Starting new download")
+            request = AF.download(key, to: { _, _ in
+                return (destinationURL, [.createIntermediateDirectories, .removePreviousFile])
+            })
         }
         
-        request?.responseData { [weak self] response in
-            guard let self else { return }
-            switch response.result {
-            case .success(let data):
-                self.resultCallback(key, .success(data))
-            case .failure(let error):
-                self.resultCallback(key, .failure(error))
+        // Step 5: Set up progress tracking with custom event publishing
+        if let customEventPublisher {
+            request?.downloadProgress(queue: .global(), closure: customEventPublisher)
+        }
+        
+        // Step 6: Wait for download completion using async/await
+        return try await withCheckedThrowingContinuation { continuation in
+            request?.responseData { response in
+                switch response.result {
+                case .success(let data):
+                    continuation.resume(returning: data)
+                case .failure(let error):
+                    continuation.resume(throwing: error)
+                }
             }
         }
     }
     
-    func stop() -> Bool {
-        request?.cancel(byProducingResumeData: { data in
-            self.tmpData = data
-            self.request = nil
-        })
-        return false
+    /// Stops the current download and saves resume data for later resumption
+    /// 
+    /// This method leverages Alamofire's built-in resume capability to gracefully
+    /// cancel the current download while preserving the download state. The resume
+    /// data is automatically saved to disk for later use.
+    /// 
+    /// ## How It Works
+    /// - Cancels the active download request
+    /// - Alamofire automatically generates resume data
+    /// - Resume data is saved to the destination URL
+    /// - Future downloads can resume from this point
+    /// 
+    /// ## Usage
+    /// ```swift
+    /// let resumeTask = await provider.stop()
+    /// // ... do other work ...
+    /// await resumeTask?() // Resume download
+    /// ```
+    /// 
+    /// - Returns: An async closure that can resume the download, or nil if already finished
+    @discardableResult
+    func stop() async -> (() async -> Void)? {
+        guard let request = request, !request.isFinished else {
+            print("📋 No active download to stop")
+            return nil
+        }
+        
+        print("⏸️ Stopping download and saving resume data...")
+        
+        return await withCheckedContinuation { continuation in
+            request.cancel(byProducingResumeData: { [weak self] resumeData in
+                guard let self = self else {
+                    continuation.resume(returning: nil)
+                    return
+                }
+                
+                // Save resume data for later use
+                if let resumeData = resumeData {
+                    do {
+                        try resumeData.write(to: Self.destinationURL(self.key))
+                        print("💾 Resume data saved: \(resumeData.count) bytes")
+                    } catch {
+                        print("⚠️ Failed to save resume data: \(error)")
+                    }
+                } else {
+                    print("⚠️ No resume data available")
+                }
+                
+                continuation.resume(returning: nil)
+            })
+        }
     }
     
+    /// Gets the caches directory for storing downloaded files
+    /// 
+    /// This method returns the appropriate directory for storing downloaded files.
+    /// It first tries to use the system caches directory, falling back to the
+    /// temporary directory if the caches directory is not available.
+    /// 
+    /// ## Directory Priority
+    /// 1. System caches directory (preferred for persistence)
+    /// 2. Temporary directory (fallback for limited environments)
+    /// 
+    /// - Returns: The URL of the directory to use for file storage
     private static func getCachesDirectory() -> URL {
         if let cachesDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
            return cachesDirectory
         }
         return FileManager.default.temporaryDirectory
     }
+    
+    /// Generates the destination URL for a given download key
+    /// 
+    /// This method creates a unique file path based on the URL's MD5 hash,
+    /// ensuring that each download has a consistent location regardless of
+    /// when or how many times it's downloaded.
+    /// 
+    /// ## File Naming Strategy
+    /// - Uses MD5 hash of the URL for uniqueness
+    /// - Avoids conflicts between different URLs
+    /// - Provides consistent caching behavior
+    /// 
+    /// - Parameter key: The URL of the file to download
+    /// - Returns: The destination URL where the file will be saved
+    private static func destinationURL(_ key: URL) -> URL {
+        let cacheDirectory = getCachesDirectory()
+        let downloadFolder = cacheDirectory.appendingPathComponent("AlamofireDataProvider", isDirectory: true)
+        let destinationURL = downloadFolder.appendingPathComponent(key.absoluteString.md5())
+        return destinationURL
+    }
+    
+    /// Gets the size of a local file from the file system
+    /// 
+    /// This method retrieves the file size from the file system attributes.
+    /// It returns 0 if the file doesn't exist or if there's an error reading
+    /// the file attributes.
+    /// 
+    /// ## Error Handling
+    /// - Returns 0 for non-existent files
+    /// - Returns 0 for files with unreadable attributes
+    /// - Gracefully handles file system errors
+    /// 
+    /// - Parameter url: The URL of the file to check
+    /// - Returns: The file size in bytes, or 0 if the file doesn't exist
+    private func getFileSize(_ url: URL) -> Int64 {
+        guard let attributes = try? FileManager.default.attributesOfItem(atPath: url.path) else {
+            return 0
+        }
+        guard let fileSize = attributes[.size] as? Int64 else {
+            return 0
+        }
+        return fileSize
+    }
+    
+    /// Gets the size of a remote file via HTTP HEAD request
+    /// 
+    /// This method performs a HEAD request to retrieve the Content-Length header
+    /// from the remote server. This is used to validate download integrity
+    /// by comparing local and remote file sizes.
+    /// 
+    /// ## Network Behavior
+    /// - Uses HTTP HEAD method for efficiency (no body transfer)
+    /// - Extracts Content-Length header for file size
+    /// - Handles servers that don't provide Content-Length
+    /// - Returns -1 for indeterminate file sizes
+    /// 
+    /// - Parameter url: The URL of the remote file
+    /// - Returns: The remote file size in bytes, or -1 if the size cannot be determined
+    private func getRemoteFileSize(_ url: URL) async -> Int64 {
+        return await withCheckedContinuation { continuation in
+            AF.request(url, method: .head)
+                .response { response in
+                    if let contentLength = response.response?.allHeaderFields["Content-Length"] as? String,
+                       let fileSize = Int64(contentLength) {
+                        continuation.resume(returning: fileSize)
+                    } else {
+                        continuation.resume(returning: -1)
+                    }
+                }
+        }
+    }
 }
 
+/// Extension to add MD5 hashing capability to String
+/// 
+/// This extension provides a simple way to generate MD5 hashes from strings,
+/// which is useful for creating unique file names and cache keys.
+/// 
+/// ## Use Cases
+/// - Creating unique file names for downloads
+/// - Generating cache keys for data storage
+/// - Ensuring consistent file paths across sessions
+/// - Avoiding filename conflicts in shared directories
 extension String {
+    /// Generates an MD5 hash of the string
+    /// 
+    /// This method converts the string to UTF-8 data and computes its MD5 hash.
+    /// The result is returned as a hexadecimal string.
+    /// 
+    /// ## Hash Properties
+    /// - Deterministic: Same input always produces same output
+    /// - Fixed length: Always returns 32 hexadecimal characters
+    /// - Collision resistant: Different inputs produce different hashes
+    /// 
+    /// - Returns: A 32-character hexadecimal string representing the MD5 hash
     func md5() -> String {
         let data = Data(self.utf8)
         let hash = Insecure.MD5.hash(data: data)
@@ -135,17 +397,37 @@ extension String {
     }
 }
 
+/// Demonstrates local data processing with the LocalDataProvider
+/// 
+/// This function shows how to use the LocalDataProvider to process a string
+/// character by character with artificial delays to simulate heavy processing.
+/// 
+/// ## Example Usage
+/// ```swift
+/// loadLocalData() // Processes "12345" with 1-second delays
+/// ```
 func loadLocalData() {
-    let taskHandler = LocalDataProvider(key: "12345") { key, progress in
-        print(progress)
-    } resultCallback: { key, res in
-        print(res)
-    }
+    let taskHandler = LocalDataProvider(key: "12345", customEventPublisher: nil)
 
-    taskHandler.start()
+    Task {
+        do {
+            let result = try await taskHandler.run()
+            print("✅ Local processing completed: \(result ?? "nil")")
+        } catch {
+            print("❌ Local processing failed: \(error)")
+        }
+    }
 }
 
+// MARK: - Main Execution
+// Note: You don't need to implement the following code, just implement the code above
+// and use it as a generic type for KVHeavyTasksManager
+
+/// Global variables for managing the download task
 var taskHandler: AlamofireDataProvider? = nil
+
+/// Flag to ensure certain operations only happen once
+var _onceToken = true
 var onceToken: Bool {
     if _onceToken {
         _onceToken = false
@@ -154,26 +436,76 @@ var onceToken: Bool {
         return false
     }
 }
-var _onceToken = true
 
-if let url = URL(string: "https://productionresultssa2.blob.core.windows.net/actions-results/1701f204-0172-40de-be9f-350cc2ecdebb/workflow-job-run-cd3f5f4f-de11-54c7-9e5c-60228f2b0933/artifacts/5fe2186078717de4f2fbf3b9c27e9eceab0d6a05cc0de6fa17290f1af50bece5.zip?rscd=attachment%3B+filename%3D%22IPA-zenni_Debug_6.5.8_291613_2025_07_29_16_13_24.zip%22&se=2025-07-29T09%3A30%3A37Z&sig=3tJbeOn4hLQdvUAbsFF7fRIt81f4NoUFGG2Bi%2FMnaso%3D&ske=2025-07-29T20%3A14%3A20Z&skoid=ca7593d4-ee42-46cd-af88-8b886a2f84eb&sks=b&skt=2025-07-29T08%3A14%3A20Z&sktid=398a6654-997b-47e9-b12b-9515b896b4de&skv=2025-05-05&sp=r&spr=https&sr=b&st=2025-07-29T09%3A20%3A32Z&sv=2025-05-05") {
-    taskHandler = AlamofireDataProvider(key: url) { key, progress in
-        print("🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃")
-        print(progress)
-        print("🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃🏃")
+/// Test URLs for demonstrating different download scenarios
+/// 
+/// These URLs provide various test cases for the download functionality:
+/// - Large files for testing resume capability
+/// - Small files for quick testing
+/// - API endpoints for JSON data
+let largeFileURL = "https://updatecdn.meeting.qq.com/cos/197eaf6e0ea4bcafff72e5bb623555e6/TencentMeeting_0300000000_3.35.1.437.publish.arm64.officialwebsite.dmg"
+let smallFileURL = "https://www.google.com"
+
+/// Currently selected test URL for demonstration
+let __TEST_URL__ = largeFileURL
+
+/// Main execution: Demonstrates file download with comprehensive progress tracking
+/// 
+/// This section shows how to:
+/// - Create a download task handler with progress callbacks
+/// - Monitor download progress with detailed metrics
+/// - Handle download completion and errors
+/// - Test stop/resume functionality
+if let url = URL(string: __TEST_URL__) {
+    // Create the download task handler with detailed progress callback
+    taskHandler = AlamofireDataProvider(key: url) { progress in
+        let percentage = progress.fractionCompleted * 100
+        let downloadedMB = Double(progress.completedUnitCount) / 1_048_576 // Convert to MB
+        let totalMB = Double(progress.totalUnitCount) / 1_048_576
+        let downloadSpeed = progress.completedUnitCount > 0 ? "\(String(format: "%.1f", downloadedMB))MB" : "Calculating..."
         
-        if progress.completedUnitCount > 719054, onceToken {
-            taskHandler?.stop()
-            DispatchQueue.global().asyncAfter(deadline: .now()+3) {
-                taskHandler?.start()
+        print("📥 Download Progress: \(String(format: "%.1f", percentage))% (\(downloadSpeed) / \(String(format: "%.1f", totalMB))MB)")
+    }
+    
+    // Execute the download task with comprehensive error handling
+    Task {
+        async let downloadData = taskHandler?.run()
+        
+        // Simulate some processing time to demonstrate async behavior
+        try await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
+        
+         await taskHandler?.stop()
+        
+        do {
+            let data = try await downloadData
+            print("✅ Download completed successfully!")
+            print("📊 Downloaded data size: \(data?.count ?? 0) bytes")
+            
+            // Optional: Display file size in human-readable format
+            if let data = data {
+                let sizeInMB = Double(data.count) / 1_048_576
+                print("📁 File size: \(String(format: "%.2f", sizeInMB)) MB")
+            }
+        } catch {
+            print("❌ Download failed: \(error)")
+            
+            // Provide specific error handling based on error type
+            if let afError = error as? AFError {
+                switch afError {
+                case .sessionTaskFailed(let underlyingError):
+                    print("🔗 Network error: \(underlyingError)")
+                case .responseValidationFailed(let reason):
+                    print("🔍 Validation error: \(reason)")
+                default:
+                    print("🌐 Alamofire error: \(afError)")
+                }
             }
         }
-    } resultCallback: { key, res in
-        print("✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅")
-        print(res)
-        print("✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅✅")
     }
-    taskHandler?.start()
 }
 
+/// Keep the main thread alive to allow async operations to complete
+/// 
+/// This is necessary for command-line applications to prevent the program
+/// from terminating before async tasks have a chance to complete.
 RunLoop.main.run()

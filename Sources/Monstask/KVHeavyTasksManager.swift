@@ -24,88 +24,65 @@ import Foundation
 import MonstraBase
 import Monstore
 
-public struct KVHeavyTaskProgress<T: UnsignedInteger> {
-    public let totalUnitCount: T?
-    public let completedUnitCount: T
-    
-    public init(totalUnitCount: T?, completedUnitCount: T) {
-        self.totalUnitCount = totalUnitCount
-        self.completedUnitCount = completedUnitCount
-    }
-    
-    public var completedProportion: Double? {
-        guard let totalUnitCount else { return nil }
-        guard totalUnitCount > 0 else { return 0.0 }
-        if completedUnitCount == totalUnitCount { return 1.0 }
-        return min(1, Double(completedUnitCount) / Double(totalUnitCount))
-    }
-    
-    /// Returns the progress as a percentage from 0.0 to 100.0
-    public var percentage: Double? {
-        guard let completedProportion else { return nil }
-        return completedProportion * 100.0
-    }
-    
-    /// Returns true if the task is completed (completedFraction >= totalFraction)
-    public var isCompleted: Bool? {
-        guard let totalUnitCount else { return nil }
-        return completedUnitCount >= totalUnitCount
-    }
-    
-    /// Returns the remaining fraction to be completed
-    public var remainingUnitCount: T? {
-        guard let totalUnitCount else { return nil }
-        return max(0, totalUnitCount - completedUnitCount)
-    }
-    
-    /// Returns the remaining proportion from 0.0 to 1.0
-    public var remainingProportion: Double? {
-        guard let completedProportion else { return nil }
-        return 1.0 - completedProportion
-    }
-}
-
-public enum KVHeavyTaskResult<Success, Failure> where Failure: Error {
-    case success(Success)
-    case failure(Failure)
-}
-
-/// Protocol defining the interface for heavy task handlers.
+/// Protocol defining the interface for heavy task data providers.
 /// 
-/// Heavy task handlers are responsible for executing individual heavy computational tasks.
-/// They provide progress tracking, result delivery, and lifecycle management capabilities.
+/// Heavy task data providers are responsible for executing individual resource-intensive operations
+/// such as file downloads, image processing, video encoding, or any long-running computational tasks.
+/// They provide custom event publishing, result delivery, and lifecycle management capabilities.
 /// 
+/// ## Key Features
+/// - **Custom Event Publishing**: Real-time progress and status updates
+/// - **Async/Await Support**: Modern Swift concurrency for better performance
+/// - **Lifecycle Management**: Start, stop, and resume operations
+/// - **Type Safety**: Generic types for keys and results
+/// 
+/// ## Associated Types
 /// - `K`: The key type used to identify tasks (must be Hashable)
 /// - `Element`: The result type returned by completed tasks
+/// - `CustomEvent`: The event type for progress and status updates
 public protocol KVHeavyTaskDataProvider {
     associatedtype K: Hashable
     associatedtype Element
-    associatedtype T: UnsignedInteger
+    associatedtype CustomEvent
     
-    /// Callback type for progress updates during task execution
-    typealias ProgressCallback = (K, KVHeavyTaskProgress<T>)->Void
-    /// Callback type for task completion results
-    typealias ResultCallback = (K, KVHeavyTaskResult<Element?, Error>)->Void
+    /// Callback type for publishing custom events during task execution
+    /// 
+    /// This closure is called to publish progress updates, status changes,
+    /// or any other custom events during task execution.
+    typealias CustomEventPublisher = (CustomEvent) -> Void
     
+    /// The unique identifier for this task
     var key: K { get }
-    /// Callback invoked during task execution to report progress
-    var progressCallback: ProgressCallback? { get }
-    /// Callback invoked when task completes (successfully or with error)
-    var resultCallback: ResultCallback { get }
     
-    /// Initializes a new heavy task handler with progress and result callbacks
+    /// Optional callback for publishing custom events during task execution
+    var customEventPublisher: CustomEventPublisher? { get }
+    
+    /// Initializes a new heavy task data provider
     /// 
     /// - Parameters:
-    ///   - progressCallback: Optional callback for progress updates
-    ///   - resultCallback: Required callback for task completion results
-    init(key: K, progressCallback: ProgressCallback?, resultCallback: @escaping ResultCallback)
+    ///   - key: The unique identifier for this task
+    ///   - customEventPublisher: Optional callback for publishing custom events
+    init(key: K, customEventPublisher: CustomEventPublisher?)
     
-    /// Starts execution of the heavy task identified by the given key
-    /// - Parameter key: The unique identifier for the task to execute
-    func start()
+    /// Executes the heavy task asynchronously
+    /// 
+    /// This method should implement the main task logic. It can publish progress
+    /// updates through the `customEventPublisher` and should handle cancellation
+    /// gracefully by checking for task interruption.
+    /// 
+    /// - Returns: The result of the task execution, or nil if the task was cancelled
+    /// - Throws: Any error that occurred during task execution
+    func run() async throws -> Element?
     
-    /// Stops the currently executing task, 返回是否需要清除DataProvider
-    func stop() -> Bool
+    /// Stops the currently executing task
+    /// 
+    /// This method should gracefully stop the task execution and optionally
+    /// return a resume function that can be called to restart the task from
+    /// where it left off.
+    /// 
+    /// - Returns: An optional async closure that can resume the task, or nil if
+    ///            the task cannot be resumed or is already stopped
+    func stop() async -> (() async -> Void)?
 }
 
 /// Configuration and data provider types for KVHeavyTasksManager

@@ -59,6 +59,7 @@ let package = Package(
         .executableTarget(
             name: "KVHeavyTasksManagerExample",
             dependencies: ["Monstask", "Alamofire"],
+            path: "Examples/KVHeavyTasksManagerExample",
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
             ]),

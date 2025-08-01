@@ -49,20 +49,20 @@ public protocol KVHeavyTaskDataProvider {
     /// 
     /// This closure is called to publish progress updates, status changes,
     /// or any other custom events during task execution.
-    typealias CustomEventPublisher = (CustomEvent) -> Void
+    typealias CustomEventPublisher = @Sendable (CustomEvent) -> Void
     
     /// The unique identifier for this task
     var key: K { get }
     
     /// Optional callback for publishing custom events during task execution
-    var customEventPublisher: CustomEventPublisher? { get }
+    var customEventPublisher: CustomEventPublisher { get }
     
     /// Initializes a new heavy task data provider
     /// 
     /// - Parameters:
     ///   - key: The unique identifier for this task
     ///   - customEventPublisher: Optional callback for publishing custom events
-    init(key: K, customEventPublisher: CustomEventPublisher?)
+    init(key: K, customEventPublisher: @escaping CustomEventPublisher)
     
     /// Executes the heavy task asynchronously
     /// 
@@ -72,7 +72,7 @@ public protocol KVHeavyTaskDataProvider {
     /// 
     /// - Returns: The result of the task execution, or nil if the task was cancelled
     /// - Throws: Any error that occurred during task execution
-    func run() async throws -> Element?
+    func start() async throws -> Element?
     
     /// Stops the currently executing task
     /// 

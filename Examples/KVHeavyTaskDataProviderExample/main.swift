@@ -35,7 +35,7 @@ class LocalDataProvider: Monstask.KVHeavyTaskDataProvider {
     /// 
     /// In a real implementation, this could be used to publish progress events,
     /// status updates, or other custom notifications during processing.
-    var customEventPublisher: CustomEventPublisher?
+    var customEventPublisher: CustomEventPublisher
     
     /// Flag to track pause state for task lifecycle management
     private var isPaused = false
@@ -45,7 +45,7 @@ class LocalDataProvider: Monstask.KVHeavyTaskDataProvider {
     /// - Parameters:
     ///   - key: The input string to be processed
     ///   - customEventPublisher: Optional callback for custom event publishing
-    required init(key: String, customEventPublisher: CustomEventPublisher?) {
+    required init(key: String, customEventPublisher: @escaping CustomEventPublisher) {
         self.key = key
         self.customEventPublisher = customEventPublisher
     }
@@ -64,7 +64,7 @@ class LocalDataProvider: Monstask.KVHeavyTaskDataProvider {
     /// 
     /// - Returns: The processed string result, or nil if cancelled
     /// - Throws: CancellationError if the task is cancelled during execution
-    func run() async throws -> Element? {
+    func start() async throws -> Element? {
         var result = ""
         
         for character in key {
@@ -141,7 +141,7 @@ class AlamofireDataProvider: Monstask.KVHeavyTaskDataProvider {
     /// - `completedUnitCount`: Bytes downloaded so far
     /// - `totalUnitCount`: Total bytes to download
     /// - `fractionCompleted`: Progress as a fraction (0.0 to 1.0)
-    var customEventPublisher: CustomEventPublisher?
+    var customEventPublisher: CustomEventPublisher
     
     /// The current download request (if active)
     /// 
@@ -154,7 +154,7 @@ class AlamofireDataProvider: Monstask.KVHeavyTaskDataProvider {
     /// - Parameters:
     ///   - key: The URL of the file to download
     ///   - customEventPublisher: Optional callback for progress event publishing
-    required init(key: K, customEventPublisher: CustomEventPublisher?) {
+    required init(key: K, customEventPublisher: @escaping CustomEventPublisher) {
         self.key = key
         self.customEventPublisher = customEventPublisher
     }
@@ -180,7 +180,7 @@ class AlamofireDataProvider: Monstask.KVHeavyTaskDataProvider {
     /// 
     /// - Returns: The downloaded file data as Data object, or nil if cancelled
     /// - Throws: Network errors (AFError), file system errors, or validation errors
-    func run() async throws -> Element? {
+    func start() async throws -> Element? {
         let destinationURL = Self.destinationURL(key)
         
         // Step 1: Check for existing download and validate integrity
@@ -208,9 +208,8 @@ class AlamofireDataProvider: Monstask.KVHeavyTaskDataProvider {
         }
         
         // Step 5: Set up progress tracking with custom event publishing
-        if let customEventPublisher {
-            request?.downloadProgress(queue: .global(), closure: customEventPublisher)
-        }
+        
+        request?.downloadProgress(queue: .global(), closure: customEventPublisher)
         
         // Step 6: Wait for download completion using async/await
         return try await withCheckedThrowingContinuation { continuation in
@@ -407,11 +406,11 @@ extension String {
 /// loadLocalData() // Processes "12345" with 1-second delays
 /// ```
 func loadLocalData() {
-    let taskHandler = LocalDataProvider(key: "12345", customEventPublisher: nil)
+    let taskHandler = LocalDataProvider(key: "12345") { _ in}
 
     Task {
         do {
-            let result = try await taskHandler.run()
+            let result = try await taskHandler.start()
             print("✅ Local processing completed: \(result ?? "nil")")
         } catch {
             print("❌ Local processing failed: \(error)")
@@ -469,7 +468,7 @@ if let url = URL(string: __TEST_URL__) {
     
     // Execute the download task with comprehensive error handling
     Task {
-        async let downloadData = taskHandler?.run()
+        async let downloadData = taskHandler?.start()
         
         // Simulate some processing time to demonstrate async behavior
         try await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds

@@ -4775,9 +4775,9 @@ extension KVLightTasksManagerTests {
             try await Task.sleep(nanoseconds: 10_000_000) // 10ms
             
             // Safe increment on main queue
-            DispatchQueue.main.sync {
-                fetchCount += 1
-            }
+            fetchSemaphore.wait()
+            fetchCount += 1
+            fetchSemaphore.signal()
             
             var results: [String: String?] = [:]
             for key in keys {

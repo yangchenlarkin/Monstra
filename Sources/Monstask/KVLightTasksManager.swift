@@ -32,16 +32,16 @@ public extension KVLightTasksManager {
     struct Config {
         fileprivate let privateDataProvider: PrivateDataProvider
         
-        public enum KeyPriority {
+        public enum PriorityStrategy {
             case LIFO
             case FIFO
         }
         public let dataProvider: DataProvider
         
-        public let maximumTaskNumberInQueue: Int
-        public let maximumConcurrentRunningThreadNumber: Int
+        public let maxNumberOfQueueingTasks: Int
+        public let maxNumberOfRunningTasks: Int
         public let retryCount: RetryCount
-        public let keyPriority: KeyPriority
+        public let PriorityStrategy: PriorityStrategy
         
         /// Cache configuration that controls memory limits, TTL, key validation, and thread safety.
         /// 
@@ -57,19 +57,19 @@ public extension KVLightTasksManager {
         /// 
         /// - Parameters:
         ///   - dataProvider: The data provider for providing elements
-        ///   - maximumTaskNumberInQueue: Maximum number of tasks in the queue (default: 16)
-        ///   - maximumConcurrentRunningThreadNumber: Maximum concurrent threads (default: 4)
+        ///   - maxNumberOfQueueingTasks: Maximum number of tasks in the queue (default: 16)
+        ///   - maxNumberOfRunningTasks: Maximum concurrent threads (default: 4)
         ///   - retryCount: Retry configuration for failed requests (default: 0)
-        ///   - keyPriority: Queue priority strategy (default: .LIFO)
+        ///   - PriorityStrategy: Queue priority strategy (default: .LIFO)
         ///   - cacheConfig: Cache configuration including key validation (default: .defaultConfig)
         ///     - The keyValidator in cacheConfig automatically filters invalid keys
         ///     - Invalid keys return nil without network requests
         ///   - cacheStatisticsReport: Optional callback for cache statistics
         init(dataProvider: DataProvider,
-             maximumTaskNumberInQueue: Int = 256,
-             maximumConcurrentRunningThreadNumber: Int = 4,
+             maxNumberOfQueueingTasks: Int = 256,
+             maxNumberOfRunningTasks: Int = 4,
              retryCount: RetryCount = 0,
-             keyPriority: KeyPriority = .LIFO,
+             PriorityStrategy: PriorityStrategy = .LIFO,
              cacheConfig: MemoryCache<K, Element>.Configuration = .defaultConfig,
              cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil) {
             self.dataProvider = dataProvider
@@ -122,10 +122,10 @@ public extension KVLightTasksManager {
             }
             
             
-            self.maximumTaskNumberInQueue = maximumTaskNumberInQueue
-            self.maximumConcurrentRunningThreadNumber = maximumConcurrentRunningThreadNumber
+            self.maxNumberOfQueueingTasks = maxNumberOfQueueingTasks
+            self.maxNumberOfRunningTasks = maxNumberOfRunningTasks
             self.retryCount = retryCount
-            self.keyPriority = keyPriority
+            self.PriorityStrategy = PriorityStrategy
             self.cacheConfig = cacheConfig
             self.cacheStatisticsReport = cacheStatisticsReport
         }
@@ -169,7 +169,7 @@ public extension KVLightTasksManager {
     }
     
     enum Errors: Error {
-        case evictedByKeyPriority
+        case evictedByPriorityStrategy
     }
     
     /// Fetches a single key and returns the result via callback.
@@ -334,7 +334,7 @@ public class KVLightTasksManager<K: Hashable, Element> {
     private init(_ config: Config) {
         self.config = config
         self.cache = .init(configuration: config.cacheConfig, statisticsReport: config.cacheStatisticsReport)
-        self.keyQueue = .init(capacity: config.maximumTaskNumberInQueue)
+        self.keyQueue = .init(capacity: config.maxNumberOfQueueingTasks)
     }
     
     private let config: Config
@@ -425,7 +425,7 @@ public class KVLightTasksManager<K: Hashable, Element> {
         
         switch config.privateDataProvider {
         case .monoprovide(let monoprovide):
-            let additionalThreadCount = min(config.maximumConcurrentRunningThreadNumber - activeThreadCount, keys.count)
+            let additionalThreadCount = min(config.maxNumberOfRunningTasks - activeThreadCount, keys.count)
             activeThreadCount += additionalThreadCount
             
             for i in 0..<keys.count {
@@ -439,7 +439,7 @@ public class KVLightTasksManager<K: Hashable, Element> {
             
         case .multiprovide(let maximumBatchCount, let multiprovide):
             var restKeys = keys
-            while activeThreadCount < config.maximumConcurrentRunningThreadNumber {
+            while activeThreadCount < config.maxNumberOfRunningTasks {
                 activeThreadCount += 1
                 
                 if restKeys.count <= maximumBatchCount {
@@ -461,7 +461,7 @@ public class KVLightTasksManager<K: Hashable, Element> {
     private func _startOneMonoprovideThread(key: K? = nil, provide: @escaping DataProvider.Monoprovide, callback: @escaping ResultCallback) {
         guard let key else {
             let nextKey: K?
-            switch config.keyPriority {
+            switch config.PriorityStrategy {
             case .LIFO:
                 nextKey = keyQueue.dequeueFront()
             case .FIFO:
@@ -498,7 +498,7 @@ public class KVLightTasksManager<K: Hashable, Element> {
     private func _startOneMultiprovideThread(keys: [K]? = nil, batchCount: UInt, provide: @escaping DataProvider.Multiprovide, callback: @escaping ResultCallback) {
         guard let keys else {
             let _keys: [K]
-            switch config.keyPriority {
+            switch config.PriorityStrategy {
             case .LIFO:
                 _keys = keyQueue.dequeueFront(count: batchCount)
             case .FIFO:
@@ -565,13 +565,13 @@ public class KVLightTasksManager<K: Hashable, Element> {
     
     private func _pushKeyIntoKeyQueue(keys: ArraySlice<K>, callback: @escaping ResultCallback) {
         guard keys.count > 0 else { return }
-        switch self.config.keyPriority {
+        switch self.config.PriorityStrategy {
         case .LIFO:
             // For LIFO priority: when queue is full, evict oldest keys (FIFO eviction)
             // This ensures newest keys get priority and oldest keys are removed
             for key in keys {
                 if let e = self.keyQueue.enqueueFront(key: key, evictedStrategy: .FIFO) {
-                    callback(e, .failure(Errors.evictedByKeyPriority))
+                    callback(e, .failure(Errors.evictedByPriorityStrategy))
                 }
             }
         case .FIFO:
@@ -579,7 +579,7 @@ public class KVLightTasksManager<K: Hashable, Element> {
             // This maintains strict order by not evicting existing keys
             for key in keys {
                 if let e = self.keyQueue.enqueueFront(key: key, evictedStrategy: .LIFO) {
-                    callback(e, .failure(Errors.evictedByKeyPriority))
+                    callback(e, .failure(Errors.evictedByPriorityStrategy))
                 }
             }
         }

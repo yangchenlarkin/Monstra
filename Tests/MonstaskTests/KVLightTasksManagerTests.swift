@@ -1231,7 +1231,7 @@ extension KVLightTasksManagerTests {
 extension KVLightTasksManagerTests {
     
     // MARK: - Key Priority Tests (LIFO vs FIFO)
-    func testKeyPriorityLIFO() {
+    func testPriorityStrategyLIFO() {
         let expectation = XCTestExpectation(description: "Key priority LIFO")
         expectation.expectedFulfillmentCount = 6
         
@@ -1249,8 +1249,8 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumConcurrentRunningThreadNumber: 2,
-            keyPriority: .LIFO
+            maxNumberOfRunningTasks: 2,
+            PriorityStrategy: .LIFO
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -1283,7 +1283,7 @@ extension KVLightTasksManagerTests {
         XCTAssertEqual(Set(fetchOrder), Set(["key1", "key2", "key3", "key4", "key5", "key6"]), "All keys should be fetched")
     }
     
-    func testKeyPriorityFIFO() {
+    func testPriorityStrategyFIFO() {
         let expectation = XCTestExpectation(description: "Key priority FIFO")
         expectation.expectedFulfillmentCount = 6
         
@@ -1301,8 +1301,8 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumConcurrentRunningThreadNumber: 2,
-            keyPriority: .FIFO
+            maxNumberOfRunningTasks: 2,
+            PriorityStrategy: .FIFO
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -1362,7 +1362,7 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumConcurrentRunningThreadNumber: 2
+            maxNumberOfRunningTasks: 2
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -1614,7 +1614,7 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumConcurrentRunningThreadNumber: 2
+            maxNumberOfRunningTasks: 2
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -1707,7 +1707,7 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumConcurrentRunningThreadNumber: 1  // Use 1 instead of 0
+            maxNumberOfRunningTasks: 1  // Use 1 instead of 0
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -1754,7 +1754,7 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumConcurrentRunningThreadNumber: 100
+            maxNumberOfRunningTasks: 100
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -1813,9 +1813,9 @@ extension KVLightTasksManagerTests {
         // Configure with small queue capacity to trigger eviction
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumTaskNumberInQueue: 3, // Small capacity to trigger eviction
-            maximumConcurrentRunningThreadNumber: 1, // Single thread to ensure queue usage
-            keyPriority: .LIFO
+            maxNumberOfQueueingTasks: 3, // Small capacity to trigger eviction
+            maxNumberOfRunningTasks: 1, // Single thread to ensure queue usage
+            PriorityStrategy: .LIFO
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -1842,7 +1842,7 @@ extension KVLightTasksManagerTests {
                 XCTAssertEqual(value, "value_\(key)")
                 successCount += 1
             case .failure(let error):
-                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                if case KVLightTasksManager<String, String>.Errors.evictedByPriorityStrategy = error {
                     evictionCount += 1
                 } else {
                     XCTFail("Unexpected error type: \(error)")
@@ -1877,9 +1877,9 @@ extension KVLightTasksManagerTests {
         // Configure with small queue capacity to trigger rejection
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumTaskNumberInQueue: 3, // Small capacity to trigger rejection
-            maximumConcurrentRunningThreadNumber: 1, // Single thread to ensure queue usage
-            keyPriority: .FIFO
+            maxNumberOfQueueingTasks: 3, // Small capacity to trigger rejection
+            maxNumberOfRunningTasks: 1, // Single thread to ensure queue usage
+            PriorityStrategy: .FIFO
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -1906,7 +1906,7 @@ extension KVLightTasksManagerTests {
                 XCTAssertEqual(value, "value_\(key)")
                 successCount += 1
             case .failure(let error):
-                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                if case KVLightTasksManager<String, String>.Errors.evictedByPriorityStrategy = error {
                     rejectionCount += 1
                 } else {
                     XCTFail("Unexpected error type: \(error)")
@@ -1941,9 +1941,9 @@ extension KVLightTasksManagerTests {
         // Configure with very small queue capacity
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumTaskNumberInQueue: 2, // Very small capacity
-            maximumConcurrentRunningThreadNumber: 1,
-            keyPriority: .LIFO
+            maxNumberOfQueueingTasks: 2, // Very small capacity
+            maxNumberOfRunningTasks: 1,
+            PriorityStrategy: .LIFO
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -1970,7 +1970,7 @@ extension KVLightTasksManagerTests {
                 XCTAssertEqual(value, "value_\(key)")
                 successCount += 1
             case .failure(let error):
-                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                if case KVLightTasksManager<String, String>.Errors.evictedByPriorityStrategy = error {
                     evictionCount += 1
                 } else {
                     XCTFail("Unexpected error type: \(error)")
@@ -2004,9 +2004,9 @@ extension KVLightTasksManagerTests {
         // Configure with very small queue capacity
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumTaskNumberInQueue: 2, // Very small capacity
-            maximumConcurrentRunningThreadNumber: 1,
-            keyPriority: .FIFO
+            maxNumberOfQueueingTasks: 2, // Very small capacity
+            maxNumberOfRunningTasks: 1,
+            PriorityStrategy: .FIFO
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -2033,7 +2033,7 @@ extension KVLightTasksManagerTests {
                 XCTAssertEqual(value, "value_\(key)")
                 successCount += 1
             case .failure(let error):
-                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                if case KVLightTasksManager<String, String>.Errors.evictedByPriorityStrategy = error {
                     rejectionCount += 1
                 } else {
                     XCTFail("Unexpected error type: \(error)")
@@ -2067,9 +2067,9 @@ extension KVLightTasksManagerTests {
         // Configure with limited capacity
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumTaskNumberInQueue: 5, // Limited capacity
-            maximumConcurrentRunningThreadNumber: 2,
-            keyPriority: .LIFO
+            maxNumberOfQueueingTasks: 5, // Limited capacity
+            maxNumberOfRunningTasks: 2,
+            PriorityStrategy: .LIFO
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -2100,7 +2100,7 @@ extension KVLightTasksManagerTests {
                 XCTAssertEqual(value, "value_\(key)")
                 successCount += 1
             case .failure(let error):
-                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                if case KVLightTasksManager<String, String>.Errors.evictedByPriorityStrategy = error {
                     evictionCount += 1
                 } else {
                     XCTFail("Unexpected error type: \(error)")
@@ -2139,9 +2139,9 @@ extension KVLightTasksManagerTests {
         // Configure with limited capacity
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .multiprovide(maximumBatchCount: 3, multiprovide),
-            maximumTaskNumberInQueue: 6, // Limited capacity
-            maximumConcurrentRunningThreadNumber: 2,
-            keyPriority: .LIFO
+            maxNumberOfQueueingTasks: 6, // Limited capacity
+            maxNumberOfRunningTasks: 2,
+            PriorityStrategy: .LIFO
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -2170,7 +2170,7 @@ extension KVLightTasksManagerTests {
                 XCTAssertEqual(value, "value_\(key)")
                 successCount += 1
             case .failure(let error):
-                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                if case KVLightTasksManager<String, String>.Errors.evictedByPriorityStrategy = error {
                     evictionCount += 1
                 } else {
                     XCTFail("Unexpected error type: \(error)")
@@ -2205,10 +2205,10 @@ extension KVLightTasksManagerTests {
         // Configure with retry and limited capacity
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumTaskNumberInQueue: 3, // Limited capacity
-            maximumConcurrentRunningThreadNumber: 1,
+            maxNumberOfQueueingTasks: 3, // Limited capacity
+            maxNumberOfRunningTasks: 1,
             retryCount: 2,
-            keyPriority: .LIFO
+            PriorityStrategy: .LIFO
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -2235,7 +2235,7 @@ extension KVLightTasksManagerTests {
                 XCTAssertEqual(value, "value_\(key)")
                 successCount += 1
             case .failure(let error):
-                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                if case KVLightTasksManager<String, String>.Errors.evictedByPriorityStrategy = error {
                     evictionCount += 1
                 } else {
                     XCTFail("Unexpected error type: \(error)")
@@ -2274,9 +2274,9 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumTaskNumberInQueue: 4, // Limited capacity
-            maximumConcurrentRunningThreadNumber: 2,
-            keyPriority: .LIFO,
+            maxNumberOfQueueingTasks: 4, // Limited capacity
+            maxNumberOfRunningTasks: 2,
+            PriorityStrategy: .LIFO,
             cacheConfig: cacheConfig
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
@@ -2312,7 +2312,7 @@ extension KVLightTasksManagerTests {
                 XCTAssertEqual(value, "value_\(key)")
                 successCount += 1
             case .failure(let error):
-                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                if case KVLightTasksManager<String, String>.Errors.evictedByPriorityStrategy = error {
                     evictionCount += 1
                 } else {
                     XCTFail("Unexpected error type: \(error)")
@@ -2347,9 +2347,9 @@ extension KVLightTasksManagerTests {
         // Configure with very limited capacity
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumTaskNumberInQueue: 2, // Very limited capacity
-            maximumConcurrentRunningThreadNumber: 1,
-            keyPriority: .LIFO
+            maxNumberOfQueueingTasks: 2, // Very limited capacity
+            maxNumberOfRunningTasks: 1,
+            PriorityStrategy: .LIFO
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -2374,10 +2374,10 @@ extension KVLightTasksManagerTests {
             case .success(let value):
                 XCTAssertEqual(value, "value_\(key)")
             case .failure(let error):
-                if case KVLightTasksManager<String, String>.Errors.evictedByKeyPriority = error {
+                if case KVLightTasksManager<String, String>.Errors.evictedByPriorityStrategy = error {
                     evictionErrors += 1
                 } else {
-                    XCTFail("Should only have evictedByKeyPriority errors, got: \(error)")
+                    XCTFail("Should only have evictedByPriorityStrategy errors, got: \(error)")
                 }
             }
         }
@@ -2854,7 +2854,7 @@ extension KVLightTasksManagerTests {
     
     func testCacheConfigurationWithKeyValidation() {
         let expectation = XCTestExpectation(description: "Cache configuration with key validation")
-        expectation.expectedFulfillmentCount = 1
+        expectation.expectedFulfillmentCount = 2
         
         var fetchCount = 0
         let fetchSemaphore = DispatchSemaphore(value: 1)
@@ -2934,7 +2934,7 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumConcurrentRunningThreadNumber: 4
+            maxNumberOfRunningTasks: 4
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -3011,7 +3011,7 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumConcurrentRunningThreadNumber: 6,
+            maxNumberOfRunningTasks: 6,
             cacheConfig: cacheConfig
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
@@ -3101,7 +3101,7 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumConcurrentRunningThreadNumber: 8,
+            maxNumberOfRunningTasks: 8,
             cacheConfig: cacheConfig
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
@@ -3486,7 +3486,7 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumConcurrentRunningThreadNumber: 8,
+            maxNumberOfRunningTasks: 8,
             cacheConfig: cacheConfig
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
@@ -4024,7 +4024,7 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumConcurrentRunningThreadNumber: 2, // Limit concurrency
+            maxNumberOfRunningTasks: 2, // Limit concurrency
             cacheConfig: cacheConfig
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
@@ -4154,7 +4154,7 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumConcurrentRunningThreadNumber: 8
+            maxNumberOfRunningTasks: 8
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -4225,7 +4225,7 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumConcurrentRunningThreadNumber: 4
+            maxNumberOfRunningTasks: 4
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -4273,7 +4273,7 @@ extension KVLightTasksManagerTests {
         // Verify no excessive concurrent fetches (stampede prevention)
         XCTAssertLessThanOrEqual(concurrentFetchCount, 4, "Should not have excessive concurrent fetches")
         
-        XCTAssertLessThanOrEqual(maximumCurrentConcurrent, config.maximumConcurrentRunningThreadNumber)
+        XCTAssertLessThanOrEqual(maximumCurrentConcurrent, config.maxNumberOfRunningTasks)
     }
     
     func testThreadSafetyWithDuplicateKeys() {
@@ -4297,7 +4297,7 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .monoprovide(monoprovide),
-            maximumConcurrentRunningThreadNumber: 6
+            maxNumberOfRunningTasks: 6
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         
@@ -4972,7 +4972,7 @@ extension KVLightTasksManagerTests {
         
         let config = KVLightTasksManager<String, String>.Config(
             dataProvider: .asyncMonoprovide(asyncMonoprovide),
-            maximumConcurrentRunningThreadNumber: 3
+            maxNumberOfRunningTasks: 3
         )
         let taskManager = KVLightTasksManager<String, String>(config: config)
         

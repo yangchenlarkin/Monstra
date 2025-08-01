@@ -103,22 +103,22 @@ public extension KVHeavyTasksManager {
         /// - `LIFO(strategy)`: Last In, First Out - the most recently added task gets priority
         ///   - `strategy`: Determines how to handle currently running tasks when a new task is inserted
         /// - `FIFO`: First In, First Out - tasks are executed in the order they were added
-        public enum KeyPriority {
+        public enum PriorityStrategy {
             case LIFO(LIFOStrategy)
             case FIFO
         }
         
         /// Maximum number of tasks that can be queued in memory
-        public let maximumTaskNumberInQueue: Int
+        public let maxNumberOfQueueingTasks: Int
         
         /// Maximum number of concurrent threads for task execution
-        public let maximumConcurrentRunningThreadNumber: Int
+        public let maxNumberOfRunningTasks: Int
         
         /// Retry configuration for failed heavy task operations
         public let retryCount: RetryCount
         
         /// Priority strategy for task execution order
-        public let keyPriority: KeyPriority
+        public let PriorityStrategy: PriorityStrategy
         
         /// Cache configuration for heavy task results
         public let cacheConfig: MemoryCache<K, Element>.Configuration
@@ -129,22 +129,22 @@ public extension KVHeavyTasksManager {
         /// Initializes a new KVHeavyTasksManager configuration.
         /// 
         /// - Parameters:
-        ///   - maximumTaskNumberInQueue: Maximum number of tasks in the queue (default: 50)
-        ///   - maximumConcurrentRunningThreadNumber: Maximum concurrent threads (default: 4)
+        ///   - maxNumberOfQueueingTasks: Maximum number of tasks in the queue (default: 50)
+        ///   - maxNumberOfRunningTasks: Maximum concurrent threads (default: 4)
         ///   - retryCount: Retry configuration for failed requests (default: 0)
-        ///   - keyPriority: Priority strategy for task execution (default: .LIFO(.await))
+        ///   - PriorityStrategy: Priority strategy for task execution (default: .LIFO(.await))
         ///   - cacheConfig: Cache configuration for heavy task results (default: .defaultConfig)
         ///   - cacheStatisticsReport: Optional callback for cache statistics
-        public init(maximumTaskNumberInQueue: Int = 50,
-             maximumConcurrentRunningThreadNumber: Int = 4,
+        public init(maxNumberOfQueueingTasks: Int = 50,
+             maxNumberOfRunningTasks: Int = 4,
              retryCount: RetryCount = 0,
-             keyPriority: KeyPriority = .LIFO(.await),
+             PriorityStrategy: PriorityStrategy = .LIFO(.await),
              cacheConfig: MemoryCache<K, Element>.Configuration = .defaultConfig,
              cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil) {
-            self.maximumTaskNumberInQueue = maximumTaskNumberInQueue
-            self.maximumConcurrentRunningThreadNumber = maximumConcurrentRunningThreadNumber
+            self.maxNumberOfQueueingTasks = maxNumberOfQueueingTasks
+            self.maxNumberOfRunningTasks = maxNumberOfRunningTasks
             self.retryCount = retryCount
-            self.keyPriority = keyPriority
+            self.PriorityStrategy = PriorityStrategy
             self.cacheConfig = cacheConfig
             self.cacheStatisticsReport = cacheStatisticsReport
         }
@@ -172,9 +172,9 @@ public class KVHeavyTasksManager<TaskHandler: KVHeavyTaskDataProvider> {
     public init(config: Config) {
         self.config = config
         self.cache = .init(configuration: config.cacheConfig, statisticsReport: config.cacheStatisticsReport)
-        self.keyQueue = .init(capacity: config.maximumTaskNumberInQueue)
-        self.pausedTaskHandles = .init(capacity: config.maximumTaskNumberInQueue)
-        self.runningTaskHandlers = .init(capacity: config.maximumTaskNumberInQueue)
+        self.keyQueue = .init(capacity: config.maxNumberOfQueueingTasks)
+        self.pausedTaskHandles = .init(capacity: config.maxNumberOfQueueingTasks)
+        self.runningTaskHandlers = .init(capacity: config.maxNumberOfQueueingTasks)
     }
     
     private let config: Config
@@ -188,10 +188,10 @@ private extension KVHeavyTasksManager {
     private func start(_ key: K) {
         let wrapper = TaskHandlerWrapper(key: key)
         if !keyQueue.contains(key: wrapper) && !pausedTaskHandles.contains(key: wrapper) && !runningTaskHandlers.contains(key: wrapper) {
-            if keyQueue.count + pausedTaskHandles.count + runningTaskHandlers.count < config.maximumTaskNumberInQueue {
+            if keyQueue.count + pausedTaskHandles.count + runningTaskHandlers.count < config.maxNumberOfQueueingTasks {
 //                keyQueue.enqueueFront(key: wrapper)
             } else {
-                switch config.keyPriority {
+                switch config.PriorityStrategy {
                 case .LIFO(.await):
                     return
                 case .LIFO(.stop):

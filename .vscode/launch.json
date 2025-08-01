@@ -5,24 +5,6 @@
             "request": "launch",
             "args": [],
             "cwd": "${workspaceFolder:Monstra}",
-            "name": "Debug KVHeavyTasksManagerExample",
-            "program": "${workspaceFolder:Monstra}/.build/debug/KVHeavyTasksManagerExample",
-            "preLaunchTask": "swift: Build Debug KVHeavyTasksManagerExample"
-        },
-        {
-            "type": "swift",
-            "request": "launch",
-            "args": [],
-            "cwd": "${workspaceFolder:Monstra}",
-            "name": "Release KVHeavyTasksManagerExample",
-            "program": "${workspaceFolder:Monstra}/.build/release/KVHeavyTasksManagerExample",
-            "preLaunchTask": "swift: Build Release KVHeavyTasksManagerExample"
-        },
-        {
-            "type": "swift",
-            "request": "launch",
-            "args": [],
-            "cwd": "${workspaceFolder:Monstra}",
             "name": "Debug KVHeavyTaskDataProviderExample",
             "program": "${workspaceFolder:Monstra}/.build/debug/KVHeavyTaskDataProviderExample",
             "preLaunchTask": "swift: Build Debug KVHeavyTaskDataProviderExample"

@@ -396,6 +396,35 @@ extension String {
     }
 }
 
+// MARK: - Main Execution
+// 
+// ⚠️  IMPORTANT: This section is for demonstration purposes only!
+// 
+// ## For Users Implementing KVHeavyTaskDataProvider:
+// 
+// 1. **Implement your DataProvider**: Follow the patterns shown in the code above this section
+//    - Create a class that conforms to `KVHeavyTaskDataProvider`
+//    - Implement the required methods: `run()`, `stop()`
+//    - Define your associated types: `K`, `Element`, `CustomEvent`
+// 
+// 2. **Use as Generic Type**: In your actual project, use your DataProvider as the generic type
+//    ```swift
+//    let taskManager = KVHeavyTasksManager<YourDataProvider>(config: config)
+//    ```
+// 
+// 3. **Do NOT copy the code below**: The following code is only for demonstration and testing.
+//    You should NOT create DataProvider instances like this in your real project.
+// 
+// ## Example Usage in Your Project:
+// ```swift
+// // ✅ Correct: Use your DataProvider as generic type
+// class MyDataProvider: KVHeavyTaskDataProvider { ... }
+// let manager = KVHeavyTasksManager<MyDataProvider>(config: config)
+// 
+// // ❌ Wrong: Don't create instances like the code below
+// let provider = MyDataProvider(...) // Don't do this
+// ```
+
 /// Demonstrates local data processing with the LocalDataProvider
 /// 
 /// This function shows how to use the LocalDataProvider to process a string
@@ -417,10 +446,6 @@ func loadLocalData() {
         }
     }
 }
-
-// MARK: - Main Execution
-// Note: You don't need to implement the following code, just implement the code above
-// and use it as a generic type for KVHeavyTasksManager
 
 /// Global variables for managing the download task
 var taskHandler: AlamofireDataProvider? = nil

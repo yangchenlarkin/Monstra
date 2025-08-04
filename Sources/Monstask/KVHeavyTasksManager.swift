@@ -40,7 +40,7 @@ import Monstore
 /// - `K`: The key type used to identify tasks (must be Hashable)
 /// - `Element`: The result type returned by completed tasks
 /// - `CustomEvent`: The event type for progress and status updates
-public protocol KVHeavyTaskDataProvider {
+public protocol KVHeavyTaskDataProvider: AnyObject {
     associatedtype K: Hashable
     associatedtype Element
     associatedtype CustomEvent
@@ -50,6 +50,7 @@ public protocol KVHeavyTaskDataProvider {
     /// This closure is called to publish progress updates, status changes,
     /// or any other custom events during task execution.
     typealias CustomEventPublisher = @Sendable (CustomEvent) -> Void
+    typealias ResultPublisher = @Sendable (Result<Element?, Error>)->Void
     
     /// The unique identifier for this task
     var key: K { get }
@@ -57,12 +58,15 @@ public protocol KVHeavyTaskDataProvider {
     /// Optional callback for publishing custom events during task execution
     var customEventPublisher: CustomEventPublisher { get }
     
+    /// should be called just once after start
+    var resultPublisher: ResultPublisher { get }
+    
     /// Initializes a new heavy task data provider
     /// 
     /// - Parameters:
     ///   - key: The unique identifier for this task
     ///   - customEventPublisher: Optional callback for publishing custom events
-    init(key: K, customEventPublisher: @escaping CustomEventPublisher)
+    init(key: K, customEventPublisher: @escaping CustomEventPublisher, resultPublisher: @escaping ResultPublisher)
     
     /// Executes the heavy task asynchronously
     /// 
@@ -72,7 +76,7 @@ public protocol KVHeavyTaskDataProvider {
     /// 
     /// - Returns: The result of the task execution, or nil if the task was cancelled
     /// - Throws: Any error that occurred during task execution
-    func start() async throws -> Element?
+    func start() async 
     
     /// Stops the currently executing task
     /// 
@@ -80,9 +84,13 @@ public protocol KVHeavyTaskDataProvider {
     /// return a resume function that can be called to restart the task from
     /// where it left off.
     /// 
-    /// - Returns: An optional async closure that can resume the task, or nil if
-    ///            the task cannot be resumed or is already stopped
-    func stop() async -> (() async -> Void)?
+    /// - Returns: if need resume
+    func stop() async -> Bool
+    func resume() async
+}
+
+public extension KVHeavyTaskDataProvider {
+    func resume() async {}
 }
 
 /// Configuration and data provider types for KVHeavyTasksManager
@@ -186,10 +194,10 @@ public class KVHeavyTasksManager<TaskHandler: KVHeavyTaskDataProvider> {
 
 private extension KVHeavyTasksManager {
     private func start(_ key: K) {
-        let wrapper = TaskHandlerWrapper(key: key)
+        //arrange wrapper
+        var wrapper = TaskHandlerWrapper.init(key: key)
         if !keyQueue.contains(key: wrapper) && !pausedTaskHandles.contains(key: wrapper) && !runningTaskHandlers.contains(key: wrapper) {
             if keyQueue.count + pausedTaskHandles.count + runningTaskHandlers.count < config.maxNumberOfQueueingTasks {
-//                keyQueue.enqueueFront(key: wrapper)
             } else {
                 switch config.PriorityStrategy {
                 case .LIFO(.await):
@@ -201,13 +209,43 @@ private extension KVHeavyTasksManager {
                 }
             }
         }
+        
+        //start or resume:
+//        if let taskHandler = wrapper.taskHandler {
+//            Task {
+//                do {
+//                    let res = try await taskHandler.start(resumeToken: resumeTokens[key])
+//                    switch res {
+//                    case .toBeResumed(let resumeToken):
+//                        //put key into waiting queue
+//                        resumeTokens[key] = resumeToken
+//                        break
+//                    case .cancel:
+//                        //put key into keyQueue
+//                        break
+//                    case .result(let element):
+//                        //publish element
+//                        //remove key from running queue
+//                        break
+//                    }
+//                } catch(let error) {
+//                    //publish error
+//                }
+//            }
+//        } else {
+//            wrapper.taskHandler = .init(key: key, customEventPublisher: {_ in})
+//        }
     }
 }
 
 private extension KVHeavyTasksManager {
-    struct TaskHandlerWrapper: Hashable {
+    class TaskHandlerWrapper: Hashable {
         let key: K
         var taskHandler: TaskHandler?
+        init(key: K, taskHandler: TaskHandler? = nil) {
+            self.key = key
+            self.taskHandler = taskHandler
+        }
         
         static func == (lhs: KVHeavyTasksManager<TaskHandler>.TaskHandlerWrapper, rhs: KVHeavyTasksManager<TaskHandler>.TaskHandlerWrapper) -> Bool {
             lhs.key == rhs.key

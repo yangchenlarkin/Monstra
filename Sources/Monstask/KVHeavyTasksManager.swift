@@ -207,18 +207,34 @@ public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyT
     private var semaphore: DispatchSemaphore = .init(value: 1)
 }
 
+// Opt-in to Sendable semantics using internal synchronization.
+// The manager uses a DispatchSemaphore to protect shared mutable state.
+extension KVHeavyTasksManager: @unchecked Sendable {}
+
+public extension KVHeavyTasksManager {
+    enum Errors: Error {
+        case evictedByPriorityStrategy
+    }
+    
+    func fetch(key: K,
+               customEventObserver: DataProvider.CustomEventPublisher? = nil,
+               result resultCallback: DataProvider.ResultPublisher? = nil) {
+        start(key, customEventObserver: customEventObserver, resultCallback: resultCallback)
+    }
+}
+
 private extension KVHeavyTasksManager {
-    private func start(_ key: K, customEventObserver: DataProvider.CustomEventPublisher?, resultCallback: @escaping DataProvider.ResultPublisher) {
+    private func start(_ key: K, customEventObserver: DataProvider.CustomEventPublisher?, resultCallback: DataProvider.ResultPublisher?) {
         
         switch cache.getElement(for: key) {
         case .hitNonNullElement(let element):
-            resultCallback(.success(element))
+            resultCallback?(.success(element))
             return
             
         case .hitNullElement:
             fallthrough
         case .invalidKey:
-            resultCallback(.success(nil))
+            resultCallback?(.success(nil))
             return
             
         case .miss:
@@ -239,7 +255,9 @@ private extension KVHeavyTasksManager {
         if !resultCallbacks.keys.contains(key) {
             resultCallbacks[key] = .init()
         }
-        resultCallbacks[key]?.append(resultCallback)
+        if let resultCallback {
+            resultCallbacks[key]?.append(resultCallback)
+        }
         
         // try to excute
         switch config.priorityStrategy {
@@ -250,18 +268,6 @@ private extension KVHeavyTasksManager {
         case .LIFO(.stop):
             executeLIFOStop(key)
         }
-    }
-
-    // Public API
-    func start(key: K,
-               customEventObserver: DataProvider.CustomEventPublisher? = nil,
-               result resultCallback: @escaping DataProvider.ResultPublisher) {
-        start(key, customEventObserver: customEventObserver, resultCallback: resultCallback)
-    }
-    
-    
-    enum Errors: Error {
-        case evictedByPriorityStrategy
     }
     
     private func executeFIFO(_ key: K) {
@@ -306,60 +312,56 @@ private extension KVHeavyTasksManager {
     }
     
     private func startTask(for key: K) {
-        let dataProvider = DataProvider(key: key) { [weak self] customEvent in
-            DispatchQueue.global().async {
-                guard let self else { return }
-                self.semaphore.wait()
-                defer { self.semaphore.signal() }
-                
-                guard let observers = self.customEventObservers[key], !observers.isEmpty else {
-                    return
-                }
-                observers.forEach { observer in
-                    DispatchQueue.global().async {
-                        observer(customEvent)
-                    }
+        let dataProvider = DataProvider(key: key, customEventPublisher: { [weak self] customEvent in
+            guard let strongSelf = self else { return }
+            strongSelf.semaphore.wait()
+            let observers = strongSelf.customEventObservers[key]
+            strongSelf.semaphore.signal()
+            
+            guard let observers else { return }
+            
+            for observer in observers {
+                DispatchQueue.global().async {
+                    observer(customEvent)
                 }
             }
-        } resultPublisher: { [weak self] result in
-            DispatchQueue.global().async {
-                guard let self else { return }
-                self.semaphore.wait()
-                defer { self.semaphore.signal() }
-                
-                switch result {
-                case .success(let element):
-                    self.cache.set(element: element, for: key)
-                    self.consumeCallbacks(for: key, result: .success(element))
-                case .failure(let error):
-                    self.consumeCallbacks(for: key, result: .failure(error))
-                }
-                
-                 // Clean up provider for finished key
-                 self.dataProviders.removeValue(forKey: key)
-                 
-                self.runningKeys.remove(key: key)
-                
-                let nextKey: K?
-                switch self.config.priorityStrategy {
-                case .FIFO:
-                    nextKey = self.waitingQueue.dequeueBack()
-                case .LIFO:
-                    nextKey = self.waitingQueue.dequeueFront()
-                }
-                
-                guard let nextKey else { return }
-                
-                switch self.config.priorityStrategy {
-                case .FIFO:
-                    self.runningKeys.enqueueFront(key: nextKey, evictedStrategy: .LIFO)
-                case .LIFO:
-                    self.runningKeys.enqueueFront(key: nextKey, evictedStrategy: .FIFO)
-                }
-                
-                self.startTask(for: nextKey)
+        }, resultPublisher: { [weak self] result in
+            guard let strongSelf = self else { return }
+            strongSelf.semaphore.wait()
+            defer { strongSelf.semaphore.signal() }
+            
+            switch result {
+            case .success(let element):
+                strongSelf.cache.set(element: element, for: key)
+                strongSelf.consumeCallbacks(for: key, result: .success(element))
+            case .failure(let error):
+                strongSelf.consumeCallbacks(for: key, result: .failure(error))
             }
-        }
+            
+            // Clean up provider for finished key
+            strongSelf.dataProviders.removeValue(forKey: key)
+            
+            strongSelf.runningKeys.remove(key: key)
+            
+            let nextKey: K?
+            switch strongSelf.config.priorityStrategy {
+            case .FIFO:
+                nextKey = strongSelf.waitingQueue.dequeueBack()
+            case .LIFO:
+                nextKey = strongSelf.waitingQueue.dequeueFront()
+            }
+            
+            guard let nextKey else { return }
+            
+            switch strongSelf.config.priorityStrategy {
+            case .FIFO:
+                strongSelf.runningKeys.enqueueFront(key: nextKey, evictedStrategy: .LIFO)
+            case .LIFO:
+                strongSelf.runningKeys.enqueueFront(key: nextKey, evictedStrategy: .FIFO)
+            }
+            
+            strongSelf.startTask(for: nextKey)
+        })
 
         dataProvider.start(resumeData: resumeDataCache.getElement(for: key).element)
         self.dataProviders[key] = dataProvider

@@ -198,7 +198,7 @@ public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyT
     private let waitingQueue: KeyQueue<K>
     private let runningKeys: KeyQueue<K>
     
-    private let dataProvider: [K: DataProvider] = .init()
+    // Removed unused dataProvider dictionary (using dataProviders instead)
     
     private var customEventObservers: [K: [DataProvider.CustomEventPublisher]] = .init()
     private var resultCallbacks: [K: [DataProvider.ResultPublisher]] = .init()
@@ -251,6 +251,13 @@ private extension KVHeavyTasksManager {
             executeLIFOStop(key)
         }
     }
+
+    // Public API
+    func start(key: K,
+               customEventObserver: DataProvider.CustomEventPublisher? = nil,
+               result resultCallback: @escaping DataProvider.ResultPublisher) {
+        start(key, customEventObserver: customEventObserver, resultCallback: resultCallback)
+    }
     
     
     enum Errors: Error {
@@ -286,12 +293,12 @@ private extension KVHeavyTasksManager {
             if let evictedKey = self.waitingQueue.enqueueFront(key: keyToStop, evictedStrategy: .FIFO) {
                 consumeCallbacks(for: evictedKey, result: .failure(Errors.evictedByPriorityStrategy))
             }
-            if let dataProvider = dataProviders[key] {
-                dataProviders.removeValue(forKey: key)
+            if let dataProvider = dataProviders[keyToStop] {
+                dataProviders.removeValue(forKey: keyToStop)
                 dataProvider.stop() { [weak self] resumeData in
                     guard let self else { return }
                     guard let resumeData else { return }
-                    resumeDataCache.set(element: resumeData, for: key)
+                    resumeDataCache.set(element: resumeData, for: keyToStop)
                 }
             }
         }
@@ -305,7 +312,10 @@ private extension KVHeavyTasksManager {
                 self.semaphore.wait()
                 defer { self.semaphore.signal() }
                 
-                self.customEventObservers[key]?.forEach{ observer in
+                guard let observers = self.customEventObservers[key], !observers.isEmpty else {
+                    return
+                }
+                observers.forEach { observer in
                     DispatchQueue.global().async {
                         observer(customEvent)
                     }
@@ -325,6 +335,9 @@ private extension KVHeavyTasksManager {
                     self.consumeCallbacks(for: key, result: .failure(error))
                 }
                 
+                 // Clean up provider for finished key
+                 self.dataProviders.removeValue(forKey: key)
+                 
                 self.runningKeys.remove(key: key)
                 
                 let nextKey: K?

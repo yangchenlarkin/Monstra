@@ -23,41 +23,14 @@ import CryptoKit
 /// - Graceful cancellation handling
 /// - Configurable processing delays
 /// - Simple progress tracking
-class LocalDataProvider: Monstask.KVHeavyTaskDataProvider {
-    typealias K = String
-    typealias Element = String
-    typealias CustomEvent = Never
-    
-    /// The input string to be processed character by character
-    let key: K
-    
-    /// Optional callback for publishing custom events (not used in this example)
-    /// 
-    /// In a real implementation, this could be used to publish progress events,
-    /// status updates, or other custom notifications during processing.
-    var customEventPublisher: CustomEventPublisher
-    var resultPublisher: ResultPublisher
-    
+class LocalDataProvider: Monstask.KVHeavyTaskBaseDataProvider<String, String, Never>, Monstask.KVHeavyTaskDataProviderInterface {
     /// Flag to track pause state for task lifecycle management
     private enum State {
         case idle
-        case running
-        case finished
+        case running(value: String)
+        case finished(value: String)
     }
     private var state: State = .idle
-    private var isPause: Bool = false
-    private var pauseManager: CheckedContinuation<Void, Never>? = nil
-    
-    /// Initializes a new local data provider
-    /// 
-    /// - Parameters:
-    ///   - key: The input string to be processed
-    ///   - customEventPublisher: Optional callback for custom event publishing
-    required init(key: K, customEventPublisher: @escaping CustomEventPublisher, resultPublisher: @escaping ResultPublisher) {
-        self.key = key
-        self.customEventPublisher = customEventPublisher
-        self.resultPublisher = resultPublisher
-    }
     
     /// Processes the input string character by character with artificial delays
     /// 
@@ -73,12 +46,12 @@ class LocalDataProvider: Monstask.KVHeavyTaskDataProvider {
     /// 
     /// - Returns: The processed string result, or nil if cancelled
     /// - Throws: CancellationError if the task is cancelled during execution
-    func start() async {
+    func start(resumeData: String?) async {
         guard case .idle = state else { return }
         
-        state = .running
+        var result = resumeData ?? ""
         
-        var result = ""
+        state = .running(value: result)
         
         for character in key {
             // Simulate processing delay (1 second per character)
@@ -87,39 +60,32 @@ class LocalDataProvider: Monstask.KVHeavyTaskDataProvider {
             // Process the current character
             result.append(character)
             
-            if isPause {
-                await withCheckedContinuation { self.pauseManager = $0 }
+            if case .running = state {
+                state = .running(value: result)
             }
         }
-        state = .finished
+        state = .finished(value: result)
         resultPublisher(.success(result))
     }
     
     /// Stops the current processing task and provides resume capability
-    /// 
+    ///
     /// This method implements the pause/resume functionality by setting the pause flag
     /// and returning a resume function. The resume function can be called later to
     /// continue processing from where it left off.
-    /// 
+    ///
     /// ## Usage
     /// ```swift
     /// let resumeTask = await provider.stop()
     /// // ... do other work ...
     /// await resumeTask?()
     /// ```
-    /// 
+    ///
     /// - Returns: An async closure that resumes the task, or nil if already stopped
-    func stop() async -> Bool {
-        guard case .running = state else { return false }
-        self.isPause = true
-        
-        return true
-    }
-    
-    func resume() async {
-        guard case .running = state else { return }
-        self.pauseManager?.resume()
-        self.isPause = false
+    func stop() async -> String? {
+        guard case .running(let value) = state else { return nil }
+        self.state = .finished(value: value)
+        return value
     }
 }
 
@@ -141,40 +107,12 @@ class LocalDataProvider: Monstask.KVHeavyTaskDataProvider {
 /// - File integrity validation
 /// - Intelligent caching and deduplication
 /// - Error handling and retry logic
-class AlamofireDataProvider: Monstask.KVHeavyTaskDataProvider {
-    typealias K = URL
-    typealias Element = Data
-    typealias CustomEvent = Progress
-    typealias ResumeToken = Never
-    
-    /// The URL of the file to download
-    let key: K
-    
-    /// Callback for publishing download progress events
-    /// 
-    /// This closure receives Alamofire's Progress object containing:
-    /// - `completedUnitCount`: Bytes downloaded so far
-    /// - `totalUnitCount`: Total bytes to download
-    /// - `fractionCompleted`: Progress as a fraction (0.0 to 1.0)
-    var customEventPublisher: CustomEventPublisher
-    var resultPublisher: ResultPublisher
-    
+class AlamofireDataProvider: Monstask.KVHeavyTaskBaseDataProvider<URL, Data, Progress>, Monstask.KVHeavyTaskDataProviderInterface {
     /// The current download request (if active)
     /// 
     /// This property holds the Alamofire DownloadRequest instance, allowing
     /// for cancellation, pausing, and resuming of the download operation.
     private var request: DownloadRequest? = nil
-    
-    /// Initializes a new network data provider for file downloads
-    /// 
-    /// - Parameters:
-    ///   - key: The URL of the file to download
-    ///   - customEventPublisher: Optional callback for progress event publishing
-    required init(key: URL, customEventPublisher: @escaping CustomEventPublisher, resultPublisher: @escaping ResultPublisher) {
-        self.key = key
-        self.customEventPublisher = customEventPublisher
-        self.resultPublisher = resultPublisher
-    }
     
     /// Downloads the file from the specified URL with intelligent resume capability
     /// 
@@ -197,7 +135,7 @@ class AlamofireDataProvider: Monstask.KVHeavyTaskDataProvider {
     /// 
     /// - Returns: The downloaded file data as Data object, or nil if cancelled
     /// - Throws: Network errors (AFError), file system errors, or validation errors
-    func start() async {
+    func start(resumeData: Never?) async {
         let destinationURL = Self.destinationURL(key)
         
         // Step 1: Check for existing download and validate integrity
@@ -261,10 +199,10 @@ class AlamofireDataProvider: Monstask.KVHeavyTaskDataProvider {
     /// 
     /// - Returns: An async closure that can resume the download, or nil if already finished
     @discardableResult
-    func stop() async -> Bool {
+    func stop() async -> Never? {
         guard let request = request, !request.isFinished else {
             print("📋 No active download to stop")
-            return false
+            return nil
         }
         
         print("⏸️ Stopping download and saving resume data...")
@@ -292,7 +230,7 @@ class AlamofireDataProvider: Monstask.KVHeavyTaskDataProvider {
             })
         }
         
-        return false
+        return nil
     }
     
     /// Gets the caches directory for storing downloaded files
@@ -461,7 +399,7 @@ func localDataProviderTest() {
             case .failure(let error):
                 print("❌ Local processing failed: \(error)")
             }
-        }.start()
+        }.start(resumeData: nil)
     }
 }
 
@@ -519,7 +457,7 @@ func alamofireDataProviderTest() {
     
     // Execute the download task with comprehensive error handling
     Task {
-        await taskHandler.start()
+        await taskHandler.start(resumeData: nil)
         try? await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
         await taskHandler.stop()
     }

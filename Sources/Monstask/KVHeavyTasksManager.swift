@@ -24,6 +24,35 @@ import Foundation
 import MonstraBase
 import Monstore
 
+open class KVHeavyTaskBaseDataProvider<K: Hashable, Element, CustomEvent> {
+    /// Callback type for publishing custom events during task execution
+    ///
+    /// This closure is called to publish progress updates, status changes,
+    /// or any other custom events during task execution.
+    public typealias CustomEventPublisher = @Sendable (CustomEvent) -> Void
+    public typealias ResultPublisher = @Sendable (Result<Element?, Error>)->Void
+    
+    /// The unique identifier for this task
+    public internal(set) var key: K
+    
+    /// Optional callback for publishing custom events during task execution
+    public internal(set) var customEventPublisher: CustomEventPublisher
+    
+    /// should be called just once after start
+    public internal(set) var resultPublisher: ResultPublisher
+    
+    /// Initializes a new heavy task data provider
+    ///
+    /// - Parameters:
+    ///   - key: The unique identifier for this task
+    ///   - customEventPublisher: Optional callback for publishing custom events
+    required public init(key: K, customEventPublisher: @escaping CustomEventPublisher, resultPublisher: @escaping ResultPublisher) {
+        self.key = key
+        self.customEventPublisher = customEventPublisher
+        self.resultPublisher = resultPublisher
+    }
+}
+
 /// Protocol defining the interface for heavy task data providers.
 /// 
 /// Heavy task data providers are responsible for executing individual resource-intensive operations
@@ -40,34 +69,8 @@ import Monstore
 /// - `K`: The key type used to identify tasks (must be Hashable)
 /// - `Element`: The result type returned by completed tasks
 /// - `CustomEvent`: The event type for progress and status updates
-public protocol KVHeavyTaskDataProvider: AnyObject {
-    associatedtype K: Hashable
-    associatedtype Element
-    associatedtype CustomEvent
-    
-    /// Callback type for publishing custom events during task execution
-    /// 
-    /// This closure is called to publish progress updates, status changes,
-    /// or any other custom events during task execution.
-    typealias CustomEventPublisher = @Sendable (CustomEvent) -> Void
-    typealias ResultPublisher = @Sendable (Result<Element?, Error>)->Void
-    
-    /// The unique identifier for this task
-    var key: K { get }
-    
-    /// Optional callback for publishing custom events during task execution
-    var customEventPublisher: CustomEventPublisher { get }
-    
-    /// should be called just once after start
-    var resultPublisher: ResultPublisher { get }
-    
-    /// Initializes a new heavy task data provider
-    /// 
-    /// - Parameters:
-    ///   - key: The unique identifier for this task
-    ///   - customEventPublisher: Optional callback for publishing custom events
-    init(key: K, customEventPublisher: @escaping CustomEventPublisher, resultPublisher: @escaping ResultPublisher)
-    
+public protocol KVHeavyTaskDataProviderInterface {
+    associatedtype ResumeData
     /// Executes the heavy task asynchronously
     /// 
     /// This method should implement the main task logic. It can publish progress
@@ -76,7 +79,7 @@ public protocol KVHeavyTaskDataProvider: AnyObject {
     /// 
     /// - Returns: The result of the task execution, or nil if the task was cancelled
     /// - Throws: Any error that occurred during task execution
-    func start() async 
+    func start(resumeData: ResumeData?) async
     
     /// Stops the currently executing task
     /// 
@@ -85,11 +88,26 @@ public protocol KVHeavyTaskDataProvider: AnyObject {
     /// where it left off.
     /// 
     /// - Returns: if need resume
-    func stop() async -> Bool
-    func resume() async
+    @discardableResult
+    func stop() async -> ResumeData?
 }
 
-public extension KVHeavyTaskDataProvider {
+extension KVHeavyTaskDataProviderInterface {
+    func start(resumeData: ResumeData?, _ callback: (()->Void)? = nil) {
+        Task {
+            await start(resumeData: resumeData)
+            callback?()
+        }
+    }
+    
+    func stop(_ callback: ((ResumeData?)->Void)? = nil) {
+        Task {
+            callback?(await stop())
+        }
+    }
+}
+
+public extension KVHeavyTaskDataProviderInterface {
     func resume() async {}
 }
 
@@ -112,8 +130,8 @@ public extension KVHeavyTasksManager {
         ///   - `strategy`: Determines how to handle currently running tasks when a new task is inserted
         /// - `FIFO`: First In, First Out - tasks are executed in the order they were added
         public enum PriorityStrategy {
-            case LIFO(LIFOStrategy)
             case FIFO
+            case LIFO(LIFOStrategy)
         }
         
         /// Maximum number of tasks that can be queued in memory
@@ -122,17 +140,15 @@ public extension KVHeavyTasksManager {
         /// Maximum number of concurrent threads for task execution
         public let maxNumberOfRunningTasks: Int
         
-        /// Retry configuration for failed heavy task operations
-        public let retryCount: RetryCount
-        
         /// Priority strategy for task execution order
-        public let PriorityStrategy: PriorityStrategy
+        public let priorityStrategy: PriorityStrategy
         
         /// Cache configuration for heavy task results
         public let cacheConfig: MemoryCache<K, Element>.Configuration
         
         /// Optional callback for cache statistics reporting
         public let cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)?
+        public let resumeDataCacheConfig: MemoryCache<K, DataProvider.ResumeData>.Configuration
         
         /// Initializes a new KVHeavyTasksManager configuration.
         /// 
@@ -144,29 +160,19 @@ public extension KVHeavyTasksManager {
         ///   - cacheConfig: Cache configuration for heavy task results (default: .defaultConfig)
         ///   - cacheStatisticsReport: Optional callback for cache statistics
         public init(maxNumberOfQueueingTasks: Int = 50,
-             maxNumberOfRunningTasks: Int = 4,
-             retryCount: RetryCount = 0,
-             PriorityStrategy: PriorityStrategy = .LIFO(.await),
-             cacheConfig: MemoryCache<K, Element>.Configuration = .defaultConfig,
-             cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil) {
+                    maxNumberOfRunningTasks: Int = 4,
+                    priorityStrategy: PriorityStrategy = .LIFO(.await),
+                    cacheConfig: MemoryCache<K, Element>.Configuration = .defaultConfig,
+                    resumeDataCacheConfig: MemoryCache<K, DataProvider.ResumeData>.Configuration = .defaultConfig,
+                    cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil) {
             self.maxNumberOfQueueingTasks = maxNumberOfQueueingTasks
             self.maxNumberOfRunningTasks = maxNumberOfRunningTasks
-            self.retryCount = retryCount
-            self.PriorityStrategy = PriorityStrategy
+            self.priorityStrategy = priorityStrategy
             self.cacheConfig = cacheConfig
+            self.resumeDataCacheConfig = resumeDataCacheConfig
             self.cacheStatisticsReport = cacheStatisticsReport
         }
     }
-}
-
-/// The manager automatically uses the same key and element types as the task handler:
-/// - `K`: Same as TaskHandler.K (the key type for identifying tasks)
-/// - `Element`: Same as TaskHandler.Element (the result type from completed tasks)
-public extension KVHeavyTasksManager {
-    /// Type alias ensuring K is the same as TaskHandler's associated type
-    typealias K = TaskHandler.K
-    /// Type alias ensuring Element is the same as TaskHandler's associated type
-    typealias Element = TaskHandler.Element
 }
 
 /// Manager for heavy computational tasks that require significant resources and time.
@@ -176,83 +182,186 @@ public extension KVHeavyTasksManager {
 /// comprehensive lifecycle management for resource-intensive operations.
 /// 
 /// - `TaskHandler`: The type of task handler that conforms to KVHeavyTaskHandler protocol
-public class KVHeavyTasksManager<TaskHandler: KVHeavyTaskDataProvider> {
+public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyTaskBaseDataProvider<K, Element, CustomEvent>> where DataProvider: KVHeavyTaskDataProviderInterface {
     public init(config: Config) {
         self.config = config
         self.cache = .init(configuration: config.cacheConfig, statisticsReport: config.cacheStatisticsReport)
-        self.keyQueue = .init(capacity: config.maxNumberOfQueueingTasks)
-        self.pausedTaskHandles = .init(capacity: config.maxNumberOfQueueingTasks)
-        self.runningTaskHandlers = .init(capacity: config.maxNumberOfQueueingTasks)
+        self.resumeDataCache = .init(configuration: config.resumeDataCacheConfig)
+        self.waitingQueue = .init(capacity: config.maxNumberOfQueueingTasks)
+        self.runningKeys = .init(capacity: config.maxNumberOfRunningTasks)
     }
     
-    private let config: Config
+    public let config: Config
     private let cache: Monstore.MemoryCache<K, Element>
-    private let keyQueue: KeyQueue<TaskHandlerWrapper>
-    private let pausedTaskHandles: KeyQueue<TaskHandlerWrapper>
-    private let runningTaskHandlers: KeyQueue<TaskHandlerWrapper>
+    
+    private let resumeDataCache: Monstore.MemoryCache<K, DataProvider.ResumeData>
+    private let waitingQueue: KeyQueue<K>
+    private let runningKeys: KeyQueue<K>
+    
+    private let dataProvider: [K: DataProvider] = .init()
+    
+    private var customEventObservers: [K: [DataProvider.CustomEventPublisher]] = .init()
+    private var resultCallbacks: [K: [DataProvider.ResultPublisher]] = .init()
+    private var dataProviders: [K: DataProvider] = .init()
+    
+    private var semaphore: DispatchSemaphore = .init(value: 1)
 }
 
 private extension KVHeavyTasksManager {
-    private func start(_ key: K) {
-        //arrange wrapper
-        var wrapper = TaskHandlerWrapper.init(key: key)
-        if !keyQueue.contains(key: wrapper) && !pausedTaskHandles.contains(key: wrapper) && !runningTaskHandlers.contains(key: wrapper) {
-            if keyQueue.count + pausedTaskHandles.count + runningTaskHandlers.count < config.maxNumberOfQueueingTasks {
-            } else {
-                switch config.PriorityStrategy {
-                case .LIFO(.await):
-                    return
-                case .LIFO(.stop):
-                    return
-                case .FIFO:
-                    return
+    private func start(_ key: K, customEventObserver: DataProvider.CustomEventPublisher?, resultCallback: @escaping DataProvider.ResultPublisher) {
+        
+        switch cache.getElement(for: key) {
+        case .hitNonNullElement(let element):
+            resultCallback(.success(element))
+            return
+            
+        case .hitNullElement:
+            fallthrough
+        case .invalidKey:
+            resultCallback(.success(nil))
+            return
+            
+        case .miss:
+            break
+        }
+        
+        semaphore.wait()
+        defer { semaphore.signal() }
+        
+        // cache callback
+        if let customEventObserver {
+            if !customEventObservers.keys.contains(key) {
+                customEventObservers[key] = .init()
+            }
+            customEventObservers[key]?.append(customEventObserver)
+        }
+        
+        if !resultCallbacks.keys.contains(key) {
+            resultCallbacks[key] = .init()
+        }
+        resultCallbacks[key]?.append(resultCallback)
+        
+        // try to excute
+        switch config.priorityStrategy {
+        case .FIFO:
+            executeFIFO(key)
+        case .LIFO(.await):
+            executeLIFOAwait(key)
+        case .LIFO(.stop):
+            executeLIFOStop(key)
+        }
+    }
+    
+    
+    enum Errors: Error {
+        case evictedByPriorityStrategy
+    }
+    
+    private func executeFIFO(_ key: K) {
+        if runningKeys.count < self.config.maxNumberOfRunningTasks {
+            runningKeys.enqueueFront(key: key, evictedStrategy: .LIFO)
+            startTask(for: key)
+            return
+        }
+        
+        if let evictedKey = self.waitingQueue.enqueueFront(key: key, evictedStrategy: .LIFO) {
+            consumeCallbacks(for: evictedKey, result: .failure(Errors.evictedByPriorityStrategy))
+        }
+    }
+    
+    private func executeLIFOAwait(_ key: K) {
+        if runningKeys.count < self.config.maxNumberOfRunningTasks {
+            runningKeys.enqueueFront(key: key, evictedStrategy: .FIFO)
+            startTask(for: key)
+            return
+        }
+        
+        if let evictedKey = self.waitingQueue.enqueueFront(key: key, evictedStrategy: .FIFO) {
+            consumeCallbacks(for: evictedKey, result: .failure(Errors.evictedByPriorityStrategy))
+        }
+    }
+    
+    private func executeLIFOStop(_ key: K) {
+        if let keyToStop = runningKeys.enqueueFront(key: key, evictedStrategy: .FIFO) {
+            if let evictedKey = self.waitingQueue.enqueueFront(key: keyToStop, evictedStrategy: .FIFO) {
+                consumeCallbacks(for: evictedKey, result: .failure(Errors.evictedByPriorityStrategy))
+            }
+            if let dataProvider = dataProviders[key] {
+                dataProviders.removeValue(forKey: key)
+                dataProvider.stop() { [weak self] resumeData in
+                    guard let self else { return }
+                    guard let resumeData else { return }
+                    resumeDataCache.set(element: resumeData, for: key)
                 }
             }
         }
-        
-        //start or resume:
-//        if let taskHandler = wrapper.taskHandler {
-//            Task {
-//                do {
-//                    let res = try await taskHandler.start(resumeToken: resumeTokens[key])
-//                    switch res {
-//                    case .toBeResumed(let resumeToken):
-//                        //put key into waiting queue
-//                        resumeTokens[key] = resumeToken
-//                        break
-//                    case .cancel:
-//                        //put key into keyQueue
-//                        break
-//                    case .result(let element):
-//                        //publish element
-//                        //remove key from running queue
-//                        break
-//                    }
-//                } catch(let error) {
-//                    //publish error
-//                }
-//            }
-//        } else {
-//            wrapper.taskHandler = .init(key: key, customEventPublisher: {_ in})
-//        }
+        startTask(for: key)
+    }
+    
+    private func startTask(for key: K) {
+        let dataProvider = DataProvider(key: key) { [weak self] customEvent in
+            DispatchQueue.global().async {
+                guard let self else { return }
+                self.semaphore.wait()
+                defer { self.semaphore.signal() }
+                
+                self.customEventObservers[key]?.forEach{ observer in
+                    DispatchQueue.global().async {
+                        observer(customEvent)
+                    }
+                }
+            }
+        } resultPublisher: { [weak self] result in
+            DispatchQueue.global().async {
+                guard let self else { return }
+                self.semaphore.wait()
+                defer { self.semaphore.signal() }
+                
+                switch result {
+                case .success(let element):
+                    self.cache.set(element: element, for: key)
+                    self.consumeCallbacks(for: key, result: .success(element))
+                case .failure(let error):
+                    self.consumeCallbacks(for: key, result: .failure(error))
+                }
+                
+                self.runningKeys.remove(key: key)
+                
+                let nextKey: K?
+                switch self.config.priorityStrategy {
+                case .FIFO:
+                    nextKey = self.waitingQueue.dequeueBack()
+                case .LIFO:
+                    nextKey = self.waitingQueue.dequeueFront()
+                }
+                
+                guard let nextKey else { return }
+                
+                switch self.config.priorityStrategy {
+                case .FIFO:
+                    self.runningKeys.enqueueFront(key: nextKey, evictedStrategy: .LIFO)
+                case .LIFO:
+                    self.runningKeys.enqueueFront(key: nextKey, evictedStrategy: .FIFO)
+                }
+                
+                self.startTask(for: nextKey)
+            }
+        }
+
+        dataProvider.start(resumeData: resumeDataCache.getElement(for: key).element)
+        self.dataProviders[key] = dataProvider
+    }
+    
+    private func consumeCallbacks(for key: K, result: Result<Element?, Error>) {
+        resumeDataCache.removeElement(for: key)
+        resultCallbacks[key]?.forEach{ callback in
+            DispatchQueue.global().async {
+                callback(result)
+            }
+        }
+        customEventObservers.removeValue(forKey: key)
     }
 }
 
-private extension KVHeavyTasksManager {
-    class TaskHandlerWrapper: Hashable {
-        let key: K
-        var taskHandler: TaskHandler?
-        init(key: K, taskHandler: TaskHandler? = nil) {
-            self.key = key
-            self.taskHandler = taskHandler
-        }
-        
-        static func == (lhs: KVHeavyTasksManager<TaskHandler>.TaskHandlerWrapper, rhs: KVHeavyTasksManager<TaskHandler>.TaskHandlerWrapper) -> Bool {
-            lhs.key == rhs.key
-        }
-        
-        func hash(into hasher: inout Hasher) {
-            hasher.combine(key)
-        }
-    }
-}
+//TODO in UT:
+//1. ensure no customEvent is executed after resultPublisher

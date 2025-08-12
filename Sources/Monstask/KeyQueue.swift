@@ -73,6 +73,7 @@ public class KeyQueue<K: Hashable> {
     /// Enqueues a key at the front of the queue (most recently used position).
     /// If the key already exists, it is moved to the front (LRU behavior).
     /// - Parameter key: The key to enqueue.
+    @discardableResult
     public func enqueueFront(key: K, evictedStrategy: DoublyLink<K>.EvictedStrategy) -> K? {
         let node: DoublyLink<K>.Node
         if let _node = map[key] {

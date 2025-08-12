@@ -360,7 +360,7 @@ public extension MemoryCache {
         case hitNonNullElement(element: Element)
         case miss
         
-        var element: Element? {
+        public var element: Element? {
             switch self {
             case .hitNonNullElement(let element):
                 return element
@@ -369,7 +369,7 @@ public extension MemoryCache {
             }
         }
         
-        var isMiss: Bool {
+        public var isMiss: Bool {
             switch self {
             case .miss:
                 return true

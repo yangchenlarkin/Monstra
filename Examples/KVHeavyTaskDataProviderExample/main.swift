@@ -49,11 +49,22 @@ class LocalDataProvider: Monstask.KVHeavyTaskBaseDataProvider<String, String, Ne
     func start(resumeData: String?) async {
         guard case .idle = state else { return }
         
-        var result = resumeData ?? ""
+        // Determine the already processed prefix from resumeData
+        let processedPrefix = resumeData ?? ""
+        var result = processedPrefix
+        
+        // Compute start index. If resumeData is not a prefix, restart from beginning
+        let startIndex: String.Index
+        if key.hasPrefix(processedPrefix) {
+            startIndex = key.index(key.startIndex, offsetBy: processedPrefix.count)
+        } else {
+            result = ""
+            startIndex = key.startIndex
+        }
         
         state = .running(value: result)
         
-        for character in key {
+        for character in key[startIndex...] {
             // Simulate processing delay (1 second per character)
             try? await Task.sleep(nanoseconds: 1_000_000_000)
             

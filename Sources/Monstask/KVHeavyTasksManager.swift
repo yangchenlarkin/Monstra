@@ -394,10 +394,10 @@ private extension KVHeavyTasksManager {
         resumeDataCache.removeElement(for: key)
         resultCallbacks[key]?.forEach{ callback in
             DispatchQueue.global().async {
-                print(self.resultCallbacks)
                 callback(result)
             }
         }
+        resultCallbacks.removeValue(forKey: key)
         customEventObservers.removeValue(forKey: key)
     }
 }

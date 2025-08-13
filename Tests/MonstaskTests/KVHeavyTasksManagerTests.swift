@@ -1068,7 +1068,7 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         
         let callbackTimes = TestDataContainer([Date]())
         
-        for i in 1...3 {
+        for _ in 1...3 {
             manager.fetch(key: "cached_task", result: { result in
                 Task {
                     await callbackTimes.modify { times in
@@ -1242,10 +1242,6 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                     }
                 }
                 exp.fulfill()
-                print("🐰🐰🐰🐰🐰🐰🐰🐰: \(key)")
-                if key == "cache_me" {
-                    Thread.callStackSymbols.forEach { print($0) }
-                }
             })
         }
         
@@ -1267,5 +1263,502 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         // At least some tasks should have events (non-cache hits)
         let tasksWithEvents = finalEvents.values.filter { !$0.isEmpty }.count
         XCTAssertGreaterThan(tasksWithEvents, 0, "At least some tasks should have events")
+    }
+    
+    // MARK: - Extreme Concurrency Tests (Race Conditions)
+    
+    /**
+     Extreme concurrency test scenario combinations:
+     
+     Basic operations: fetch, finish, stop
+     
+     1. Multiple fetch operations on same key concurrency races:
+        - Multiple threads simultaneously fetch same key
+        - fetch + finish race conditions
+        - fetch + stop race conditions
+     
+     2. finish and stop race conditions:
+        - finish and stop happening simultaneously
+        - Multiple stop operations racing
+        - Immediate fetch after stop
+     
+     3. Complex combination races:
+        - fetch + fetch + stop
+        - fetch + stop + finish
+        - stop + fetch + stop
+        - finish + fetch + fetch
+     
+     4. Extreme stress testing:
+        - Massive concurrent operations on same key
+        - Rapid consecutive fetch/stop cycles
+        - Multi-key multi-operation mixed races
+     */
+    
+    // Test Case 13: Multiple fetch operations on same key concurrency race
+    func testConcurrentMultipleFetchSameKey() async {
+        let manager = makeManager(priority: .FIFO, running: 1)
+        
+        let exp = expectation(description: "concurrent fetches completed")
+        exp.expectedFulfillmentCount = 5 // 5 concurrent fetches
+        
+        let results = TestDataContainer([String?]())
+        let callbackTimes = TestDataContainer([Date]())
+        
+        // Launch 5 fetch operations simultaneously on the same key
+        await withTaskGroup(of: Void.self) { group in
+            for _ in 1...5 {
+                group.addTask {
+                    manager.fetch(key: "concurrent_key", result: { result in
+                        Task {
+                            await callbackTimes.modify { times in
+                                times.append(Date())
+                            }
+                            if case .success(let value) = result {
+                                await results.modify { array in
+                                    array.append(value)
+                                }
+                            }
+                        }
+                        exp.fulfill()
+                    })
+                }
+            }
+        }
+        
+        await fulfillment(of: [exp], timeout: 10.0)
+        
+        let finalResults = await results.get()
+        let finalTimes = await callbackTimes.get()
+        
+        // All callbacks should be executed
+        XCTAssertEqual(finalResults.count, 5)
+        XCTAssertEqual(finalTimes.count, 5)
+        
+        // All results should be the same (same key)
+        let uniqueResults = Set(finalResults.compactMap { $0 })
+        XCTAssertEqual(uniqueResults.count, 1)
+        XCTAssertEqual(uniqueResults.first, "concurrent_key")
+    }
+    
+    // Test Case 14: fetch + finish race conditions
+    func testConcurrentFetchAndFinish() async {
+        let manager = makeManager(priority: .LIFO(.stop), running: 1)
+        
+        let exp = expectation(description: "fetch-finish race completed")
+        exp.expectedFulfillmentCount = 3
+        
+        let results = TestDataContainer([String]())
+        let operationOrder = TestDataContainer([String]())
+        
+        // Start a task
+        manager.fetch(key: "race_key", result: { result in
+            Task {
+                await operationOrder.modify { order in
+                    order.append("first_finish")
+                }
+                if case .success(let value) = result, let unwrappedValue = value {
+                    await results.modify { array in
+                        array.append(unwrappedValue)
+                    }
+                }
+            }
+            exp.fulfill()
+        })
+        
+        // After brief delay, simultaneously start new fetch operation (will trigger stop) and wait for completion
+        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+        
+        await withTaskGroup(of: Void.self) { group in
+            // New fetch (will stop current task)
+            group.addTask {
+                manager.fetch(key: "interrupt_key", result: { result in
+                    Task {
+                        await operationOrder.modify { order in
+                            order.append("interrupt_finish")
+                        }
+                        if case .success(let value) = result, let unwrappedValue = value {
+                            await results.modify { array in
+                                array.append(unwrappedValue)
+                            }
+                        }
+                    }
+                    exp.fulfill()
+                })
+            }
+            
+            // Simultaneously try to fetch original key again
+            group.addTask {
+                try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 seconds delay
+                manager.fetch(key: "race_key", result: { result in
+                    Task {
+                        await operationOrder.modify { order in
+                            order.append("race_finish")
+                        }
+                        if case .success(let value) = result, let unwrappedValue = value {
+                            await results.modify { array in
+                                array.append(unwrappedValue)
+                            }
+                        }
+                    }
+                    exp.fulfill()
+                })
+            }
+        }
+        
+        await fulfillment(of: [exp], timeout: 15.0)
+        
+        let finalResults = await results.get()
+        let finalOrder = await operationOrder.get()
+        
+        XCTAssertEqual(finalResults.count, 3)
+        XCTAssertEqual(finalOrder.count, 3)
+        
+        // Verify all tasks eventually completed
+        XCTAssertEqual(Set(finalResults), Set(["race_key", "interrupt_key"]))
+    }
+    
+    // Test Case 15: Multiple stop operations race
+    func testConcurrentMultipleStops() async {
+        let manager = makeManager(priority: .LIFO(.stop), running: 1)
+        
+        let exp = expectation(description: "multiple stops completed")
+        exp.expectedFulfillmentCount = 4 // 1 original + 3 interrupts
+        
+        let results = TestDataContainer([String]())
+        let stopOrder = TestDataContainer([String]())
+        
+        // Start initial task
+        manager.fetch(key: "original", result: { result in
+            Task {
+                await stopOrder.modify { order in
+                    order.append("original_finish")
+                }
+                if case .success(let value) = result, let unwrappedValue = value {
+                    await results.modify { array in
+                        array.append(unwrappedValue)
+                    }
+                }
+            }
+            exp.fulfill()
+        })
+        
+        // After brief delay, rapidly launch multiple interrupt tasks in succession
+        try? await Task.sleep(nanoseconds: 150_000_000) // 0.15 seconds
+        
+        await withTaskGroup(of: Void.self) { group in
+            for i in 1...3 {
+                group.addTask {
+                    // Each task has a slight delay difference
+                    try? await Task.sleep(nanoseconds: UInt64(i * 10_000_000)) // 0.01 seconds increment
+                    
+                    manager.fetch(key: "stop_\(i)", result: { result in
+                        Task {
+                            await stopOrder.modify { order in
+                                order.append("stop_\(i)_finish")
+                            }
+                            if case .success(let value) = result, let unwrappedValue = value {
+                                await results.modify { array in
+                                    array.append(unwrappedValue)
+                                }
+                            }
+                        }
+                        exp.fulfill()
+                    })
+                }
+            }
+        }
+        
+        await fulfillment(of: [exp], timeout: 20.0)
+        
+        let finalResults = await results.get()
+        let finalOrder = await stopOrder.get()
+        
+        XCTAssertEqual(finalResults.count, 4)
+        XCTAssertEqual(finalOrder.count, 4)
+        
+        // Verify all tasks have results
+        let expectedKeys = Set(["original", "stop_1", "stop_2", "stop_3"])
+        XCTAssertEqual(Set(finalResults), expectedKeys)
+    }
+    
+    // Test Case 16: Stop then immediate fetch race
+    func testConcurrentStopThenImmediateFetch() async {
+        let manager = makeManager(priority: .LIFO(.stop), running: 1)
+        
+        let exp = expectation(description: "stop-then-fetch race completed")
+        exp.expectedFulfillmentCount = 3
+        
+        let results = TestDataContainer([String]())
+        let timeline = TestDataContainer([String]())
+        
+        // Start initial task
+        manager.fetch(key: "victim", result: { result in
+            Task {
+                await timeline.modify { order in
+                    order.append("victim_completed")
+                }
+                if case .success(let value) = result, let unwrappedValue = value {
+                    await results.modify { array in
+                        array.append(unwrappedValue)
+                    }
+                }
+            }
+            exp.fulfill()
+        })
+        
+        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
+        
+        await withTaskGroup(of: Void.self) { group in
+            // Start interrupt task
+            group.addTask {
+                manager.fetch(key: "interrupter", result: { result in
+                    Task {
+                        await timeline.modify { order in
+                            order.append("interrupter_completed")
+                        }
+                        if case .success(let value) = result, let unwrappedValue = value {
+                            await results.modify { array in
+                                array.append(unwrappedValue)
+                            }
+                        }
+                    }
+                    exp.fulfill()
+                })
+            }
+            
+            // Almost simultaneously re-fetch the interrupted task
+            group.addTask {
+                try? await Task.sleep(nanoseconds: 5_000_000) // 0.005 seconds tiny delay
+                manager.fetch(key: "victim", result: { result in
+                    Task {
+                        await timeline.modify { order in
+                            order.append("victim_resumed")
+                        }
+                        if case .success(let value) = result, let unwrappedValue = value {
+                            await results.modify { array in
+                                array.append(unwrappedValue)
+                            }
+                        }
+                    }
+                    exp.fulfill()
+                })
+            }
+        }
+        
+        await fulfillment(of: [exp], timeout: 15.0)
+        
+        let finalResults = await results.get()
+        let finalTimeline = await timeline.get()
+        
+        XCTAssertEqual(finalResults.count, 3)
+        XCTAssertEqual(finalTimeline.count, 3)
+        
+        // Verify all tasks completed
+        XCTAssertEqual(Set(finalResults), Set(["victim", "interrupter"]))
+    }
+    
+    var count = 0
+    // Test Case 17: Complex triple race - fetch + stop + finish
+    func testConcurrentTripleRace() async {
+        let manager = makeManager(priority: .LIFO(.stop), running: 2, queueing: 1)
+        
+        let exp = expectation(description: "triple race completed")
+        exp.expectedFulfillmentCount = 4
+        
+        let results = TestDataContainer([String]())
+        let operations = TestDataContainer([String]())
+        
+        // Start two initial tasks (fill running slots)
+        for i in 1...2 {
+            manager.fetch(key: "runner_\(i)", result: { result in
+                Task {
+                    await operations.modify { ops in
+                        ops.append("runner_\(i)_completed")
+                    }
+                    if case .success(let value) = result, let unwrappedValue = value {
+                        await results.modify { array in
+                            array.append(unwrappedValue)
+                        }
+                    }
+                }
+                exp.fulfill()
+            })
+        }
+        
+        try? await Task.sleep(nanoseconds: 800_000_000 - 1) // < 0.8 seconds
+        
+        // Complex race operations
+        await withTaskGroup(of: Void.self) { group in
+            // Operation 1: New fetch (will trigger stop)
+            group.addTask {
+                manager.fetch(key: "new_task", result: { result in
+                    Task {
+                        await operations.modify { ops in
+                            ops.append("new_task_completed")
+                        }
+                        if case .success(let value) = result, let unwrappedValue = value {
+                            await results.modify { array in
+                                array.append(unwrappedValue)
+                            }
+                        }
+                    }
+                    exp.fulfill()
+                })
+            }
+            
+            // Operation 2: Almost simultaneously fetch another key
+            group.addTask {
+                manager.fetch(key: "concurrent_new", result: { result in
+                    Task {
+                        await operations.modify { ops in
+                            ops.append("concurrent_new_completed")
+                        }
+                        if case .success(let value) = result, let unwrappedValue = value {
+                            await results.modify { array in
+                                array.append(unwrappedValue)
+                            }
+                        }
+                    }
+                    exp.fulfill()
+                })
+            }
+        }
+        
+        await fulfillment(of: [exp], timeout: 20.0)
+        try? await Task.sleep(nanoseconds: 5_000_000_000)
+        
+        let finalResults = await results.get()
+        let finalOperations = await operations.get()
+        
+        XCTAssertEqual(finalOperations.count, 4)
+        
+        // Verify all tasks have results
+        XCTAssertLessThanOrEqual(finalResults.count, 4)
+        XCTAssertGreaterThanOrEqual(finalResults.count, 3)
+        let expectedKeys = Set(["runner_2", "new_task", "concurrent_new", "runner_1"][0..<finalResults.count])
+        XCTAssertEqual(Set(finalResults), expectedKeys)
+    }
+    
+    // Test Case 18: Extreme stress test - Massive concurrent operations on same key
+    func testExtremeStressConcurrencySameKey() async {
+        let manager = makeManager(priority: .LIFO(.stop), running: 1, queueing: 2)
+        
+        let concurrentOps = 20 // 20 concurrent operations
+        let exp = expectation(description: "extreme stress completed")
+        exp.expectedFulfillmentCount = concurrentOps
+        
+        let results = TestDataContainer([String?]())
+        let operationTypes = TestDataContainer([String]())
+        
+        await withTaskGroup(of: Void.self) { group in
+            for i in 1...concurrentOps {
+                group.addTask {
+                    // Random delay to increase race condition possibilities
+                    let randomDelay = UInt64.random(in: 1_000_000...50_000_000) // 0.001-0.05 seconds
+                    try? await Task.sleep(nanoseconds: randomDelay)
+                    
+                    let opType = i % 3 == 0 ? "same_key" : "same_key_\(i % 5)" // Mix of same and different keys
+                    
+                    manager.fetch(key: opType, result: { result in
+                        Task {
+                            await operationTypes.modify { types in
+                                types.append("op_\(i)_\(opType)")
+                            }
+                            if case .success(let value) = result {
+                                await results.modify { array in
+                                    array.append(value)
+                                }
+                            }
+                        }
+                        exp.fulfill()
+                    })
+                }
+            }
+        }
+        
+        await fulfillment(of: [exp], timeout: 30.0)
+        
+        let finalResults = await results.get()
+        let finalTypes = await operationTypes.get()
+        
+        XCTAssertEqual(finalResults.count, concurrentOps)
+        XCTAssertEqual(finalTypes.count, concurrentOps)
+        
+        // Verify no duplicate or lost operations
+        XCTAssertEqual(Set(finalTypes).count, concurrentOps) // Each operation is unique
+        
+        // Count results for different keys
+        let resultCounts = Dictionary(grouping: finalResults.compactMap { $0 }) { $0 }
+        let sameKeyCount = resultCounts["same_key"]?.count ?? 0
+        
+        // same_key should be requested multiple times
+        XCTAssertGreaterThan(sameKeyCount, 1, "Same key should be requested multiple times")
+    }
+    
+    // Test Case 19: Rapid consecutive fetch/stop cycles
+    func testRapidFetchStopCycle() async {
+        let manager = makeManager(priority: .LIFO(.stop), running: 1)
+        
+        let cycles = 10
+        let exp = expectation(description: "rapid cycles completed")
+        exp.expectedFulfillmentCount = cycles * 2 // 2 operations per cycle
+        
+        let results = TestDataContainer([String]())
+        let cycleOrder = TestDataContainer([String]())
+        
+        // Rapid cycles: fetch -> stop -> fetch -> stop
+        for cycle in 1...cycles {
+            // Start task
+            manager.fetch(key: "cycle_\(cycle)_victim", result: { result in
+                Task {
+                    await cycleOrder.modify { order in
+                        order.append("cycle_\(cycle)_victim_done")
+                    }
+                    if case .success(let value) = result, let unwrappedValue = value {
+                        await results.modify { array in
+                            array.append(unwrappedValue)
+                        }
+                    }
+                }
+                exp.fulfill()
+            })
+            
+            // Very short delay then immediately interrupt
+            try? await Task.sleep(nanoseconds: 20_000_000) // 0.02 seconds
+            
+            manager.fetch(key: "cycle_\(cycle)_stopper", result: { result in
+                Task {
+                    await cycleOrder.modify { order in
+                        order.append("cycle_\(cycle)_stopper_done")
+                    }
+                    if case .success(let value) = result, let unwrappedValue = value {
+                        await results.modify { array in
+                            array.append(unwrappedValue)
+                        }
+                    }
+                }
+                exp.fulfill()
+            })
+            
+            // Brief interval between cycles
+            try? await Task.sleep(nanoseconds: 10_000_000) // 0.01 seconds
+        }
+        
+        await fulfillment(of: [exp], timeout: 25.0)
+        
+        let finalResults = await results.get()
+        let finalOrder = await cycleOrder.get()
+        
+        XCTAssertEqual(finalResults.count, cycles * 2)
+        XCTAssertEqual(finalOrder.count, cycles * 2)
+        
+        // Verify all cycles completed
+        for cycle in 1...cycles {
+            let victimKey = "cycle_\(cycle)_victim"
+            let stopperKey = "cycle_\(cycle)_stopper"
+            
+            XCTAssertTrue(finalResults.contains(victimKey) || finalResults.contains(stopperKey),
+                         "Cycle \(cycle) should have at least one result")
+        }
     }
 }

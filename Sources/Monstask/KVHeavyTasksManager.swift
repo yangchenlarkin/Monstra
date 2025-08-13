@@ -213,7 +213,7 @@ extension KVHeavyTasksManager: @unchecked Sendable {}
 
 public extension KVHeavyTasksManager {
     enum Errors: Error {
-        case evictedByPriorityStrategy
+        case evictedByPriorityStrategy(K)
     }
     
     func fetch(key: K,
@@ -225,7 +225,6 @@ public extension KVHeavyTasksManager {
 
 private extension KVHeavyTasksManager {
     private func start(_ key: K, customEventObserver: DataProvider.CustomEventPublisher?, resultCallback: DataProvider.ResultPublisher?) {
-        
         switch cache.getElement(for: key) {
         case .hitNonNullElement(let element):
             resultCallback?(.success(element))
@@ -278,7 +277,7 @@ private extension KVHeavyTasksManager {
         }
         
         if let evictedKey = self.waitingQueue.enqueueFront(key: key, evictedStrategy: .LIFO) {
-            consumeCallbacks(for: evictedKey, result: .failure(Errors.evictedByPriorityStrategy))
+            consumeCallbacks(for: evictedKey, result: .failure(Errors.evictedByPriorityStrategy(evictedKey)))
         }
     }
     
@@ -290,14 +289,14 @@ private extension KVHeavyTasksManager {
         }
         
         if let evictedKey = self.waitingQueue.enqueueFront(key: key, evictedStrategy: .FIFO) {
-            consumeCallbacks(for: evictedKey, result: .failure(Errors.evictedByPriorityStrategy))
+            consumeCallbacks(for: evictedKey, result: .failure(Errors.evictedByPriorityStrategy(evictedKey)))
         }
     }
     
     private func executeLIFOStop(_ key: K) {
         if let keyToStop = runningKeys.enqueueFront(key: key, evictedStrategy: .FIFO) {
             if let evictedKey = self.waitingQueue.enqueueFront(key: keyToStop, evictedStrategy: .FIFO) {
-                consumeCallbacks(for: evictedKey, result: .failure(Errors.evictedByPriorityStrategy))
+                consumeCallbacks(for: evictedKey, result: .failure(Errors.evictedByPriorityStrategy(evictedKey)))
             }
             if let dataProvider = dataProviders[keyToStop] {
                 dataProviders.removeValue(forKey: keyToStop)
@@ -371,12 +370,10 @@ private extension KVHeavyTasksManager {
         resumeDataCache.removeElement(for: key)
         resultCallbacks[key]?.forEach{ callback in
             DispatchQueue.global().async {
+                print(self.resultCallbacks)
                 callback(result)
             }
         }
         customEventObservers.removeValue(forKey: key)
     }
 }
-
-//TODO in UT:
-//1. ensure no customEvent is executed after resultPublisher

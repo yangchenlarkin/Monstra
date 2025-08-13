@@ -270,6 +270,14 @@ private extension KVHeavyTasksManager {
     }
     
     private func executeFIFO(_ key: K) {
+        if runningKeys.contains(key: key) {
+            return
+        }
+        
+        if waitingQueue.contains(key: key) {
+            waitingQueue.remove(key: key)
+        }
+        
         if runningKeys.count < self.config.maxNumberOfRunningTasks {
             runningKeys.enqueueFront(key: key, evictedStrategy: .LIFO)
             startTask(for: key)
@@ -282,6 +290,14 @@ private extension KVHeavyTasksManager {
     }
     
     private func executeLIFOAwait(_ key: K) {
+        if runningKeys.contains(key: key) {
+            return
+        }
+        
+        if waitingQueue.contains(key: key) {
+            waitingQueue.remove(key: key)
+        }
+        
         if runningKeys.count < self.config.maxNumberOfRunningTasks {
             runningKeys.enqueueFront(key: key, evictedStrategy: .FIFO)
             startTask(for: key)
@@ -294,6 +310,14 @@ private extension KVHeavyTasksManager {
     }
     
     private func executeLIFOStop(_ key: K) {
+        if runningKeys.contains(key: key) {
+            return
+        }
+        
+        if waitingQueue.contains(key: key) {
+            waitingQueue.remove(key: key)
+        }
+        
         if let keyToStop = runningKeys.enqueueFront(key: key, evictedStrategy: .FIFO) {
             if let evictedKey = self.waitingQueue.enqueueFront(key: keyToStop, evictedStrategy: .FIFO) {
                 consumeCallbacks(for: evictedKey, result: .failure(Errors.evictedByPriorityStrategy(evictedKey)))

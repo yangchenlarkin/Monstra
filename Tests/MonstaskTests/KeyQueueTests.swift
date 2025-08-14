@@ -721,6 +721,148 @@ final class KeyQueueTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(queue.count, 0)
     }
     
+    // MARK: - Empty Queue and Guard Clause Tests
+    
+    func testEnqueueToEmptyQueueWithPositiveCapacity() {
+        let queue = KeyQueue<String>(capacity: 3)
+        
+        // Verify initial empty state
+        XCTAssertTrue(queue.isEmpty)
+        XCTAssertEqual(queue.count, 0)
+        XCTAssertFalse(queue.isFull)
+        
+        // Enqueue first key to empty queue
+        let evictedKey = queue.enqueueFront(key: "FirstKey", evictedStrategy: .FIFO)
+        
+        // Should not evict anything (no eviction on first enqueue to empty queue)
+        XCTAssertNil(evictedKey, "First enqueue to empty queue should not evict anything")
+        
+        // Verify queue state after first enqueue
+        XCTAssertFalse(queue.isEmpty)
+        XCTAssertEqual(queue.count, 1)
+        XCTAssertFalse(queue.isFull)
+        XCTAssertTrue(queue.contains(key: "FirstKey"))
+        
+        // Verify key can be dequeued correctly
+        XCTAssertEqual(queue.dequeueFront(), "FirstKey")
+        XCTAssertTrue(queue.isEmpty)
+    }
+    
+    func testEnqueueToEmptyQueueWithZeroCapacity() {
+        let queue = KeyQueue<String>(capacity: 0)
+        
+        // Verify initial empty state
+        XCTAssertTrue(queue.isEmpty)
+        XCTAssertEqual(queue.count, 0)
+        XCTAssertTrue(queue.isFull) // Zero capacity is always full
+        
+        // Enqueue to zero-capacity queue should immediately return the key
+        let evictedKey = queue.enqueueFront(key: "TestKey", evictedStrategy: .FIFO)
+        
+        // Should immediately return the key due to guard clause
+        XCTAssertEqual(evictedKey, "TestKey", "Zero-capacity queue should immediately return enqueued key")
+        
+        // Queue should remain empty
+        XCTAssertTrue(queue.isEmpty)
+        XCTAssertEqual(queue.count, 0)
+        XCTAssertFalse(queue.contains(key: "TestKey"))
+    }
+    
+    func testEnqueueToEmptyQueueWithNegativeCapacity() {
+        let queue = KeyQueue<String>(capacity: -5)
+        
+        // Negative capacity should be treated as zero capacity
+        XCTAssertEqual(queue.capacity, 0)
+        XCTAssertTrue(queue.isEmpty)
+        XCTAssertTrue(queue.isFull)
+        
+        // Enqueue should immediately return the key
+        let evictedKey = queue.enqueueFront(key: "NegativeTest", evictedStrategy: .LIFO)
+        
+        XCTAssertEqual(evictedKey, "NegativeTest", "Negative capacity queue should immediately return enqueued key")
+        XCTAssertTrue(queue.isEmpty)
+        XCTAssertEqual(queue.count, 0)
+        XCTAssertFalse(queue.contains(key: "NegativeTest"))
+    }
+    
+    func testMultipleEnqueuesToEmptyQueue() {
+        let queue = KeyQueue<String>(capacity: 3)
+        
+        // Enqueue multiple keys to initially empty queue
+        let evicted1 = queue.enqueueFront(key: "First", evictedStrategy: .FIFO)
+        let evicted2 = queue.enqueueFront(key: "Second", evictedStrategy: .FIFO)
+        let evicted3 = queue.enqueueFront(key: "Third", evictedStrategy: .FIFO)
+        
+        // First three enqueues should not evict anything
+        XCTAssertNil(evicted1, "First enqueue should not evict")
+        XCTAssertNil(evicted2, "Second enqueue should not evict")
+        XCTAssertNil(evicted3, "Third enqueue should not evict")
+        
+        // Queue should be full now
+        XCTAssertTrue(queue.isFull)
+        XCTAssertEqual(queue.count, 3)
+        
+        // Fourth enqueue should now cause eviction
+        let evicted4 = queue.enqueueFront(key: "Fourth", evictedStrategy: .FIFO)
+        XCTAssertEqual(evicted4, "First", "Fourth enqueue should evict oldest key")
+        
+        // Verify final state
+        XCTAssertEqual(queue.count, 3)
+        XCTAssertTrue(queue.contains(key: "Second"))
+        XCTAssertTrue(queue.contains(key: "Third"))
+        XCTAssertTrue(queue.contains(key: "Fourth"))
+        XCTAssertFalse(queue.contains(key: "First"))
+    }
+    
+    func testEnqueueToEmptyThenClearThenEnqueueAgain() {
+        let queue = KeyQueue<String>(capacity: 2)
+        
+        // Initial enqueue to empty queue
+        let evicted1 = queue.enqueueFront(key: "Initial", evictedStrategy: .FIFO)
+        XCTAssertNil(evicted1)
+        XCTAssertEqual(queue.count, 1)
+        
+        // Clear the queue by dequeuing
+        XCTAssertEqual(queue.dequeueFront(), "Initial")
+        XCTAssertTrue(queue.isEmpty)
+        
+        // Enqueue again to now-empty queue
+        let evicted2 = queue.enqueueFront(key: "AfterClear", evictedStrategy: .LIFO)
+        XCTAssertNil(evicted2, "Enqueue to empty queue after clearing should not evict")
+        
+        XCTAssertEqual(queue.count, 1)
+        XCTAssertTrue(queue.contains(key: "AfterClear"))
+        XCTAssertFalse(queue.contains(key: "Initial"))
+    }
+    
+    func testGuardClauseConsistencyAcrossDifferentStrategies() {
+        let zeroQueue = KeyQueue<Int>(capacity: 0)
+        
+        // Test both FIFO and LIFO strategies with zero capacity
+        let fifoEvicted = zeroQueue.enqueueFront(key: 100, evictedStrategy: .FIFO)
+        let lifoEvicted = zeroQueue.enqueueFront(key: 200, evictedStrategy: .LIFO)
+        
+        // Both should immediately return the key regardless of strategy
+        XCTAssertEqual(fifoEvicted, 100, "FIFO strategy should immediately return key for zero capacity")
+        XCTAssertEqual(lifoEvicted, 200, "LIFO strategy should immediately return key for zero capacity")
+        
+        // Queue should remain empty
+        XCTAssertTrue(zeroQueue.isEmpty)
+        XCTAssertEqual(zeroQueue.count, 0)
+    }
+    
+    func testEmptyQueueReturnValue() {
+        let queue = KeyQueue<String>(capacity: 5)
+        
+        // Test that enqueueFront returns nil for successful enqueue to empty queue
+        let result = queue.enqueueFront(key: "TestReturn", evictedStrategy: .FIFO)
+        
+        XCTAssertNil(result, "Successful enqueue to empty queue should return nil")
+        XCTAssertFalse(queue.isEmpty)
+        XCTAssertEqual(queue.count, 1)
+        XCTAssertTrue(queue.contains(key: "TestReturn"))
+    }
+    
     // MARK: - Eviction and Contains Consistency Tests
     
     func testContainsAfterEvictionFIFO() {

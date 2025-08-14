@@ -75,6 +75,8 @@ public class KeyQueue<K: Hashable> {
     /// - Parameter key: The key to enqueue.
     @discardableResult
     public func enqueueFront(key: K, evictedStrategy: DoublyLink<K>.EvictedStrategy) -> K? {
+        guard capacity > 0 else { return key }
+        
         let node: DoublyLink<K>.Node
         if let _node = map[key] {
             // Key already exists: remove from current position and re-insert at front

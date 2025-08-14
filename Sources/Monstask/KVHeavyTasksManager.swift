@@ -225,23 +225,27 @@ public extension KVHeavyTasksManager {
 
 private extension KVHeavyTasksManager {
     private func start(_ key: K, customEventObserver: DataProvider.CustomEventPublisher?, resultCallback: DataProvider.ResultPublisher?) {
+        semaphore.wait()
+        defer { semaphore.signal() }
+        
         switch cache.getElement(for: key) {
         case .hitNonNullElement(let element):
-            resultCallback?(.success(element))
+            DispatchQueue.global().async {
+                resultCallback?(.success(element))
+            }
             return
-            
+
         case .hitNullElement:
             fallthrough
         case .invalidKey:
-            resultCallback?(.success(nil))
+            DispatchQueue.global().async {
+                resultCallback?(.success(nil))
+            }
             return
             
         case .miss:
             break
         }
-        
-        semaphore.wait()
-        defer { semaphore.signal() }
         
         // cache callback
         if let customEventObserver {
@@ -335,59 +339,59 @@ private extension KVHeavyTasksManager {
     }
     
     private func startTask(for key: K) {
-        let dataProvider = DataProvider(key: key, customEventPublisher: { [weak self] customEvent in
-            guard let strongSelf = self else { return }
-            strongSelf.semaphore.wait()
-            let observers = strongSelf.customEventObservers[key]
-            strongSelf.semaphore.signal()
-            
-            guard let observers else { return }
-            
-            for observer in observers {
+        if self.dataProviders[key] == nil {
+            self.dataProviders[key] = DataProvider(key: key, customEventPublisher: { [weak self] customEvent in
                 DispatchQueue.global().async {
-                    observer(customEvent)
+                    guard let strongSelf = self else { return }
+                    strongSelf.semaphore.wait()
+                    defer { strongSelf.semaphore.signal() }
+                    strongSelf.customEventObservers[key]?.forEach { observer in
+                        DispatchQueue.global().async {
+                            observer(customEvent)
+                        }
+                    }
                 }
-            }
-        }, resultPublisher: { [weak self] result in
-            guard let strongSelf = self else { return }
-            strongSelf.semaphore.wait()
-            defer { strongSelf.semaphore.signal() }
-            
-            switch result {
-            case .success(let element):
-                strongSelf.cache.set(element: element, for: key)
-                strongSelf.consumeCallbacks(for: key, result: .success(element))
-            case .failure(let error):
-                strongSelf.consumeCallbacks(for: key, result: .failure(error))
-            }
-            
-            // Clean up provider for finished key
-            strongSelf.dataProviders.removeValue(forKey: key)
-            
-            strongSelf.runningKeys.remove(key: key)
-            
-            let nextKey: K?
-            switch strongSelf.config.priorityStrategy {
-            case .FIFO:
-                nextKey = strongSelf.waitingQueue.dequeueBack()
-            case .LIFO:
-                nextKey = strongSelf.waitingQueue.dequeueFront()
-            }
-            
-            guard let nextKey else { return }
-            
-            switch strongSelf.config.priorityStrategy {
-            case .FIFO:
-                strongSelf.runningKeys.enqueueFront(key: nextKey, evictedStrategy: .LIFO)
-            case .LIFO:
-                strongSelf.runningKeys.enqueueFront(key: nextKey, evictedStrategy: .FIFO)
-            }
-            
-            strongSelf.startTask(for: nextKey)
-        })
+            }, resultPublisher: { [weak self] result in
+                DispatchQueue.global().async {
+                    guard let strongSelf = self else { return }
+                    strongSelf.semaphore.wait()
+                    defer { strongSelf.semaphore.signal() }
+                    
+                    switch result {
+                    case .success(let element):
+                        strongSelf.cache.set(element: element, for: key)
+                        strongSelf.consumeCallbacks(for: key, result: .success(element))
+                    case .failure(let error):
+                        strongSelf.consumeCallbacks(for: key, result: .failure(error))
+                    }
+                    
+                    // Clean up provider for finished key
+                    strongSelf.dataProviders.removeValue(forKey: key)
+                    strongSelf.runningKeys.remove(key: key)
+                    
+                    let nextKey: K?
+                    switch strongSelf.config.priorityStrategy {
+                    case .FIFO:
+                        nextKey = strongSelf.waitingQueue.dequeueBack()
+                    case .LIFO:
+                        nextKey = strongSelf.waitingQueue.dequeueFront()
+                    }
+                    
+                    guard let nextKey else { return }
+                    
+                    switch strongSelf.config.priorityStrategy {
+                    case .FIFO:
+                        strongSelf.runningKeys.enqueueFront(key: nextKey, evictedStrategy: .LIFO)
+                    case .LIFO:
+                        strongSelf.runningKeys.enqueueFront(key: nextKey, evictedStrategy: .FIFO)
+                    }
+                    
+                    strongSelf.startTask(for: nextKey)
+                }
+            })
+        }
 
-        dataProvider.start(resumeData: resumeDataCache.getElement(for: key).element)
-        self.dataProviders[key] = dataProvider
+        dataProviders[key]!.start(resumeData: resumeDataCache.getElement(for: key).element)
     }
     
     private func consumeCallbacks(for key: K, result: Result<Element?, Error>) {

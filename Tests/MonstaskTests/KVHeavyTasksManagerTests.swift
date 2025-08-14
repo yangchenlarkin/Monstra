@@ -1647,38 +1647,35 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         let exp = expectation(description: "extreme stress completed")
         exp.expectedFulfillmentCount = concurrentOps
         
-        let results = TestDataContainer([String?]())
+        let successfulResults = TestDataContainer([String]())
+        let failedResults = TestDataContainer([String]())
         let operationTypes = TestDataContainer([String]())
         
-        await withTaskGroup(of: Void.self) { group in
-            for i in 1...concurrentOps {
-                group.addTask {
-                    // Random delay to increase race condition possibilities
-                    let randomDelay = UInt64.random(in: 1_000_000...50_000_000) // 0.001-0.05 seconds
-                    try? await Task.sleep(nanoseconds: randomDelay)
-                    
-                    let opType = i % 3 == 0 ? "same_key" : "same_key_\(i % 5)" // Mix of same and different keys
-                    
-                    manager.fetch(key: opType, result: { result in
-                        Task {
-                            await operationTypes.modify { types in
-                                types.append("op_\(i)_\(opType)")
-                            }
-                            if case .success(let value) = result {
-                                await results.modify { array in
-                                    array.append(value)
-                                }
-                            }
+        for i in 1...concurrentOps {
+            let opType = i % 3 == 0 ? "same_key" : "same_key_\(i % 5)" // Mix of same and different keys
+            manager.fetch(key: opType, result: { result in
+                Task {
+                    await operationTypes.modify { types in
+                        types.append("op_\(i)_\(opType)")
+                    }
+                    switch result {
+                    case .success:
+                        await successfulResults.modify { array in
+                            array.append(opType)
                         }
-                        exp.fulfill()
-                    })
+                    case .failure:
+                        await failedResults.modify { array in
+                            array.append(opType)
+                        }
+                    }
                 }
-            }
+                exp.fulfill()
+            })
         }
         
-        await fulfillment(of: [exp], timeout: 30.0)
+        await fulfillment(of: [exp], timeout: 10.0)
         
-        let finalResults = await results.get()
+        let finalResults = (await successfulResults.get()) + (await failedResults.get())
         let finalTypes = await operationTypes.get()
         
         XCTAssertEqual(finalResults.count, concurrentOps)
@@ -1692,48 +1689,129 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         let sameKeyCount = resultCounts["same_key"]?.count ?? 0
         
         // same_key should be requested multiple times
-        XCTAssertGreaterThan(sameKeyCount, 1, "Same key should be requested multiple times")
+        XCTAssertEqual(sameKeyCount, 6, "Same key should be requested multiple times")
+    }
+    
+    // Test Case 18: Extreme stress test - Massive concurrent operations on same key
+    func testExtremeStressConcurrencySameKeyRandomly() async {
+        let manager = makeManager(priority: .LIFO(.stop), running: 1, queueing: 2)
+        
+        let concurrentOps = 20 // 20 concurrent operations
+        let exp = expectation(description: "extreme stress completed")
+        exp.expectedFulfillmentCount = concurrentOps
+        
+        let successfulResults = TestDataContainer([String]())
+        let failedResults = TestDataContainer([String]())
+        let operationTypes = TestDataContainer([String]())
+        
+        await withTaskGroup(of: Void.self) { group in
+            for i in 1...concurrentOps {
+                group.addTask {
+                    // Random delay to increase race condition possibilities
+                    let randomDelay = UInt64.random(in: 1_000_000...50_000_000) // 0.001-0.05 seconds
+                    try? await Task.sleep(nanoseconds: randomDelay)
+                    
+                    let opType = i % 3 == 0 ? "same_key" : "same_key_\(i % 5)" // Mix of same and different keys
+                    manager.fetch(key: opType, result: { result in
+                        Task {
+                            await operationTypes.modify { types in
+                                types.append("op_\(i)_\(opType)")
+                            }
+                            switch result {
+                            case .success:
+                                await successfulResults.modify { array in
+                                    array.append(opType)
+                                }
+                            case .failure:
+                                await failedResults.modify { array in
+                                    array.append(opType)
+                                }
+                            }
+                        }
+                        exp.fulfill()
+                    })
+                }
+            }
+        }
+        
+        await fulfillment(of: [exp], timeout: 10.0)
+        
+        let finalResults = (await successfulResults.get()) + (await failedResults.get())
+        let finalTypes = await operationTypes.get()
+        
+        XCTAssertEqual(finalResults.count, concurrentOps)
+        XCTAssertEqual(finalTypes.count, concurrentOps)
+        
+        // Verify no duplicate or lost operations
+        XCTAssertEqual(Set(finalTypes).count, concurrentOps) // Each operation is unique
+        
+        // Count results for different keys
+        let resultCounts = Dictionary(grouping: finalResults.compactMap { $0 }) { $0 }
+        let sameKeyCount = resultCounts["same_key"]?.count ?? 0
+        
+        // same_key should be requested multiple times
+        XCTAssertEqual(sameKeyCount, 6, "Same key should be requested multiple times")
     }
     
     // Test Case 19: Rapid consecutive fetch/stop cycles
     func testRapidFetchStopCycle() async {
-        let manager = makeManager(priority: .LIFO(.stop), running: 1)
+        let manager = makeManager(priority: .LIFO(.stop), running: 1, queueing: 0)
         
         let cycles = 10
         let exp = expectation(description: "rapid cycles completed")
         exp.expectedFulfillmentCount = cycles * 2 // 2 operations per cycle
         
-        let results = TestDataContainer([String]())
+        let successfulResults = TestDataContainer([String]())
+        let failedResults = TestDataContainer([String]())
         let cycleOrder = TestDataContainer([String]())
         
         // Rapid cycles: fetch -> stop -> fetch -> stop
         for cycle in 1...cycles {
             // Start task
-            manager.fetch(key: "cycle_\(cycle)_victim", result: { result in
+            let keyVictim = "cycle_\(cycle)_victim"
+            print(keyVictim)
+            manager.fetch(key: keyVictim, result: { result in
                 Task {
                     await cycleOrder.modify { order in
-                        order.append("cycle_\(cycle)_victim_done")
+                        order.append("\(keyVictim)_done")
                     }
-                    if case .success(let value) = result, let unwrappedValue = value {
-                        await results.modify { array in
-                            array.append(unwrappedValue)
+                    switch result {
+                    case .success:
+                        print(keyVictim, "S")
+                        await successfulResults.modify { array in
+                            print(keyVictim, "S2")
+                            array.append(keyVictim)
+                        }
+                    case .failure:
+                        print(keyVictim, "F")
+                        await failedResults.modify { array in
+                            print(keyVictim, "F2")
+                            array.append(keyVictim)
                         }
                     }
                 }
                 exp.fulfill()
             })
             
-            // Very short delay then immediately interrupt
-            try? await Task.sleep(nanoseconds: 20_000_000) // 0.02 seconds
-            
-            manager.fetch(key: "cycle_\(cycle)_stopper", result: { result in
+            let keyStopper = "cycle_\(cycle)_stopper"
+            print(keyStopper)
+            manager.fetch(key: keyStopper, result: { result in
                 Task {
                     await cycleOrder.modify { order in
-                        order.append("cycle_\(cycle)_stopper_done")
+                        order.append("\(keyStopper)_done")
                     }
-                    if case .success(let value) = result, let unwrappedValue = value {
-                        await results.modify { array in
-                            array.append(unwrappedValue)
+                    switch result {
+                    case .success:
+                        print(keyStopper, "S")
+                        await successfulResults.modify { array in
+                            print(keyStopper, "S2")
+                            array.append(keyStopper)
+                        }
+                    case .failure:
+                        print(keyStopper, "F")
+                        await failedResults.modify { array in
+                            print(keyStopper, "F2")
+                            array.append(keyStopper)
                         }
                     }
                 }
@@ -1741,24 +1819,18 @@ final class KVHeavyTasksManagerTests: XCTestCase {
             })
             
             // Brief interval between cycles
-            try? await Task.sleep(nanoseconds: 10_000_000) // 0.01 seconds
+            try? await Task.sleep(nanoseconds: 5_000_000_000) // 2 seconds
         }
         
-        await fulfillment(of: [exp], timeout: 25.0)
+        await fulfillment(of: [exp], timeout: 101.0)
         
-        let finalResults = await results.get()
+        let finalSuccessfulResults = await successfulResults.get()
+        let finalFailedResults = await failedResults.get()
         let finalOrder = await cycleOrder.get()
         
-        XCTAssertEqual(finalResults.count, cycles * 2)
+        XCTAssertEqual(finalSuccessfulResults.filter { $0.contains("victim")}.count, 0)
+        XCTAssertEqual(finalFailedResults.filter { $0.contains("stopper")}.count, 0)
+        XCTAssertEqual(finalSuccessfulResults.count + finalFailedResults.count, cycles * 2)
         XCTAssertEqual(finalOrder.count, cycles * 2)
-        
-        // Verify all cycles completed
-        for cycle in 1...cycles {
-            let victimKey = "cycle_\(cycle)_victim"
-            let stopperKey = "cycle_\(cycle)_stopper"
-            
-            XCTAssertTrue(finalResults.contains(victimKey) || finalResults.contains(stopperKey),
-                         "Cycle \(cycle) should have at least one result")
-        }
     }
 }

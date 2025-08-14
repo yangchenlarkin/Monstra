@@ -85,7 +85,11 @@ public class KeyQueue<K: Hashable> {
             node = DoublyLink<K>.Node(element: key)
             map[key] = node
         }
-        return link.enqueueFront(node: node, evictedStrategy: evictedStrategy)?.element
+        guard let evictedKey = link.enqueueFront(node: node, evictedStrategy: evictedStrategy)?.element else {
+            return nil
+        }
+        map.removeValue(forKey: evictedKey)
+        return evictedKey
     }
     
     /// Removes and returns the key at the front of the queue (most recently used).

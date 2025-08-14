@@ -720,4 +720,245 @@ final class KeyQueueTests: XCTestCase {
         XCTAssertLessThanOrEqual(queue.count, queue.capacity)
         XCTAssertGreaterThanOrEqual(queue.count, 0)
     }
+    
+    // MARK: - Eviction and Contains Consistency Tests
+    
+    func testContainsAfterEvictionFIFO() {
+        let queue = KeyQueue<String>(capacity: 3)
+        
+        // Fill the queue
+        queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
+        queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
+        queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
+        
+        // Verify all keys are present
+        XCTAssertTrue(queue.contains(key: "A"))
+        XCTAssertTrue(queue.contains(key: "B"))
+        XCTAssertTrue(queue.contains(key: "C"))
+        
+        // Add new key with FIFO eviction - should evict "A" (oldest)
+        let evictedKey = queue.enqueueFront(key: "D", evictedStrategy: .FIFO)
+        
+        // Verify evicted key is returned and no longer contained
+        XCTAssertEqual(evictedKey, "A")
+        XCTAssertFalse(queue.contains(key: "A"), "Evicted key 'A' should not be contained in queue")
+        
+        // Verify remaining keys are still present
+        XCTAssertTrue(queue.contains(key: "B"))
+        XCTAssertTrue(queue.contains(key: "C"))
+        XCTAssertTrue(queue.contains(key: "D"))
+        
+        // Verify count is correct
+        XCTAssertEqual(queue.count, 3)
+    }
+    
+    func testContainsAfterEvictionLIFO() {
+        let queue = KeyQueue<String>(capacity: 3)
+        
+        // Fill the queue
+        queue.enqueueFront(key: "A", evictedStrategy: .LIFO)
+        queue.enqueueFront(key: "B", evictedStrategy: .LIFO)
+        queue.enqueueFront(key: "C", evictedStrategy: .LIFO)
+        
+        // Verify all keys are present
+        XCTAssertTrue(queue.contains(key: "A"))
+        XCTAssertTrue(queue.contains(key: "B"))
+        XCTAssertTrue(queue.contains(key: "C"))
+        
+        // Add new key with LIFO eviction - should evict "C" (newest/front)
+        let evictedKey = queue.enqueueFront(key: "D", evictedStrategy: .LIFO)
+        
+        // Verify evicted key is returned and no longer contained
+        XCTAssertEqual(evictedKey, "D")
+        XCTAssertFalse(queue.contains(key: "D"), "Evicted key 'D' should not be contained in queue")
+        
+        // Verify remaining keys are still present
+        XCTAssertTrue(queue.contains(key: "A"))
+        XCTAssertTrue(queue.contains(key: "B"))
+        XCTAssertTrue(queue.contains(key: "C"))
+        
+        // Verify count is correct
+        XCTAssertEqual(queue.count, 3)
+    }
+    
+    func testContainsAfterMultipleEvictions() {
+        let queue = KeyQueue<String>(capacity: 2)
+        
+        // Initial state: [A, B]
+        queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
+        queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
+        
+        XCTAssertTrue(queue.contains(key: "A"))
+        XCTAssertTrue(queue.contains(key: "B"))
+        
+        // Add C, evict A: [C, B]
+        let evicted1 = queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
+        XCTAssertEqual(evicted1, "A")
+        XCTAssertFalse(queue.contains(key: "A"))
+        XCTAssertTrue(queue.contains(key: "B"))
+        XCTAssertTrue(queue.contains(key: "C"))
+        
+        // Add D, evict B: [D, C]
+        let evicted2 = queue.enqueueFront(key: "D", evictedStrategy: .FIFO)
+        XCTAssertEqual(evicted2, "B")
+        XCTAssertFalse(queue.contains(key: "A"))
+        XCTAssertFalse(queue.contains(key: "B"))
+        XCTAssertTrue(queue.contains(key: "C"))
+        XCTAssertTrue(queue.contains(key: "D"))
+        
+        // Add E, evict C: [E, D]
+        let evicted3 = queue.enqueueFront(key: "E", evictedStrategy: .FIFO)
+        XCTAssertEqual(evicted3, "C")
+        XCTAssertFalse(queue.contains(key: "A"))
+        XCTAssertFalse(queue.contains(key: "B"))
+        XCTAssertFalse(queue.contains(key: "C"))
+        XCTAssertTrue(queue.contains(key: "D"))
+        XCTAssertTrue(queue.contains(key: "E"))
+    }
+    
+    func testContainsAfterEvictionWithLRUAccess() {
+        let queue = KeyQueue<String>(capacity: 3)
+        
+        // Fill the queue: [A, B, C]
+        queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
+        queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
+        queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
+        
+        // Access "A" to make it most recently used: [A, C, B]
+        queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
+        
+        // Verify all keys still present
+        XCTAssertTrue(queue.contains(key: "A"))
+        XCTAssertTrue(queue.contains(key: "B"))
+        XCTAssertTrue(queue.contains(key: "C"))
+        
+        // Add "D" with FIFO eviction - should evict "B" (now oldest): [D, A, C]
+        let evictedKey = queue.enqueueFront(key: "D", evictedStrategy: .FIFO)
+        XCTAssertEqual(evictedKey, "B")
+        
+        // Verify evicted key is no longer contained
+        XCTAssertFalse(queue.contains(key: "B"), "Evicted key 'B' should not be contained in queue")
+        
+        // Verify remaining keys are still present
+        XCTAssertTrue(queue.contains(key: "A"))
+        XCTAssertTrue(queue.contains(key: "C"))
+        XCTAssertTrue(queue.contains(key: "D"))
+    }
+    
+    func testContainsConsistencyAfterMixedOperations() {
+        let queue = KeyQueue<String>(capacity: 3)
+        
+        // Add initial keys
+        queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
+        queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
+        queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
+        
+        // Manual removal
+        queue.remove(key: "B")
+        XCTAssertFalse(queue.contains(key: "B"))
+        XCTAssertTrue(queue.contains(key: "A"))
+        XCTAssertTrue(queue.contains(key: "C"))
+        
+        // Add new key (no eviction since we have space)
+        let noEviction = queue.enqueueFront(key: "D", evictedStrategy: .FIFO)
+        XCTAssertNil(noEviction)
+        XCTAssertTrue(queue.contains(key: "D"))
+        
+        // Fill to capacity again
+        let evictedKey1 = queue.enqueueFront(key: "E", evictedStrategy: .FIFO)
+        XCTAssertTrue(queue.contains(key: "E"))
+        
+        // Now eviction should occur
+        let evictedKey2 = queue.enqueueFront(key: "F", evictedStrategy: .FIFO)
+        XCTAssertEqual(evictedKey1, "A") // A should be evicted (oldest)
+        XCTAssertEqual(evictedKey2, "C") // C should be evicted (oldest)
+        XCTAssertFalse(queue.contains(key: "A"))
+        XCTAssertFalse(queue.contains(key: "C"))
+        XCTAssertTrue(queue.contains(key: "F"))
+    }
+    
+    func testContainsAfterDequeue() {
+        let queue = KeyQueue<String>(capacity: 3)
+        
+        queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
+        queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
+        queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
+        
+        // Dequeue from front
+        let frontKey = queue.dequeueFront()
+        XCTAssertEqual(frontKey, "C")
+        XCTAssertFalse(queue.contains(key: "C"))
+        XCTAssertTrue(queue.contains(key: "A"))
+        XCTAssertTrue(queue.contains(key: "B"))
+        
+        // Dequeue from back
+        let backKey = queue.dequeueBack()
+        XCTAssertEqual(backKey, "A")
+        XCTAssertFalse(queue.contains(key: "A"))
+        XCTAssertFalse(queue.contains(key: "C"))
+        XCTAssertTrue(queue.contains(key: "B"))
+        
+        // Final dequeue
+        let lastKey = queue.dequeueFront()
+        XCTAssertEqual(lastKey, "B")
+        XCTAssertFalse(queue.contains(key: "A"))
+        XCTAssertFalse(queue.contains(key: "B"))
+        XCTAssertFalse(queue.contains(key: "C"))
+        XCTAssertTrue(queue.isEmpty)
+    }
+    
+    func testContainsWithZeroCapacityQueue() {
+        let queue = KeyQueue<String>(capacity: 0)
+        
+        // All enqueue operations should immediately evict
+        let evicted1 = queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
+        XCTAssertEqual(evicted1, "A")
+        XCTAssertFalse(queue.contains(key: "A"))
+        
+        let evicted2 = queue.enqueueFront(key: "B", evictedStrategy: .LIFO)
+        XCTAssertEqual(evicted2, "B")
+        XCTAssertFalse(queue.contains(key: "B"))
+        
+        XCTAssertTrue(queue.isEmpty)
+        XCTAssertEqual(queue.count, 0)
+    }
+    
+    func testContainsEvictionStressTest() {
+        let queue = KeyQueue<Int>(capacity: 5)
+        var expectedKeys = Set<Int>()
+        
+        // Perform many operations and track expected state
+        for i in 1...100 {
+            let key = i % 20 // Use keys 0-19 to create collisions
+            
+            if i % 3 == 0 {
+                // Remove operation
+                queue.remove(key: key)
+                expectedKeys.remove(key)
+            } else {
+                // Enqueue operation
+                let evictedKey = queue.enqueueFront(key: key, evictedStrategy: .FIFO)
+                expectedKeys.insert(key)
+                
+                if let evicted = evictedKey {
+                    expectedKeys.remove(evicted)
+                }
+                
+                // Ensure we don't exceed capacity
+                while expectedKeys.count > queue.capacity {
+                    // This shouldn't happen with correct implementation
+                    XCTFail("Expected keys exceeded capacity")
+                    break
+                }
+            }
+            
+            // Verify contains consistency
+            for testKey in 0..<20 {
+                let shouldContain = expectedKeys.contains(testKey)
+                let actuallyContains = queue.contains(key: testKey)
+                XCTAssertEqual(shouldContain, actuallyContains, 
+                              "Key \(testKey) contains mismatch at iteration \(i): expected \(shouldContain), got \(actuallyContains)")
+            }
+        }
+    }
 }

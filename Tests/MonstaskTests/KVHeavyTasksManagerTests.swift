@@ -1,8 +1,60 @@
 //
 //  KVHeavyTasksManagerTests.swift
-//
+//  Comprehensive Test Suite for KVHeavyTasksManager
 //
 //  Created by Larkin on 2025/7/29.
+//
+//  ## Test Suite Overview
+//  This comprehensive test suite validates all aspects of KVHeavyTasksManager functionality including:
+//  - Priority strategies (FIFO, LIFO with await/stop behaviors)
+//  - Concurrency management and queue capacity handling
+//  - Cache integration (hit/miss/null/invalid states)
+//  - DataProvider lifecycle (creation, reuse, deallocation)
+//  - Error handling and recovery mechanisms
+//  - Event broadcasting and callback coordination
+//  - Thread safety and race condition handling
+//  - Edge cases and stress testing scenarios
+//
+//  ## Test Categories
+//  ### Core Priority Strategy Tests (1-19)
+//  - Basic FIFO/LIFO execution patterns
+//  - Queue capacity and overflow handling
+//  - Task eviction and prioritization logic
+//  - Custom event and result callback coordination
+//
+//  ### Advanced DataProvider Lifecycle Tests (20-23)
+//  - Stop/resume behavior with .reuse and .dealloc actions
+//  - Provider state preservation and memory management
+//  - Automatic task restart from waiting queue
+//  - Mixed behavior scenarios with concurrent operations
+//
+//  ### Comprehensive Edge Case Tests (24-29)
+//  - Cache state handling (null elements, invalid keys, validation consistency)
+//  - DataProvider error scenarios and validation
+//  - Configuration edge cases (zero capacities, extreme values)
+//  - Concurrent operations with state transitions
+//  - Cache statistics reporting and monitoring
+//  - Provider cleanup verification and memory management
+//
+//  ## Test Requirements Coverage Matrix
+//  | Scenario | Description | Test Cases |
+//  |----------|-------------|------------|
+//  | Priority Strategies | FIFO, LIFO(await), LIFO(stop) | 1-3, 11-19 |
+//  | Capacity Management | K tasks with running=M, queueing=N | 4-10, 26 |
+//  | DataProvider States | Start, stop, reuse, dealloc behaviors | 20-23, 25, 29 |
+//  | Cache Integration | Hit, miss, null, invalid scenarios | 11-19, 24 |
+//  | Event System | Progress updates and result delivery | 1-23, 28 |
+//  | Error Handling | Failures, validation, recovery | 24-26 |
+//  | Concurrency | Thread safety and race conditions | 20-23, 27 |
+//  | Performance | Stress testing and resource limits | 20-23, 26 |
+//
+//  ## Key Testing Principles
+//  - **Comprehensive Coverage**: Every major code path and edge case is tested
+//  - **Real-world Scenarios**: Tests simulate actual usage patterns and stress conditions
+//  - **Thread Safety**: Concurrent operations are extensively tested for race conditions
+//  - **Memory Management**: Provider lifecycle and cleanup are thoroughly validated
+//  - **Error Resilience**: All failure modes and recovery paths are exercised
+//  - **Performance Validation**: Resource usage and efficiency are monitored and verified
 //
 
 import XCTest
@@ -10,44 +62,62 @@ import XCTest
 @testable import MonstraBase
 @testable import Monstore
 
-/**
- 1. FIFO, LIFO(await), LIFO(stop)
- 2. start K tasks while running=M and queueing=N, while K < M
- 3. start K tasks while running=M and queueing=N, while K = M
- 4. start K tasks while running=M and queueing=N, while K > M and K < N+M
- 5. start K tasks while running=M and queueing=N, while K = N+M
- 6. start K tasks while running=M and queueing=N, while K > M + N
- 7. DataProvider return nil when stop
- 8. DataProvider return a Data when stop
- 9. data cache
- 10. customEvent check
- 11. execute resultcallback just once per manager.fetch
- 12. ensure no customEvent is executed after resultPublisher
- */
-
-// Extension for safe array access
+/// Extension providing safe array access to prevent index out of bounds crashes.
+///
+/// This extension is essential for test scenarios where array indices might be
+/// uncertain due to concurrent operations or dynamic queue management.
 extension Array {
+    /// Safely accesses array elements, returning nil if index is out of bounds.
+    ///
+    /// - Parameter index: The index to access
+    /// - Returns: The element at the specified index, or nil if index is invalid
     subscript(safe index: Int) -> Element? {
         return indices.contains(index) ? self[index] : nil
     }
 }
 
-// Thread-safe container for test data
+/// Thread-safe container for managing test data across concurrent operations.
+///
+/// This actor provides atomic access to test data that may be modified from
+/// multiple concurrent tasks during testing. It ensures data integrity and
+/// prevents race conditions in test scenarios involving parallel task execution.
+///
+/// ## Usage in Tests
+/// - **Progress Tracking**: Accumulate progress updates from multiple tasks
+/// - **Result Collection**: Gather results from concurrent operations safely
+/// - **State Coordination**: Synchronize test state across parallel executions
+/// - **Counter Management**: Maintain accurate counts in multi-threaded scenarios
 actor TestDataContainer<T> {
     private var data: T
     
+    /// Initializes the container with an initial value.
+    ///
+    /// - Parameter initialValue: The initial data value to store
     init(_ initialValue: T) {
         self.data = initialValue
     }
     
+    /// Retrieves the current data value.
+    ///
+    /// - Returns: The current data value
     func get() -> T {
         return data
     }
     
+    /// Sets a new data value.
+    ///
+    /// - Parameter newValue: The new value to store
     func set(_ newValue: T) {
         data = newValue
     }
     
+    /// Atomically modifies the data and returns a result.
+    ///
+    /// This method is particularly useful for operations like incrementing counters,
+    /// appending to arrays, or performing complex state transitions safely.
+    ///
+    /// - Parameter operation: Closure that modifies the data and optionally returns a result
+    /// - Returns: The result returned by the operation closure
     func modify<R>(_ operation: (inout T) -> R) -> R {
         return operation(&data)
     }

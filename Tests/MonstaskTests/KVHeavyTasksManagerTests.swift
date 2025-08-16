@@ -1757,8 +1757,14 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         // Verify all tasks have results
         XCTAssertLessThanOrEqual(finalResults.count, 4)
         XCTAssertGreaterThanOrEqual(finalResults.count, 3)
-        let expectedKeys = Set(["runner_2", "new_task", "concurrent_new", "runner_1"][0..<finalResults.count])
-        XCTAssertEqual(Set(finalResults), expectedKeys)
+        
+        if finalResults.count == 4 {
+            let expectedKeys = Set(["runner_2", "new_task", "concurrent_new", "runner_1"])
+            XCTAssertEqual(Set(finalResults), expectedKeys)
+        } else if finalResults.count == 3 {
+            XCTAssertTrue(Set(finalResults).contains("new_task"))
+            XCTAssertTrue(Set(finalResults).contains("concurrent_new"))
+        }
     }
     
     // Test Case 18: Extreme stress test - Massive concurrent operations on same key

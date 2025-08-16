@@ -657,14 +657,14 @@ public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyT
     private var semaphore: DispatchSemaphore = .init(value: 1)
 }
 
-// Opt-in to Sendable semantics using internal synchronization.
-// The manager uses a DispatchSemaphore to protect shared mutable state.
+// Enable thread-safe concurrency through internal synchronization mechanisms.
+// The manager employs DispatchSemaphore to ensure thread-safe access to shared mutable state.
 extension KVHeavyTasksManager: @unchecked Sendable {}
 
 public extension KVHeavyTasksManager {
     enum Errors: Error {
-        case maxNumberOfRunningTasksIsZero
-        case evictedByPriorityStrategy(K)
+        case invalidConcurrencyConfiguration
+        case taskEvictedDueToPriorityConstraints(K)
     }
     
     func fetch(key: K,
@@ -672,7 +672,7 @@ public extension KVHeavyTasksManager {
                result resultCallback: DataProvider.ResultPublisher? = nil) {
         DispatchQueue.global().async {
             guard self.config.maxNumberOfRunningTasks > 0 else {
-                resultCallback?(.failure(Errors.maxNumberOfRunningTasksIsZero))
+                resultCallback?(.failure(Errors.invalidConcurrencyConfiguration))
                 return
             }
             self.start(key, customEventObserver: customEventObserver, resultCallback: resultCallback)
@@ -818,7 +818,7 @@ private extension KVHeavyTasksManager {
         
         // Queue for later execution and handle waiting queue overflow
         if let evictedKey = self.waitingQueue.enqueueFront(key: key, evictedStrategy: .LIFO) {
-            consumeCallbacks(for: evictedKey, result: .failure(Errors.evictedByPriorityStrategy(evictedKey)))
+            consumeCallbacks(for: evictedKey, result: .failure(Errors.taskEvictedDueToPriorityConstraints(evictedKey)))
         }
     }
     
@@ -868,7 +868,7 @@ private extension KVHeavyTasksManager {
         
         // Add to front of waiting queue (LIFO) and handle overflow
         if let evictedKey = self.waitingQueue.enqueueFront(key: key, evictedStrategy: .FIFO) {
-            consumeCallbacks(for: evictedKey, result: .failure(Errors.evictedByPriorityStrategy(evictedKey)))
+            consumeCallbacks(for: evictedKey, result: .failure(Errors.taskEvictedDueToPriorityConstraints(evictedKey)))
         }
     }
     
@@ -923,7 +923,7 @@ private extension KVHeavyTasksManager {
             // Move the stopped task to waiting queue for automatic resumption later
             if let evictedKey = self.waitingQueue.enqueueFront(key: keyToStop, evictedStrategy: .FIFO) {
                 // Notify evicted waiting task if waiting queue is full
-                consumeCallbacks(for: evictedKey, result: .failure(Errors.evictedByPriorityStrategy(evictedKey)))
+                consumeCallbacks(for: evictedKey, result: .failure(Errors.taskEvictedDueToPriorityConstraints(evictedKey)))
             }
             
             // Stop the evicted DataProvider and handle its lifecycle based on return value
@@ -986,12 +986,12 @@ private extension KVHeavyTasksManager {
             self.dataProviders[key] = DataProvider(key: key, customEventPublisher: { [weak self] customEvent in
                 // Handle custom events (progress updates, status changes, etc.)
                 DispatchQueue.global().async {
-                    guard let strongSelf = self else { return }
-                    strongSelf.semaphore.wait()
-                    defer { strongSelf.semaphore.signal() }
+                    guard let taskManager = self else { return }
+                    taskManager.semaphore.wait()
+                    defer { taskManager.semaphore.signal() }
                     
                     // Broadcast event to all registered observers for this key
-                    strongSelf.customEventObservers[key]?.forEach { observer in
+                    taskManager.customEventObservers[key]?.forEach { observer in
                         DispatchQueue.global().async {
                             observer(customEvent)
                         }
@@ -1000,45 +1000,45 @@ private extension KVHeavyTasksManager {
             }, resultPublisher: { [weak self] result in
                 // Handle final task result (success or failure)
                 DispatchQueue.global().async {
-                    guard let strongSelf = self else { return }
-                    strongSelf.semaphore.wait()
-                    defer { strongSelf.semaphore.signal() }
+                    guard let taskManager = self else { return }
+                    taskManager.semaphore.wait()
+                    defer { taskManager.semaphore.signal() }
                     
                     switch result {
                     case .success(let element):
                         // Cache successful results for future requests
-                        strongSelf.cache.set(element: element, for: key)
-                        strongSelf.consumeCallbacks(for: key, result: .success(element))
+                        taskManager.cache.set(element: element, for: key)
+                        taskManager.consumeCallbacks(for: key, result: .success(element))
                     case .failure(let error):
                         // Don't cache failures; directly notify callbacks
-                        strongSelf.consumeCallbacks(for: key, result: .failure(error))
+                        taskManager.consumeCallbacks(for: key, result: .failure(error))
                     }
                     
                     // Clean up completed task and free resources
-                    strongSelf.dataProviders.removeValue(forKey: key)
-                    strongSelf.runningKeys.remove(key: key)
+                    taskManager.dataProviders.removeValue(forKey: key)
+                    taskManager.runningKeys.remove(key: key)
                     
                     // Promote next waiting task to maintain optimal throughput
                     let nextKey: K?
-                    switch strongSelf.config.priorityStrategy {
+                    switch taskManager.config.priorityStrategy {
                     case .FIFO:
-                        nextKey = strongSelf.waitingQueue.dequeueBack()
+                        nextKey = taskManager.waitingQueue.dequeueBack()
                     case .LIFO:
-                        nextKey = strongSelf.waitingQueue.dequeueFront()
+                        nextKey = taskManager.waitingQueue.dequeueFront()
                     }
                     
                     guard let nextKey else { return }
                     
                     // Add promoted task to running queue with appropriate eviction strategy
-                    switch strongSelf.config.priorityStrategy {
+                    switch taskManager.config.priorityStrategy {
                     case .FIFO:
-                        strongSelf.runningKeys.enqueueFront(key: nextKey, evictedStrategy: .LIFO)
+                        taskManager.runningKeys.enqueueFront(key: nextKey, evictedStrategy: .LIFO)
                     case .LIFO:
-                        strongSelf.runningKeys.enqueueFront(key: nextKey, evictedStrategy: .FIFO)
+                        taskManager.runningKeys.enqueueFront(key: nextKey, evictedStrategy: .FIFO)
                     }
                     
                     // Start the newly promoted task
-                    strongSelf.startTask(for: nextKey)
+                    taskManager.startTask(for: nextKey)
                 }
             })
         }

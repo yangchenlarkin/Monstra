@@ -29,6 +29,7 @@ class LocalDataProvider: Monstask.KVHeavyTaskBaseDataProvider<String, String, Ne
         case idle
         case running(value: String)
         case finished(value: String)
+        case paused(value: String)
     }
     private var state: State = .idle
     
@@ -46,11 +47,21 @@ class LocalDataProvider: Monstask.KVHeavyTaskBaseDataProvider<String, String, Ne
     /// 
     /// - Returns: The processed string result, or nil if cancelled
     /// - Throws: CancellationError if the task is cancelled during execution
-    func start(resumeData: String?) async {
-        guard case .idle = state else { return }
+    func start() {
+        let resumeData: String
+        switch self.state {
+        case .idle:
+            resumeData = ""
+        case .running(let value):
+            return
+        case .finished(let value):
+            return
+        case .paused(let value):
+            resumeData = value
+        }
         
         // Determine the already processed prefix from resumeData
-        let processedPrefix = resumeData ?? ""
+        let processedPrefix = resumeData
         var result = processedPrefix
         
         // Compute start index. If resumeData is not a prefix, restart from beginning
@@ -66,13 +77,15 @@ class LocalDataProvider: Monstask.KVHeavyTaskBaseDataProvider<String, String, Ne
         
         for character in key[startIndex...] {
             // Simulate processing delay (1 second per character)
-            try? await Task.sleep(nanoseconds: 1_000_000_000)
+            Thread.sleep(forTimeInterval: 1)
             
             // Process the current character
             result.append(character)
             
             if case .running = state {
                 state = .running(value: result)
+            } else {
+                return
             }
         }
         state = .finished(value: result)
@@ -93,10 +106,10 @@ class LocalDataProvider: Monstask.KVHeavyTaskBaseDataProvider<String, String, Ne
     /// ```
     ///
     /// - Returns: An async closure that resumes the task, or nil if already stopped
-    func stop() async -> String? {
-        guard case .running(let value) = state else { return nil }
-        self.state = .finished(value: value)
-        return value
+    func stop() -> KVHeavyTaskDataProviderStopAction {
+        guard case .running(let value) = state else { return .dealloc }
+        self.state = .paused(value: value)
+        return .reuse
     }
 }
 
@@ -124,6 +137,7 @@ class AlamofireDataProvider: Monstask.KVHeavyTaskBaseDataProvider<URL, Data, Pro
     /// This property holds the Alamofire DownloadRequest instance, allowing
     /// for cancellation, pausing, and resuming of the download operation.
     private var request: DownloadRequest? = nil
+    private var resumeData: Data? = nil
     
     /// Downloads the file from the specified URL with intelligent resume capability
     /// 
@@ -146,24 +160,12 @@ class AlamofireDataProvider: Monstask.KVHeavyTaskBaseDataProvider<URL, Data, Pro
     /// 
     /// - Returns: The downloaded file data as Data object, or nil if cancelled
     /// - Throws: Network errors (AFError), file system errors, or validation errors
-    func start(resumeData: Never?) async {
+    func start() {
         let destinationURL = Self.destinationURL(key)
         
         // Step 1: Check for existing download and validate integrity
-        if let existingData = try? Data(contentsOf: destinationURL) {
-            let localFileSize = getFileSize(destinationURL)
-            let remoteFileSize = await getRemoteFileSize(key)
-            
-            // Step 2: Validate file integrity by comparing sizes
-            if remoteFileSize == localFileSize {
-                print("📦 Using cached file: \(localFileSize) bytes")
-                resultPublisher(.success(existingData))
-                return
-            }
-            
-            // Step 3: Resume download from existing partial data
-            print("🔄 Resuming download from \(localFileSize) bytes")
-            request = AF.download(resumingWith: existingData) { _, _ in
+        if let resumeData {
+            request = AF.download(resumingWith: resumeData) { _, _ in
                 return (destinationURL, [.createIntermediateDirectories, .removePreviousFile])
             }
         } else {
@@ -182,9 +184,12 @@ class AlamofireDataProvider: Monstask.KVHeavyTaskBaseDataProvider<URL, Data, Pro
         request?.responseData { response in
             switch response.result {
             case .success(let data):
+                self.resumeData = nil
                 self.resultPublisher(.success(data))
             case .failure(let error):
-                self.resultPublisher(.failure(error))
+                if self.resumeData == nil {
+                    self.resultPublisher(.failure(error))
+                }
             }
         }
     }
@@ -210,38 +215,31 @@ class AlamofireDataProvider: Monstask.KVHeavyTaskBaseDataProvider<URL, Data, Pro
     /// 
     /// - Returns: An async closure that can resume the download, or nil if already finished
     @discardableResult
-    func stop() async -> Never? {
+    func stop() -> KVHeavyTaskDataProviderStopAction {
         guard let request = request, !request.isFinished else {
             print("📋 No active download to stop")
-            return nil
+            self.resumeData = nil
+            return .dealloc
         }
         
         print("⏸️ Stopping download and saving resume data...")
-        
-        await withCheckedContinuation { continuation in
-            request.cancel(byProducingResumeData: { [weak self] resumeData in
-                guard let self = self else {
-                    continuation.resume(returning: ())
-                    return
-                }
-                
-                // Save resume data for later use
-                if let resumeData = resumeData {
-                    do {
-                        try resumeData.write(to: Self.destinationURL(self.key))
-                        print("💾 Resume data saved: \(resumeData.count) bytes")
-                    } catch {
-                        print("⚠️ Failed to save resume data: \(error)")
-                    }
-                } else {
-                    print("⚠️ No resume data available")
-                }
-                
-                continuation.resume(returning: ())
-            })
+        let semaphore = DispatchSemaphore(value: 0)
+        var res: Data? = nil
+        request.cancel(byProducingResumeData: {
+            print("⏸️ Downloading stopped")
+            res = $0
+            semaphore.signal()
+        })
+        switch semaphore.wait(timeout: .now() + 1) {
+        case .success:
+            print("⏸️ Downloading stopped success")
+            self.resumeData = res
+            return .reuse
+        case .timedOut:
+            print("⏸️ Downloading stopped timeout")
+            self.resumeData = nil
+            return .dealloc
         }
-        
-        return nil
     }
     
     /// Gets the caches directory for storing downloaded files
@@ -280,57 +278,6 @@ class AlamofireDataProvider: Monstask.KVHeavyTaskBaseDataProvider<URL, Data, Pro
         let downloadFolder = cacheDirectory.appendingPathComponent("AlamofireDataProvider", isDirectory: true)
         let destinationURL = downloadFolder.appendingPathComponent(key.absoluteString.md5())
         return destinationURL
-    }
-    
-    /// Gets the size of a local file from the file system
-    /// 
-    /// This method retrieves the file size from the file system attributes.
-    /// It returns 0 if the file doesn't exist or if there's an error reading
-    /// the file attributes.
-    /// 
-    /// ## Error Handling
-    /// - Returns 0 for non-existent files
-    /// - Returns 0 for files with unreadable attributes
-    /// - Gracefully handles file system errors
-    /// 
-    /// - Parameter url: The URL of the file to check
-    /// - Returns: The file size in bytes, or 0 if the file doesn't exist
-    private func getFileSize(_ url: URL) -> Int64 {
-        guard let attributes = try? FileManager.default.attributesOfItem(atPath: url.path) else {
-            return 0
-        }
-        guard let fileSize = attributes[.size] as? Int64 else {
-            return 0
-        }
-        return fileSize
-    }
-    
-    /// Gets the size of a remote file via HTTP HEAD request
-    /// 
-    /// This method performs a HEAD request to retrieve the Content-Length header
-    /// from the remote server. This is used to validate download integrity
-    /// by comparing local and remote file sizes.
-    /// 
-    /// ## Network Behavior
-    /// - Uses HTTP HEAD method for efficiency (no body transfer)
-    /// - Extracts Content-Length header for file size
-    /// - Handles servers that don't provide Content-Length
-    /// - Returns -1 for indeterminate file sizes
-    /// 
-    /// - Parameter url: The URL of the remote file
-    /// - Returns: The remote file size in bytes, or -1 if the size cannot be determined
-    private func getRemoteFileSize(_ url: URL) async -> Int64 {
-        return await withCheckedContinuation { continuation in
-            AF.request(url, method: .head)
-                .response { response in
-                    if let contentLength = response.response?.allHeaderFields["Content-Length"] as? String,
-                       let fileSize = Int64(contentLength) {
-                        continuation.resume(returning: fileSize)
-                    } else {
-                        continuation.resume(returning: -1)
-                    }
-                }
-        }
     }
 }
 
@@ -402,16 +349,14 @@ extension String {
 /// loadLocalData() // Processes "12345" with 1-second delays
 /// ```
 func localDataProviderTest() {
-    Task {
-        await LocalDataProvider(key: "12345") {_ in} resultPublisher: { result in
-            switch result {
-            case .success(let result):
-                print("✅ Local processing completed: \(result ?? "nil")")
-            case .failure(let error):
-                print("❌ Local processing failed: \(error)")
-            }
-        }.start(resumeData: nil)
-    }
+    LocalDataProvider(key: "12345") {_ in} resultPublisher: { result in
+        switch result {
+        case .success(let result):
+            print("✅ Local processing completed: \(result ?? "nil")")
+        case .failure(let error):
+            print("❌ Local processing failed: \(error)")
+        }
+    }.start()
 }
 
 /// Main execution: Demonstrates file download with comprehensive progress tracking
@@ -424,7 +369,7 @@ func localDataProviderTest() {
 func alamofireDataProviderTest() {
     let largeFileURL = "https://updatecdn.meeting.qq.com/cos/197eaf6e0ea4bcafff72e5bb623555e6/TencentMeeting_0300000000_3.35.1.437.publish.arm64.officialwebsite.dmg"
     let smallFileURL = "https://www.google.com"
-
+    
     /// Currently selected test URL for demonstration
     let __TEST_URL__ = largeFileURL
     
@@ -467,11 +412,13 @@ func alamofireDataProviderTest() {
     }
     
     // Execute the download task with comprehensive error handling
-    Task {
-        await taskHandler.start(resumeData: nil)
-        try? await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
-        await taskHandler.stop()
-    }
+    taskHandler.start()
+    Thread.sleep(forTimeInterval: 3)
+    taskHandler.stop()
+    Thread.sleep(forTimeInterval: 3)
+    taskHandler.start()
+    Thread.sleep(forTimeInterval: 3)
+    taskHandler.stop()
 }
 
 alamofireDataProviderTest()

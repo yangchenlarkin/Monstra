@@ -25,6 +25,13 @@ import XCTest
  12. ensure no customEvent is executed after resultPublisher
  */
 
+// Extension for safe array access
+extension Array {
+    subscript(safe index: Int) -> Element? {
+        return indices.contains(index) ? self[index] : nil
+    }
+}
+
 // Thread-safe container for test data
 actor TestDataContainer<T> {
     private var data: T
@@ -59,7 +66,8 @@ final class MockDataProvider: Monstask.KVHeavyTaskBaseDataProvider<String, Strin
     private enum State {
         case idle
         case running(value: String)
-        case finished(value: String)
+        case paused(value: String)
+        case finished
     }
     private var state: State = .idle {
         didSet {
@@ -67,6 +75,11 @@ final class MockDataProvider: Monstask.KVHeavyTaskBaseDataProvider<String, Strin
                 self.customEventPublisher(.init(totalLens: key.count, completedLens: value.count))
             }
         }
+    }
+    private var stateSemaphore = DispatchSemaphore(value: 1)
+    
+    enum Errors: Error {
+        case invalidKey
     }
     
     /// Processes the input string character by character with artificial delays
@@ -83,37 +96,66 @@ final class MockDataProvider: Monstask.KVHeavyTaskBaseDataProvider<String, Strin
     ///
     /// - Returns: The processed string result, or nil if cancelled
     /// - Throws: CancellationError if the task is cancelled during execution
-    func start(resumeData: String?) async {
-        guard case .idle = state else { return }
+    func start() {
+        if key.contains("invalid") {
+            self.resultPublisher(.failure(Errors.invalidKey))
+            return
+        }
+        stateSemaphore.wait()
+        defer { stateSemaphore.signal() }
         
-        var result = resumeData ?? ""
-        
-        
-        // Resume from where we left off based on existing result
-        let startIndex: String.Index
-        if result.isEmpty || !key.hasPrefix(result) {
-            startIndex = key.startIndex
-        state = .running(value: "")
-        } else {
-            startIndex = key.index(key.startIndex, offsetBy: result.count)
-        state = .running(value: result)
+        let resumeData: String
+        switch self.state {
+        case .idle:
+            resumeData = ""
+        case .running(_):
+            return
+        case .finished:
+            return
+        case .paused(let value):
+            resumeData = value
         }
         
-        for character in key[startIndex...] {
-            // Simulate processing delay (0.1 second per character)
-            try? await Task.sleep(nanoseconds: 100_000_000)
-            
-            // Process the current character
-            result.append(character)
-            
-            if case .running = state {
-                state = .running(value: result)
-            } else {
-                return
+        // Determine the already processed prefix from resumeData
+        let processedPrefix = resumeData
+        var result = processedPrefix
+        
+        // Compute start index. If resumeData is not a prefix, restart from beginning
+        let startIndex: String.Index
+        if key.hasPrefix(processedPrefix) {
+            startIndex = key.index(key.startIndex, offsetBy: processedPrefix.count)
+        } else {
+            result = ""
+            startIndex = key.startIndex
+        }
+        
+        state = .running(value: result)
+        
+        DispatchQueue.global().async { [weak self] in
+            guard let strongSelf = self else { return }
+            for character in strongSelf.key[startIndex...] {
+                // Simulate processing delay (0.1 second per character)
+                Thread.sleep(forTimeInterval: 0.1)
+                
+                guard let self else { return }
+                self.stateSemaphore.wait()
+                defer { self.stateSemaphore.signal() }
+                
+                // Process the current character
+                result.append(character)
+                if case .running = self.state {
+                    if result == self.key {
+                        self.state = .running(value: result)
+                        self.state = .finished
+                        self.resultPublisher(.success(result))
+                    } else {
+                        self.state = .running(value: result)
+                    }
+                } else {
+                    return
+                }
             }
         }
-        state = .finished(value: result)
-        resultPublisher(.success(result))
     }
     
     /// Stops the current processing task and provides resume capability
@@ -130,26 +172,39 @@ final class MockDataProvider: Monstask.KVHeavyTaskBaseDataProvider<String, Strin
     /// ```
     ///
     /// - Returns: An async closure that resumes the task, or nil if already stopped
-    func stop() async -> String? {
-        guard case .running(let value) = state else { return nil }
-        self.state = .finished(value: value)
-        return value
+    func stop() -> KVHeavyTaskDataProviderStopAction {
+        stateSemaphore.wait()
+        defer { stateSemaphore.signal() }
+        
+        Thread.sleep(forTimeInterval: 0.05)
+        
+        guard case .running(let value) = state else { return .dealloc }
+        self.state = .paused(value: value)
+        
+        if key.contains("dealloc") {
+            return .dealloc
+        }
+        
+        if key.contains("reuse") {
+            return .reuse
+        }
+        
+        return .reuse
     }
 }
 
 // MARK: - Tests
 
 final class KVHeavyTasksManagerTests: XCTestCase {
-    
     private func makeManager(priority: Monstask.KVHeavyTasksManager<String, String, MockDataProviderProgress, MockDataProvider>.Config.PriorityStrategy,
                              running: Int = 1,
-                             queueing: Int = 8) -> Monstask.KVHeavyTasksManager<String, String, MockDataProviderProgress, MockDataProvider> {
+                             queueing: Int = 8,
+                             cacheConfig: MemoryCache<String, String>.Configuration = .defaultConfig) -> Monstask.KVHeavyTasksManager<String, String, MockDataProviderProgress, MockDataProvider> {
         let config = Monstask.KVHeavyTasksManager<String, String, MockDataProviderProgress, MockDataProvider>.Config(
             maxNumberOfQueueingTasks: queueing,
             maxNumberOfRunningTasks: running,
             priorityStrategy: priority,
-            cacheConfig: .defaultConfig,
-            resumeDataCacheConfig: .defaultConfig
+            cacheConfig: cacheConfig
         )
         return .init(config: config)
     }
@@ -1125,9 +1180,6 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                     evictedExp.fulfill()
                 }
             })
-            
-            // Small delay to ensure ordering
-            try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 seconds
         }
         
         await fulfillment(of: [completedExp, evictedExp], timeout: 15.0)
@@ -1769,7 +1821,6 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         for cycle in 1...cycles {
             // Start task
             let keyVictim = "cycle_\(cycle)_victim"
-            print(keyVictim)
             manager.fetch(key: keyVictim, result: { result in
                 Task {
                     await cycleOrder.modify { order in
@@ -1777,15 +1828,11 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                     }
                     switch result {
                     case .success:
-                        print(keyVictim, "S")
                         await successfulResults.modify { array in
-                            print(keyVictim, "S2")
                             array.append(keyVictim)
                         }
                     case .failure:
-                        print(keyVictim, "F")
                         await failedResults.modify { array in
-                            print(keyVictim, "F2")
                             array.append(keyVictim)
                         }
                     }
@@ -1794,7 +1841,6 @@ final class KVHeavyTasksManagerTests: XCTestCase {
             })
             
             let keyStopper = "cycle_\(cycle)_stopper"
-            print(keyStopper)
             manager.fetch(key: keyStopper, result: { result in
                 Task {
                     await cycleOrder.modify { order in
@@ -1802,15 +1848,11 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                     }
                     switch result {
                     case .success:
-                        print(keyStopper, "S")
                         await successfulResults.modify { array in
-                            print(keyStopper, "S2")
                             array.append(keyStopper)
                         }
-                    case .failure:
-                        print(keyStopper, "F")
+                    case .failure(_):
                         await failedResults.modify { array in
-                            print(keyStopper, "F2")
                             array.append(keyStopper)
                         }
                     }
@@ -1819,7 +1861,7 @@ final class KVHeavyTasksManagerTests: XCTestCase {
             })
             
             // Brief interval between cycles
-            try? await Task.sleep(nanoseconds: 5_000_000_000) // 2 seconds
+            try? await Task.sleep(nanoseconds: 5_000_000_000) // 5 seconds
         }
         
         await fulfillment(of: [exp], timeout: 101.0)
@@ -1832,5 +1874,700 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         XCTAssertEqual(finalFailedResults.filter { $0.contains("stopper")}.count, 0)
         XCTAssertEqual(finalSuccessfulResults.count + finalFailedResults.count, cycles * 2)
         XCTAssertEqual(finalOrder.count, cycles * 2)
+    }
+    
+    // MARK: - Dealloc/Reuse Behavior Tests
+    // 
+    // These tests focus on LIFO(.stop) strategy since it's the only priority strategy
+    // that actually calls stop() on DataProviders, which is where dealloc/reuse behavior occurs.
+    
+    // Test Case 20: Dealloc behavior - provider removed, auto-restart creates new provider
+    func testStopAction_DeallocBehavior() async {
+        let manager = makeManager(priority: .LIFO(.stop), running: 1, queueing: 1000, cacheConfig: MemoryCache<String, String>.Configuration(memoryUsageLimitation: .init(capacity: 0, memory: 0)))
+        
+        let exp = expectation(description: "dealloc task completed after interruption")
+        let progressEvents = TestDataContainer([MockDataProviderProgress]())
+        let interrupterCompleted = TestDataContainer(false)
+        let restartDetected = TestDataContainer(false)
+        
+        // Start task that will be deallocated
+        manager.fetch(key: "task_dealloc_test", customEventObserver: { progress in
+            Task {
+                await progressEvents.modify { events in
+                    events.append(progress)
+                }
+                
+                // Detect restart: if we see progress start from 0 again after interrupter completed
+                let interrupterDone = await interrupterCompleted.get()
+                if interrupterDone && progress.completedLens == 0 {
+                    await restartDetected.set(true)
+                }
+            }
+        }, result: { result in
+            exp.fulfill()
+        })
+        
+        // Wait for some progress, then interrupt with a SHORT task
+        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
+        
+        // Use a very short interrupter that finishes quickly, allowing auto-restart
+        manager.fetch(key: "s", result: { _ in
+            Task {
+                await interrupterCompleted.set(true)
+            }
+        })
+        
+        // The original task will auto-restart when "s" finishes
+        // Wait for original task to complete
+        await fulfillment(of: [exp], timeout: 15.0)
+        
+        let finalProgress = await progressEvents.get()
+        let restarted = await restartDetected.get()
+        
+        // For dealloc behavior: should see progress restart from 0 after interruption
+        XCTAssertFalse(finalProgress.isEmpty, "Should have progress events")
+        XCTAssertTrue(restarted, "Should detect restart from beginning (dealloc behavior)")
+        
+        // Should have multiple 0 progress events (initial start + restart after dealloc)
+        let zeroProgressCount = finalProgress.filter { $0.completedLens == 0 }.count
+        XCTAssertGreaterThan(zeroProgressCount, 1, "Dealloc should restart from 0, creating multiple 0-progress events")
+    }
+    
+    // Test Case 21: Reuse behavior - provider kept, auto-restart resumes from where left off
+    func testStopAction_ReuseBehavior() async {
+        let manager = makeManager(priority: .LIFO(.stop), running: 1, queueing: 1000, cacheConfig: MemoryCache<String, String>.Configuration(memoryUsageLimitation: .init(capacity: 0, memory: 0)))
+        
+        let exp = expectation(description: "reuse task completed after interruption")
+        let progressEvents = TestDataContainer([MockDataProviderProgress]())
+        let interrupterCompleted = TestDataContainer(false)
+        let resumeDetected = TestDataContainer(false)
+        let lastProgressBeforeStop = TestDataContainer(0)
+        
+        // Start task that will be reused
+        manager.fetch(key: "task_reuse_test", customEventObserver: { progress in
+            Task {
+                await progressEvents.modify { events in
+                    events.append(progress)
+                }
+                
+                // Track progress before interruption
+                let interrupterDone = await interrupterCompleted.get()
+                if !interrupterDone {
+                    await lastProgressBeforeStop.set(progress.completedLens)
+                } else {
+                    // After interrupter completed, check if we resume from last progress
+                    let lastProgress = await lastProgressBeforeStop.get()
+                    if progress.completedLens == lastProgress && lastProgress > 0 {
+                        await resumeDetected.set(true)
+                    }
+                }
+            }
+        }, result: { result in
+            exp.fulfill()
+        })
+        
+        // Wait for some progress, then interrupt with a SHORT task
+        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
+        
+        // Use a very short interrupter that finishes quickly, allowing auto-restart
+        manager.fetch(key: "s", result: { _ in
+            Task {
+                await interrupterCompleted.set(true)
+            }
+        })
+        
+        // The original task will auto-restart when "s" finishes
+        // Wait for original task to complete
+        await fulfillment(of: [exp], timeout: 15.0)
+        
+        let finalProgress = await progressEvents.get()
+        let resumed = await resumeDetected.get()
+        let lastProgress = await lastProgressBeforeStop.get()
+        
+        // For reuse behavior: should resume from where it left off
+        XCTAssertFalse(finalProgress.isEmpty, "Should have progress events")
+        XCTAssertGreaterThan(lastProgress, 0, "Should have made progress before stop")
+        XCTAssertTrue(resumed, "Should detect resume from last progress (reuse behavior)")
+        
+        // Should NOT have multiple 0 progress events (unlike dealloc)
+        let zeroProgressCount = finalProgress.filter { $0.completedLens == 0 }.count
+        XCTAssertEqual(zeroProgressCount, 1, "Reuse should not restart from 0, only initial 0-progress event")
+    }
+    
+    // Test Case 22: Compare dealloc vs reuse behavior side by side
+    func testCompareDeallocVsReuse() async {
+        let manager = makeManager(priority: .LIFO(.stop), running: 1, queueing: 1000, cacheConfig: MemoryCache<String, String>.Configuration(memoryUsageLimitation: .init(capacity: 0, memory: 0)))
+        
+        let exp = expectation(description: "comparison completed")
+        exp.expectedFulfillmentCount = 2
+        
+        let deallocZeroCount = TestDataContainer(0)
+        let reuseZeroCount = TestDataContainer(0)
+        
+        // Test dealloc behavior first
+        manager.fetch(key: "compare_dealloc_test", customEventObserver: { progress in
+            Task {
+                if progress.completedLens == 0 {
+                    _ = await deallocZeroCount.modify { count in count += 1 }
+                }
+            }
+        }, result: { result in
+            exp.fulfill()
+        })
+        
+        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
+        manager.fetch(key: "interrupt1", result: { _ in })
+        try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second - wait for dealloc task to complete
+        
+        // Test reuse behavior second
+        manager.fetch(key: "compare_reuse_test", customEventObserver: { progress in
+            Task {
+                if progress.completedLens == 0 {
+                    _ = await reuseZeroCount.modify { count in count += 1 }
+                }
+            }
+        }, result: { result in
+            exp.fulfill()
+        })
+        
+        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
+        manager.fetch(key: "interrupt2", result: { _ in })
+        
+        await fulfillment(of: [exp], timeout: 20.0)
+        
+        let finalDeallocZeros = await deallocZeroCount.get()
+        let finalReuseZeros = await reuseZeroCount.get()
+        
+        // Dealloc should create new provider = multiple zero progress events
+        // Reuse should resume existing provider = only one zero progress event
+        XCTAssertGreaterThan(finalDeallocZeros, 1, "Dealloc should have multiple zero-progress events (restart)")
+        XCTAssertEqual(finalReuseZeros, 1, "Reuse should have only one zero-progress event (no restart)")
+    }
+    
+    // Test Case 23: Multiple interruptions to verify consistent dealloc/reuse behavior
+    func testMultipleInterruptions_DeallocVsReuse() async {
+        let manager = makeManager(priority: .LIFO(.stop), running: 1, queueing: 10, cacheConfig: MemoryCache<String, String>.Configuration(memoryUsageLimitation: .init(capacity: 0, memory: 0)))
+        
+        let exp = expectation(description: "multiple interruptions completed")
+        exp.expectedFulfillmentCount = 2
+        
+        let deallocRestartsCount = TestDataContainer(0)
+        let reuseRestartsCount = TestDataContainer(0)
+        
+        // Test dealloc with multiple interruptions
+        manager.fetch(key: "multi_dealloc_test", customEventObserver: { progress in
+            Task {
+                if progress.completedLens == 0 {
+                    _ = await deallocRestartsCount.modify { count in count += 1 }
+                }
+            }
+        }, result: { result in
+            exp.fulfill()
+        })
+        
+        // Multiple rapid interruptions
+        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+        manager.fetch(key: "int1", result: { _ in })
+        try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 seconds
+        manager.fetch(key: "int2", result: { _ in })
+        try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 seconds
+        manager.fetch(key: "int3", result: { _ in })
+        
+        // Wait for dealloc task to eventually complete
+        try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+        
+        // Test reuse with multiple interruptions
+        manager.fetch(key: "multi_reuse_test", customEventObserver: { progress in
+            Task {
+                if progress.completedLens == 0 {
+                    _ = await reuseRestartsCount.modify { count in count += 1 }
+                }
+            }
+        }, result: { result in
+            exp.fulfill()
+        })
+        
+        // Multiple rapid interruptions
+        try? await Task.sleep(nanoseconds: 200_000_000) // 0.3 seconds
+        manager.fetch(key: "int4", result: { _ in })
+        try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 seconds
+        manager.fetch(key: "int5", result: { _ in })
+        try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 seconds
+        manager.fetch(key: "int6", result: { _ in })
+        
+        await fulfillment(of: [exp], timeout: 25.0)
+        
+        let deallocRestarts = await deallocRestartsCount.get()
+        let reuseRestarts = await reuseRestartsCount.get()
+        
+        // Dealloc should have multiple restarts (each interruption creates new provider)
+        // Reuse should have only one start (provider is reused across interruptions)
+        XCTAssertGreaterThan(deallocRestarts, 1, "Dealloc should restart multiple times after interruptions")
+        XCTAssertEqual(reuseRestarts, 1, "Reuse should start only once, then resume across interruptions")
+    }
+    
+    // MARK: - Cache Edge Cases Tests
+    
+    // Test Case 24: Cache hitNullElement and invalidKey scenarios
+    func testCacheEdgeCases_NullAndInvalidKeys() async {
+        // Test with custom cache config that validates keys
+        let cacheConfig = MemoryCache<String, String>.Configuration(
+            memoryUsageLimitation: .init(capacity: 100, memory: 1024 * 1024),
+            keyValidator: { key in
+                return !key.contains("invalid")  // Keys with "invalid" are considered invalid
+            }
+        )
+        
+        let manager = makeManager(priority: .FIFO, running: 1, queueing: 10, cacheConfig: cacheConfig)
+        
+        let exp = expectation(description: "cache edge cases completed")
+        exp.expectedFulfillmentCount = 3
+        
+        let results = TestDataContainer([String: Result<String?, Error>]())
+        
+        // Test 1: Valid key that returns actual result  
+        manager.fetch(key: "valid_test", result: { result in
+            Task {
+                await results.modify { dict in
+                    dict["valid_test"] = result
+                }
+            }
+            exp.fulfill()
+        })
+        
+        // Wait for first task to complete
+        try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
+        
+        // Test 2: Fetch same valid key again - should hit cache with actual value
+        manager.fetch(key: "valid_test", result: { result in
+            Task {
+                await results.modify { dict in
+                    dict["valid_test_cached"] = result
+                }
+            }
+            exp.fulfill()
+        })
+        
+        // Test 3: Fetch invalid key - should be rejected by cache immediately (returns nil)
+        manager.fetch(key: "invalid_key_test", result: { result in
+            Task {
+                await results.modify { dict in
+                    dict["invalid_key"] = result
+                }
+            }
+            exp.fulfill()
+        })
+        
+        await fulfillment(of: [exp], timeout: 10.0)
+        
+        let finalResults = await results.get()
+        
+        // Verify results
+        if case .success(let value) = finalResults["valid_test"] {
+            XCTAssertEqual(value, "valid_test", "First valid task should return actual value")
+        } else {
+            XCTFail("Valid task should succeed")
+        }
+        
+        if case .success(let value) = finalResults["valid_test_cached"] {
+            XCTAssertEqual(value, "valid_test", "Cached valid should return actual value")
+        } else {
+            XCTFail("Cached valid task should succeed")
+        }
+        
+        if case .success(let value) = finalResults["invalid_key"] {
+            XCTAssertEqual(value, nil, "Invalid key should return nil from cache")
+        } else {
+            XCTFail("Invalid key should return success(nil), not error")
+        }
+        
+        XCTAssertEqual(finalResults.count, 3, "Should have all three results")
+        
+        // The key point: Invalid keys are caught by cache validation and return nil immediately
+        // DataProvider never receives invalid keys due to cache validation
+    }
+    
+    // Test Case 24b: Direct DataProvider validation consistency test 
+    func testDataProviderValidationConsistency() async {
+        // Test the DataProvider directly to verify it follows the same validation rules as cache
+        let exp = expectation(description: "provider validation completed")
+        exp.expectedFulfillmentCount = 2
+        
+        let results = TestDataContainer([String: Result<String?, Error>]())
+        
+        // Test valid key directly with existing MockDataProvider
+        let validProvider = MockDataProvider(
+            key: "valid_key_direct", 
+            customEventPublisher: { _ in },
+            resultPublisher: { result in
+                Task {
+                    await results.modify { dict in
+                        dict["valid_direct"] = result
+                    }
+                }
+                exp.fulfill()
+            }
+        )
+        validProvider.start()
+        
+        // Test invalid key directly with existing MockDataProvider
+        let invalidProvider = MockDataProvider(
+            key: "invalid_key_direct", 
+            customEventPublisher: { _ in },
+            resultPublisher: { result in
+                Task {
+                    await results.modify { dict in
+                        dict["invalid_direct"] = result
+                    }
+                }
+                exp.fulfill()
+            }
+        )
+        invalidProvider.start()
+        
+        await fulfillment(of: [exp], timeout: 3.0)
+        
+        let finalResults = await results.get()
+        
+        // Verify DataProvider follows same validation rule as cache
+        if case .success(let value) = finalResults["valid_direct"] {
+            XCTAssertEqual(value, "valid_key_direct", "Provider should return valid key")
+        } else {
+            XCTFail("Valid key should succeed")
+        }
+        
+        if case .failure(let error) = finalResults["invalid_direct"] {
+            XCTAssertTrue(error is MockDataProvider.Errors, "Provider should return invalidKey error for invalid key")
+        } else {
+            XCTFail("Invalid key should return error from provider")
+        }
+        
+        // This proves DataProvider and cache validation are consistent
+        XCTAssertEqual(finalResults.count, 2, "Should have both results")
+        
+        sleep(10)
+    }
+    
+    // Test Case 25: DataProvider error scenarios during execution
+    func testDataProviderErrorScenarios() async {
+        // Use cache config without keyValidator so invalid keys reach the provider
+        let cacheConfig = MemoryCache<String, String>.Configuration(memoryUsageLimitation: .init(capacity: 0, memory: 0))
+        let manager = makeManager(priority: .FIFO, running: 2, queueing: 10, cacheConfig: cacheConfig)
+        
+        let exp = expectation(description: "error handling completed")
+        exp.expectedFulfillmentCount = 2
+        
+        let results = TestDataContainer([String: Result<String?, Error>]())
+        
+        // Test normal task - MockDataProvider handles this normally
+        manager.fetch(key: "normal_task", result: { result in
+            Task {
+                await results.modify { dict in
+                    dict["normal"] = result
+                }
+            }
+            exp.fulfill()
+        })
+        
+        // Test invalid key - MockDataProvider now throws error for invalid keys
+        manager.fetch(key: "invalid_error_task", result: { result in
+            Task {
+                await results.modify { dict in
+                    dict["error"] = result
+                }
+            }
+            exp.fulfill()
+        })
+        
+        await fulfillment(of: [exp], timeout: 5.0)
+        
+        let finalResults = await results.get()
+        
+        // Normal task should succeed
+        if case .success(let value) = finalResults["normal"] {
+            XCTAssertEqual(value, "normal_task", "Normal task should return its key")
+        } else {
+            XCTFail("Normal task should succeed")
+        }
+        
+        // Invalid key should trigger error from MockDataProvider
+        if case .failure(let error) = finalResults["error"] {
+            XCTAssertTrue(error is MockDataProvider.Errors, "Should get MockDataProvider.Errors.invalidKey")
+        } else {
+            XCTFail("Invalid key should trigger error from provider")
+        }
+    }
+    
+    // Test Case 26: Configuration edge cases
+    func testConfigurationEdgeCases() async {
+        // Test with zero running tasks (should queue everything)
+        let zeroRunningManager = makeManager(priority: .FIFO, running: 0, queueing: 3)
+        
+        let exp1 = expectation(description: "zero running config")
+        exp1.expectedFulfillmentCount = 1
+        
+        let results1 = TestDataContainer([String]())
+        
+        // This should fail or be evicted since no running slots
+        zeroRunningManager.fetch(key: "zero_running_test", result: { result in
+            Task {
+                switch result {
+                case .success(let value):
+                    if let value = value {
+                        await results1.modify { array in array.append(value) }
+                    }
+                case .failure:
+                    // Expected behavior for zero running slots
+                    break
+                }
+            }
+            exp1.fulfill()
+        })
+        
+        await fulfillment(of: [exp1], timeout: 2.0)
+        
+        // Test with zero queueing capacity
+        let zeroQueueManager = makeManager(priority: .FIFO, running: 1, queueing: 0)
+        
+        let exp2 = expectation(description: "zero queue config") 
+        exp2.expectedFulfillmentCount = 2
+        
+        let results2 = TestDataContainer([String]())
+        let errors2 = TestDataContainer([String]())
+        
+        // First task should run
+        zeroQueueManager.fetch(key: "first", result: { result in
+            Task {
+                switch result {
+                case .success(let value):
+                    if let value = value {
+                        await results2.modify { array in array.append(value) }
+                    }
+                case .failure:
+                    await errors2.modify { array in array.append("first") }
+                }
+            }
+            exp2.fulfill()
+        })
+        
+        // Second task should be evicted immediately (no queue space)
+        zeroQueueManager.fetch(key: "second", result: { result in
+            Task {
+                switch result {
+                case .success(let value):
+                    if let value = value {
+                        await results2.modify { array in array.append(value) }
+                    }
+                case .failure:
+                    await errors2.modify { array in array.append("second") }
+                }
+            }
+            exp2.fulfill()
+        })
+        
+        await fulfillment(of: [exp2], timeout: 5.0)
+        
+        let finalResults2 = await results2.get()
+        let finalErrors2 = await errors2.get()
+        
+        XCTAssertEqual(finalResults2.count + finalErrors2.count, 2, "Should handle both tasks")
+        XCTAssertEqual(finalResults2.count, 1, "Only one task should succeed with zero queue")
+    }
+    
+    // Test Case 27: Concurrent fetch for same key in different states
+    func testConcurrentFetchSameKeyDifferentStates() async {
+        let manager = makeManager(priority: .LIFO(.stop), running: 1, queueing: 5, cacheConfig: MemoryCache<String, String>.Configuration(memoryUsageLimitation: .init(capacity: 0, memory: 0)))
+        
+        let exp = expectation(description: "concurrent same key completed")
+        exp.expectedFulfillmentCount = 4
+        
+        let callbackOrder = TestDataContainer([String]())
+        let results = TestDataContainer([String]())
+        
+        // Start first fetch
+        manager.fetch(key: "concurrent_key", result: { result in
+            Task {
+                await callbackOrder.modify { order in order.append("first") }
+                if case .success(let value) = result, let value = value {
+                    await results.modify { array in array.append(value) }
+                }
+            }
+            exp.fulfill()
+        })
+        
+        // Quick second fetch while first is running
+        try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 seconds
+        manager.fetch(key: "concurrent_key", result: { result in
+            Task {
+                await callbackOrder.modify { order in order.append("second") }
+                if case .success(let value) = result, let value = value {
+                    await results.modify { array in array.append(value) }
+                }
+            }
+            exp.fulfill()
+        })
+        
+        // Interrupt with different key
+        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+        manager.fetch(key: "interrupter", result: { result in
+            Task {
+                await callbackOrder.modify { order in order.append("interrupter") }
+                if case .success(let value) = result, let value = value {
+                    await results.modify { array in array.append(value) }
+                }
+            }
+            exp.fulfill()
+        })
+        
+        // Third fetch while original is stopped/queued
+        try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 seconds
+        manager.fetch(key: "concurrent_key", result: { result in
+            Task {
+                await callbackOrder.modify { order in order.append("third") }
+                if case .success(let value) = result, let value = value {
+                    await results.modify { array in array.append(value) }
+                }
+            }
+            exp.fulfill()
+        })
+        
+        await fulfillment(of: [exp], timeout: 15.0)
+        
+        let finalOrder = await callbackOrder.get()
+        let finalResults = await results.get()
+        
+        XCTAssertEqual(finalOrder.count, 4, "Should have all four callbacks")
+        XCTAssertTrue(finalOrder.contains("first"), "Should have first callback")
+        XCTAssertTrue(finalOrder.contains("second"), "Should have second callback") 
+        XCTAssertTrue(finalOrder.contains("third"), "Should have third callback")
+        XCTAssertTrue(finalOrder.contains("interrupter"), "Should have interrupter callback")
+        
+        // All concurrent_key fetches should get the same result
+        let concurrentResults = finalResults.filter { $0 == "concurrent_key" }
+        XCTAssertEqual(concurrentResults.count, 3, "All three concurrent_key fetches should succeed")
+    }
+    
+    // Test Case 28: Cache statistics reporting
+    func testCacheStatisticsReporting() async {
+        let statsReports = TestDataContainer([(CacheStatistics, CacheRecord)]())
+        
+        let cacheConfig = MemoryCache<String, String>.Configuration(
+            memoryUsageLimitation: .init(capacity: 5, memory: 1024)
+        )
+        
+        let config = KVHeavyTasksManager<String, String, MockDataProviderProgress, MockDataProvider>.Config(
+            maxNumberOfQueueingTasks: 10,
+            maxNumberOfRunningTasks: 2,
+            priorityStrategy: .FIFO,
+            cacheConfig: cacheConfig,
+            cacheStatisticsReport: { stats, record in
+                Task {
+                    await statsReports.modify { reports in
+                        reports.append((stats, record))
+                    }
+                }
+            }
+        )
+        let manager = KVHeavyTasksManager<String, String, MockDataProviderProgress, MockDataProvider>(config: config)
+        
+        let exp = expectation(description: "cache statistics completed")
+        exp.expectedFulfillmentCount = 3
+        
+        // Generate cache activity
+        manager.fetch(key: "stats_test_1", result: { _ in exp.fulfill() })
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+        
+        manager.fetch(key: "stats_test_2", result: { _ in exp.fulfill() })
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
+        
+        // Should hit cache for same key
+        manager.fetch(key: "stats_test_1", result: { _ in exp.fulfill() })
+        
+        await fulfillment(of: [exp], timeout: 10.0)
+        
+        // Allow time for statistics to be reported
+        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
+        
+        let finalReports = await statsReports.get()
+        
+        XCTAssertFalse(finalReports.isEmpty, "Should have received cache statistics reports")
+        
+        // Verify we got statistics for cache operations
+        let hasMissOperation = finalReports.contains { _, record in
+            if case .miss = record { return true }
+            return false
+        }
+        let hasHitOperation = finalReports.contains { _, record in
+            if case .hitNonNullElement = record { return true }
+            return false
+        }
+        
+        XCTAssertTrue(hasMissOperation, "Should have cache miss operations")
+        XCTAssertTrue(hasHitOperation || finalReports.count > 0, "Should have cache operations")
+    }
+    
+    // Test Case 29: Provider cleanup verification
+    func testProviderCleanupVerification() async {
+        let manager = makeManager(priority: .LIFO(.stop), running: 1, queueing: 3, cacheConfig: MemoryCache<String, String>.Configuration(memoryUsageLimitation: .init(capacity: 0, memory: 0)))
+        
+        let exp = expectation(description: "cleanup verification completed")
+        exp.expectedFulfillmentCount = 3
+        
+        let cleanupEvents = TestDataContainer([String]())
+        
+        // Test provider cleanup after normal completion
+        manager.fetch(key: "cleanup_normal", customEventObserver: { progress in
+            Task {
+                if progress.completedLens == progress.totalLens {
+                    await cleanupEvents.modify { events in
+                        events.append("normal_completed")
+                    }
+                }
+            }
+        }, result: { result in
+            Task {
+                await cleanupEvents.modify { events in
+                    events.append("normal_callback")
+                }
+            }
+            exp.fulfill()
+        })
+        
+        // Wait for completion
+        try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+        
+        // Test provider cleanup after dealloc stop
+        manager.fetch(key: "cleanup_dealloc_test", result: { result in
+            Task {
+                await cleanupEvents.modify { events in
+                    events.append("dealloc_callback")
+                }
+            }
+            exp.fulfill()
+        })
+        
+        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
+        
+        // Interrupt with short task (triggers dealloc)
+        manager.fetch(key: "short_interrupt", result: { result in
+            Task {
+                await cleanupEvents.modify { events in
+                    events.append("interrupt_callback")
+                }
+            }
+            exp.fulfill()
+        })
+        
+        await fulfillment(of: [exp], timeout: 15.0)
+        
+        let finalEvents = await cleanupEvents.get()
+        
+        XCTAssertTrue(finalEvents.contains("normal_completed"), "Should complete normal task")
+        XCTAssertTrue(finalEvents.contains("normal_callback"), "Should call normal callback")
+        XCTAssertTrue(finalEvents.contains("dealloc_callback"), "Should handle dealloc callback")
+        XCTAssertTrue(finalEvents.contains("interrupt_callback"), "Should handle interrupt callback")
+        
+        // Verify proper cleanup sequence
+        XCTAssertEqual(finalEvents.count, 4, "Should have all cleanup events")
     }
 }

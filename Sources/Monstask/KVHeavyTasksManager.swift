@@ -53,6 +53,11 @@ open class KVHeavyTaskBaseDataProvider<K: Hashable, Element, CustomEvent> {
     }
 }
 
+public enum KVHeavyTaskDataProviderStopAction {
+    case reuse
+    case dealloc
+}
+
 /// Protocol defining the interface for heavy task data providers.
 /// 
 /// Heavy task data providers are responsible for executing individual resource-intensive operations
@@ -70,7 +75,6 @@ open class KVHeavyTaskBaseDataProvider<K: Hashable, Element, CustomEvent> {
 /// - `Element`: The result type returned by completed tasks
 /// - `CustomEvent`: The event type for progress and status updates
 public protocol KVHeavyTaskDataProviderInterface {
-    associatedtype ResumeData
     /// Executes the heavy task asynchronously
     /// 
     /// This method should implement the main task logic. It can publish progress
@@ -79,7 +83,7 @@ public protocol KVHeavyTaskDataProviderInterface {
     /// 
     /// - Returns: The result of the task execution, or nil if the task was cancelled
     /// - Throws: Any error that occurred during task execution
-    func start(resumeData: ResumeData?) async
+    func start()
     
     /// Stops the currently executing task
     /// 
@@ -89,22 +93,7 @@ public protocol KVHeavyTaskDataProviderInterface {
     /// 
     /// - Returns: if need resume
     @discardableResult
-    func stop() async -> ResumeData?
-}
-
-extension KVHeavyTaskDataProviderInterface {
-    func start(resumeData: ResumeData?, _ callback: (()->Void)? = nil) {
-        Task {
-            await start(resumeData: resumeData)
-            callback?()
-        }
-    }
-    
-    func stop(_ callback: ((ResumeData?)->Void)? = nil) {
-        Task {
-            callback?(await stop())
-        }
-    }
+    func stop() -> KVHeavyTaskDataProviderStopAction
 }
 
 public extension KVHeavyTaskDataProviderInterface {
@@ -148,7 +137,6 @@ public extension KVHeavyTasksManager {
         
         /// Optional callback for cache statistics reporting
         public let cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)?
-        public let resumeDataCacheConfig: MemoryCache<K, DataProvider.ResumeData>.Configuration
         
         /// Initializes a new KVHeavyTasksManager configuration.
         /// 
@@ -163,13 +151,11 @@ public extension KVHeavyTasksManager {
                     maxNumberOfRunningTasks: Int = 4,
                     priorityStrategy: PriorityStrategy = .LIFO(.await),
                     cacheConfig: MemoryCache<K, Element>.Configuration = .defaultConfig,
-                    resumeDataCacheConfig: MemoryCache<K, DataProvider.ResumeData>.Configuration = .defaultConfig,
                     cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil) {
             self.maxNumberOfQueueingTasks = maxNumberOfQueueingTasks
             self.maxNumberOfRunningTasks = maxNumberOfRunningTasks
             self.priorityStrategy = priorityStrategy
             self.cacheConfig = cacheConfig
-            self.resumeDataCacheConfig = resumeDataCacheConfig
             self.cacheStatisticsReport = cacheStatisticsReport
         }
     }
@@ -186,7 +172,6 @@ public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyT
     public init(config: Config) {
         self.config = config
         self.cache = .init(configuration: config.cacheConfig, statisticsReport: config.cacheStatisticsReport)
-        self.resumeDataCache = .init(configuration: config.resumeDataCacheConfig)
         self.waitingQueue = .init(capacity: config.maxNumberOfQueueingTasks)
         self.runningKeys = .init(capacity: config.maxNumberOfRunningTasks)
     }
@@ -194,7 +179,6 @@ public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyT
     public let config: Config
     private let cache: Monstore.MemoryCache<K, Element>
     
-    private let resumeDataCache: Monstore.MemoryCache<K, DataProvider.ResumeData>
     private let waitingQueue: KeyQueue<K>
     private let runningKeys: KeyQueue<K>
     
@@ -213,13 +197,20 @@ extension KVHeavyTasksManager: @unchecked Sendable {}
 
 public extension KVHeavyTasksManager {
     enum Errors: Error {
+        case maxNumberOfRunningTasksIsZero
         case evictedByPriorityStrategy(K)
     }
     
     func fetch(key: K,
                customEventObserver: DataProvider.CustomEventPublisher? = nil,
                result resultCallback: DataProvider.ResultPublisher? = nil) {
-        start(key, customEventObserver: customEventObserver, resultCallback: resultCallback)
+        DispatchQueue.global().async {
+            guard self.config.maxNumberOfRunningTasks > 0 else {
+                resultCallback?(.failure(Errors.maxNumberOfRunningTasksIsZero))
+                return
+            }
+            self.start(key, customEventObserver: customEventObserver, resultCallback: resultCallback)
+        }
     }
 }
 
@@ -327,11 +318,11 @@ private extension KVHeavyTasksManager {
                 consumeCallbacks(for: evictedKey, result: .failure(Errors.evictedByPriorityStrategy(evictedKey)))
             }
             if let dataProvider = dataProviders[keyToStop] {
-                dataProviders.removeValue(forKey: keyToStop)
-                dataProvider.stop() { [weak self] resumeData in
-                    guard let self else { return }
-                    guard let resumeData else { return }
-                    resumeDataCache.set(element: resumeData, for: keyToStop)
+                switch dataProvider.stop() {
+                case .reuse:
+                    break
+                case .dealloc:
+                    dataProviders.removeValue(forKey: keyToStop)
                 }
             }
         }
@@ -391,11 +382,10 @@ private extension KVHeavyTasksManager {
             })
         }
 
-        dataProviders[key]!.start(resumeData: resumeDataCache.getElement(for: key).element)
+        dataProviders[key]!.start()
     }
     
     private func consumeCallbacks(for key: K, result: Result<Element?, Error>) {
-        resumeDataCache.removeElement(for: key)
         resultCallbacks[key]?.forEach{ callback in
             DispatchQueue.global().async {
                 callback(result)

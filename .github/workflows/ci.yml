@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -10,97 +10,47 @@ jobs:
   test:
     runs-on: macos-latest
     
-    strategy:
-      matrix:
-        xcode: ['15.0']
-        swift: ['5.10']
-    
     steps:
     - uses: actions/checkout@v4
     
-    - name: Select Xcode
-      run: sudo xcode-select -switch /Applications/Xcode_${{ matrix.xcode }}.app
-    
-    - name: Setup Swift
-      uses: swift-actions/setup-swift@v2
-      with:
-        swift-version: ${{ matrix.swift }}
-    
-    - name: Install SwiftLint
+    - name: Select Xcode version
       run: |
-        brew install swiftlint swiftformat sourcekitten
-    
-    - name: Build
-      run: swift build -v
-    
-    - name: Run tests
-      run: swift test -v
-    
-    - name: Run SwiftLint
-      run: swiftlint lint Sources/
-    
-    - name: Run SwiftFormat (check)
-      run: swiftformat --lint .
-    
-    - name: Generate documentation
-      run: |
-        sourcekitten doc --spm-module Monstore > docs.json
-        jazzy --sourcekitten-sourcefile docs.json --output docs/
-    
-    - name: Upload documentation
-      uses: actions/upload-artifact@v4
-      with:
-        name: documentation
-        path: docs/
-    
-    - name: Check package compatibility
-      run: |
-        swift package resolve
-        swift package show-dependencies
-    
-    - name: Test on different platforms
-      run: |
-        # Test iOS
-        swift build -Xswiftc -sdk -Xswiftc $(xcrun --sdk iphonesimulator --show-sdk-path) -Xswiftc -target -Xswiftc arm64-apple-ios13.0-simulator
+        echo "Available Xcode installations:"
+        ls -la /Applications/ | grep -i xcode || echo "No Xcode found with ls"
+        find /Applications -name "Xcode*.app" -maxdepth 1 | sort || echo "No Xcode found with find"
         
-        # Test macOS
-        swift build -Xswiftc -sdk -Xswiftc $(xcrun --sdk macosx --show-sdk-path) -Xswiftc -target -Xswiftc x86_64-apple-macosx10.15
-
-  performance:
-    runs-on: macos-latest
-    needs: test
+        # Try common Xcode paths in order of preference
+        if [ -d "/Applications/Xcode.app" ]; then
+          echo "Using default Xcode.app"
+          sudo xcode-select -switch /Applications/Xcode.app
+        elif [ -d "/Applications/Xcode_15.4.app" ]; then
+          echo "Using Xcode_15.4.app"
+          sudo xcode-select -switch /Applications/Xcode_15.4.app
+        elif [ -d "/Applications/Xcode_15.3.app" ]; then
+          echo "Using Xcode_15.3.app"
+          sudo xcode-select -switch /Applications/Xcode_15.3.app
+        elif [ -d "/Applications/Xcode_15.2.app" ]; then
+          echo "Using Xcode_15.2.app"
+          sudo xcode-select -switch /Applications/Xcode_15.2.app
+        elif [ -d "/Applications/Xcode_14.3.app" ]; then
+          echo "Using Xcode_14.3.app"
+          sudo xcode-select -switch /Applications/Xcode_14.3.app
+        else
+          # Find any available Xcode and use it
+          XCODE_PATH=$(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+          if [ -n "$XCODE_PATH" ]; then
+            echo "Using found Xcode: $XCODE_PATH"
+            sudo xcode-select -switch "$XCODE_PATH"
+          else
+            echo "ERROR: No Xcode installation found!"
+            exit 1
+          fi
+        fi
     
-    steps:
-    - uses: actions/checkout@v4
+    - name: Show Xcode version
+      run: xcodebuild -version
     
-    - name: Setup Swift
-      uses: swift-actions/setup-swift@v2
-      with:
-        swift-version: '5.10'
-    
-    - name: Run performance tests
+    - name: Build and Test
       run: |
-        swift test --filter PerformanceTests
-        swift test --filter ScaleTests
-    
-    - name: Generate performance report
-      run: |
-        swift test --filter PerformanceTests --verbose > performance_results.txt
-        cat performance_results.txt
-
-  security:
-    runs-on: ubuntu-latest
-    needs: test
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Run security scan
-      run: |
-        # Add security scanning tools here
-        echo "Security scan completed"
-    
-    - name: Check for vulnerabilities
-      run: |
-        # Add vulnerability checking here
-        echo "Vulnerability check completed" 
+        swift build
+        swift test

@@ -1969,12 +1969,18 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         let progressEvents = TestDataContainer([MockDataProviderProgress]())
         let interrupterCompleted = TestDataContainer(false)
         let restartDetected = TestDataContainer(false)
+        let progressMade = TestDataContainer(false)
         
-        // Start task that will be deallocated
-        manager.fetch(key: "task_dealloc_test", customEventObserver: { progress in
+        // Start task that will be deallocated - use shorter key for predictable timing
+        manager.fetch(key: "dealloc_test", customEventObserver: { progress in
             Task {
                 await progressEvents.modify { events in
                     events.append(progress)
+                }
+                
+                // Track that progress was made before interruption
+                if progress.completedLength > 0 {
+                    _ = await progressMade.modify { res in res = true }
                 }
                 
                 // Detect restart: if we see progress start from 0 again after interrupter completed
@@ -1987,8 +1993,12 @@ final class KVHeavyTasksManagerTests: XCTestCase {
             exp.fulfill()
         })
         
-        // Wait for some progress, then interrupt with a SHORT task
-        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
+        // Wait longer to ensure task makes progress (at least 3-4 characters processed)
+        try? await Task.sleep(nanoseconds: 400_000_000) // 0.4 seconds
+        
+        // Verify progress was made before interrupting
+        let progressed = await progressMade.get()
+        XCTAssertTrue(progressed, "Task should have made progress before interruption")
         
         // Use a very short interrupter that finishes quickly, allowing auto-restart
         manager.fetch(key: "s", result: { _ in
@@ -2022,12 +2032,18 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         let interrupterCompleted = TestDataContainer(false)
         let resumeDetected = TestDataContainer(false)
         let lastProgressBeforeStop = TestDataContainer(0)
+        let progressMade = TestDataContainer(false)
         
-        // Start task that will be reused
-        manager.fetch(key: "task_reuse_test", customEventObserver: { progress in
+        // Start task that will be reused - use shorter key for predictable timing
+        manager.fetch(key: "reuse_test", customEventObserver: { progress in
             Task {
                 await progressEvents.modify { events in
                     events.append(progress)
+                }
+                
+                // Track that progress was made
+                if progress.completedLength > 0 {
+                    _ = await progressMade.modify { res in res = true }
                 }
                 
                 // Track progress before interruption
@@ -2046,8 +2062,12 @@ final class KVHeavyTasksManagerTests: XCTestCase {
             exp.fulfill()
         })
         
-        // Wait for some progress, then interrupt with a SHORT task
-        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
+        // Wait longer to ensure task makes progress (at least 3-4 characters processed)
+        try? await Task.sleep(nanoseconds: 400_000_000) // 0.4 seconds
+        
+        // Verify progress was made before interrupting
+        let progressed = await progressMade.get()
+        XCTAssertTrue(progressed, "Task should have made progress before interruption")
         
         // Use a very short interrupter that finishes quickly, allowing auto-restart
         manager.fetch(key: "s", result: { _ in
@@ -2083,34 +2103,52 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         
         let deallocZeroCount = TestDataContainer(0)
         let reuseZeroCount = TestDataContainer(0)
+        let deallocProgressMade = TestDataContainer(false)
+        let reuseProgressMade = TestDataContainer(false)
         
-        // Test dealloc behavior first
-        manager.fetch(key: "compare_dealloc_test", customEventObserver: { progress in
+        // Test dealloc behavior first - use shorter key for predictable timing
+        manager.fetch(key: "dealloc_task", customEventObserver: { progress in
             Task {
                 if progress.completedLength == 0 {
                     _ = await deallocZeroCount.modify { count in count += 1 }
+                } else if progress.completedLength > 0 {
+                    _ = await deallocProgressMade.modify { res in res = true }
                 }
             }
         }, result: { result in
             exp.fulfill()
         })
         
-        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
-        manager.fetch(key: "interrupt1", result: { _ in })
-        try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second - wait for dealloc task to complete
+        // Wait longer to ensure task makes progress (at least 3-4 characters processed)
+        try? await Task.sleep(nanoseconds: 400_000_000) // 0.4 seconds
         
-        // Test reuse behavior second
-        manager.fetch(key: "compare_reuse_test", customEventObserver: { progress in
+        // Verify progress was made before interrupting
+        let deallocProgressed = await deallocProgressMade.get()
+        XCTAssertTrue(deallocProgressed, "Task should have made progress before interruption")
+        
+        manager.fetch(key: "interrupt1", result: { _ in })
+        try? await Task.sleep(nanoseconds: 1_500_000_000) // 1.5 seconds - wait for dealloc task to complete
+        
+        // Test reuse behavior second - use shorter key for predictable timing  
+        manager.fetch(key: "reuse_task", customEventObserver: { progress in
             Task {
                 if progress.completedLength == 0 {
                     _ = await reuseZeroCount.modify { count in count += 1 }
+                } else if progress.completedLength > 0 {
+                    _ = await reuseProgressMade.modify { res in res = true }
                 }
             }
         }, result: { result in
             exp.fulfill()
         })
         
-        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
+        // Wait longer to ensure task makes progress (at least 3-4 characters processed)
+        try? await Task.sleep(nanoseconds: 400_000_000) // 0.4 seconds
+        
+        // Verify progress was made before interrupting
+        let reuseProgressed = await reuseProgressMade.get()
+        XCTAssertTrue(reuseProgressed, "Task should have made progress before interruption")
+        
         manager.fetch(key: "interrupt2", result: { _ in })
         
         await fulfillment(of: [exp], timeout: 20.0)
@@ -2133,49 +2171,65 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         
         let deallocRestartsCount = TestDataContainer(0)
         let reuseRestartsCount = TestDataContainer(0)
+        let deallocProgressMade = TestDataContainer(false)
+        let reuseProgressMade = TestDataContainer(false)
         
-        // Test dealloc with multiple interruptions
-        manager.fetch(key: "multi_dealloc_test", customEventObserver: { progress in
+        // Test dealloc with multiple interruptions - use shorter key for predictable timing
+        manager.fetch(key: "multi_dealloc", customEventObserver: { progress in
             Task {
                 if progress.completedLength == 0 {
                     _ = await deallocRestartsCount.modify { count in count += 1 }
+                } else if progress.completedLength > 0 {
+                    _ = await deallocProgressMade.modify { res in res = true }
                 }
             }
         }, result: { result in
             exp.fulfill()
         })
         
-        // Multiple rapid interruptions
-        try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+        // Wait longer to ensure progress, then multiple interruptions with adequate spacing
+        try? await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
+        
+        // Verify progress was made before first interruption
+        let deallocProgressed = await deallocProgressMade.get()
+        XCTAssertTrue(deallocProgressed, "Dealloc task should have made progress before interruptions")
+        
         manager.fetch(key: "int1", result: { _ in })
-        try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 seconds
+        try? await Task.sleep(nanoseconds: 150_000_000) // 0.15 seconds
         manager.fetch(key: "int2", result: { _ in })
-        try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 seconds
+        try? await Task.sleep(nanoseconds: 150_000_000) // 0.15 seconds
         manager.fetch(key: "int3", result: { _ in })
         
         // Wait for dealloc task to eventually complete
-        try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+        try? await Task.sleep(nanoseconds: 3_000_000_000) // 3 seconds
         
-        // Test reuse with multiple interruptions
-        manager.fetch(key: "multi_reuse_test", customEventObserver: { progress in
+        // Test reuse with multiple interruptions - use shorter key for predictable timing
+        manager.fetch(key: "multi_reuse", customEventObserver: { progress in
             Task {
                 if progress.completedLength == 0 {
                     _ = await reuseRestartsCount.modify { count in count += 1 }
+                } else if progress.completedLength > 0 {
+                    _ = await reuseProgressMade.modify { res in res = true }
                 }
             }
         }, result: { result in
             exp.fulfill()
         })
         
-        // Multiple rapid interruptions
-        try? await Task.sleep(nanoseconds: 200_000_000) // 0.3 seconds
+        // Wait longer to ensure progress, then multiple interruptions with adequate spacing
+        try? await Task.sleep(nanoseconds: 300_000_000) // 0.3 seconds
+        
+        // Verify progress was made before first interruption
+        let reuseProgressed = await reuseProgressMade.get()
+        XCTAssertTrue(reuseProgressed, "Reuse task should have made progress before interruptions")
+        
         manager.fetch(key: "int4", result: { _ in })
-        try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 seconds
+        try? await Task.sleep(nanoseconds: 150_000_000) // 0.15 seconds
         manager.fetch(key: "int5", result: { _ in })
-        try? await Task.sleep(nanoseconds: 50_000_000) // 0.05 seconds
+        try? await Task.sleep(nanoseconds: 150_000_000) // 0.15 seconds
         manager.fetch(key: "int6", result: { _ in })
         
-        await fulfillment(of: [exp], timeout: 25.0)
+        await fulfillment(of: [exp], timeout: 30.0)
         
         let deallocRestarts = await deallocRestartsCount.get()
         let reuseRestarts = await reuseRestartsCount.get()

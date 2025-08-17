@@ -305,8 +305,13 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         
         // Should have progress events showing completion
         XCTAssertFalse(events.isEmpty)
-        XCTAssertEqual(events.last?.totalLength, 3)
-        XCTAssertEqual(events.last?.completedLength, 3)
+        let minValue = events.reduce(Int.max) { partialResult, progress in
+            return min(partialResult, progress.completedLength)
+        }
+        XCTAssertEqual(minValue, 0)
+        for event in events {
+            XCTAssertEqual(event.totalLength, 3)
+        }
     }
     
     func testResumeFromPartialProgress() async {

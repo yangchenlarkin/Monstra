@@ -670,13 +670,11 @@ public extension KVHeavyTasksManager {
     func fetch(key: K,
                customEventObserver: DataProvider.CustomEventPublisher? = nil,
                result resultCallback: DataProvider.ResultPublisher? = nil) {
-        DispatchQueue.global().async {
-            guard self.config.maxNumberOfRunningTasks > 0 else {
-                resultCallback?(.failure(Errors.invalidConcurrencyConfiguration))
-                return
-            }
-            self.start(key, customEventObserver: customEventObserver, resultCallback: resultCallback)
+        guard self.config.maxNumberOfRunningTasks > 0 else {
+            resultCallback?(.failure(Errors.invalidConcurrencyConfiguration))
+            return
         }
+        self.start(key, customEventObserver: customEventObserver, resultCallback: resultCallback)
     }
 }
 

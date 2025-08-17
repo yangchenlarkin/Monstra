@@ -1,19 +1,19 @@
 //
-//  KeyQueueTests.swift
-//  MonstaskTests
+//  HashQueueTests.swift
+//  MonstraBaseTests
 //
 //  Created by Larkin on 2025/7/22.
 //
 
 import XCTest
-@testable import Monstask
+@testable import MonstraBase
 
-final class KeyQueueTests: XCTestCase {
+final class HashQueueTests: XCTestCase {
 
     // MARK: - Basic Operations Tests
 
     func testInitialization() {
-        let queue = KeyQueue<String>(capacity: 10)
+        let queue = HashQueue<String>(capacity: 10)
         XCTAssertEqual(queue.capacity, 10)
         XCTAssertEqual(queue.count, 0)
         XCTAssertTrue(queue.isEmpty)
@@ -21,7 +21,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testInitializationWithZeroCapacity() {
-        let queue = KeyQueue<String>(capacity: 0)
+        let queue = HashQueue<String>(capacity: 0)
         XCTAssertEqual(queue.capacity, 0)
         XCTAssertEqual(queue.count, 0)
         XCTAssertTrue(queue.isEmpty)
@@ -29,7 +29,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testInitializationWithNegativeCapacity() {
-        let queue = KeyQueue<String>(capacity: -5)
+        let queue = HashQueue<String>(capacity: -5)
         XCTAssertEqual(queue.capacity, 0)
         XCTAssertEqual(queue.count, 0)
         XCTAssertTrue(queue.isEmpty)
@@ -39,7 +39,7 @@ final class KeyQueueTests: XCTestCase {
     // MARK: - LRU Behavior Tests
 
     func testLRUBehavior() {
-        let queue = KeyQueue<String>(capacity: 5)
+        let queue = HashQueue<String>(capacity: 5)
         
         // Add keys
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
@@ -57,7 +57,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testLRUBehaviorWithMultipleReinserts() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
@@ -77,7 +77,7 @@ final class KeyQueueTests: XCTestCase {
     // MARK: - Queue Operations Tests
 
     func testEnqueueFront() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         XCTAssertEqual(queue.count, 1)
@@ -92,7 +92,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testDequeueFront() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         // Empty queue
         XCTAssertNil(queue.dequeueFront())
@@ -114,7 +114,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testDequeueFrontWithCount() {
-        let queue = KeyQueue<String>(capacity: 5)
+        let queue = HashQueue<String>(capacity: 5)
         
         // Empty queue
         XCTAssertEqual(queue.dequeueFront(count: 3), [])
@@ -143,7 +143,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testDequeueFrontWithCountZero() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         
@@ -152,7 +152,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testDequeueFrontWithCountLarge() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
@@ -164,7 +164,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testDequeueBack() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         // Empty queue
         XCTAssertNil(queue.dequeueBack())
@@ -186,7 +186,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testDequeueBackWithCount() {
-        let queue = KeyQueue<String>(capacity: 5)
+        let queue = HashQueue<String>(capacity: 5)
         
         // Empty queue
         XCTAssertEqual(queue.dequeueBack(count: 3), [])
@@ -215,7 +215,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testDequeueBackWithCountZero() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         
@@ -224,7 +224,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testDequeueBackWithCountLarge() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
@@ -236,7 +236,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testMixedDequeueOperations() {
-        let queue = KeyQueue<String>(capacity: 5)
+        let queue = HashQueue<String>(capacity: 5)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
@@ -254,7 +254,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testMixedDequeueWithCount() {
-        let queue = KeyQueue<String>(capacity: 6)
+        let queue = HashQueue<String>(capacity: 6)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
@@ -277,7 +277,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testDequeueWithCountAfterLRU() {
-        let queue = KeyQueue<String>(capacity: 4)
+        let queue = HashQueue<String>(capacity: 4)
         
         // Initial state: [A, B, C, D]
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
@@ -298,7 +298,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testDequeueWithCountPerformance() {
-        let queue = KeyQueue<Int>(capacity: 1000)
+        let queue = HashQueue<Int>(capacity: 1000)
         
         // Fill the queue
         for i in 1...1000 {
@@ -320,7 +320,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testDequeueWithCountEdgeCases() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         // Test with UInt.max
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
@@ -341,7 +341,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testDequeueWithCountConsistency() {
-        let queue = KeyQueue<String>(capacity: 5)
+        let queue = HashQueue<String>(capacity: 5)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
@@ -380,7 +380,7 @@ final class KeyQueueTests: XCTestCase {
     // MARK: - Removal Operations Tests
 
     func testRemoveExistingKey() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
@@ -396,7 +396,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testRemoveNonExistentKey() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
@@ -409,7 +409,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testRemoveFromEmptyQueue() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         queue.remove(key: "A")
         XCTAssertEqual(queue.count, 0)
@@ -417,7 +417,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testRemoveAllKeys() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
@@ -435,7 +435,7 @@ final class KeyQueueTests: XCTestCase {
     // MARK: - Edge Cases Tests
 
     func testEmptyQueueOperations() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         XCTAssertTrue(queue.isEmpty)
         XCTAssertEqual(queue.count, 0)
@@ -445,7 +445,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testFullQueueOperations() {
-        let queue = KeyQueue<String>(capacity: 2)
+        let queue = HashQueue<String>(capacity: 2)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
@@ -466,7 +466,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testSingleElementQueue() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         XCTAssertEqual(queue.count, 1)
@@ -481,7 +481,7 @@ final class KeyQueueTests: XCTestCase {
     // MARK: - Capacity Management Tests
 
     func testCapacityEviction() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         // Fill the queue
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
@@ -502,7 +502,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testCapacityEvictionWithLRU() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
@@ -521,7 +521,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testZeroCapacityQueue() {
-        let queue = KeyQueue<String>(capacity: 0)
+        let queue = HashQueue<String>(capacity: 0)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         XCTAssertEqual(queue.count, 0)
@@ -536,7 +536,7 @@ final class KeyQueueTests: XCTestCase {
 
     func testLargeCapacityOperations() {
         let capacity = 1000
-        let queue = KeyQueue<Int>(capacity: capacity)
+        let queue = HashQueue<Int>(capacity: capacity)
         
         // Fill the queue
         for i in 1...capacity {
@@ -556,7 +556,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testRepeatedOperations() {
-        let queue = KeyQueue<String>(capacity: 5)
+        let queue = HashQueue<String>(capacity: 5)
         
         // Perform many operations
         for i in 1...100 {
@@ -578,7 +578,7 @@ final class KeyQueueTests: XCTestCase {
     // MARK: - Type Safety Tests
 
     func testStringKeys() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         queue.enqueueFront(key: "hello", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "world", evictedStrategy: .FIFO)
@@ -588,7 +588,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testIntKeys() {
-        let queue = KeyQueue<Int>(capacity: 3)
+        let queue = HashQueue<Int>(capacity: 3)
         
         queue.enqueueFront(key: 1, evictedStrategy: .FIFO)
         queue.enqueueFront(key: 2, evictedStrategy: .FIFO)
@@ -605,7 +605,7 @@ final class KeyQueueTests: XCTestCase {
             let name: String
         }
         
-        let queue = KeyQueue<TestKey>(capacity: 3)
+        let queue = HashQueue<TestKey>(capacity: 3)
         
         let key1 = TestKey(id: 1, name: "A")
         let key2 = TestKey(id: 2, name: "B")
@@ -620,7 +620,7 @@ final class KeyQueueTests: XCTestCase {
     // MARK: - Memory Management Tests
 
     func testNodeCleanup() {
-        let queue = KeyQueue<String>(capacity: 2)
+        let queue = HashQueue<String>(capacity: 2)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
@@ -635,7 +635,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testMapConsistency() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
@@ -654,7 +654,7 @@ final class KeyQueueTests: XCTestCase {
     // MARK: - Complex Scenarios Tests
 
     func testComplexLRUScenario() {
-        let queue = KeyQueue<String>(capacity: 4)
+        let queue = HashQueue<String>(capacity: 4)
         
         // Initial state: [A, B, C, D]
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
@@ -679,7 +679,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testRemoveAndReinsert() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
@@ -696,7 +696,7 @@ final class KeyQueueTests: XCTestCase {
     }
 
     func testStressTest() {
-        let queue = KeyQueue<Int>(capacity: 10)
+        let queue = HashQueue<Int>(capacity: 10)
         
         // Perform many random operations
         for i in 1...1000 {
@@ -724,7 +724,7 @@ final class KeyQueueTests: XCTestCase {
     // MARK: - Empty Queue and Guard Clause Tests
     
     func testEnqueueToEmptyQueueWithPositiveCapacity() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         // Verify initial empty state
         XCTAssertTrue(queue.isEmpty)
@@ -749,7 +749,7 @@ final class KeyQueueTests: XCTestCase {
     }
     
     func testEnqueueToEmptyQueueWithZeroCapacity() {
-        let queue = KeyQueue<String>(capacity: 0)
+        let queue = HashQueue<String>(capacity: 0)
         
         // Verify initial empty state
         XCTAssertTrue(queue.isEmpty)
@@ -769,7 +769,7 @@ final class KeyQueueTests: XCTestCase {
     }
     
     func testEnqueueToEmptyQueueWithNegativeCapacity() {
-        let queue = KeyQueue<String>(capacity: -5)
+        let queue = HashQueue<String>(capacity: -5)
         
         // Negative capacity should be treated as zero capacity
         XCTAssertEqual(queue.capacity, 0)
@@ -786,7 +786,7 @@ final class KeyQueueTests: XCTestCase {
     }
     
     func testMultipleEnqueuesToEmptyQueue() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         // Enqueue multiple keys to initially empty queue
         let evicted1 = queue.enqueueFront(key: "First", evictedStrategy: .FIFO)
@@ -815,7 +815,7 @@ final class KeyQueueTests: XCTestCase {
     }
     
     func testEnqueueToEmptyThenClearThenEnqueueAgain() {
-        let queue = KeyQueue<String>(capacity: 2)
+        let queue = HashQueue<String>(capacity: 2)
         
         // Initial enqueue to empty queue
         let evicted1 = queue.enqueueFront(key: "Initial", evictedStrategy: .FIFO)
@@ -836,7 +836,7 @@ final class KeyQueueTests: XCTestCase {
     }
     
     func testGuardClauseConsistencyAcrossDifferentStrategies() {
-        let zeroQueue = KeyQueue<Int>(capacity: 0)
+        let zeroQueue = HashQueue<Int>(capacity: 0)
         
         // Test both FIFO and LIFO strategies with zero capacity
         let fifoEvicted = zeroQueue.enqueueFront(key: 100, evictedStrategy: .FIFO)
@@ -852,7 +852,7 @@ final class KeyQueueTests: XCTestCase {
     }
     
     func testEmptyQueueReturnValue() {
-        let queue = KeyQueue<String>(capacity: 5)
+        let queue = HashQueue<String>(capacity: 5)
         
         // Test that enqueueFront returns nil for successful enqueue to empty queue
         let result = queue.enqueueFront(key: "TestReturn", evictedStrategy: .FIFO)
@@ -866,7 +866,7 @@ final class KeyQueueTests: XCTestCase {
     // MARK: - Eviction and Contains Consistency Tests
     
     func testContainsAfterEvictionFIFO() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         // Fill the queue
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
@@ -895,7 +895,7 @@ final class KeyQueueTests: XCTestCase {
     }
     
     func testContainsAfterEvictionLIFO() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         // Fill the queue
         queue.enqueueFront(key: "A", evictedStrategy: .LIFO)
@@ -924,7 +924,7 @@ final class KeyQueueTests: XCTestCase {
     }
     
     func testContainsAfterMultipleEvictions() {
-        let queue = KeyQueue<String>(capacity: 2)
+        let queue = HashQueue<String>(capacity: 2)
         
         // Initial state: [A, B]
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
@@ -959,7 +959,7 @@ final class KeyQueueTests: XCTestCase {
     }
     
     func testContainsAfterEvictionWithLRUAccess() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         // Fill the queue: [A, B, C]
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
@@ -988,7 +988,7 @@ final class KeyQueueTests: XCTestCase {
     }
     
     func testContainsConsistencyAfterMixedOperations() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         // Add initial keys
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
@@ -1020,7 +1020,7 @@ final class KeyQueueTests: XCTestCase {
     }
     
     func testContainsAfterDequeue() {
-        let queue = KeyQueue<String>(capacity: 3)
+        let queue = HashQueue<String>(capacity: 3)
         
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
@@ -1050,7 +1050,7 @@ final class KeyQueueTests: XCTestCase {
     }
     
     func testContainsWithZeroCapacityQueue() {
-        let queue = KeyQueue<String>(capacity: 0)
+        let queue = HashQueue<String>(capacity: 0)
         
         // All enqueue operations should immediately evict
         let evicted1 = queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
@@ -1066,7 +1066,7 @@ final class KeyQueueTests: XCTestCase {
     }
     
     func testContainsEvictionStressTest() {
-        let queue = KeyQueue<Int>(capacity: 5)
+        let queue = HashQueue<Int>(capacity: 5)
         var expectedKeys = Set<Int>()
         
         // Perform many operations and track expected state

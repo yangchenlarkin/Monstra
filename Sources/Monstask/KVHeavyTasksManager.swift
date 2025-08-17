@@ -610,7 +610,7 @@ public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyT
     /// - Priority-based insertion and removal (FIFO/LIFO)
     /// - Efficient key-based lookup and removal operations
     /// - Automatic integration with running queue management
-    private let waitingQueue: KeyQueue<K>
+    private let waitingQueue: HashQueue<K>
     
     /// Queue for tasks currently being executed by DataProviders.
     ///
@@ -619,7 +619,7 @@ public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyT
     /// - Automatic promotion of waiting tasks when slots become available
     /// - Support for task interruption and queue reordering in LIFO(.stop) mode
     /// - Integrated with DataProvider lifecycle management
-    private let runningKeys: KeyQueue<K>
+    private let runningKeys: HashQueue<K>
     
     /// Registry of custom event observers for active tasks.
     ///

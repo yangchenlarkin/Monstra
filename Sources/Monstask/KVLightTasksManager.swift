@@ -339,7 +339,7 @@ public class KVLightTasksManager<K: Hashable, Element> {
     
     private let config: Config
     private let cache: Monstore.MemoryCache<K, Element>
-    private let keyQueue: KeyQueue<K>
+    private let keyQueue: HashQueue<K>
     
     //MARK: - fetch
     /// DispatchSemaphore for thread synchronization (used when enableThreadSynchronization=true)
@@ -434,7 +434,7 @@ public class KVLightTasksManager<K: Hashable, Element> {
                 }
             }
             if additionalThreadCount < keys.count {
-                _pushKeyIntoKeyQueue(keys: keys[additionalThreadCount...], callback: callback)
+                _pushKeyIntoHashQueue(keys: keys[additionalThreadCount...], callback: callback)
             }
             
         case .multiprovide(let maximumBatchCount, let multiprovide):
@@ -453,7 +453,7 @@ public class KVLightTasksManager<K: Hashable, Element> {
                 }
             }
             
-            _pushKeyIntoKeyQueue(keys: restKeys[...], callback: callback)
+            _pushKeyIntoHashQueue(keys: restKeys[...], callback: callback)
         }
     }
     
@@ -563,7 +563,7 @@ public class KVLightTasksManager<K: Hashable, Element> {
         }
     }
     
-    private func _pushKeyIntoKeyQueue(keys: ArraySlice<K>, callback: @escaping ResultCallback) {
+    private func _pushKeyIntoHashQueue(keys: ArraySlice<K>, callback: @escaping ResultCallback) {
         guard keys.count > 0 else { return }
         switch self.config.PriorityStrategy {
         case .LIFO:

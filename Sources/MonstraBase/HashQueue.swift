@@ -1,19 +1,18 @@
 //
-//  KeyQueue.swift
-//  Monstask
+//  HashQueue.swift
+//  MonstraBase
 //
 //  Created by Larkin on 2025/7/21.
 //
 
 import Foundation
-import MonstraBase
 
 /**
- A high-performance key-based queue that maintains insertion order with O(1) access and removal operations.
+ A high-performance hash-based queue that maintains insertion order with O(1) access and removal operations.
  
  ## Core Features
  
- - **Key-Based Operations**: All operations are performed using keys, providing intuitive access patterns
+ - **Hash-Based Operations**: All operations are performed using hashable keys, providing intuitive access patterns
  - **LRU (Least Recently Used) Management**: Recently accessed keys are moved to the front of the queue
  - **O(1) Performance**: Constant time complexity for enqueue, dequeue, and removal operations
  - **Capacity Management**: Configurable capacity with automatic eviction of least recently used keys
@@ -35,8 +34,8 @@ import MonstraBase
  ## Example Usage
  
  ```swift
- // Create a key queue with capacity of 100
- let queue = KeyQueue<String>(capacity: 100)
+ // Create a hash queue with capacity of 100
+ let queue = HashQueue<String>(capacity: 100)
  
  // Enqueue keys (moves to front if already exists)
  queue.enqueueFront(key: "task1")
@@ -54,15 +53,15 @@ import MonstraBase
  ```
  */
 
-/// A key-based queue that maintains insertion order with LRU (Least Recently Used) behavior.
+/// A hash-based queue that maintains insertion order with LRU (Least Recently Used) behavior.
 /// Provides O(1) operations for enqueue, dequeue, and removal by key.
-public class KeyQueue<K: Hashable> {
+public class HashQueue<K: Hashable> {
     /// The underlying doubly linked list that maintains the queue order.
     private let link: DoublyLink<K>
     /// Hash map for O(1) key-to-node lookup.
     private var map: [K: DoublyLink<K>.Node]
     
-    /// Initializes a new empty key queue with specified capacity.
+    /// Initializes a new empty hash queue with specified capacity.
     /// - Parameter capacity: Maximum number of keys allowed in the queue.
     ///   Negative values are treated as zero.
     public init(capacity: Int) {
@@ -146,7 +145,7 @@ public class KeyQueue<K: Hashable> {
     }
 }
 
-public extension KeyQueue {
+public extension HashQueue {
     /// The maximum number of keys the queue can hold.
     var capacity: Int { link.capacity }
     /// The current number of keys in the queue.

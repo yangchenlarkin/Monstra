@@ -71,32 +71,28 @@ public class MonoTask<TaskResult> {
             
             self.executeBlock() { [weak self] result in
                 guard let self else { return }
+                resultSemaphore.wait()
+                defer { resultSemaphore.signal() }
                 
                 //if success
                 if case .success(let data) = result {
-                    resultSemaphore.wait()
                     self.result = data
                     self.resultExpiresAt = .now() + self.resultExpireDuration
-                    resultSemaphore.signal()
                     _safe_callback(result: result)
                     return
                 }
                 
                 //else
                 
-                resultSemaphore.wait()
                 if executionID != self.executionID {
-                    resultSemaphore.signal()
                     return
                 }
                 if count.shouldRetry {
-                    resultSemaphore.signal()
                     taskQueue.asyncAfter(deadline: .now() + count.timeInterval) {
                         self._unsafe_execute(retry: count.next())
                     }
                     return
                 }
-                resultSemaphore.signal()
                 _safe_callback(result: result)
             }
         }

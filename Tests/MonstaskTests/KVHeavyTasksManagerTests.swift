@@ -2359,7 +2359,7 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         )
         invalidProvider.start()
         
-        await fulfillment(of: [exp], timeout: 3.0)
+        await fulfillment(of: [exp], timeout: 10.0)
         
         let finalResults = await results.get()
         

@@ -12,39 +12,49 @@ public class MonoTask<TaskResult> {
     private let retry: RetryCount
     private let resultExpireDuration: TimeInterval
     private let executeBlock: (@escaping ResultCallback)->Void
-    private let taskQueue: DispatchQueue?
-    private let callbackQueue: DispatchQueue?
+    private let taskQueue: DispatchQueue
+    private let callbackQueue: DispatchQueue
     
     private var result: TaskResult? = nil
     private var resultExpiresAt: CPUTimeStamp = .zero
     private var resultSemaphore = DispatchSemaphore(value: 1)
-    private var resultIsDirty = false
+    private var executionIDFactory = TracingIDFactory()
+    private var executionID: Int64
     
     private var _callbacks: [ResultCallback]? = nil
     private var callbackSemaphore = DispatchSemaphore(value: 1)
     
-    private func _safe_callback(result: Result<TaskResult, Error>) {
-        let callback = {
-            self.callbackSemaphore.wait()
-            let _callbacks = self._callbacks
-            self._callbacks = nil
-            self.callbackSemaphore.signal()
-            
-            guard let _callbacks else { return }
-            for callback in _callbacks {
-                callback(result)
-            }
+    private init(retry: RetryCount, resultExpireDuration: Double, taskQueue: DispatchQueue, callbackQueue: DispatchQueue, executeBlock: @escaping (@escaping ResultCallback)->Void) {
+        self.retry = retry
+        self.resultExpireDuration = resultExpireDuration
+        self.taskQueue = taskQueue
+        self.callbackQueue = callbackQueue
+        self.executeBlock = executeBlock
+        self.executionID = self.executionIDFactory.safeNextInt64()
+    }
+    
+    private func _safe_execute(then callback: ResultCallback?) {
+        callbackSemaphore.wait()
+        defer { callbackSemaphore.signal() }
+        
+        let isRunning = _callbacks != nil
+        
+        if _callbacks == nil {
+            _callbacks = [ResultCallback]()
         }
         
-        guard let callbackQueue else {
-            callback()
-            return
+        if let callback {
+            _callbacks!.append(callback)
         }
-        callbackQueue.async(execute: callback)
+        
+        
+        if !isRunning {
+            _unsafe_execute(retry: retry)
+        }
     }
 
     private func _unsafe_execute(retry count: RetryCount) {
-        let block = { [weak self] in
+        taskQueue.async { [weak self] in
             guard let self else { return }
             
             resultSemaphore.wait()
@@ -55,7 +65,8 @@ public class MonoTask<TaskResult> {
             }
             self.result = nil
             self.resultExpiresAt = .zero
-            self.resultIsDirty = false
+            self.executionID = executionIDFactory.safeNextInt64()
+            let executionID = self.executionID
             resultSemaphore.signal()
             
             self.executeBlock() { [weak self] result in
@@ -72,33 +83,15 @@ public class MonoTask<TaskResult> {
                 }
                 
                 //else
-                let getQueue: ()->DispatchQueue? = { [weak self] in
-                    guard let self else { return nil }
-                    
-                    let queue: DispatchQueue
-                    if let taskQueue {
-                        queue = taskQueue
-                    } else {
-                        if Thread.current.isMainThread {
-                            queue = DispatchQueue.main
-                        } else {
-                            queue = DispatchQueue.global()
-                        }
-                    }
-                    return queue
-                }
                 
                 resultSemaphore.wait()
-                if resultIsDirty {
+                if executionID != self.executionID {
                     resultSemaphore.signal()
-                    getQueue()?.async{
-                        self._unsafe_execute(retry: self.retry)
-                    }
                     return
                 }
                 if count.shouldRetry {
                     resultSemaphore.signal()
-                    getQueue()?.asyncAfter(deadline: .now() + count.timeInterval) {
+                    taskQueue.asyncAfter(deadline: .now() + count.timeInterval) {
                         self._unsafe_execute(retry: count.next())
                     }
                     return
@@ -107,39 +100,19 @@ public class MonoTask<TaskResult> {
                 _safe_callback(result: result)
             }
         }
-        
-        guard let taskQueue else {
-            block()
-            return
-        }
-        taskQueue.async(execute: block)
     }
     
-    private init(retry: RetryCount, resultExpireDuration: Double, taskQueue: DispatchQueue?, callbackQueue: DispatchQueue?, executeBlock: @escaping (@escaping ResultCallback)->Void) {
-        self.retry = retry
-        self.resultExpireDuration = resultExpireDuration
-        self.taskQueue = taskQueue
-        self.callbackQueue = callbackQueue
-        self.executeBlock = executeBlock
-    }
-    
-    private func _safe_execute(then callback: ResultCallback?) {
-        callbackSemaphore.wait()
-        
-        let isRunning = _callbacks != nil
-        
-        if _callbacks == nil {
-            _callbacks = [ResultCallback]()
-        }
-        
-        if let callback {
-            _callbacks!.append(callback)
-        }
-        
-        callbackSemaphore.signal()
-        
-        if !isRunning {
-            _unsafe_execute(retry: retry)
+    private func _safe_callback(result: Result<TaskResult, Error>) {
+        callbackQueue.async {
+            self.callbackSemaphore.wait()
+            let _callbacks = self._callbacks
+            self._callbacks = nil
+            self.callbackSemaphore.signal()
+            
+            guard let _callbacks else { return }
+            for callback in _callbacks {
+                callback(result)
+            }
         }
     }
 }
@@ -149,11 +122,11 @@ public extension MonoTask {
     typealias CallbackExecution = (@escaping ResultCallback)->Void
     typealias AsyncExecution = () async -> Result<TaskResult, Error>
     
-    convenience init(retry: RetryCount = .never, resultExpireDuration: Double, taskQueue: DispatchQueue? = DispatchQueue.global(), callbackQueue: DispatchQueue? = DispatchQueue.global(), task: @escaping CallbackExecution) {
+    convenience init(retry: RetryCount = .never, resultExpireDuration: Double, taskQueue: DispatchQueue = DispatchQueue.global(), callbackQueue: DispatchQueue = DispatchQueue.global(), task: @escaping CallbackExecution) {
         self.init(retry: retry, resultExpireDuration: resultExpireDuration, taskQueue: taskQueue, callbackQueue: callbackQueue, executeBlock: task)
     }
     
-    convenience init(retry: RetryCount = .never, resultExpireDuration: Double, taskQueue: DispatchQueue? = DispatchQueue.global(), callbackQueue: DispatchQueue? = DispatchQueue.global(), task: @escaping AsyncExecution) {
+    convenience init(retry: RetryCount = .never, resultExpireDuration: Double, taskQueue: DispatchQueue = DispatchQueue.global(), callbackQueue: DispatchQueue = DispatchQueue.global(), task: @escaping AsyncExecution) {
         self.init(retry: retry, resultExpireDuration: resultExpireDuration, taskQueue: taskQueue, callbackQueue: callbackQueue) { callback in
             Task {
                 await callback(task())
@@ -203,9 +176,9 @@ public extension MonoTask {
     /// Strategy for handling ongoing execution when clearing cached results
     enum OngoingExecutionStrategy {
         /// Cancel the current execution and clear the result immediately
-        case cancelExecution
+        case cancel
         /// Allow current execution to complete, then restart execution with fresh result
-        case restartAfterCompletion
+        case restart
         /// Allow current execution to complete but don't restart - just clear cached result
         case allowCompletion
     }
@@ -231,11 +204,11 @@ public extension MonoTask {
         if let _callbacks {
             // isExecuting
             switch ongoingExecutionStrategy {
-            case .cancelExecution:
+            case .cancel:
                 _callbacks.forEach { $0(.failure(Errors.cancelDueToResultClearting)) }
                 self._callbacks = nil
-            case .restartAfterCompletion:
-                self.resultIsDirty = true
+            case .restart:
+                self._unsafe_execute(retry: self.retry)
             case .allowCompletion:
                 break
             }

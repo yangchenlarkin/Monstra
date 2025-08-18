@@ -185,7 +185,7 @@ final class MonoTaskClearResultTests: XCTestCase {
         for error in errors {
             XCTAssertTrue(error is MonoTask<String>.Errors, "Should be MonoTask.Errors")
             if let monoError = error as? MonoTask<String>.Errors {
-                XCTAssertEqual(monoError, .cancelDueToResultClearting)
+                XCTAssertEqual(monoError, .executionCancelledDueToClearResult)
             }
         }
     }
@@ -350,7 +350,7 @@ final class MonoTaskClearResultTests: XCTestCase {
         
         // Verify cancellation error
         if let error = errors.first as? MonoTask<String>.Errors {
-            XCTAssertEqual(error, .cancelDueToResultClearting)
+            XCTAssertEqual(error, .executionCancelledDueToClearResult)
         } else {
             XCTFail("Should receive MonoTask cancellation error")
         }

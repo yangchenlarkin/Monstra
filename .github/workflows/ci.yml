@@ -7,7 +7,8 @@ on:
     branches: [ main ]
 
 jobs:
-  test:
+  build:
+    name: Build
     runs-on: macos-latest
     
     steps:
@@ -50,7 +51,255 @@ jobs:
     - name: Show Xcode version
       run: xcodebuild -version
     
-    - name: Build and Test
-      run: |
-        swift build
-        swift test
+    - name: Build Package
+      run: swift build
+
+  # Monstask Tests
+  test-monotask:
+    name: MonoTask Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run MonoTask Tests
+      run: swift test --filter MonoTaskTests
+
+  test-monotask-cross-scenario:
+    name: MonoTask Cross-Scenario Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run MonoTask Cross-Scenario Tests
+      run: swift test --filter MonoTaskCrossScenarioTests
+
+  test-kv-heavy-tasks-manager:
+    name: KV Heavy Tasks Manager Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run KV Heavy Tasks Manager Tests
+      run: swift test --filter KVHeavyTasksManagerTests
+
+  test-kv-light-tasks-manager:
+    name: KV Light Tasks Manager Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run KV Light Tasks Manager Tests
+      run: swift test --filter KVLightTasksManagerTests
+
+  # MonstraBase Tests
+  test-retry-count:
+    name: RetryCount Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run RetryCount Tests
+      run: swift test --filter RetryCountTests
+
+  test-hash-queue:
+    name: HashQueue Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run HashQueue Tests
+      run: swift test --filter HashQueueTests
+
+  test-cpu-timestamp:
+    name: CPUTimeStamp Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run CPUTimeStamp Tests
+      run: swift test --filter CPUTimeStampTests
+
+  test-heap:
+    name: Heap Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run Heap Tests
+      run: swift test --filter HeapTests
+
+  test-doubly-link:
+    name: DoublyLink Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run DoublyLink Tests
+      run: swift test --filter DoublyLinkTests
+
+  # Performance Tests (MonstraBase)
+  test-heap-performance:
+    name: Heap Performance Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run Heap Performance Tests
+      run: swift test --filter HeapPerformanceTests
+
+  test-cpu-timestamp-performance:
+    name: CPUTimeStamp Performance Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run CPUTimeStamp Performance Tests
+      run: swift test --filter CPUTimeStampPerformanceTests
+
+  # Monstore Tests
+  test-cache-statistics:
+    name: Cache Statistics Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run Cache Statistics Tests
+      run: swift test --filter CacheStatisticsTests
+
+  test-memory-cache:
+    name: Memory Cache Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run Memory Cache Tests
+      run: swift test --filter MemoryCacheTests
+
+  test-priority-lru-queue:
+    name: Priority LRU Queue Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run Priority LRU Queue Tests
+      run: swift test --filter PriorityLRUQueueTests
+
+  test-ttl-priority-lru-queue:
+    name: TTL Priority LRU Queue Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run TTL Priority LRU Queue Tests
+      run: swift test --filter TTLPriorityLRUQueueTests
+
+  # Performance Tests (Monstore)
+  test-memory-cache-performance:
+    name: Memory Cache Performance Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run Memory Cache Performance Tests
+      run: swift test --filter MemoryCachePerformanceTests
+
+  test-priority-lru-queue-performance:
+    name: Priority LRU Queue Performance Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run Priority LRU Queue Performance Tests
+      run: swift test --filter PriorityLRUQueuePerformanceTests
+
+  test-ttl-priority-lru-queue-performance:
+    name: TTL Priority LRU Queue Performance Tests
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run TTL Priority LRU Queue Performance Tests
+      run: swift test --filter TTLPriorityLRUQueuePerformanceTests
+
+  # Summary job to check all tests passed
+  all-tests:
+    name: All Tests Complete
+    runs-on: macos-latest
+    needs: [
+      test-monotask,
+      test-monotask-cross-scenario, 
+      test-kv-heavy-tasks-manager,
+      test-kv-light-tasks-manager,
+      test-retry-count,
+      test-hash-queue,
+      test-cpu-timestamp,
+      test-heap,
+      test-doubly-link,
+      test-heap-performance,
+      test-cpu-timestamp-performance,
+      test-cache-statistics,
+      test-memory-cache,
+      test-priority-lru-queue,
+      test-ttl-priority-lru-queue,
+      test-memory-cache-performance,
+      test-priority-lru-queue-performance,
+      test-ttl-priority-lru-queue-performance
+    ]
+    
+    steps:
+    - name: All tests passed
+      run: echo "🎉 All tests completed successfully!"

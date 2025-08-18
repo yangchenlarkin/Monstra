@@ -44,7 +44,7 @@
 - [x] Consider adding explicit batch ordering tests or documenting the non-deterministic nature
 
 ### 5. MonoTask:
-- [ ] Clear result implementation
+- [x] Clear result implementation
 
 ## Implementation Notes
 

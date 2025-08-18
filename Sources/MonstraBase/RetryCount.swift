@@ -98,14 +98,21 @@ public enum RetryCount {
         }
     }
     
-    public var shouldRetry: TimeInterval? {
+    public var shouldRetry: Bool {
+        switch self {
+        case .never: false
+        default: true
+        }
+    }
+    
+    public var timeInterval: TimeInterval {
         switch self {
         case .infinity(intervalProxy: let intervalProxy):
             fallthrough
         case .count(_, intervalProxy: let intervalProxy):
             return intervalProxy.timeInterval
         case .never:
-            return nil
+            return 0
         }
     }
 }

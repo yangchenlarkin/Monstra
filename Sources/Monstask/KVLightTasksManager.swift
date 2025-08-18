@@ -535,8 +535,8 @@ public class KVLightTasksManager<K: Hashable, Element> {
                 callback(key, .success(element))
             case .failure(let error):
                 let retryCount = retryCount ?? self.config.retryCount
-                if let timeInterval = retryCount.shouldRetry {
-                    Thread.sleep(forTimeInterval: timeInterval)
+                if retryCount.shouldRetry {
+                    Thread.sleep(forTimeInterval: retryCount.timeInterval)
                     self._executeMonoprovide(key: key, provide: provide, retryCount: retryCount.next(), callback: callback)
                 } else {
                     callback(key, .failure(error))
@@ -553,8 +553,8 @@ public class KVLightTasksManager<K: Hashable, Element> {
                 callback(keys.map { ($0, .success(elements[$0] ?? nil)) })
             case .failure(let error):
                 let retryCount = retryCount ?? self.config.retryCount
-                if let timeInterval = retryCount.shouldRetry {
-                    Thread.sleep(forTimeInterval: timeInterval)
+                if retryCount.shouldRetry {
+                    Thread.sleep(forTimeInterval: retryCount.timeInterval)
                     self._executeMultiprovide(keys: keys, provide: provide, retryCount: retryCount.next(), callback: callback)
                 } else {
                     callback(keys.map { ($0, .failure(error)) })

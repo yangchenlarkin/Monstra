@@ -61,8 +61,10 @@ public class MonoTask<TaskResult> {
                 
                 //if success
                 if case .success(let data) = result {
+                    resultSemaphore.wait()
                     self.result = data
                     self.resultExpiresAt = .now() + self.resultExpireDuration
+                    resultSemaphore.signal()
                     _safe_callback(result: result)
                     return
                 }

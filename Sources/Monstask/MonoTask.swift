@@ -18,6 +18,7 @@ public class MonoTask<TaskResult> {
     private var result: TaskResult? = nil
     private var resultExpiresAt: CPUTimeStamp = .zero
     private var resultSemaphore = DispatchSemaphore(value: 1)
+    private var resultIsDirty = false
     
     private var _callbacks: [ResultCallback]? = nil
     private var callbackSemaphore = DispatchSemaphore(value: 1)
@@ -54,6 +55,7 @@ public class MonoTask<TaskResult> {
             }
             self.result = nil
             self.resultExpiresAt = .zero
+            self.resultIsDirty = false
             resultSemaphore.signal()
             
             self.executeBlock() { [weak self] result in
@@ -70,7 +72,9 @@ public class MonoTask<TaskResult> {
                 }
                 
                 //else
-                if count.shouldRetry {
+                let getQueue: ()->DispatchQueue? = { [weak self] in
+                    guard let self else { return nil }
+                    
                     let queue: DispatchQueue
                     if let taskQueue {
                         queue = taskQueue
@@ -81,13 +85,26 @@ public class MonoTask<TaskResult> {
                             queue = DispatchQueue.global()
                         }
                     }
-                    
-                    queue.asyncAfter(deadline: .now() + count.timeInterval) {
+                    return queue
+                }
+                
+                resultSemaphore.wait()
+                if resultIsDirty {
+                    resultSemaphore.signal()
+                    getQueue()?.async{
+                        self._unsafe_execute(retry: self.retry)
+                    }
+                    return
+                }
+                if count.shouldRetry {
+                    resultSemaphore.signal()
+                    getQueue()?.asyncAfter(deadline: .now() + count.timeInterval) {
                         self._unsafe_execute(retry: count.next())
                     }
-                } else {
-                    _safe_callback(result: result)
+                    return
                 }
+                resultSemaphore.signal()
+                _safe_callback(result: result)
             }
         }
         
@@ -181,6 +198,48 @@ public extension MonoTask {
             self.resultExpiresAt = .zero
         }
         return self.result
+    }
+    
+    /// Strategy for handling ongoing execution when clearing cached results
+    enum OngoingExecutionStrategy {
+        /// Cancel the current execution and clear the result immediately
+        case cancelExecution
+        /// Allow current execution to complete, then restart execution with fresh result
+        case restartAfterCompletion
+        /// Allow current execution to complete but don't restart - just clear cached result
+        case allowCompletion
+    }
+    enum Errors: Error {
+        case cancelDueToResultClearting
+    }
+    /// Manually clear the cached result with different behaviors based on current execution state
+    /// 
+    /// This method provides manual cache invalidation with fine-grained control:
+    /// - **If task is currently executing**: Follows the `ongoingExecutionStrategy` 
+    /// - **If task is idle**: Follows the `restartWhenIdle` parameter (start new execution or not)
+    /// 
+    /// - Parameters:
+    ///   - ongoingExecutionStrategy: Strategy to apply when there IS a running execution
+    ///   - restartWhenIdle: Whether to start a new execution when there is NO running execution
+    func clearResult(ongoingExecutionStrategy: OngoingExecutionStrategy = .allowCompletion) {
+        resultSemaphore.wait()
+        defer { resultSemaphore.signal() }
+
+        self.result = nil
+        self.resultExpiresAt = .zero
+        
+        if let _callbacks {
+            // isExecuting
+            switch ongoingExecutionStrategy {
+            case .cancelExecution:
+                _callbacks.forEach { $0(.failure(Errors.cancelDueToResultClearting)) }
+                self._callbacks = nil
+            case .restartAfterCompletion:
+                self.resultIsDirty = true
+            case .allowCompletion:
+                break
+            }
+        }
     }
     
     var isExecuting: Bool {

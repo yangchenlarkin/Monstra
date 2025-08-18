@@ -54,11 +54,114 @@ jobs:
     - name: Build Package
       run: swift build
 
+  # Validation job to ensure all test files are covered by CI jobs
+  validate-test-coverage:
+    name: Validate All Tests Are in CI
+    runs-on: macos-latest
+    needs: build
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Check Test Coverage
+      run: |
+        echo "🔍 Validating that all test files are included in CI jobs..."
+        
+        # Find all test files
+        echo "📋 Found test files:"
+        find Tests -name "*Test*.swift" -type f | sort | while read file; do
+          basename=$(basename "$file" .swift)
+          echo "  - $basename"
+        done
+        
+        # List expected test jobs from this CI file
+        echo ""
+        echo "🎯 Expected CI test jobs:"
+        expected_tests=(
+          "MonoTaskTests"
+          "MonoTaskCrossScenarioTests" 
+          "MonoTaskClearResultTests"
+          "KVHeavyTasksManagerTests"
+          "KVLightTasksManagerTests"
+          "RetryCountTests"
+          "HashQueueTests"
+          "CPUTimeStampTests"
+          "HeapTests"
+          "DoublyLinkTests"
+          "TracingIDFactoryTest"
+          "HeapPerformanceTests"
+          "CPUTimeStampPerformanceTests"
+          "CacheStatisticsTests"
+          "MemoryCacheTests"
+          "PriorityLRUQueueTests"
+          "TTLPriorityLRUQueueTests"
+          "MemoryCachePerformanceTests"
+          "PriorityLRUQueuePerformanceTests"
+          "TTLPriorityLRUQueuePerformanceTests"
+        )
+        
+        for test in "${expected_tests[@]}"; do
+          echo "  - $test"
+        done
+        
+        echo ""
+        echo "🕵️ Checking for missing test files..."
+        
+        # Check if any test files are missing from CI
+        missing_tests=()
+        find Tests -name "*Test*.swift" -type f | while read file; do
+          basename=$(basename "$file" .swift)
+          found=false
+          for expected in "${expected_tests[@]}"; do
+            if [ "$basename" = "$expected" ]; then
+              found=true
+              break
+            fi
+          done
+          if [ "$found" = "false" ]; then
+            echo "❌ MISSING: $basename is not covered by CI jobs"
+            echo "$basename" >> /tmp/missing_tests
+          fi
+        done
+        
+        # Check if any CI jobs reference non-existent test files
+        echo ""
+        echo "🕵️ Checking for invalid CI test jobs..."
+        
+        invalid_jobs=()
+        for expected in "${expected_tests[@]}"; do
+          if ! find Tests -name "${expected}.swift" -type f | grep -q .; then
+            echo "❌ INVALID: CI job references non-existent test file: $expected"
+            echo "$expected" >> /tmp/invalid_jobs
+          fi
+        done
+        
+        # Final validation
+        echo ""
+        if [ -f /tmp/missing_tests ] || [ -f /tmp/invalid_jobs ]; then
+          echo "💥 TEST COVERAGE VALIDATION FAILED!"
+          echo ""
+          if [ -f /tmp/missing_tests ]; then
+            echo "Missing test files from CI:"
+            cat /tmp/missing_tests
+            echo ""
+          fi
+          if [ -f /tmp/invalid_jobs ]; then
+            echo "Invalid CI jobs (no matching test file):"
+            cat /tmp/invalid_jobs
+            echo ""
+          fi
+          echo "Please update the CI configuration to include all test files."
+          exit 1
+        else
+          echo "✅ SUCCESS: All test files are properly covered by CI jobs!"
+        fi
+
   # Monstask Tests
   test-monotask:
     name: MonoTask Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -70,7 +173,7 @@ jobs:
   test-monotask-cross-scenario:
     name: MonoTask Cross-Scenario Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -79,10 +182,22 @@ jobs:
     - name: Run MonoTask Cross-Scenario Tests
       run: swift test --filter MonoTaskCrossScenarioTests
 
+  test-monotask-clear-result:
+    name: MonoTask Clear Result Tests
+    runs-on: macos-latest
+    needs: validate-test-coverage
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run MonoTask Clear Result Tests
+      run: swift test --filter MonoTaskClearResultTests
+
   test-kv-heavy-tasks-manager:
     name: KV Heavy Tasks Manager Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -94,7 +209,7 @@ jobs:
   test-kv-light-tasks-manager:
     name: KV Light Tasks Manager Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -107,7 +222,7 @@ jobs:
   test-retry-count:
     name: RetryCount Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -119,7 +234,7 @@ jobs:
   test-hash-queue:
     name: HashQueue Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -131,7 +246,7 @@ jobs:
   test-cpu-timestamp:
     name: CPUTimeStamp Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -143,7 +258,7 @@ jobs:
   test-heap:
     name: Heap Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -155,7 +270,7 @@ jobs:
   test-doubly-link:
     name: DoublyLink Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -164,11 +279,23 @@ jobs:
     - name: Run DoublyLink Tests
       run: swift test --filter DoublyLinkTests
 
+  test-tracing-id-factory:
+    name: TracingIDFactory Tests
+    runs-on: macos-latest
+    needs: validate-test-coverage
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: Run TracingIDFactory Tests
+      run: swift test --filter TracingIDFactoryTest
+
   # Performance Tests (MonstraBase)
   test-heap-performance:
     name: Heap Performance Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -180,7 +307,7 @@ jobs:
   test-cpu-timestamp-performance:
     name: CPUTimeStamp Performance Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -193,7 +320,7 @@ jobs:
   test-cache-statistics:
     name: Cache Statistics Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -205,7 +332,7 @@ jobs:
   test-memory-cache:
     name: Memory Cache Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -217,7 +344,7 @@ jobs:
   test-priority-lru-queue:
     name: Priority LRU Queue Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -229,7 +356,7 @@ jobs:
   test-ttl-priority-lru-queue:
     name: TTL Priority LRU Queue Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -242,7 +369,7 @@ jobs:
   test-memory-cache-performance:
     name: Memory Cache Performance Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -254,7 +381,7 @@ jobs:
   test-priority-lru-queue-performance:
     name: Priority LRU Queue Performance Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -266,7 +393,7 @@ jobs:
   test-ttl-priority-lru-queue-performance:
     name: TTL Priority LRU Queue Performance Tests
     runs-on: macos-latest
-    needs: build
+    needs: validate-test-coverage
     
     steps:
     - uses: actions/checkout@v4
@@ -281,7 +408,8 @@ jobs:
     runs-on: macos-latest
     needs: [
       test-monotask,
-      test-monotask-cross-scenario, 
+      test-monotask-cross-scenario,
+      test-monotask-clear-result,
       test-kv-heavy-tasks-manager,
       test-kv-light-tasks-manager,
       test-retry-count,
@@ -289,6 +417,7 @@ jobs:
       test-cpu-timestamp,
       test-heap,
       test-doubly-link,
+      test-tracing-id-factory,
       test-heap-performance,
       test-cpu-timestamp-performance,
       test-cache-statistics,

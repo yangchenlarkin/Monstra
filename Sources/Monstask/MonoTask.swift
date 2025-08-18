@@ -9,23 +9,25 @@ import Foundation
 import MonstraBase
 
 public class MonoTask<TaskResult> {
-    private var result: TaskResult? = nil
-    private var resultExpiresAt: CPUTimeStamp = .zero
-    
     private let retry: RetryCount
     private let resultExpireDuration: TimeInterval
     private let executeBlock: (@escaping ResultCallback)->Void
     private let taskQueue: DispatchQueue?
     private let callbackQueue: DispatchQueue?
-    private var semaphore = DispatchSemaphore(value: 1)
+    
+    private var result: TaskResult? = nil
+    private var resultExpiresAt: CPUTimeStamp = .zero
+    private var resultSemaphore = DispatchSemaphore(value: 1)
+    
     private var _callbacks: [ResultCallback]? = nil
+    private var callbackSemaphore = DispatchSemaphore(value: 1)
     
     private func _safe_callback(result: Result<TaskResult, Error>) {
         let callback = {
-            self.semaphore.wait()
+            self.callbackSemaphore.wait()
             let _callbacks = self._callbacks
             self._callbacks = nil
-            self.semaphore.signal()
+            self.callbackSemaphore.signal()
             
             guard let _callbacks else { return }
             for callback in _callbacks {
@@ -44,11 +46,16 @@ public class MonoTask<TaskResult> {
         let block = { [weak self] in
             guard let self else { return }
             
+            resultSemaphore.wait()
             if self.result != nil && self.resultExpiresAt > .now() {
+                resultSemaphore.signal()
                 _safe_callback(result: .success(self.result!))
                 return
             }
             self.result = nil
+            self.resultExpiresAt = .zero
+            resultSemaphore.signal()
+            
             self.executeBlock() { [weak self] result in
                 guard let self else { return }
                 
@@ -98,7 +105,7 @@ public class MonoTask<TaskResult> {
     }
     
     private func _safe_execute(then callback: ResultCallback?) {
-        semaphore.wait()
+        callbackSemaphore.wait()
         
         let isRunning = _callbacks != nil
         
@@ -110,7 +117,7 @@ public class MonoTask<TaskResult> {
             _callbacks!.append(callback)
         }
         
-        semaphore.signal()
+        callbackSemaphore.signal()
         
         if !isRunning {
             _unsafe_execute(retry: retry)
@@ -135,12 +142,16 @@ public extension MonoTask {
         }
     }
     
-    func execute(then callback: ResultCallback? = nil) {
+    func justExecute() {
+        _safe_execute(then: nil)
+    }
+    
+    func execute(then callback: ResultCallback?) {
         _safe_execute(then: callback)
     }
     
     @discardableResult
-    func execute() async -> Result<TaskResult, Error> {
+    func asyncExecute() async -> Result<TaskResult, Error> {
         return await withCheckedContinuation { continuation in
             self._safe_execute() { res in
                 continuation.resume(returning: res)
@@ -149,7 +160,7 @@ public extension MonoTask {
     }
     
     @discardableResult
-    func execute() async throws -> TaskResult {
+    func executeThrows() async throws -> TaskResult {
         switch await withCheckedContinuation({ continuation in
             self._safe_execute() { res in
                 continuation.resume(returning: res)
@@ -161,27 +172,19 @@ public extension MonoTask {
     }
     
     var currentResult: TaskResult? {
-        self.semaphore.wait()
-        defer { self.semaphore.signal() }
-        
+        resultSemaphore.wait()
+        defer { resultSemaphore.signal() }
         if self.resultExpiresAt <= .now() {
             self.result = nil
+            self.resultExpiresAt = .zero
         }
         return self.result
     }
     
-    func clearResult() {
-        self.semaphore.wait()
-        defer { self.semaphore.signal() }
-        
-        self.result = nil
-        self.resultExpiresAt = .zero
-    }
-    
     var isExecuting: Bool {
         get {
-            self.semaphore.wait()
-            defer { self.semaphore.signal() }
+            self.callbackSemaphore.wait()
+            defer { self.callbackSemaphore.signal() }
             return self._callbacks != nil
         }
     }

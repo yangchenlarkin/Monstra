@@ -43,6 +43,9 @@
 - [x] These tests may have non-deterministic behavior due to Set conversion losing key order
 - [x] Consider adding explicit batch ordering tests or documenting the non-deterministic nature
 
+### 5. MonoTask:
+- [ ] Clear result implementation
+
 ## Implementation Notes
 
 ### Cache Testing Strategy

@@ -190,14 +190,14 @@ public extension MonoTask {
     /// - Parameters:
     ///   - ongoingExecutionStrategy: Strategy to apply when there IS a running execution
     ///   - restartWhenIdle: Whether to start a new execution when there is NO running execution
-    func clearResult(ongoingExecutionStrategy: OngoingExecutionStrategy = .allowCompletion) {
+    func clearResult(ongoingExecutionStrategy: OngoingExecutionStrategy = .allowCompletion, shouldRestartWhenIDLE: Bool = false) {
         resultSemaphore.wait()
         defer { resultSemaphore.signal() }
 
         self.result = nil
         self.resultExpiresAt = .zero
         
-        if let _callbacks {
+        if let _callbacks = self._callbacks {
             // isExecuting
             switch ongoingExecutionStrategy {
             case .cancel:
@@ -207,6 +207,10 @@ public extension MonoTask {
                 self._unsafe_execute(retry: self.retry)
             case .allowCompletion:
                 break
+            }
+        } else {
+            if shouldRestartWhenIDLE {
+                self._unsafe_execute(retry: self.retry)
             }
         }
     }

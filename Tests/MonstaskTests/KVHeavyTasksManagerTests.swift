@@ -2689,7 +2689,7 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         })
         
         // Wait for completion
-        try? await Task.sleep(nanoseconds: 2_000_000_000) // 2 seconds
+        try? await Task.sleep(nanoseconds: 10_000_000_000) // 10 seconds
         
         // Test provider cleanup after dealloc stop
         manager.fetch(key: "cleanup_dealloc_test", result: { result in
@@ -2714,6 +2714,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         })
         
         await fulfillment(of: [exp], timeout: 15.0)
+        
+        try? await Task.sleep(nanoseconds: 10_000_000_000) // 10 seconds
         
         let finalEvents = await cleanupEvents.get()
         

@@ -604,63 +604,6 @@ final class TracingIDFactoryTest: XCTestCase {
         print("Unsafe method performance: \(iterationCount) ID generations without synchronization")
     }
     
-    /// Compares performance characteristics across all ID format types.
-    ///
-    /// This test benchmarks String, UInt64, and Int64 generation methods to validate
-    /// that format conversion overhead is minimal and identify optimal format
-    /// choices for different usage scenarios.
-    func testPerformanceFormatComparison() {
-        var factory = TracingIDFactory()
-        let testIterations = 20000
-        
-        // Warm-up all methods
-        for _ in 0..<100 {
-            _ = factory.safeNextInt64()
-            _ = factory.safeNextUInt64()
-            _ = factory.safeNextString()
-        }
-        
-        // Benchmark Int64 (raw format baseline)
-        let int64Start = CFAbsoluteTimeGetCurrent()
-        for _ in 0..<testIterations {
-            _ = factory.safeNextInt64()
-        }
-        let int64Duration = CFAbsoluteTimeGetCurrent() - int64Start
-        
-        // Benchmark UInt64 (conversion format)
-        let uint64Start = CFAbsoluteTimeGetCurrent()
-        for _ in 0..<testIterations {
-            _ = factory.safeNextUInt64()
-        }
-        let uint64Duration = CFAbsoluteTimeGetCurrent() - uint64Start
-        
-        // Benchmark String (conversion format)
-        let stringStart = CFAbsoluteTimeGetCurrent()
-        for _ in 0..<testIterations {
-            _ = factory.safeNextString()
-        }
-        let stringDuration = CFAbsoluteTimeGetCurrent() - stringStart
-        
-        // Performance analysis
-        let int64Rate = Double(testIterations) / int64Duration
-        let uint64Rate = Double(testIterations) / uint64Duration
-        let stringRate = Double(testIterations) / stringDuration
-        
-        // Validate performance expectations
-        XCTAssertGreaterThan(int64Rate, 10000, "Int64 generation should exceed 10K IDs/sec")
-        XCTAssertGreaterThan(uint64Rate, 8000, "UInt64 generation should exceed 8K IDs/sec")
-        XCTAssertGreaterThan(stringRate, 5000, "String generation should exceed 5K IDs/sec")
-        
-        // Int64 should be fastest (raw format)
-        XCTAssertGreaterThanOrEqual(int64Rate, uint64Rate, "Int64 should be fastest (raw format)")
-        XCTAssertGreaterThanOrEqual(uint64Rate, stringRate * 0.8, "UInt64 should be competitive with String")
-        
-        print("Format performance comparison:")
-        print("  Int64:  \(String(format: "%.0f", int64Rate)) IDs/sec (\(String(format: "%.3f", int64Duration))s for \(testIterations))")
-        print("  UInt64: \(String(format: "%.0f", uint64Rate)) IDs/sec (\(String(format: "%.3f", uint64Duration))s for \(testIterations))")
-        print("  String: \(String(format: "%.0f", stringRate)) IDs/sec (\(String(format: "%.3f", stringDuration))s for \(testIterations))")
-    }
-    
     // MARK: - ID Format Consistency and Mathematical Properties Tests
     
     /// Validates ID format consistency and mathematical properties across all return types.

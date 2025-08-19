@@ -575,14 +575,14 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         
         for key in ["task1", "task2", "task3"] {
             manager.fetch(key: key, result: { result in
-                if case .success(let value) = result, let unwrappedValue = value {
-                    Task {
+                Task {
+                    if case .success(let value) = result, let unwrappedValue = value {
                         await results.modify { array in
                             array.append(unwrappedValue)
                         }
                     }
+                    exp.fulfill()
                 }
-                exp.fulfill()
             })
         }
         
@@ -603,14 +603,14 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         
         for key in ["task1", "task2", "task3", "task4"] {
             manager.fetch(key: key, result: { result in
-                if case .success(let value) = result, let unwrappedValue = value {
-                    Task {
+                Task {
+                    if case .success(let value) = result, let unwrappedValue = value {
                         await results.modify { array in
                             array.append(unwrappedValue)
                         }
                     }
+                    exp.fulfill()
                 }
-                exp.fulfill()
             })
         }
         
@@ -637,21 +637,21 @@ final class KVHeavyTasksManagerTests: XCTestCase {
             manager.fetch(key: key, result: { result in
                 switch result {
                 case .success(let value):
-                    if let unwrappedValue = value {
-                        Task {
+                    Task {
+                        if let unwrappedValue = value {
                             await results.modify { array in
                                 array.append(unwrappedValue)
                             }
                         }
+                        completedExp.fulfill()
                     }
-                    completedExp.fulfill()
                 case .failure:
                     Task {
                         await errors.modify { array in
                             array.append(key)
                         }
+                        evictedExp.fulfill()
                     }
-                    evictedExp.fulfill()
                 }
             })
         }
@@ -676,28 +676,28 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         
         // First task - will be stopped
         manager.fetch(key: "stoppable", result: { result in
-            if case .success(let value) = result {
-                Task {
+            Task {
+                if case .success(let value) = result {
                     await results.modify { array in
                         array.append(value)
                     }
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         // Small delay then start interrupting task
         try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
         
         manager.fetch(key: "interrupter", result: { result in
-            if case .success(let value) = result {
-                Task {
+            Task {
+                if case .success(let value) = result {
                     await results.modify { array in
                         array.append(value)
                     }
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         await fulfillment(of: [exp], timeout: 10.0)
@@ -835,8 +835,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                         let key = "callback_\(i)"
                         counts[key] = (counts[key] ?? 0) + 1
                     }
+                    exp.fulfill()
                 }
-                exp.fulfill()
             })
         }
         
@@ -867,14 +867,14 @@ final class KVHeavyTasksManagerTests: XCTestCase {
             }
             
             manager.fetch(key: key, result: { result in
-                if case .success(let value) = result, let unwrappedValue = value {
-                    Task {
+                Task {
+                    if case .success(let value) = result, let unwrappedValue = value {
                         await results.modify { array in
                             array.append(unwrappedValue)
                         }
                     }
+                    exp.fulfill()
                 }
-                exp.fulfill()
             })
             
             // Small delay between submissions
@@ -941,42 +941,42 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         
         // Start first task
         manager.fetch(key: "first", result: { result in
-            if case .success(let value) = result, let unwrappedValue = value {
-                Task {
+            Task {
+                if case .success(let value) = result, let unwrappedValue = value {
                     await results.modify { array in
                         array.append(unwrappedValue)
                     }
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         // Small delay then interrupt with second task
         try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
         
         manager.fetch(key: "second", result: { result in
-            if case .success(let value) = result, let unwrappedValue = value {
-                Task {
+            Task {
+                if case .success(let value) = result, let unwrappedValue = value {
                     await results.modify { array in
                         array.append(unwrappedValue)
                     }
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         // Small delay then interrupt with third task
         try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
         
         manager.fetch(key: "third", result: { result in
-            if case .success(let value) = result, let unwrappedValue = value {
-                Task {
+            Task {
+                if case .success(let value) = result, let unwrappedValue = value {
                     await results.modify { array in
                         array.append(unwrappedValue)
                     }
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         await fulfillment(of: [exp], timeout: 15.0)
@@ -1043,14 +1043,14 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         // Rapidly submit multiple fetch operations
         for i in 1...10 {
             manager.fetch(key: "rapid_\(i)", result: { result in
-                if case .success(let value) = result, let unwrappedValue = value {
-                    Task {
+                Task {
+                    if case .success(let value) = result, let unwrappedValue = value {
                         await results.modify { array in
                             array.append(unwrappedValue)
                         }
                     }
+                    exp.fulfill()
                 }
-                exp.fulfill()
             })
         }
         
@@ -1294,8 +1294,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 await results.modify { array in
                     array.append(result)
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         // Interrupt with another task
@@ -1306,8 +1306,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 await results.modify { array in
                     array.append(result)
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         await fulfillment(of: [exp], timeout: 10.0)
@@ -1368,8 +1368,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                     await allResults.modify { dict in
                         dict[key] = result
                     }
+                    exp.fulfill()
                 }
-                exp.fulfill()
             })
         }
         
@@ -1446,8 +1446,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                                     array.append(value)
                                 }
                             }
+                            exp.fulfill()
                         }
-                        exp.fulfill()
                     })
                 }
             }
@@ -1489,8 +1489,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                         array.append(unwrappedValue)
                     }
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         // After brief delay, simultaneously start new fetch operation (will trigger stop) and wait for completion
@@ -1509,8 +1509,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                                 array.append(unwrappedValue)
                             }
                         }
+                        exp.fulfill()
                     }
-                    exp.fulfill()
                 })
             }
             
@@ -1527,8 +1527,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                                 array.append(unwrappedValue)
                             }
                         }
+                        exp.fulfill()
                     }
-                    exp.fulfill()
                 })
             }
         }

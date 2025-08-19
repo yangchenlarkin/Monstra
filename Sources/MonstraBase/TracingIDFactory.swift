@@ -212,47 +212,10 @@ public struct TracingIDFactory {
         
         // Calculate time-based ID component using UTC timezone for consistency
         self.timeBasedIDBase = {
-            // Fallback: Use Unix timestamp if UTC calculation fails
-            let timeIntervalSince1970 = Int64(Date().timeIntervalSince1970)
-            
-            let currentTime = Date()
-            let calendar = Calendar.current
-            
-            // Ensure we have UTC timezone for global consistency
-            guard let utcTimeZone = TimeZone(identifier: "UTC") else {
-                // Fallback: Use Unix timestamp modulo to stay within bounds
-                return timeIntervalSince1970 % Self.maximumBaseID
-            }
-            
-            // Configure calendar for UTC calculations
-            var utcCalendar = calendar
-            utcCalendar.timeZone = utcTimeZone
-
-            // Extract current year in UTC to calculate year-relative timestamp
-            let currentYear = utcCalendar.component(.year, from: currentTime)
-
-            // Construct the exact start of the current year in UTC
-            let yearStartComponents = DateComponents(
-                timeZone: utcTimeZone,
-                year: currentYear,
-                month: 1,          // January
-                day: 1,            // 1st day
-                hour: 0,           // Midnight
-                minute: 0,         // 0 minutes
-                second: 0          // 0 seconds
-            )
-            
-            guard let startOfCurrentYear = utcCalendar.date(from: yearStartComponents) else {
-                // Fallback: Use Unix timestamp if date construction fails
-                return timeIntervalSince1970 % Self.maximumBaseID
-            }
-
-            // Calculate seconds elapsed since start of current year
-            // This provides temporal ordering while keeping IDs reasonably sized
-            let secondsSinceYearStart = Int64(currentTime.timeIntervalSince(startOfCurrentYear))
-            
-            // Apply modulo to ensure we stay within safe bounds for overflow prevention
-            return secondsSinceYearStart % Self.maximumBaseID
+            let currentTimestamp = CPUTimeStamp().timeIntervalSinceCPUStart()
+            let integerPart = Double(Int64(currentTimestamp))
+            let decimalPart = currentTimestamp - integerPart
+            return Int64(decimalPart * 1_000_000_000) % Self.maximumBaseID
         }()
     }
     

@@ -344,10 +344,14 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 }
             }
         }, result: { result in
-            if case .success(let value) = result {
-                XCTAssertEqual(value, "longkey")
+            Task {
+                if case .success(let value) = result {
+                    XCTAssertEqual(value, "longkey")
+                }
+                // Small delay to ensure all progress events are processed
+                try? await Task.sleep(nanoseconds: 10_000_000) // 10ms
+                exp2.fulfill()
             }
-            exp2.fulfill()
         })
         
         await fulfillment(of: [exp2], timeout: 10.0)

@@ -57,24 +57,26 @@ jobs:
         frequency_type=""
         
         if [ $DAYS_DIFF -eq 0 ]; then
-          # Today: Run every 30 minutes
+          # Today: Run every 30 minutes (with 5-minute tolerance for GitHub Actions delays)
           echo "Today - checking 30-minute schedule"
-          if [ $(( $CURRENT_MINUTE % 30 )) -eq 0 ]; then
+          MINUTE_MOD_30=$(( $CURRENT_MINUTE % 30 ))
+          if [ $MINUTE_MOD_30 -le 5 ] || [ $MINUTE_MOD_30 -ge 25 ]; then
             should_run="true"
             frequency_type="every-30-min"
-            echo "✅ Running on 30-minute schedule"
+            echo "✅ Running on 30-minute schedule (minute $CURRENT_MINUTE, mod 30 = $MINUTE_MOD_30)"
           else
-            echo "⏭️ Skipping - not on 30-minute boundary"
+            echo "⏭️ Skipping - not within 30-minute boundary (minute $CURRENT_MINUTE, mod 30 = $MINUTE_MOD_30)"
           fi
         elif [ $DAYS_DIFF -ge 1 ] && [ $DAYS_DIFF -le 5 ]; then
-          # Next 5 days: Run every 4 hours
+          # Next 5 days: Run every 4 hours (with 10-minute tolerance for GitHub Actions delays)
           echo "Days 1-5 - checking 4-hour schedule"
-          if [ $(( $CURRENT_HOUR % 4 )) -eq 0 ] && [ $CURRENT_MINUTE -eq 0 ]; then
+          HOUR_MOD_4=$(( $CURRENT_HOUR % 4 ))
+          if [ $HOUR_MOD_4 -eq 0 ] && [ $CURRENT_MINUTE -le 10 ]; then
             should_run="true"
             frequency_type="every-4-hours"
-            echo "✅ Running on 4-hour schedule"
+            echo "✅ Running on 4-hour schedule (time ${CURRENT_HOUR}:${CURRENT_MINUTE})"
           else
-            echo "⏭️ Skipping - not on 4-hour boundary"
+            echo "⏭️ Skipping - not within 4-hour boundary (time ${CURRENT_HOUR}:${CURRENT_MINUTE}, hour mod 4 = $HOUR_MOD_4)"
           fi
         else
           echo "⏹️ Outside schedule window - stopping scheduled runs"

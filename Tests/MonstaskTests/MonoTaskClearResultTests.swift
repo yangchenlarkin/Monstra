@@ -227,10 +227,10 @@ final class MonoTaskClearResultTests: XCTestCase {
                 task.clearResult(ongoingExecutionStrategy: .restart)
                 
                 // Wait for restart execution to complete
-                try? await Task.sleep(nanoseconds: 10_000_000) // 10ms
+                try? await Task.sleep(nanoseconds: 10_000_000_000) // 10s
             }
         }
-        
+
         let (results, _) = await resultCollector.getResults()
         let counts = await counter.getCounts()
         

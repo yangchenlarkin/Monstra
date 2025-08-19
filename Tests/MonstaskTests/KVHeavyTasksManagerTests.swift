@@ -371,14 +371,14 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         // Start 3 tasks - first 2 should run concurrently, 3rd should queue
         for key in ["task1", "task2", "task3"] {
             manager.fetch(key: key, result: { result in
-                if case .success(let value) = result, let unwrappedValue = value {
-                    Task {
+                Task {
+                    if case .success(let value) = result, let unwrappedValue = value {
                         await results.modify { array in
                             array.append(unwrappedValue)
                         }
                     }
+                    exp.fulfill()
                 }
-                exp.fulfill()
             })
         }
         
@@ -399,27 +399,27 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         
         // Register two callbacks for the same key
         manager.fetch(key: "shared", result: { result in
-            if case .success(let value) = result {
-                XCTAssertEqual(value, "shared")
-                Task {
+            Task {
+                if case .success(let value) = result {
+                    XCTAssertEqual(value, "shared")
                     await callbackCount.modify { count in
                         count += 1
                     }
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         manager.fetch(key: "shared", result: { result in
-            if case .success(let value) = result {
-                XCTAssertEqual(value, "shared")
-                Task {
+            Task {
+                if case .success(let value) = result {
+                    XCTAssertEqual(value, "shared")
                     await callbackCount.modify { count in
                         count += 1
                     }
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         await fulfillment(of: [exp], timeout: 5.0)
@@ -440,19 +440,20 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         // Add 3 tasks - with LIFO stop, later tasks should interrupt earlier ones
         for key in ["first", "second", "third"] {
             manager.fetch(key: key, result: { result in
-                switch result {
-                case .success(let value):
-                    if let unwrappedValue = value {
-                        Task {
+                Task {
+                    switch result {
+                    case .success(let value):
+                        if let unwrappedValue = value {
                             await completedTasks.modify { tasks in
                                 tasks.append(unwrappedValue)
                             }
                         }
+                        exp.fulfill()
+                    case .failure:
+                        // Should not fail with stop strategy
+                        XCTFail("Task should not fail with stop strategy")
+                        exp.fulfill()
                     }
-                    exp.fulfill()
-                case .failure:
-                    // Should not fail with stop strategy
-                    XCTFail("Task should not fail with stop strategy")
                 }
             })
             // Small delay between submissions
@@ -477,26 +478,26 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         
         // Start first task
         manager.fetch(key: "first", result: { result in
-            if case .success(let value) = result, let unwrappedValue = value {
-                Task {
+            Task {
+                if case .success(let value) = result, let unwrappedValue = value {
                     await results.modify { array in
                         array.append(unwrappedValue)
                     }
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         // Start second task - should wait for first to complete
         manager.fetch(key: "second", result: { result in
-            if case .success(let value) = result, let unwrappedValue = value {
-                Task {
+            Task {
+                if case .success(let value) = result, let unwrappedValue = value {
                     await results.modify { array in
                         array.append(unwrappedValue)
                     }
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         await fulfillment(of: [exp], timeout: 10.0)
@@ -518,14 +519,14 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         
         for key in ["task1", "task2"] {
             manager.fetch(key: key, result: { result in
-                if case .success(let value) = result, let unwrappedValue = value {
-                    Task {
+                Task {
+                    if case .success(let value) = result, let unwrappedValue = value {
                         await results.modify { array in
                             array.append(unwrappedValue)
                         }
                     }
+                    exp.fulfill()
                 }
-                exp.fulfill()
             })
         }
         
@@ -546,14 +547,14 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         
         for key in ["task1", "task2"] {
             manager.fetch(key: key, result: { result in
-                if case .success(let value) = result, let unwrappedValue = value {
-                    Task {
+                Task {
+                    if case .success(let value) = result, let unwrappedValue = value {
                         await results.modify { array in
                             array.append(unwrappedValue)
                         }
                     }
+                    exp.fulfill()
                 }
-                exp.fulfill()
             })
         }
         

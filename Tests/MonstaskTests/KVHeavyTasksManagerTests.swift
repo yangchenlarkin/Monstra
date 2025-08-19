@@ -1566,8 +1566,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                         array.append(unwrappedValue)
                     }
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         // After brief delay, rapidly launch multiple interrupt tasks in succession
@@ -1589,8 +1589,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                                     array.append(unwrappedValue)
                                 }
                             }
+                            exp.fulfill()
                         }
-                        exp.fulfill()
                     })
                 }
             }
@@ -1708,8 +1708,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                             array.append(unwrappedValue)
                         }
                     }
+                    exp.fulfill()
                 }
-                exp.fulfill()
             })
         }
         
@@ -1729,8 +1729,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                                 array.append(unwrappedValue)
                             }
                         }
+                        exp.fulfill()
                     }
-                    exp.fulfill()
                 })
             }
             
@@ -1746,8 +1746,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                                 array.append(unwrappedValue)
                             }
                         }
+                        exp.fulfill()
                     }
-                    exp.fulfill()
                 })
             }
         }
@@ -1802,8 +1802,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                             array.append(opType)
                         }
                     }
+                    exp.fulfill()
                 }
-                exp.fulfill()
             })
         }
         
@@ -1861,8 +1861,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                                     array.append(opType)
                                 }
                             }
+                            exp.fulfill()
                         }
-                        exp.fulfill()
                     })
                 }
             }
@@ -1918,8 +1918,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                             array.append(keyVictim)
                         }
                     }
+                    exp.fulfill()
                 }
-                exp.fulfill()
             })
             
             let keyStopper = "cycle_\(cycle)_stopper"
@@ -1938,8 +1938,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                             array.append(keyStopper)
                         }
                     }
+                    exp.fulfill()
                 }
-                exp.fulfill()
             })
             
             // Brief interval between cycles

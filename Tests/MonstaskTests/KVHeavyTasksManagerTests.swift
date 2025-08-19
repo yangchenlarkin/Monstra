@@ -1629,8 +1629,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                         array.append(unwrappedValue)
                     }
                 }
+                exp.fulfill()  // Fulfill after async operations complete
             }
-            exp.fulfill()
         })
         
         try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
@@ -1648,8 +1648,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                                 array.append(unwrappedValue)
                             }
                         }
+                        exp.fulfill()  // Fulfill after async operations complete
                     }
-                    exp.fulfill()
                 })
             }
             
@@ -1666,8 +1666,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                                 array.append(unwrappedValue)
                             }
                         }
+                        exp.fulfill()  // Fulfill after async operations complete
                     }
-                    exp.fulfill()
                 })
             }
         }

@@ -293,10 +293,14 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 }
             }
         }, result: { result in
-            if case .success(let value) = result {
-                XCTAssertEqual(value, "abc")
+            Task {
+                if case .success(let value) = result {
+                    XCTAssertEqual(value, "abc")
+                }
+                // Small delay to ensure all progress events are processed
+                try? await Task.sleep(nanoseconds: 10_000_000) // 10ms
+                taskCompletionExpectation.fulfill()
             }
-            taskCompletionExpectation.fulfill()
         })
         
         await fulfillment(of: [taskCompletionExpectation], timeout: 5.0)
@@ -768,8 +772,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         manager.fetch(key: "cached", result: { result in
             Task {
                 await firstFetchTime.set(Date())
+                firstExp.fulfill()
             }
-            firstExp.fulfill()
         })
         
         await fulfillment(of: [firstExp], timeout: 5.0)
@@ -778,8 +782,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         manager.fetch(key: "cached", result: { result in
             Task {
                 await secondFetchTime.set(Date())
+                secondExp.fulfill()
             }
-            secondExp.fulfill()
         })
         
         await fulfillment(of: [secondExp], timeout: 1.0)
@@ -809,7 +813,11 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 }
             }
         }, result: { result in
-            exp.fulfill()
+            Task {
+                // Small delay to ensure all progress events are processed
+                try? await Task.sleep(nanoseconds: 10_000_000) // 10ms
+                exp.fulfill()
+            }
         })
         
         await fulfillment(of: [exp], timeout: 5.0)
@@ -1209,8 +1217,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                     await callbackTimes.modify { times in
                         times.append(Date())
                     }
+                    multiExp.fulfill()
                 }
-                multiExp.fulfill()
             })
         }
         
@@ -1995,7 +2003,11 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 }
             }
         }, result: { result in
-            exp.fulfill()
+            Task {
+                // Small delay to ensure all progress events are processed
+                try? await Task.sleep(nanoseconds: 10_000_000) // 10ms
+                exp.fulfill()
+            }
         })
         
         // Wait longer to ensure task makes progress (at least 3-4 characters processed)
@@ -2064,7 +2076,11 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 }
             }
         }, result: { result in
-            exp.fulfill()
+            Task {
+                // Small delay to ensure all progress events are processed
+                try? await Task.sleep(nanoseconds: 10_000_000) // 10ms
+                exp.fulfill()
+            }
         })
         
         // Wait longer to ensure task makes progress (at least 3-4 characters processed)
@@ -2270,8 +2286,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 await results.modify { dict in
                     dict["valid_test"] = result
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         // Wait for first task to complete
@@ -2283,8 +2299,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 await results.modify { dict in
                     dict["valid_test_cached"] = result
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         // Test 3: Fetch invalid key - should be rejected by cache immediately (returns nil)
@@ -2293,8 +2309,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 await results.modify { dict in
                     dict["invalid_key"] = result
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         await fulfillment(of: [exp], timeout: 10.0)
@@ -2343,8 +2359,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                     await results.modify { dict in
                         dict["valid_direct"] = result
                     }
-                }
                 exp.fulfill()
+                }
             }
         )
         validProvider.start()
@@ -2358,8 +2374,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                     await results.modify { dict in
                         dict["invalid_direct"] = result
                     }
-                }
                 exp.fulfill()
+                }
             }
         )
         invalidProvider.start()
@@ -2404,8 +2420,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 await results.modify { dict in
                     dict["normal"] = result
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         // Test invalid key - MockDataProvider now throws error for invalid keys
@@ -2414,8 +2430,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 await results.modify { dict in
                     dict["error"] = result
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         await fulfillment(of: [exp], timeout: 5.0)
@@ -2459,8 +2475,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                     // Expected behavior for zero running slots
                     break
                 }
+                exp1.fulfill()
             }
-            exp1.fulfill()
         })
         
         await fulfillment(of: [exp1], timeout: 2.0)
@@ -2485,8 +2501,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 case .failure:
                     await errors2.modify { array in array.append("first") }
                 }
+                exp2.fulfill()
             }
-            exp2.fulfill()
         })
         
         // Second task should be evicted immediately (no queue space)
@@ -2500,8 +2516,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 case .failure:
                     await errors2.modify { array in array.append("second") }
                 }
+                exp2.fulfill()
             }
-            exp2.fulfill()
         })
         
         await fulfillment(of: [exp2], timeout: 5.0)
@@ -2530,8 +2546,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 if case .success(let value) = result, let value = value {
                     await results.modify { array in array.append(value) }
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         // Quick second fetch while first is running
@@ -2542,8 +2558,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 if case .success(let value) = result, let value = value {
                     await results.modify { array in array.append(value) }
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         // Interrupt with different key
@@ -2554,8 +2570,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 if case .success(let value) = result, let value = value {
                     await results.modify { array in array.append(value) }
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         // Third fetch while original is stopped/queued
@@ -2566,8 +2582,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 if case .success(let value) = result, let value = value {
                     await results.modify { array in array.append(value) }
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         await fulfillment(of: [exp], timeout: 15.0)
@@ -2668,8 +2684,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 await cleanupEvents.modify { events in
                     events.append("normal_callback")
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         // Wait for completion
@@ -2681,8 +2697,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 await cleanupEvents.modify { events in
                     events.append("dealloc_callback")
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
@@ -2693,8 +2709,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 await cleanupEvents.modify { events in
                     events.append("interrupt_callback")
                 }
+                exp.fulfill()
             }
-            exp.fulfill()
         })
         
         await fulfillment(of: [exp], timeout: 15.0)

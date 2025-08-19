@@ -2671,16 +2671,13 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         let cleanupEvents = TestDataContainer([String]())
         
         // Test provider cleanup after normal completion
-        manager.fetch(key: "cleanup_normal", customEventObserver: { progress in
+        manager.fetch(key: "cleanup_normal", result: { result in
             Task {
-                if progress.completedLength == progress.totalLength {
+                if case .success = result {
                     await cleanupEvents.modify { events in
                         events.append("normal_completed")
                     }
                 }
-            }
-        }, result: { result in
-            Task {
                 await cleanupEvents.modify { events in
                     events.append("normal_callback")
                 }

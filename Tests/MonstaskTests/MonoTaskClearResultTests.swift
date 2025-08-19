@@ -201,10 +201,7 @@ final class MonoTaskClearResultTests: XCTestCase {
         ) { callback in
             Task {
                 let count = await counter.incrementExecution()
-                // Simulate work time for first execution only
-                if count == 1 {
-                    try? await Task.sleep(nanoseconds: 50_000_000) // 50ms
-                }
+                try? await Task.sleep(nanoseconds: 5_000_000_000) // 5s
                 callback(.success("execution_\(count)"))
             }
         }
@@ -223,14 +220,14 @@ final class MonoTaskClearResultTests: XCTestCase {
             
             // Wait for execution to start, then clear with restart
             group.addTask {
-                try? await Task.sleep(nanoseconds: 10_000_000) // 10ms - ensure execution started
+                try? await Task.sleep(nanoseconds: 100_000_000) // 100ms - ensure execution started
                 XCTAssertTrue(task.isExecuting, "Task should be executing")
                 
                 await counter.incrementClearResultCall()
                 task.clearResult(ongoingExecutionStrategy: .restart)
                 
                 // Wait for restart execution to complete
-                try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+                try? await Task.sleep(nanoseconds: 10_000_000) // 10ms
             }
         }
         

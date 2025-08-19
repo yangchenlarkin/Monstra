@@ -5,11 +5,90 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
+  schedule:
+    # Run every 30 minutes today, then every 4 hours for next 5 days
+    - cron: '*/30 * * * *'  # Every 30 minutes
+    - cron: '0 */4 * * *'   # Every 4 hours
 
 jobs:
+  # Determine if scheduled run should proceed based on date and frequency
+  check-schedule:
+    name: Check Schedule
+    runs-on: ubuntu-latest
+    outputs:
+      should-run: ${{ steps.schedule-check.outputs.should-run }}
+      frequency-type: ${{ steps.schedule-check.outputs.frequency-type }}
+    
+    steps:
+    - name: Check Schedule Logic
+      id: schedule-check
+      run: |
+        echo "Event type: ${{ github.event_name }}"
+        
+        # For non-scheduled runs (push, PR), always run
+        if [ "${{ github.event_name }}" != "schedule" ]; then
+          echo "Non-scheduled run - proceeding with all tests"
+          echo "should-run=true" >> $GITHUB_OUTPUT
+          echo "frequency-type=on-demand" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+        
+        # For scheduled runs, check the timing logic
+        echo "Scheduled run - checking timing logic"
+        
+        # Get current date and time
+        CURRENT_DATE=$(date -u +%Y-%m-%d)
+        CURRENT_HOUR=$(date -u +%H)
+        CURRENT_MINUTE=$(date -u +%M)
+        
+        # Define the start date (today) - Update this date when deploying
+        START_DATE="2025-08-19"  # Update this to deployment date
+        
+        # Calculate days since start
+        DAYS_DIFF=$(( ( $(date -d "$CURRENT_DATE" +%s) - $(date -d "$START_DATE" +%s) ) / 86400 ))
+        
+        echo "Current date: $CURRENT_DATE"
+        echo "Start date: $START_DATE"  
+        echo "Days difference: $DAYS_DIFF"
+        echo "Current time: ${CURRENT_HOUR}:${CURRENT_MINUTE}"
+        
+        # Determine if we should run based on the schedule
+        should_run="false"
+        frequency_type=""
+        
+        if [ $DAYS_DIFF -eq 0 ]; then
+          # Today: Run every 30 minutes
+          echo "Today - checking 30-minute schedule"
+          if [ $(( $CURRENT_MINUTE % 30 )) -eq 0 ]; then
+            should_run="true"
+            frequency_type="every-30-min"
+            echo "✅ Running on 30-minute schedule"
+          else
+            echo "⏭️ Skipping - not on 30-minute boundary"
+          fi
+        elif [ $DAYS_DIFF -ge 1 ] && [ $DAYS_DIFF -le 5 ]; then
+          # Next 5 days: Run every 4 hours
+          echo "Days 1-5 - checking 4-hour schedule"
+          if [ $(( $CURRENT_HOUR % 4 )) -eq 0 ] && [ $CURRENT_MINUTE -eq 0 ]; then
+            should_run="true"
+            frequency_type="every-4-hours"
+            echo "✅ Running on 4-hour schedule"
+          else
+            echo "⏭️ Skipping - not on 4-hour boundary"
+          fi
+        else
+          echo "⏹️ Outside schedule window - stopping scheduled runs"
+        fi
+        
+        echo "should-run=$should_run" >> $GITHUB_OUTPUT
+        echo "frequency-type=$frequency_type" >> $GITHUB_OUTPUT
+        echo "Final decision: should_run=$should_run, frequency_type=$frequency_type"
+
   build:
     name: Build
     runs-on: macos-latest
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule]
     
     steps:
     - uses: actions/checkout@v4
@@ -58,7 +137,10 @@ jobs:
   validate-test-coverage:
     name: Validate All Tests Are in CI
     runs-on: macos-latest
-    needs: build
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: 
+      - check-schedule
+      - build
     
     steps:
     - uses: actions/checkout@v4
@@ -161,7 +243,8 @@ jobs:
   test-monotask:
     name: MonoTask Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -173,7 +256,8 @@ jobs:
   test-monotask-cross-scenario:
     name: MonoTask Cross-Scenario Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -185,7 +269,8 @@ jobs:
   test-monotask-clear-result:
     name: MonoTask Clear Result Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -197,7 +282,8 @@ jobs:
   test-kv-heavy-tasks-manager:
     name: KV Heavy Tasks Manager Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -209,7 +295,8 @@ jobs:
   test-kv-light-tasks-manager:
     name: KV Light Tasks Manager Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -222,7 +309,8 @@ jobs:
   test-retry-count:
     name: RetryCount Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -234,7 +322,8 @@ jobs:
   test-hash-queue:
     name: HashQueue Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -246,7 +335,8 @@ jobs:
   test-cpu-timestamp:
     name: CPUTimeStamp Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -258,7 +348,8 @@ jobs:
   test-heap:
     name: Heap Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -270,7 +361,8 @@ jobs:
   test-doubly-link:
     name: DoublyLink Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -282,7 +374,8 @@ jobs:
   test-tracing-id-factory:
     name: TracingIDFactory Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -295,7 +388,8 @@ jobs:
   test-heap-performance:
     name: Heap Performance Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -307,7 +401,8 @@ jobs:
   test-cpu-timestamp-performance:
     name: CPUTimeStamp Performance Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -320,7 +415,8 @@ jobs:
   test-cache-statistics:
     name: Cache Statistics Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -332,7 +428,8 @@ jobs:
   test-memory-cache:
     name: Memory Cache Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -344,7 +441,8 @@ jobs:
   test-priority-lru-queue:
     name: Priority LRU Queue Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -356,7 +454,8 @@ jobs:
   test-ttl-priority-lru-queue:
     name: TTL Priority LRU Queue Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -369,7 +468,8 @@ jobs:
   test-memory-cache-performance:
     name: Memory Cache Performance Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -381,7 +481,8 @@ jobs:
   test-priority-lru-queue-performance:
     name: Priority LRU Queue Performance Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -393,7 +494,8 @@ jobs:
   test-ttl-priority-lru-queue-performance:
     name: TTL Priority LRU Queue Performance Tests
     runs-on: macos-latest
-    needs: validate-test-coverage
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
@@ -406,7 +508,9 @@ jobs:
   all-tests:
     name: All Tests Complete
     runs-on: macos-latest
+    if: needs.check-schedule.outputs.should-run == 'true'
     needs: [
+      check-schedule,
       test-monotask,
       test-monotask-cross-scenario,
       test-monotask-clear-result,
@@ -431,4 +535,8 @@ jobs:
     
     steps:
     - name: All tests passed
-      run: echo "🎉 All tests completed successfully!"
+      run: |
+        echo "🎉 All tests completed successfully!"
+        if [ "${{ github.event_name }}" = "schedule" ]; then
+          echo "📅 Scheduled run completed with frequency: ${{ needs.check-schedule.outputs.frequency-type }}"
+        fi

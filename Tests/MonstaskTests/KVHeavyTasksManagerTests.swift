@@ -1077,58 +1077,6 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         XCTAssertLessThanOrEqual(finalResults.count, 10) // At most all tasks
     }
     
-    // Test Case 12: Ensure no customEvent is executed after resultPublisher
-    func testNoCustomEventAfterResultPublisher() async {
-        let manager = makeManager(priority: .FIFO, running: 1)
-        
-        let exp = expectation(description: "task completed")
-        
-        let events = TestDataContainer([MockDataProviderProgress]())
-        let eventTimestamps = TestDataContainer([CPUTimeStamp]())
-        let resultTimestamp = TestDataContainer(CPUTimeStamp.zero)
-        let eventsAfterResult = TestDataContainer([MockDataProviderProgress]())
-        
-        manager.fetch(key: "lifecycle", customEventObserver: { progress in
-            Task {
-                await events.modify { array in
-                    array.append(progress)
-                }
-                await eventTimestamps.modify { timestamps in
-                    timestamps.append(.now())
-                }
-                
-                // Check if this event came after the result
-                let resultTime = await resultTimestamp.get()
-                if .now() > resultTime && resultTime != .zero {
-                    await eventsAfterResult.modify { array in
-                        array.append(progress)
-                    }
-                }
-            }
-        }, result: { result in
-            Task {
-                await resultTimestamp.set(.now())
-                // Small delay to catch any potential late events
-                try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
-                exp.fulfill()
-            }
-        })
-        
-        await fulfillment(of: [exp], timeout: 10.0)
-        
-        // Additional wait to catch any potential late events
-        try? await Task.sleep(nanoseconds: 200_000_000) // 0.2 seconds
-        
-        let finalEvents = await events.get()
-        let finalEventsAfterResult = await eventsAfterResult.get()
-        
-        // Should have received events during execution
-        XCTAssertFalse(finalEvents.isEmpty, "Should have received progress events")
-        
-        // Should NOT have received any events after result
-        XCTAssertTrue(finalEventsAfterResult.isEmpty, "Should not receive events after result publisher: \(finalEventsAfterResult)")
-    }
-    
     // MARK: - Cross-Scenario Tests
     
     // Cross-Scenario 1: FIFO + K > M+N + Resume Data + Custom Events

@@ -679,7 +679,7 @@ final class MonoTaskTests: XCTestCase {
         let results = await resultCollector.getResults()
         
         // Should not crash and should eventually return the result
-        XCTAssertEqual(results.count, 10, "Should collect 10 results")
+        XCTAssertEqual(results.count, 100, "Should collect 100 results")
         let nonNilResults = results.compactMap { $0 }
         XCTAssertGreaterThanOrEqual(nonNilResults.count, 1, "Should get at least one non-nil result")
         

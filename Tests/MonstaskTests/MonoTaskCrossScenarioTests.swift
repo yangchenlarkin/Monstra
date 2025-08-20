@@ -253,17 +253,15 @@ final class MonoTaskCrossScenarioTests: XCTestCase {
     
     /// Test isExecuting and currentResult consistency during rapid state changes
     func testPropertyAccessDuringStateTransitions() async {
-        let executeStarted = DispatchSemaphore(value: 0)
-        let continueExecution = DispatchSemaphore(value: 0)
         let counter = CrossScenarioCounter()
         
         let task = MonoTask<String>(
             retry: .never,
-            resultExpireDuration: 0.1
+            resultExpireDuration: 5
         ) { callback in
-            executeStarted.signal()
-            continueExecution.wait()
             Task {
+                try? await Task.sleep(nanoseconds: 5_000_000_000) // 5s to finish
+                
                 await counter.incrementResultSet()
                 callback(.success("state_transition_test"))
             }
@@ -271,7 +269,8 @@ final class MonoTaskCrossScenarioTests: XCTestCase {
         
         var isExecutingStates: [Bool] = []
         var currentResultStates: [String?] = []
-        var stateInconsistencies = 0
+        var stateInconsistenciesDuringRunning = 0
+        var stateInconsistenciesAfterRunning = 0
         
         await withTaskGroup(of: Void.self) { group in
             // Start execution
@@ -281,10 +280,8 @@ final class MonoTaskCrossScenarioTests: XCTestCase {
             
             // Rapid property access during execution
             group.addTask {
-                executeStarted.wait() // Wait for execution to start
-                
                 // Rapid sampling during execution
-                for _ in 0..<10 {
+                for _ in 0..<15 {
                     let executing = task.isExecuting
                     let result = task.currentResult
                     
@@ -293,29 +290,14 @@ final class MonoTaskCrossScenarioTests: XCTestCase {
                     
                     // During execution, result should be nil and isExecuting should be true
                     if executing && result != nil {
-                        stateInconsistencies += 1
+                        stateInconsistenciesDuringRunning += 1
                     }
-                    
-                    try? await Task.sleep(nanoseconds: 5_000_000) // 5ms between samples
-                }
-                
-                continueExecution.signal() // Allow execution to complete
-                
-                // Sample after completion
-                try? await Task.sleep(nanoseconds: 50_000_000) // Wait for completion
-                for _ in 0..<5 {
-                    let executing = task.isExecuting
-                    let result = task.currentResult
-                    
-                    isExecutingStates.append(executing)
-                    currentResultStates.append(result)
-                    
                     // After execution, result should exist and isExecuting should be false
-                    if !executing && result == nil {
-                        stateInconsistencies += 1
+                    if !executing && result != nil {
+                        stateInconsistenciesAfterRunning += 1
                     }
                     
-                    try? await Task.sleep(nanoseconds: 10_000_000) // 10ms between samples
+                    try? await Task.sleep(nanoseconds: 1_000_000_000) // 1s between samples
                 }
             }
         }
@@ -323,10 +305,9 @@ final class MonoTaskCrossScenarioTests: XCTestCase {
         let counts = await counter.getCounts()
         XCTAssertEqual(counts.resultSets, 1, "Should execute exactly once")
         XCTAssertGreaterThan(isExecutingStates.count, 0, "Should sample execution states")
-        
-        print("State transition inconsistencies: \(stateInconsistencies)")
-        print("Execution states sampled: \(isExecutingStates)")
-        print("Result states sampled: \(currentResultStates)")
+        XCTAssertEqual(stateInconsistenciesDuringRunning, 0)
+        XCTAssertGreaterThan(stateInconsistenciesAfterRunning, 0)
+        XCTAssertLessThan(stateInconsistenciesAfterRunning, 10)
     }
 
     // MARK: - 4. Complex Queue Scenarios

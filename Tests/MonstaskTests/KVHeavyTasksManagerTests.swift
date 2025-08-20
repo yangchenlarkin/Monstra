@@ -323,13 +323,16 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         
         // First task that will be interrupted
         let exp1 = expectation(description: "first task stopped")
-        let semaphore = DispatchSemaphore(value: 0)
-        manager.fetch(key: "longkey1234567890abcdefghijklmnopqrstuvwxyz.", customEventObserver: { _ in
-            semaphore.signal()
-        }, result: { _ in })
         
-        // Wait a bit then start another task to trigger LIFO stop
-        semaphore.wait()
+        let eventStream = AsyncStream<Void> { continuation in
+            manager.fetch(key: "longkey1234567890abcdefghijklmnopqrstuvwxyz.", customEventObserver: { _ in
+                continuation.yield()
+            }, result: { _ in
+                continuation.finish()
+            })
+        }
+        
+        for await _ in eventStream { break }
         
         manager.fetch(key: "short", result: { result in
             if case .success(let value) = result {
@@ -344,7 +347,7 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         let exp2 = expectation(description: "resumed task completed")
         let finalProgress = TestDataContainer([MockDataProviderProgress]())
         
-        manager.fetch(key: "longkey", customEventObserver: { progress in
+        manager.fetch(key: "longkey1234567890abcdefghijklmnopqrstuvwxyz", customEventObserver: { progress in
             Task {
                 await finalProgress.modify { events in
                     events.append(progress)
@@ -353,7 +356,7 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         }, result: { result in
             Task {
                 if case .success(let value) = result {
-                    XCTAssertEqual(value, "longkey")
+                    XCTAssertEqual(value, "longkey1234567890abcdefghijklmnopqrstuvwxyz")
                 }
                 // Small delay to ensure all progress events are processed
                 try? await Task.sleep(nanoseconds: 10_000_000) // 10ms
@@ -367,7 +370,7 @@ final class KVHeavyTasksManagerTests: XCTestCase {
         
         // Should show resumed progress
         XCTAssertFalse(events.isEmpty)
-        XCTAssertEqual(events.last?.totalLength, 7)
+        XCTAssertEqual(events.last?.totalLength, 43)
     }
     
     func testConcurrentTasks() async {

@@ -241,17 +241,13 @@ final class MonoTaskTests: XCTestCase {
     /// Test execution merge during running period (before first completion)
     func testExecutionMergeDuringRunning() async {
         let counter = ExecutionCounter()
-        let startSignal = DispatchSemaphore(value: 0)
-        let continueSignal = DispatchSemaphore(value: 0)
         
         let task = MonoTask<String>(
             retry: .never,
             resultExpireDuration: 0.1
         ) { callback in
-            startSignal.signal()  // Signal that execution started
-            continueSignal.wait() // Wait for test control
-            
             Task {
+                try? await Task.sleep(nanoseconds: 1_000_000_000) // 1s
                 let count = await counter.increment()
                 callback(.success("merged_result_\(count)"))
             }
@@ -272,17 +268,10 @@ final class MonoTaskTests: XCTestCase {
                     }
                 }
             }
-            
-            // Wait for first execution to start
-            group.addTask {
-                startSignal.wait()
-                // Let execution continue
-                continueSignal.signal()
-            }
         }
         
         // Wait for completion
-        try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+        try? await Task.sleep(nanoseconds: 5_000_000_000) // 5s
         
         let results = await resultCollector.getResults()
         let execCount = await counter.getCount()
@@ -693,7 +682,7 @@ final class MonoTaskTests: XCTestCase {
     // MARK: - 8. isExecuting Tests
     
     /// Test isExecuting reflects execution state accurately
-    func testIsExecutingReflectsState() async {
+    func testIsExecutingReflectsState() {
         let executeStarted = DispatchSemaphore(value: 0)
         let continueExecution = DispatchSemaphore(value: 0)
         
@@ -724,7 +713,7 @@ final class MonoTaskTests: XCTestCase {
         continueExecution.signal()
         
         // Wait for completion
-        try? await Task.sleep(nanoseconds: 100_000_000)
+        Thread.sleep(forTimeInterval: 0.1)
         
         // Should not be executing anymore
         XCTAssertFalse(task.isExecuting, "Should not be executing after completion")

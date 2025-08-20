@@ -4666,7 +4666,6 @@ extension KVLightTasksManagerTests {
         expectation.expectedFulfillmentCount = 3
         
         var fetchCount = 0
-        let fetchSemaphore = DispatchSemaphore(value: 1)
         
         let asyncMonoprovide: KVLightTasksManager<String, String>.DataProvider.AsyncMonoprovide = { key in
             // Simulate async work

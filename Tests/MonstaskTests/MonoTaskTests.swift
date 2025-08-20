@@ -649,7 +649,7 @@ final class MonoTaskTests: XCTestCase {
     func testCurrentResultThreadSafety() async {
         let task = MonoTask<String>(
             retry: .never,
-            resultExpireDuration: 0.2
+            resultExpireDuration: 10
         ) { callback in
             Task {
                 try? await Task.sleep(nanoseconds: 50_000_000) // 50ms
@@ -667,7 +667,7 @@ final class MonoTaskTests: XCTestCase {
             }
             
             // Concurrent currentResult access
-            for i in 0..<10 {
+            for i in 0..<100 {
                 group.addTask {
                     try? await Task.sleep(nanoseconds: UInt64(i * 10_000_000)) // Staggered access
                     let current = task.currentResult

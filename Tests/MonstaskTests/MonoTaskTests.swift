@@ -51,11 +51,13 @@ final class MonoTaskTests: XCTestCase {
         private var count = 0
         private var callbackInvocations = 0
         
+        @discardableResult
         func increment() -> Int {
             count += 1
             return count
         }
         
+        @discardableResult
         func incrementCallback() -> Int {
             callbackInvocations += 1
             return callbackInvocations
@@ -118,7 +120,7 @@ final class MonoTaskTests: XCTestCase {
         
         // Execute with multiple concurrent callbacks
         await withTaskGroup(of: Void.self) { group in
-            for i in 0..<5 {
+            for _ in 0..<5 {
                 group.addTask {
                     task.execute { result in
                         Task {
@@ -885,7 +887,7 @@ final class MonoTaskTests: XCTestCase {
         }
         
         // Execute from main thread
-        await MainActor.run {
+        _=await MainActor.run {
             Task {
                 let _ = await task.asyncExecute()
             }

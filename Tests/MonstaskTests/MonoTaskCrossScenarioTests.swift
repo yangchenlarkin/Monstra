@@ -27,16 +27,19 @@ final class MonoTaskCrossScenarioTests: XCTestCase {
         private var resultReadCount = 0
         private var inconsistentStates = 0
         
+        @discardableResult
         func incrementResultSet() -> Int {
             resultSetCount += 1
             return resultSetCount
         }
         
+        @discardableResult
         func incrementResultRead() -> Int {
             resultReadCount += 1
             return resultReadCount
         }
         
+        @discardableResult
         func recordInconsistentState() -> Int {
             inconsistentStates += 1
             return inconsistentStates

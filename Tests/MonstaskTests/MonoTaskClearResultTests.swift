@@ -27,21 +27,25 @@ final class MonoTaskClearResultTests: XCTestCase {
         private var completionCount = 0
         private var clearResultCallCount = 0
         
+        @discardableResult
         func incrementExecution() -> Int {
             executionCount += 1
             return executionCount
         }
         
+        @discardableResult
         func incrementCancel() -> Int {
             cancelCount += 1
             return cancelCount
         }
         
+        @discardableResult
         func incrementCompletion() -> Int {
             completionCount += 1
             return completionCount
         }
         
+        @discardableResult
         func incrementClearResultCall() -> Int {
             clearResultCallCount += 1
             return clearResultCallCount

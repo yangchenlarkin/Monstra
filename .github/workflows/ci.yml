@@ -6,8 +6,8 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    # Run every 30 minutes today, then every 4 hours for next 5 days
-    - cron: '*/30 * * * *'  # Every 30 minutes
+    # Run every 15 minutes today, then every 4 hours for next 5 days
+    - cron: '*/15 * * * *'  # Every 15 minutes
     - cron: '0 */4 * * *'   # Every 4 hours
 
 jobs:
@@ -57,15 +57,15 @@ jobs:
         frequency_type=""
         
         if [ $DAYS_DIFF -eq 0 ]; then
-          # Today: Run every 30 minutes (with 5-minute tolerance for GitHub Actions delays)
-          echo "Today - checking 30-minute schedule"
-          MINUTE_MOD_30=$(( $CURRENT_MINUTE % 30 ))
-          if [ $MINUTE_MOD_30 -le 5 ] || [ $MINUTE_MOD_30 -ge 25 ]; then
+          # Today: Run every 15 minutes (with 3-minute tolerance for GitHub Actions delays)
+          echo "Today - checking 15-minute schedule"
+          MINUTE_MOD_15=$(( $CURRENT_MINUTE % 15 ))
+          if [ $MINUTE_MOD_15 -le 3 ] || [ $MINUTE_MOD_15 -ge 12 ]; then
             should_run="true"
-            frequency_type="every-30-min"
-            echo "✅ Running on 30-minute schedule (minute $CURRENT_MINUTE, mod 30 = $MINUTE_MOD_30)"
+            frequency_type="every-15-min"
+            echo "✅ Running on 15-minute schedule (minute $CURRENT_MINUTE, mod 15 = $MINUTE_MOD_15)"
           else
-            echo "⏭️ Skipping - not within 30-minute boundary (minute $CURRENT_MINUTE, mod 30 = $MINUTE_MOD_30)"
+            echo "⏭️ Skipping - not within 15-minute boundary (minute $CURRENT_MINUTE, mod 15 = $MINUTE_MOD_15)"
           fi
         elif [ $DAYS_DIFF -ge 1 ] && [ $DAYS_DIFF -le 5 ]; then
           # Next 5 days: Run every 4 hours (with 10-minute tolerance for GitHub Actions delays)

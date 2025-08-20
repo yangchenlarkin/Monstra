@@ -112,7 +112,7 @@ public class MonoTask<TaskResult> {
     private var executionIDFactory = TracingIDFactory()
     
     /// Current execution ID - used to ignore stale retry attempts after clearResult
-    private var executionID: Int64
+    private var executionID: Int64? = nil
     
     // MARK: - Callback Management
     
@@ -139,7 +139,6 @@ public class MonoTask<TaskResult> {
         self.taskQueue = taskQueue
         self.callbackQueue = callbackQueue
         self.executeBlock = executeBlock
-        self.executionID = self.executionIDFactory.safeNextInt64()
     }
     
     // MARK: - Core Execution Logic
@@ -219,8 +218,8 @@ public class MonoTask<TaskResult> {
             self.resultExpiresAt = .zero
             
             // Generate new execution ID for tracking (important for clearResult cancellation)
-            self.executionID = executionIDFactory.safeNextInt64()
-            let currentExecutionID = self.executionID
+            let currentExecutionID = executionIDFactory.safeNextInt64()
+            self.executionID = currentExecutionID
             resultSemaphore.signal()
             
             // === Phase 3: Execute User Task ===
@@ -228,6 +227,10 @@ public class MonoTask<TaskResult> {
                 guard let self else { return }
                 resultSemaphore.wait()
                 defer { resultSemaphore.signal() }
+                
+                // Check if this execution was cancelled (execution ID changed)
+                guard currentExecutionID == self.executionID else { return }
+                self.executionID = nil
                 
                 // === Phase 4: Handle Success ===
                 if case .success(let successData) = executionResult {
@@ -239,12 +242,6 @@ public class MonoTask<TaskResult> {
                 }
                 
                 // === Phase 5: Handle Failure & Retry Logic ===
-                
-                // Check if this execution was cancelled (execution ID changed)
-                if currentExecutionID != self.executionID {
-                    // This execution is stale (clearResult was called), ignore result
-                    return
-                }
                 
                 // Retry if retry attempts are available
                 if retryConfiguration.shouldRetry {

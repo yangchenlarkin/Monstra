@@ -156,6 +156,7 @@ public struct TracingIDFactory {
     /// - Lower values: More frequent wraparound but better cache locality
     /// - Higher values: Longer uniqueness period but higher memory usage for large IDs
     public static let maximumLoopCount: Int64 = 10_000_000_000
+    public static let minimumLoopCount: Int64 = 1_000
     
     // MARK: - Instance Properties
     
@@ -207,8 +208,7 @@ public struct TracingIDFactory {
     /// - **Future calls**: Initialization cost is amortized across millions of ID generations
     public init(loopCount: Int64 = Self.maximumLoopCount) {
         // Validate and normalize the loop count parameter
-        let clampedLoopCount = max(0, min(loopCount, Self.maximumLoopCount))
-        self.loopCount = clampedLoopCount <= 0 ? clampedLoopCount + Self.maximumLoopCount : clampedLoopCount
+        self.loopCount = max(Self.minimumLoopCount, min(loopCount, Self.maximumLoopCount))
         
         // Calculate time-based ID component using UTC timezone for consistency
         self.timeBasedIDBase = {
@@ -252,7 +252,8 @@ public struct TracingIDFactory {
         defer {
             // Increment sequential counter with wraparound at loopCount boundary
             // This ensures we never exceed the configured uniqueness period
-            self.sequentialCounter = (self.sequentialCounter + 1) % self.loopCount
+            let next = (self.sequentialCounter + 1) % self.loopCount
+            self.sequentialCounter = next < 0 ? next + self.loopCount : next
         }
         
         // Apply hybrid ID generation formula: combine time-based and sequential components

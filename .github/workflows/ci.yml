@@ -42,7 +42,7 @@ jobs:
         CURRENT_MINUTE=$(date -u +%M)
         
         # Define the start date (today) - Update this date when deploying
-        START_DATE="2025-08-19"  # Update this to deployment date
+        START_DATE="2025-08-20"  # Update this to deployment date
         
         # Calculate days since start
         DAYS_DIFF=$(( ( $(date -d "$CURRENT_DATE" +%s) - $(date -d "$START_DATE" +%s) ) / 86400 ))

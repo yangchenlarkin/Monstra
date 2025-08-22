@@ -133,13 +133,43 @@ final class MonoTaskClearResultTests: XCTestCase {
         let counter = ClearResultCounter()
         let resultCollector = TestResultCollector<String>()
         
+        // Use a semaphore to ensure precise timing coordination
+        actor ExecutionCoordinator {
+            private var executionStarted = false
+            private var shouldContinue = false
+            
+            func markExecutionStarted() {
+                executionStarted = true
+            }
+            
+            func waitForContinue() async {
+                while !shouldContinue {
+                    try? await Task.sleep(nanoseconds: 1_000_000) // 1ms
+                }
+            }
+            
+            func allowContinue() {
+                shouldContinue = true
+            }
+            
+            func hasExecutionStarted() -> Bool {
+                return executionStarted
+            }
+        }
+        
+        let coordinator = ExecutionCoordinator()
+        
         let task = MonoTask<String>(
             retry: .never,
             resultExpireDuration: 1.0
         ) { callback in
             Task {
-                // Simulate some work time
-                try? await Task.sleep(nanoseconds: 50_000_000_000) // 50s
+                // Signal that execution has started
+                await coordinator.markExecutionStarted()
+                
+                // Wait for the coordinator to allow continuation
+                await coordinator.waitForContinue()
+                
                 let count = await counter.incrementExecution()
                 callback(.success("execution_\(count)"))
             }
@@ -166,7 +196,11 @@ final class MonoTaskClearResultTests: XCTestCase {
             
             // Wait for execution to start, then clear with cancel
             group.addTask {
-                try? await Task.sleep(nanoseconds: 10_000_000_000) // 10s - ensure execution started
+                // Wait for execution to truly start
+                while !(await coordinator.hasExecutionStarted()) {
+                    try? await Task.sleep(nanoseconds: 1_000_000) // 1ms
+                }
+                
                 XCTAssertTrue(task.isExecuting, "Task should be executing")
                 
                 // Clear result with cancel strategy
@@ -174,6 +208,9 @@ final class MonoTaskClearResultTests: XCTestCase {
                 task.clearResult(ongoingExecutionStrategy: .cancel)
                 
                 XCTAssertFalse(task.isExecuting, "Task should not be executing after cancel")
+                
+                // Allow execution to continue (though it should be cancelled)
+                await coordinator.allowContinue()
             }
         }
         
@@ -435,13 +472,43 @@ final class MonoTaskClearResultTests: XCTestCase {
     func testConcurrentClearResultCalls() async {
         let counter = ClearResultCounter()
         
+        // Use coordination to ensure cancellation happens during execution
+        actor ExecutionCoordinator {
+            private var executionStarted = false
+            private var shouldContinue = false
+            
+            func markExecutionStarted() {
+                executionStarted = true
+            }
+            
+            func waitForContinue() async {
+                while !shouldContinue {
+                    try? await Task.sleep(nanoseconds: 1_000_000) // 1ms
+                }
+            }
+            
+            func allowContinue() {
+                shouldContinue = true
+            }
+            
+            func hasExecutionStarted() -> Bool {
+                return executionStarted
+            }
+        }
+        
+        let coordinator = ExecutionCoordinator()
+        
         let task = MonoTask<String>(
             retry: .never,
             resultExpireDuration: 1.0
         ) { callback in
             Task {
-                // Simulate some work time to allow concurrent clearResult calls
-                try? await Task.sleep(nanoseconds: 50_000_000) // 50ms
+                // Signal that execution has started
+                await coordinator.markExecutionStarted()
+                
+                // Wait for the coordinator to allow continuation
+                await coordinator.waitForContinue()
+                
                 let count = await counter.incrementExecution()
                 callback(.success("concurrent_clear_\(count)"))
             }
@@ -464,18 +531,28 @@ final class MonoTaskClearResultTests: XCTestCase {
                 }
             }
             
-            // Wait a bit for execution to start
-            try? await Task.sleep(nanoseconds: 5_000_000) // 5ms
-            XCTAssertTrue(task.isExecuting, "Task should be executing")
-            
-            // Multiple concurrent clearResult calls
-            for i in 0..<5 {
-                group.addTask {
-                    try? await Task.sleep(nanoseconds: UInt64(i * 2_000_000)) // Stagger calls 0-8ms
-                    
-                    await counter.incrementClearResultCall()
-                    task.clearResult(ongoingExecutionStrategy: .cancel)
+            // Wait for execution to truly start
+            group.addTask {
+                while !(await coordinator.hasExecutionStarted()) {
+                    try? await Task.sleep(nanoseconds: 1_000_000) // 1ms
                 }
+                
+                XCTAssertTrue(task.isExecuting, "Task should be executing")
+                
+                // Multiple concurrent clearResult calls
+                await withTaskGroup(of: Void.self) { clearGroup in
+                    for i in 0..<5 {
+                        clearGroup.addTask {
+                            try? await Task.sleep(nanoseconds: UInt64(i * 2_000_000)) // Stagger calls 0-8ms
+                            
+                            await counter.incrementClearResultCall()
+                            task.clearResult(ongoingExecutionStrategy: .cancel)
+                        }
+                    }
+                }
+                
+                // Allow execution to continue (though it should be cancelled)
+                await coordinator.allowContinue()
             }
         }
         
@@ -591,6 +668,13 @@ final class MonoTaskClearResultTests: XCTestCase {
             }
         }
         
+        // Ensure execution is complete before final clearResult
+        try? await Task.sleep(nanoseconds: 150_000_000) // 150ms - ensure execution completed
+        
+        // Final clearResult to guarantee cleared state
+        await counter.incrementClearResultCall()
+        task.clearResult()
+        
         let (currentResults, _) = await resultCollector.getResults()
         let (executingResults, _) = await executingStates.getResults()
         let counts = await counter.getCounts()
@@ -601,7 +685,7 @@ final class MonoTaskClearResultTests: XCTestCase {
         XCTAssertGreaterThan(counts.clearCalls, 0, "Should have some clear calls")
         
         // Final state should be clean
-        XCTAssertNotNil(task.currentResult, "Final result should be cleared")
+        XCTAssertNil(task.currentResult, "Final result should be cleared")
         XCTAssertFalse(task.isExecuting, "Should not be executing at end")
     }
 

@@ -983,7 +983,7 @@ private extension KVHeavyTasksManager {
         if self.dataProviders[key] == nil {
             self.dataProviders[key] = DataProvider(key: key, customEventPublisher: { [weak self] customEvent in
                 // Handle custom events (progress updates, status changes, etc.)
-                DispatchQueue.global().async {
+                DispatchQueue.global().async { [weak self] in
                     guard let taskManager = self else { return }
                     taskManager.semaphore.wait()
                     defer { taskManager.semaphore.signal() }
@@ -997,7 +997,7 @@ private extension KVHeavyTasksManager {
                 }
             }, resultPublisher: { [weak self] result in
                 // Handle final task result (success or failure)
-                DispatchQueue.global().async {
+                DispatchQueue.global().async { [weak self] in
                     guard let taskManager = self else { return }
                     taskManager.semaphore.wait()
                     defer { taskManager.semaphore.signal() }

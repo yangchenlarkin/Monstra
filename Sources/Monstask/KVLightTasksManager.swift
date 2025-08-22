@@ -234,9 +234,11 @@ public extension KVLightTasksManager {
             results[key] = result
             
             if results.count == keysCount {
+                // Capture results dictionary safely to prevent memory corruption
+                let capturedResults = results
                 DispatchQueue.global().async {
                     multiCallback(
-                        keys.map { ($0, results[$0] ?? .success(nil)) }
+                        keys.map { ($0, capturedResults[$0] ?? .success(nil)) }
                     )
                 }
             }

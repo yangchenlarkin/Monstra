@@ -6,9 +6,9 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    # Run every 15 minutes today, then every 4 hours for next 5 days
-    - cron: '*/15 * * * *'  # Every 15 minutes
-    - cron: '0 */4 * * *'   # Every 4 hours
+    # Run every 15 minutes today (2025-08-22), then every 4 hours for next 5 days
+    - cron: '*/15 * * * *'  # Every 15 minutes - active today only via check-schedule logic
+    - cron: '0 */4 * * *'   # Every 4 hours - active days 1-5 only via check-schedule logic
 
 jobs:
   # Determine if scheduled run should proceed based on date and frequency
@@ -57,19 +57,23 @@ jobs:
         frequency_type=""
         
         if [ $DAYS_DIFF -eq 0 ]; then
-          # Today: Run every 15 minutes (with 3-minute tolerance for GitHub Actions delays)
-          echo "Today - checking 15-minute schedule"
+          # Today (2025-08-22): Run every 15 minutes ONLY (with 3-minute tolerance for GitHub Actions delays)
+          echo "🎯 TODAY - checking 15-minute schedule ONLY"
+          echo "📅 Date: $CURRENT_DATE (Day 0 - intensive testing)"
           MINUTE_MOD_15=$(( $CURRENT_MINUTE % 15 ))
           if [ $MINUTE_MOD_15 -le 3 ] || [ $MINUTE_MOD_15 -ge 12 ]; then
             should_run="true"
             frequency_type="every-15-min"
-            echo "✅ Running on 15-minute schedule (minute $CURRENT_MINUTE, mod 15 = $MINUTE_MOD_15)"
+            echo "✅ RUNNING on 15-minute schedule (minute $CURRENT_MINUTE, mod 15 = $MINUTE_MOD_15)"
+            echo "🚀 Next run expected at: $(( (CURRENT_MINUTE / 15 + 1) * 15 )) minutes past the hour"
           else
             echo "⏭️ Skipping - not within 15-minute boundary (minute $CURRENT_MINUTE, mod 15 = $MINUTE_MOD_15)"
+            echo "⏰ Next run window: minute $(( (CURRENT_MINUTE / 15 + 1) * 15 - 3 ))-$(( (CURRENT_MINUTE / 15 + 1) * 15 + 3 ))"
           fi
         elif [ $DAYS_DIFF -ge 1 ] && [ $DAYS_DIFF -le 5 ]; then
-          # Next 5 days: Run every 4 hours (with 10-minute tolerance for GitHub Actions delays)
-          echo "Days 1-5 - checking 4-hour schedule"
+          # Next 5 days (2025-08-23 to 2025-08-27): Run every 4 hours (with 10-minute tolerance)
+          echo "📅 Days 1-5 - checking 4-hour schedule (NOT today)"
+          echo "📊 Date: $CURRENT_DATE (Day $DAYS_DIFF - reduced frequency testing)"
           HOUR_MOD_4=$(( $CURRENT_HOUR % 4 ))
           if [ $HOUR_MOD_4 -eq 0 ] && [ $CURRENT_MINUTE -le 10 ]; then
             should_run="true"
@@ -79,12 +83,22 @@ jobs:
             echo "⏭️ Skipping - not within 4-hour boundary (time ${CURRENT_HOUR}:${CURRENT_MINUTE}, hour mod 4 = $HOUR_MOD_4)"
           fi
         else
-          echo "⏹️ Outside schedule window - stopping scheduled runs"
+          echo "⏹️ Outside schedule window - stopping scheduled runs (after day 5)"
+          echo "📅 Date: $CURRENT_DATE (Day $DAYS_DIFF - beyond testing period)"
         fi
         
         echo "should-run=$should_run" >> $GITHUB_OUTPUT
         echo "frequency-type=$frequency_type" >> $GITHUB_OUTPUT
-        echo "Final decision: should_run=$should_run, frequency_type=$frequency_type"
+        echo ""
+        echo "🎯 FINAL DECISION: should_run=$should_run, frequency_type=$frequency_type"
+        if [ "$should_run" = "true" ] && [ "$frequency_type" = "every-15-min" ]; then
+          echo "🚀 PROCEEDING with 15-minute intensive testing (today only)"
+        elif [ "$should_run" = "true" ] && [ "$frequency_type" = "every-4-hours" ]; then
+          echo "🚀 PROCEEDING with 4-hour reduced testing (days 1-5)"
+        else
+          echo "⏭️ SKIPPING this scheduled run"
+        fi
+        echo ""
 
   build:
     name: Build

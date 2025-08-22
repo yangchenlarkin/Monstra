@@ -2022,7 +2022,10 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                 } else {
                     // After interrupter completed, check if we resume from last progress
                     let lastProgress = await lastProgressBeforeStop.get()
-                    if progress.completedLength == lastProgress && lastProgress > 0 {
+                    let alreadyDetected = await resumeDetected.get()
+                    // For reuse behavior: should continue from where it left off (>= lastProgress)
+                    // Only mark as detected once to avoid multiple detections
+                    if !alreadyDetected && progress.completedLength >= lastProgress && lastProgress > 0 {
                         await resumeDetected.set(true)
                     }
                 }

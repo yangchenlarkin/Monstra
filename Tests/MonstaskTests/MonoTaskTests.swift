@@ -965,7 +965,7 @@ final class MonoTaskTests: XCTestCase {
         ) { callback in
             Task {
                 await counter.increment()
-                try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+                try? await Task.sleep(nanoseconds: 1_000_000_000) // 100ms
                 callback(.success("memory_test"))
             }
         }
@@ -977,12 +977,12 @@ final class MonoTaskTests: XCTestCase {
         task = nil
         
         // Wait longer than execution time
-        try? await Task.sleep(nanoseconds: 2_000_000_000)
+        try? await Task.sleep(nanoseconds: 5_000_000_000)
         
         let execCount = await counter.getCount()
         
         // Execution should have started but weak self should prevent completion callback
-        XCTAssertEqual(execCount, 0, "Execution should have started")
+        XCTAssertEqual(execCount, 0, "Execution should not start")
         // Note: We can't easily test that the callback wasn't invoked due to weak self,
         // but this test ensures no crashes occur when the task is deallocated during execution
     }

@@ -6,12 +6,11 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    # Run every 15 minutes today (2025-08-22), then every 4 hours for next 5 days
-    - cron: '*/15 * * * *'  # Every 15 minutes - active today only via check-schedule logic
-    - cron: '0 */4 * * *'   # Every 4 hours - active days 1-5 only via check-schedule logic
+    # Run every hour (simplified schedule for better CI efficiency)
+    - cron: '0 * * * *'  # Every hour at the top of the hour
 
 jobs:
-  # Determine if scheduled run should proceed based on date and frequency
+  # Determine if scheduled run should proceed based on hourly schedule
   check-schedule:
     name: Check Schedule
     runs-on: ubuntu-latest
@@ -56,45 +55,28 @@ jobs:
         should_run="false"
         frequency_type=""
         
-        if [ $DAYS_DIFF -eq 0 ]; then
-          # Today (2025-08-22): Run every 15 minutes ONLY (with 3-minute tolerance for GitHub Actions delays)
-          echo "🎯 TODAY - checking 15-minute schedule ONLY"
-          echo "📅 Date: $CURRENT_DATE (Day 0 - intensive testing)"
-          MINUTE_MOD_15=$(( $CURRENT_MINUTE % 15 ))
-          if [ $MINUTE_MOD_15 -le 3 ] || [ $MINUTE_MOD_15 -ge 12 ]; then
-            should_run="true"
-            frequency_type="every-15-min"
-            echo "✅ RUNNING on 15-minute schedule (minute $CURRENT_MINUTE, mod 15 = $MINUTE_MOD_15)"
-            echo "🚀 Next run expected at: $(( (CURRENT_MINUTE / 15 + 1) * 15 )) minutes past the hour"
-          else
-            echo "⏭️ Skipping - not within 15-minute boundary (minute $CURRENT_MINUTE, mod 15 = $MINUTE_MOD_15)"
-            echo "⏰ Next run window: minute $(( (CURRENT_MINUTE / 15 + 1) * 15 - 3 ))-$(( (CURRENT_MINUTE / 15 + 1) * 15 + 3 ))"
-          fi
-        elif [ $DAYS_DIFF -ge 1 ] && [ $DAYS_DIFF -le 5 ]; then
-          # Next 5 days (2025-08-23 to 2025-08-27): Run every 4 hours (with 10-minute tolerance)
-          echo "📅 Days 1-5 - checking 4-hour schedule (NOT today)"
-          echo "📊 Date: $CURRENT_DATE (Day $DAYS_DIFF - reduced frequency testing)"
-          HOUR_MOD_4=$(( $CURRENT_HOUR % 4 ))
-          if [ $HOUR_MOD_4 -eq 0 ] && [ $CURRENT_MINUTE -le 10 ]; then
-            should_run="true"
-            frequency_type="every-4-hours"
-            echo "✅ Running on 4-hour schedule (time ${CURRENT_HOUR}:${CURRENT_MINUTE})"
-          else
-            echo "⏭️ Skipping - not within 4-hour boundary (time ${CURRENT_HOUR}:${CURRENT_MINUTE}, hour mod 4 = $HOUR_MOD_4)"
-          fi
+        # Simplified hourly schedule - runs every hour with 5-minute tolerance
+        echo "⏰ HOURLY SCHEDULE - checking for execution window"
+        echo "📅 Date: $CURRENT_DATE, Time: ${CURRENT_HOUR}:${CURRENT_MINUTE}"
+        
+        # Run at the top of every hour with 5-minute tolerance for GitHub Actions delays
+        if [ $CURRENT_MINUTE -le 5 ]; then
+          should_run="true"
+          frequency_type="hourly"
+          echo "✅ RUNNING on hourly schedule (minute $CURRENT_MINUTE - within tolerance)"
+          echo "🚀 Next run expected at: $(( $CURRENT_HOUR + 1 )):00 (±5 minutes)"
         else
-          echo "⏹️ Outside schedule window - stopping scheduled runs (after day 5)"
-          echo "📅 Date: $CURRENT_DATE (Day $DAYS_DIFF - beyond testing period)"
+          should_run="false"
+          echo "⏭️ Skipping - outside hourly window (minute $CURRENT_MINUTE > 5)"
+          echo "⏰ Next run window: $(( $CURRENT_HOUR + 1 )):00-05"
         fi
         
         echo "should-run=$should_run" >> $GITHUB_OUTPUT
         echo "frequency-type=$frequency_type" >> $GITHUB_OUTPUT
         echo ""
         echo "🎯 FINAL DECISION: should_run=$should_run, frequency_type=$frequency_type"
-        if [ "$should_run" = "true" ] && [ "$frequency_type" = "every-15-min" ]; then
-          echo "🚀 PROCEEDING with 15-minute intensive testing (today only)"
-        elif [ "$should_run" = "true" ] && [ "$frequency_type" = "every-4-hours" ]; then
-          echo "🚀 PROCEEDING with 4-hour reduced testing (days 1-5)"
+        if [ "$should_run" = "true" ] && [ "$frequency_type" = "hourly" ]; then
+          echo "🚀 PROCEEDING with hourly testing schedule"
         else
           echo "⏭️ SKIPPING this scheduled run"
         fi

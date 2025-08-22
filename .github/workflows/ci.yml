@@ -6,11 +6,11 @@ on:
   pull_request:
     branches: [ main ]
   schedule:
-    # Run every hour (simplified schedule for better CI efficiency)
-    - cron: '0 * * * *'  # Every hour at the top of the hour
+    # Run every 5 minutes (simplified schedule for better CI efficiency)
+    - cron: '*/5 * * * *'  # Every 5 minutes
 
 jobs:
-  # Determine if scheduled run should proceed based on hourly schedule
+  # Determine if scheduled run should proceed based on 5-minute schedule
   check-schedule:
     name: Check Schedule
     runs-on: ubuntu-latest
@@ -32,54 +32,31 @@ jobs:
           exit 0
         fi
         
-        # For scheduled runs, check the timing logic
-        echo "Scheduled run - checking timing logic"
+        # For scheduled runs (5-minute interval), always run
+        echo "Scheduled run - running every 5 minutes"
         
-        # Get current date and time
+        # Get current date and time for logging
         CURRENT_DATE=$(date -u +%Y-%m-%d)
         CURRENT_HOUR=$(date -u +%H)
         CURRENT_MINUTE=$(date -u +%M)
         
-        # Define the start date (today) - Update this date when deploying
-        START_DATE="2025-08-22"  # Update this to deployment date
-        
-        # Calculate days since start
-        DAYS_DIFF=$(( ( $(date -d "$CURRENT_DATE" +%s) - $(date -d "$START_DATE" +%s) ) / 86400 ))
-        
         echo "Current date: $CURRENT_DATE"
-        echo "Start date: $START_DATE"  
-        echo "Days difference: $DAYS_DIFF"
         echo "Current time: ${CURRENT_HOUR}:${CURRENT_MINUTE}"
         
-        # Determine if we should run based on the schedule
-        should_run="false"
-        frequency_type=""
+        # Always run for scheduled events (every 5 minutes)
+        should_run="true"
+        frequency_type="5-minute"
         
-        # Simplified hourly schedule - runs every hour with 5-minute tolerance
-        echo "⏰ HOURLY SCHEDULE - checking for execution window"
+        echo "⏰ 5-MINUTE SCHEDULE - running on schedule"
         echo "📅 Date: $CURRENT_DATE, Time: ${CURRENT_HOUR}:${CURRENT_MINUTE}"
-        
-        # Run at the top of every hour with 5-minute tolerance for GitHub Actions delays
-        if [ $CURRENT_MINUTE -le 5 ]; then
-          should_run="true"
-          frequency_type="hourly"
-          echo "✅ RUNNING on hourly schedule (minute $CURRENT_MINUTE - within tolerance)"
-          echo "🚀 Next run expected at: $(( $CURRENT_HOUR + 1 )):00 (±5 minutes)"
-        else
-          should_run="false"
-          echo "⏭️ Skipping - outside hourly window (minute $CURRENT_MINUTE > 5)"
-          echo "⏰ Next run window: $(( $CURRENT_HOUR + 1 )):00-05"
-        fi
+        echo "✅ RUNNING on 5-minute schedule"
+        echo "🚀 Next run expected in 5 minutes"
         
         echo "should-run=$should_run" >> $GITHUB_OUTPUT
         echo "frequency-type=$frequency_type" >> $GITHUB_OUTPUT
         echo ""
         echo "🎯 FINAL DECISION: should_run=$should_run, frequency_type=$frequency_type"
-        if [ "$should_run" = "true" ] && [ "$frequency_type" = "hourly" ]; then
-          echo "🚀 PROCEEDING with hourly testing schedule"
-        else
-          echo "⏭️ SKIPPING this scheduled run"
-        fi
+        echo "🚀 PROCEEDING with 5-minute testing schedule"
         echo ""
 
   build:
@@ -537,4 +514,7 @@ jobs:
         echo "🎉 All tests completed successfully!"
         if [ "${{ github.event_name }}" = "schedule" ]; then
           echo "📅 Scheduled run completed with frequency: ${{ needs.check-schedule.outputs.frequency-type }}"
+          if [ "${{ needs.check-schedule.outputs.frequency-type }}" = "5-minute" ]; then
+            echo "⏰ Next scheduled run in 5 minutes"
+          fi
         fi

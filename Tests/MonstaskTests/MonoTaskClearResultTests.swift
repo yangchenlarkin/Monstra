@@ -213,7 +213,7 @@ final class MonoTaskClearResultTests: XCTestCase {
                 await coordinator.allowContinue()
             }
         }
-        
+        try? await Task.sleep(nanoseconds: 1_000_000_000) // 1s
         let (results, errors) = await resultCollector.getResults()
         let counts = await counter.getCounts()
         

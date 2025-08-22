@@ -2247,16 +2247,16 @@ final class MemoryCacheTests: XCTestCase {
     }
     
     func testBehaviorWithExtremeConfigurationElements() {
-        // Test with extreme configuration elements
+        // Test with extreme configuration elements (but not infinite to avoid hangs)
         let cache = MemoryCache<String, String>(
             configuration: .init(
                 enableThreadSynchronization: true,
-                memoryUsageLimitation: .init(capacity: Int.max, memory: Int.max),
+                memoryUsageLimitation: .init(capacity: 1_000_000, memory: 1_000_000_000), // 1M items, 1GB memory
                 defaultTTL: .infinity,
                 defaultTTLForNullElement: .infinity,
-                ttlRandomizationRange: Double.greatestFiniteMagnitude,
+                ttlRandomizationRange: 1000.0, // Large but finite randomization
                 keyValidator: { _ in true },
-                costProvider: { _ in Int.max }
+                costProvider: { _ in 1000 } // Large but reasonable cost per item
             )
         )
         

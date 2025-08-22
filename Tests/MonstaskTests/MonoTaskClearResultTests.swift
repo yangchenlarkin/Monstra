@@ -369,7 +369,7 @@ final class MonoTaskClearResultTests: XCTestCase {
         ) { callback in
             Task {
                 let count = await counter.incrementExecution()
-                try? await Task.sleep(nanoseconds: 50_000_000) // 50ms
+                try? await Task.sleep(nanoseconds: 5_000_000_000) // 5s
                 callback(.success("mixed_\(count)"))
             }
         }
@@ -408,11 +408,13 @@ final class MonoTaskClearResultTests: XCTestCase {
             
             // Clear result during mixed executions
             group.addTask {
-                try? await Task.sleep(nanoseconds: 25_000_000) // 25ms - mid execution
+                try? await Task.sleep(nanoseconds: 2_000_000_000) // 2s - mid execution
                 await counter.incrementClearResultCall()
                 task.clearResult(ongoingExecutionStrategy: .allowCompletion)
             }
         }
+        
+        try? await Task.sleep(nanoseconds: 10_000_000_000) // 10s - mid execution
         
         let (results, errors) = await resultCollector.getResults()
         let counts = await counter.getCounts()

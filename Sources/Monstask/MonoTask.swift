@@ -621,8 +621,9 @@ public extension MonoTask {
     /// ```
     var isExecuting: Bool {
         get {
-            self.callbackSemaphore.wait()
-            defer { self.callbackSemaphore.signal() }
+            resultSemaphore.wait()
+            defer { resultSemaphore.signal() }
+            
             return self.waitingCallbacks != nil
         }
     }

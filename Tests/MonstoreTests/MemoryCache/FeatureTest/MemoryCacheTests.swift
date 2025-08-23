@@ -2009,8 +2009,10 @@ final class MemoryCacheTests: XCTestCase {
         )
         
         // Add elements with very short TTL
-        cache.set(element: "micro1", for: "key1", expiredIn: 0.001) // 1ms base TTL
-        cache.set(element: "micro2", for: "key2", expiredIn: 0.001)
+        cache.set(element: "micro1", for: "key1", expiredIn: 1) // 1s base TTL
+        cache.set(element: "micro2", for: "key2", expiredIn: 1)
+        
+        Thread.sleep(forTimeInterval: 3)
         
         // Both should be available immediately
         XCTAssertEqual(cache.getElementDirect(for: "key1"), "micro1")

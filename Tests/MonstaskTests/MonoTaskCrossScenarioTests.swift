@@ -305,9 +305,9 @@ final class MonoTaskCrossScenarioTests: XCTestCase {
         let counts = await counter.getCounts()
         XCTAssertEqual(counts.resultSets, 1, "Should execute exactly once")
         XCTAssertGreaterThan(isExecutingStates.count, 0, "Should sample execution states")
-        XCTAssertEqual(stateInconsistenciesDuringRunning, 0)
-        XCTAssertGreaterThan(stateInconsistenciesAfterRunning, 0)
-        XCTAssertLessThan(stateInconsistenciesAfterRunning, 10)
+        XCTAssertEqual(stateInconsistenciesDuringRunning, 0, "stateInconsistenciesDuringRunning should be 0")
+        XCTAssertGreaterThan(stateInconsistenciesAfterRunning, 0, "stateInconsistenciesAfterRunning should be more than 0")
+        XCTAssertLessThan(stateInconsistenciesAfterRunning, 10, "stateInconsistenciesAfterRunning should be 10")
     }
 
     // MARK: - 4. Complex Queue Scenarios

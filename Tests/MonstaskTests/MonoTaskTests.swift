@@ -901,7 +901,7 @@ final class MonoTaskTests: XCTestCase {
         ) { callback in
             Task {
                 await counter.increment()
-                try? await Task.sleep(nanoseconds: 100_000_000) // 100ms
+                try? await Task.sleep(nanoseconds: 10_000_000_000) // 10s
                 callback(.success("memory_test"))
             }
         }
@@ -913,7 +913,7 @@ final class MonoTaskTests: XCTestCase {
         task = nil
         
         // Wait longer than execution time
-        try? await Task.sleep(nanoseconds: 2_000_000_000)
+        try? await Task.sleep(nanoseconds: 20_000_000_000)
         
         let execCount = await counter.getCount()
         

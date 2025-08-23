@@ -1082,8 +1082,8 @@ final class KVHeavyTasksManagerTests: XCTestCase {
     
     // MARK: - Cross-Scenario Tests
     
-    // Cross-Scenario 1: FIFO + K > M+N + Resume Data + Custom Events
-    func testCrossScenario_FIFO_Eviction_Resume_Events() async {
+    // Cross-Scenario 1: LIFO.stop + K > M+N + Resume Data + Custom Events
+    func testCrossScenario_LIFO_Stop_Eviction_Resume_Events() async {
         let manager = makeManager(priority: .LIFO(.stop), running: 1, queueing: 1)
         
         let completedExp = expectation(description: "completed tasks")
@@ -1115,15 +1115,16 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                         await results.modify { array in
                             array.append(unwrappedValue)
                         }
+                        completedExp.fulfill()
                     }
                 case .failure(let error):
                     Task {
                         await cancelledResults.modify { array in
                             array.append(error)
                         }
+                        completedExp.fulfill()
                     }
                 }
-                completedExp.fulfill()
             })
             
             // Small delay between submissions to trigger LIFO stop behavior
@@ -1208,16 +1209,18 @@ final class KVHeavyTasksManagerTests: XCTestCase {
                             await executionOrder.modify { order in
                                 order.append(unwrappedValue)
                             }
+                            completedExp.fulfill()
                         }
+                    } else {
+                        completedExp.fulfill()
                     }
-                    completedExp.fulfill()
                 case .failure:
                     Task {
                         await evictedTasks.modify { evicted in
                             evicted.append(key)
                         }
+                        evictedExp.fulfill()
                     }
-                    evictedExp.fulfill()
                 }
             })
         }

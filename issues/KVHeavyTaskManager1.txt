@@ -1,0 +1,273 @@
+Run swift test --filter KVHeavyTasksManagerTests
+Fetching https://github.com/Alamofire/Alamofire.git
+[1/30176] Fetching alamofire
+Fetched https://github.com/Alamofire/Alamofire.git from cache (3.29s)
+Computing version for https://github.com/Alamofire/Alamofire.git
+Computed https://github.com/Alamofire/Alamofire.git at 5.10.2 (0.29s)
+Creating working copy for https://github.com/Alamofire/Alamofire.git
+Working copy of https://github.com/Alamofire/Alamofire.git resolved at 5.10.2
+warning: 'monstra': found 1 file(s) which are unhandled; explicitly declare them as resources or exclude from the target
+    /Users/runner/work/Monstra/Monstra/Sources/Monstore/MemoryCache/README.md
+Building for debugging...
+[0/18] /Users/runner/work/Monstra/Monstra/.build/arm64-apple-macosx/debug/MonstraPackageTests.derived/runner.swift
+[1/18] Write sources
+[9/18] Write KVHeavyTaskDataProviderExample-entitlement.plist
+[10/18] Copying PrivacyInfo.xcprivacy
+[11/18] Write sources
+[12/18] Write swift-version--4CD4308975962E7A.txt
+[14/53] Emitting module Alamofire
+[15/67] Emitting module MonstraBase
+[16/67] Compiling Alamofire DataRequest.swift
+[17/67] Compiling Alamofire DataStreamRequest.swift
+[18/67] Compiling Alamofire Alamofire.swift
+[19/67] Compiling Alamofire AFError.swift
+[20/69] Compiling MonstraBase RetryCount.swift
+[21/69] Compiling MonstraBase TracingIDFactory.swift
+[22/80] Compiling Monstore TTLPriorityLRUQueue.swift
+[23/81] Compiling Monstore CacheStatistics.swift
+[24/81] Compiling MonstraBaseTests CPUTimeStampPerformanceTests.swift
+[25/81] Compiling MonstraBaseTests CPUTimeStampTests.swift
+[26/81] Emitting module Monstore
+[27/81] Compiling Alamofire SessionDelegate.swift
+[28/81] Compiling Alamofire URLConvertible+URLRequestConvertible.swift
+[29/81] Compiling Alamofire UploadRequest.swift
+[30/81] Compiling Alamofire WebSocketRequest.swift
+[31/81] Compiling Alamofire DispatchQueue+Alamofire.swift
+[32/81] Compiling Alamofire OperationQueue+Alamofire.swift
+[33/81] Compiling Alamofire Result+Alamofire.swift
+[34/81] Compiling Alamofire StringEncoding+Alamofire.swift
+[35/81] Compiling Alamofire URLRequest+Alamofire.swift
+[36/81] Compiling Alamofire URLSessionConfiguration+Alamofire.swift
+[37/81] Compiling Alamofire AlamofireExtended.swift
+[38/81] Compiling Alamofire AuthenticationInterceptor.swift
+[39/81] Compiling Alamofire CachedResponseHandler.swift
+[40/81] Compiling Alamofire Combine.swift
+[41/87] Compiling MonstoreTests MemoryCacheTests.swift
+[42/87] Compiling MonstoreTests PriorityLRUQueueTests.swift
+[43/87] Compiling MonstoreTests TTLPriorityLRUQueueTests.swift
+[44/87] Compiling MonstoreTests MemoryCachePerformanceTests.swift
+[45/87] Compiling MonstoreTests PriorityLRUQueuePerformanceTests.swift
+[46/87] Compiling MonstraBaseTests HeapTests.swift
+[47/87] Compiling Alamofire HTTPMethod.swift
+[48/87] Compiling Alamofire Notifications.swift
+[49/87] Compiling Alamofire ParameterEncoder.swift
+[50/87] Compiling Alamofire ParameterEncoding.swift
+[51/87] Compiling Alamofire Protected.swift
+[52/87] Compiling Alamofire Request.swift
+[53/87] Compiling Alamofire RequestTaskMap.swift
+[54/87] Compiling Alamofire Response.swift
+[55/87] Compiling Alamofire Session.swift
+[56/87] Compiling Alamofire Concurrency.swift
+[57/87] Compiling Alamofire EventMonitor.swift
+[58/87] Compiling Alamofire MultipartFormData.swift
+[59/87] Compiling Alamofire MultipartUpload.swift
+[60/87] Compiling Alamofire NetworkReachabilityManager.swift
+[61/87] Compiling Alamofire RedirectHandler.swift
+[62/87] Compiling Alamofire RequestCompression.swift
+[63/87] Compiling Alamofire RequestInterceptor.swift
+[64/87] Compiling Alamofire ResponseSerialization.swift
+[65/87] Compiling Alamofire RetryPolicy.swift
+[66/87] Compiling Alamofire ServerTrustEvaluation.swift
+[67/87] Compiling Alamofire URLEncodedFormEncoder.swift
+[68/87] Compiling Alamofire Validation.swift
+[69/87] Compiling Alamofire resource_bundle_accessor.swift
+[70/90] Compiling Monstask KVHeavyTasksManager.swift
+[71/90] Emitting module Monstask
+[72/90] Compiling Monstask KVLightTasksManager.swift
+[73/91] Compiling Monstask MonoTask.swift
+[74/96] Emitting module MonstoreTests
+[75/98] Compiling MonstaskTests MonoTaskCrossScenarioTests.swift
+[77/98] Compiling MonstoreTests TTLPriorityLRUQueuePerformanceTests.swift
+[78/98] Compiling MonstoreTests CacheStatisticsTests.swift
+[79/98] Emitting module MonstraBaseTests
+[80/98] Compiling MonstaskTests KVHeavyTasksManagerTests.swift
+[81/98] Compiling MonstaskTests KVLightTasksManagerTests.swift
+[82/98] Compiling MonstaskTests MonoTaskClearResultTests.swift
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:921:14: warning: result of call to 'remove(at:)' is unused
+ 919 |         heap.insert(10)
+ 920 |         heap.insert(20)
+ 921 |         heap.remove()
+     |              `- warning: result of call to 'remove(at:)' is unused
+ 922 |         
+ 923 |         // Should have recorded events
+
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:945:22: warning: result of call to 'remove(at:)' is unused
+ 943 |             
+ 944 |             for _ in 0..<1000 {
+ 945 |                 heap.remove()
+     |                      `- warning: result of call to 'remove(at:)' is unused
+ 946 |             }
+ 947 |         }
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:921:14: warning: result of call to 'remove(at:)' is unused
+ 919 |         heap.insert(10)
+ 920 |         heap.insert(20)
+ 921 |         heap.remove()
+     |              `- warning: result of call to 'remove(at:)' is unused
+ 922 |         
+ 923 |         // Should have recorded events
+
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:945:22: warning: result of call to 'remove(at:)' is unused
+ 943 |             
+ 944 |             for _ in 0..<1000 {
+ 945 |                 heap.remove()
+     |                      `- warning: result of call to 'remove(at:)' is unused
+ 946 |             }
+ 947 |         }
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:921:14: warning: result of call to 'remove(at:)' is unused
+ 919 |         heap.insert(10)
+ 920 |         heap.insert(20)
+ 921 |         heap.remove()
+     |              `- warning: result of call to 'remove(at:)' is unused
+ 922 |         
+ 923 |         // Should have recorded events
+
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:945:22: warning: result of call to 'remove(at:)' is unused
+ 943 |             
+ 944 |             for _ in 0..<1000 {
+ 945 |                 heap.remove()
+     |                      `- warning: result of call to 'remove(at:)' is unused
+ 946 |             }
+ 947 |         }
+[91/103] Compiling MonstaskTests MonoTaskTests.swift
+[92/103] Compiling MonstraBaseTests RetryCountTests.swift
+[93/103] Compiling MonstraBaseTests TracingIDFactoryTest.swift
+[94/103] Emitting module KVHeavyTaskDataProviderExample
+[95/103] Compiling KVHeavyTaskDataProviderExample main.swift
+/Users/runner/work/Monstra/Monstra/Examples/KVHeavyTaskDataProviderExample/main.swift:55:27: warning: immutable value 'value' was never used; consider replacing with '_' or removing it
+ 53 |         case .idle:
+ 54 |             resumeData = ""
+ 55 |         case .running(let value):
+    |                           `- warning: immutable value 'value' was never used; consider replacing with '_' or removing it
+ 56 |             return
+ 57 |         case .finished(let value):
+
+/Users/runner/work/Monstra/Monstra/Examples/KVHeavyTaskDataProviderExample/main.swift:57:28: warning: immutable value 'value' was never used; consider replacing with '_' or removing it
+ 55 |         case .running(let value):
+ 56 |             return
+ 57 |         case .finished(let value):
+    |                            `- warning: immutable value 'value' was never used; consider replacing with '_' or removing it
+ 58 |             return
+ 59 |         case .paused(let value):
+
+/Users/runner/work/Monstra/Monstra/Examples/KVHeavyTaskDataProviderExample/main.swift:371:9: warning: initialization of immutable value 'smallFileURL' was never used; consider replacing with assignment to '_' or removing it
+369 | func alamofireDataProviderTest() {
+370 |     let largeFileURL = "https://updatecdn.meeting.qq.com/cos/197eaf6e0ea4bcafff72e5bb623555e6/TencentMeeting_0300000000_3.35.1.437.publish.arm64.officialwebsite.dmg"
+371 |     let smallFileURL = "https://www.google.com"
+    |         `- warning: initialization of immutable value 'smallFileURL' was never used; consider replacing with assignment to '_' or removing it
+372 |     
+373 |     /// Currently selected test URL for demonstration
+[95/103] Write Objects.LinkFileList
+[96/103] Linking KVHeavyTaskDataProviderExample
+[97/103] Applying KVHeavyTaskDataProviderExample
+[101/103] Emitting module MonstaskTests
+[102/105] Compiling MonstraPackageTests runner.swift
+[103/105] Emitting module MonstraPackageTests
+[103/105] Write Objects.LinkFileList
+[104/105] Linking MonstraPackageTests
+Build complete! (28.10s)
+Test Suite 'Selected tests' started at 2025-08-22 16:02:28.216.
+Test Suite 'MonstraPackageTests.xctest' started at 2025-08-22 16:02:28.217.
+Test Suite 'KVHeavyTasksManagerTests' started at 2025-08-22 16:02:28.217.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testAggregatedCallbacks]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testAggregatedCallbacks]' passed (0.912 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testBasicFetchAndProgress]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testBasicFetchAndProgress]' passed (0.477 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCacheEdgeCases_NullAndInvalidKeys]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCacheEdgeCases_NullAndInvalidKeys]' passed (1.502 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCacheEdgeCases]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCacheEdgeCases]' passed (0.755 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCacheStatisticsReporting]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCacheStatisticsReporting]' passed (2.442 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCompareDeallocVsReuse]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCompareDeallocVsReuse]' passed (6.729 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConcurrentFetchAndFinish]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConcurrentFetchAndFinish]' passed (3.405 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConcurrentFetchSameKeyDifferentStates]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConcurrentFetchSameKeyDifferentStates]' passed (3.903 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConcurrentMultipleFetchSameKey]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConcurrentMultipleFetchSameKey]' passed (1.970 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConcurrentMultipleStops]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConcurrentMultipleStops]' passed (3.828 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConcurrentStopThenImmediateFetch]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConcurrentStopThenImmediateFetch]' passed (2.548 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConcurrentTasks]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConcurrentTasks]' passed (1.326 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConcurrentTripleRace]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConcurrentTripleRace]' passed (7.897 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConfigurationEdgeCases]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testConfigurationEdgeCases]' passed (0.715 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCrossScenario_ErrorHandling_Resume_Events]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCrossScenario_ErrorHandling_Resume_Events]' passed (3.457 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCrossScenario_FIFO_Eviction_Resume_Events]' started.
+/Users/runner/work/Monstra/Monstra/Tests/MonstaskTests/KVHeavyTasksManagerTests.swift:1139: error: -[MonstaskTests.KVHeavyTasksManagerTests testCrossScenario_FIFO_Eviction_Resume_Events] : XCTAssertEqual failed: ("["task3"]") is not equal to ("["task2", "task3"]")
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCrossScenario_FIFO_Eviction_Resume_Events]' failed (2.038 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCrossScenario_LIFOAwait_Cache_MultipleCallbacks]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCrossScenario_LIFOAwait_Cache_MultipleCallbacks]' passed (1.669 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCrossScenario_QueueCapacity_Priority_EventOrdering]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCrossScenario_QueueCapacity_Priority_EventOrdering]' passed (3.607 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCrossScenario_StressCombined]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCrossScenario_StressCombined]' passed (4.677 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCustomEventHandling]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testCustomEventHandling]' passed (1.184 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testDataCacheBehavior]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testDataCacheBehavior]' passed (0.973 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testDataProviderErrorHandling]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testDataProviderErrorHandling]' passed (1.439 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testDataProviderErrorScenarios]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testDataProviderErrorScenarios]' passed (1.375 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testDataProviderReturnsNilOnStop]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testDataProviderReturnsNilOnStop]' passed (2.896 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testDataProviderReturnsResumeDataOnStop]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testDataProviderReturnsResumeDataOnStop]' passed (2.978 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testDataProviderValidationConsistency]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testDataProviderValidationConsistency]' passed (12.070 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testExtremeStressConcurrencySameKeyRandomly]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testExtremeStressConcurrencySameKeyRandomly]' passed (4.926 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testExtremeStressConcurrencySameKey]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testExtremeStressConcurrencySameKey]' passed (5.617 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testFIFO_TasksEqualRunningSlots]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testFIFO_TasksEqualRunningSlots]' passed (0.696 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testFIFO_TasksEqualTotalCapacity]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testFIFO_TasksEqualTotalCapacity]' passed (1.495 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testFIFO_TasksExceedRunningWithinCapacity]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testFIFO_TasksExceedRunningWithinCapacity]' passed (1.263 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testFIFO_TasksExceedTotalCapacity]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testFIFO_TasksExceedTotalCapacity]' passed (1.835 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testFIFO_TasksLessThanRunningSlots]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testFIFO_TasksLessThanRunningSlots]' passed (0.618 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testLIFOAwaitStrategy]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testLIFOAwaitStrategy]' passed (1.429 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testLIFOStopStrategy]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testLIFOStopStrategy]' passed (2.979 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testMultipleInterruptions_DeallocVsReuse]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testMultipleInterruptions_DeallocVsReuse]' passed (9.110 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testMultipleLIFOStopOperations]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testMultipleLIFOStopOperations]' passed (2.359 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testProviderCleanupVerification]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testProviderCleanupVerification]' passed (7.866 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testRapidFetchOperations]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testRapidFetchOperations]' passed (2.698 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testRapidFetchStopCycle]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testRapidFetchStopCycle]' passed (8.754 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testResultCallbackExecutedOncePerFetch]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testResultCallbackExecutedOncePerFetch]' passed (0.813 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testResumeDataConsistency]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testResumeDataConsistency]' passed (2.968 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testResumeFromPartialProgress]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testResumeFromPartialProgress]' passed (6.645 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testStopAction_DeallocBehavior]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testStopAction_DeallocBehavior]' passed (2.303 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testStopAction_ReuseBehavior]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testStopAction_ReuseBehavior]' passed (1.610 seconds).
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testTaskWithAwaitStrategy]' started.
+Test Case '-[MonstaskTests.KVHeavyTasksManagerTests testTaskWithAwaitStrategy]' passed (1.327 seconds).
+Test Suite 'KVHeavyTasksManagerTests' failed at 2025-08-22 16:04:52.302.
+	 Executed 46 tests, with 1 failure (0 unexpected) in 144.079 (144.085) seconds
+Test Suite 'MonstraPackageTests.xctest' failed at 2025-08-22 16:04:52.302.
+	 Executed 46 tests, with 1 failure (0 unexpected) in 144.079 (144.085) seconds
+Test Suite 'Selected tests' failed at 2025-08-22 16:04:52.302.
+	 Executed 46 tests, with 1 failure (0 unexpected) in 144.079 (144.086) seconds
+◇ Test run started.
+↳ Testing Library Version: 94 (arm64e-apple-macos13.0)
+✔ Test run with 0 tests passed after 0.001 seconds.
+Error: Process completed with exit code 1.

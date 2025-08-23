@@ -60,14 +60,12 @@ class LocalDataProvider: Monstask.KVHeavyTaskBaseDataProvider<String, String, Ne
             resumeData = value
         }
         
-        // Determine the already processed prefix from resumeData
-        let processedPrefix = resumeData
-        var result = processedPrefix
+        var result = resumeData
         
         // Compute start index. If resumeData is not a prefix, restart from beginning
         let startIndex: String.Index
-        if key.hasPrefix(processedPrefix) {
-            startIndex = key.index(key.startIndex, offsetBy: processedPrefix.count)
+        if key.hasPrefix(resumeData) {
+            startIndex = key.index(key.startIndex, offsetBy: resumeData.count)
         } else {
             result = ""
             startIndex = key.startIndex

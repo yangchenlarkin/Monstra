@@ -5,9 +5,9 @@ on:
     branches: [ main ]
   pull_request:
     branches: [ main ]
-  # schedule:
-    # # Run every 5 minutes (simplified schedule for better CI efficiency)
-    # - cron: '*/5 * * * *'  # Every 5 minutes
+  schedule:
+    # Run every 5 minutes (simplified schedule for better CI efficiency)
+    - cron: '*/5 * * * *'  # Every 5 minutes
 
 jobs:
   # Determine if scheduled run should proceed based on 5-minute schedule

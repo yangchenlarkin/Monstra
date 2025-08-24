@@ -94,10 +94,28 @@ final class MemoryCachePerformanceTests: XCTestCase {
         }
         
         measure {
+            // ✅ LIGHTWEIGHT DEAD LOOP PROTECTION (minimal performance impact)
+            var removeAttempts = 0
+            let maxAttempts = count * 2  // Safety limit to prevent infinite loops
+            
             // Remove all elements using removeElement()
-            while !cache.isEmpty {
+            while !cache.isEmpty && removeAttempts < maxAttempts {
                 _ = cache.removeElement()
+                removeAttempts += 1
             }
+            
+            // Quick verification after performance measurement
+            XCTAssertTrue(cache.isEmpty || removeAttempts >= maxAttempts, 
+                         "Cache should be empty or hit safety limit. count=\(cache.count), attempts=\(removeAttempts)")
+        }
+        
+        // ✅ POST-MEASUREMENT DIAGNOSTICS (outside measure block)
+        if !cache.isEmpty {
+            print("⚠️ DIAGNOSTIC: testRemoveElementPerformance did not complete normally")
+            print("   - Cache count: \(cache.count)")
+            print("   - Cache isEmpty: \(cache.isEmpty)")  
+            print("   - This suggests a potential infinite loop condition")
+            XCTFail("Performance test hit safety limit - possible infinite loop detected")
         }
     }
 

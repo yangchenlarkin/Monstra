@@ -1,0 +1,747 @@
+failed git hub action:
+Run swift test --filter MemoryCacheTests
+Fetching https://github.com/Alamofire/Alamofire.git
+[1/30176] Fetching alamofire
+Fetched https://github.com/Alamofire/Alamofire.git from cache (3.00s)
+Computing version for https://github.com/Alamofire/Alamofire.git
+Computed https://github.com/Alamofire/Alamofire.git at 5.10.2 (0.48s)
+Creating working copy for https://github.com/Alamofire/Alamofire.git
+Working copy of https://github.com/Alamofire/Alamofire.git resolved at 5.10.2
+warning: 'monstra': found 1 file(s) which are unhandled; explicitly declare them as resources or exclude from the target
+    /Users/runner/work/Monstra/Monstra/Sources/Monstore/MemoryCache/README.md
+Building for debugging...
+[0/18] Write sources
+[2/18] /Users/runner/work/Monstra/Monstra/.build/arm64-apple-macosx/debug/MonstraPackageTests.derived/runner.swift
+[4/18] Write sources
+[4/18] Write KVHeavyTaskDataProviderExample-entitlement.plist
+[4/18] Copying PrivacyInfo.xcprivacy
+[4/18] Write sources
+[12/18] Write swift-version--4CD4308975962E7A.txt
+[14/53] Compiling Alamofire DataRequest.swift
+[15/53] Compiling Alamofire DataStreamRequest.swift
+[16/55] Emitting module MonstraBase
+[17/55] Compiling Alamofire Alamofire.swift
+[18/55] Compiling Alamofire AFError.swift
+[19/55] Compiling MonstraBase RetryCount.swift
+[20/55] Compiling MonstraBase TracingIDFactory.swift
+[21/66] Compiling Monstore TTLPriorityLRUQueue.swift
+[22/67] Compiling Monstore CacheStatistics.swift
+[23/67] Compiling Monstore MemoryCache.swift
+[24/67] Compiling Monstore PriorityLRUQueue.swift
+[25/67] Emitting module Monstore
+[26/73] Compiling Alamofire SessionDelegate.swift
+[27/73] Compiling Alamofire URLConvertible+URLRequestConvertible.swift
+[28/73] Compiling Alamofire UploadRequest.swift
+[29/73] Compiling Alamofire WebSocketRequest.swift
+[30/73] Compiling Alamofire DispatchQueue+Alamofire.swift
+[31/73] Compiling Alamofire OperationQueue+Alamofire.swift
+[32/73] Compiling Alamofire Result+Alamofire.swift
+[33/73] Compiling Alamofire StringEncoding+Alamofire.swift
+[34/73] Compiling Alamofire URLRequest+Alamofire.swift
+[35/73] Compiling Alamofire URLSessionConfiguration+Alamofire.swift
+[36/73] Compiling Alamofire AlamofireExtended.swift
+[37/73] Compiling Alamofire AuthenticationInterceptor.swift
+[38/73] Compiling Alamofire CachedResponseHandler.swift
+[39/73] Compiling Alamofire Combine.swift
+[40/87] Compiling MonstoreTests MemoryCacheTests.swift
+[41/87] Compiling MonstoreTests PriorityLRUQueueTests.swift
+[42/87] Compiling MonstoreTests TTLPriorityLRUQueueTests.swift
+[43/87] Compiling MonstoreTests MemoryCachePerformanceTests.swift
+[44/87] Compiling MonstoreTests PriorityLRUQueuePerformanceTests.swift
+[45/87] Compiling MonstraBaseTests HeapTests.swift
+[46/87] Compiling Alamofire HTTPMethod.swift
+[47/87] Compiling Alamofire Notifications.swift
+[48/87] Compiling Alamofire ParameterEncoder.swift
+[49/87] Compiling Alamofire ParameterEncoding.swift
+[50/87] Compiling Alamofire Protected.swift
+[51/87] Compiling Alamofire Request.swift
+[52/87] Compiling Alamofire RequestTaskMap.swift
+[53/87] Compiling Alamofire Response.swift
+[54/87] Compiling Alamofire Session.swift
+[55/87] Emitting module Alamofire
+[56/87] Compiling Alamofire Concurrency.swift
+[57/87] Compiling Alamofire EventMonitor.swift
+[58/87] Compiling Alamofire MultipartFormData.swift
+[59/87] Compiling Alamofire MultipartUpload.swift
+[60/87] Compiling Alamofire NetworkReachabilityManager.swift
+[61/87] Compiling Alamofire RedirectHandler.swift
+[62/87] Compiling Alamofire RequestCompression.swift
+[63/87] Compiling Alamofire RequestInterceptor.swift
+[64/87] Compiling Alamofire ResponseSerialization.swift
+[65/87] Compiling Alamofire RetryPolicy.swift
+[66/87] Compiling Alamofire ServerTrustEvaluation.swift
+[67/87] Compiling Alamofire URLEncodedFormEncoder.swift
+[68/87] Compiling Alamofire Validation.swift
+[69/87] Compiling Alamofire resource_bundle_accessor.swift
+[70/90] Compiling Monstask KVHeavyTasksManager.swift
+[71/90] Emitting module Monstask
+[72/90] Compiling Monstask KVLightTasksManager.swift
+[73/91] Compiling Monstask MonoTask.swift
+[74/96] Emitting module MonstoreTests
+[75/98] Emitting module MonstraBaseTests
+[76/100] Compiling MonstaskTests MonoTaskCrossScenarioTests.swift
+[78/100] Compiling MonstoreTests TTLPriorityLRUQueuePerformanceTests.swift
+[79/100] Compiling MonstraBaseTests RetryCountTests.swift
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:921:14: warning: result of call to 'remove(at:)' is unused
+ 919 |         heap.insert(10)
+ 920 |         heap.insert(20)
+ 921 |         heap.remove()
+     |              `- warning: result of call to 'remove(at:)' is unused
+ 922 |
+ 923 |         // Should have recorded events
+
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:945:22: warning: result of call to 'remove(at:)' is unused
+ 943 |
+ 944 |             for _ in 0..<1000 {
+ 945 |                 heap.remove()
+     |                      `- warning: result of call to 'remove(at:)' is unused
+ 946 |             }
+ 947 |         }
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:921:14: warning: result of call to 'remove(at:)' is unused
+ 919 |         heap.insert(10)
+ 920 |         heap.insert(20)
+ 921 |         heap.remove()
+     |              `- warning: result of call to 'remove(at:)' is unused
+ 922 |
+ 923 |         // Should have recorded events
+
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:945:22: warning: result of call to 'remove(at:)' is unused
+ 943 |
+ 944 |             for _ in 0..<1000 {
+ 945 |                 heap.remove()
+     |                      `- warning: result of call to 'remove(at:)' is unused
+ 946 |             }
+ 947 |         }
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:921:14: warning: result of call to 'remove(at:)' is unused
+ 919 |         heap.insert(10)
+ 920 |         heap.insert(20)
+ 921 |         heap.remove()
+     |              `- warning: result of call to 'remove(at:)' is unused
+ 922 |
+ 923 |         // Should have recorded events
+
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:945:22: warning: result of call to 'remove(at:)' is unused
+ 943 |
+ 944 |             for _ in 0..<1000 {
+ 945 |                 heap.remove()
+     |                      `- warning: result of call to 'remove(at:)' is unused
+ 946 |             }
+ 947 |         }
+[83/100] Compiling MonstaskTests KVHeavyTasksManagerTests.swift
+[84/100] Compiling MonstaskTests KVLightTasksManagerTests.swift
+[85/100] Compiling MonstaskTests MonoTaskClearResultTests.swift
+[87/100] Compiling MonstraBaseTests TracingIDFactoryTest.swift
+[91/102] Emitting module KVHeavyTaskDataProviderExample
+[92/102] Compiling KVHeavyTaskDataProviderExample main.swift
+/Users/runner/work/Monstra/Monstra/Examples/KVHeavyTaskDataProviderExample/main.swift:55:27: warning: immutable value 'value' was never used; consider replacing with '_' or removing it
+ 53 |         case .idle:
+ 54 |             resumeData = ""
+ 55 |         case .running(let value):
+    |                           `- warning: immutable value 'value' was never used; consider replacing with '_' or removing it
+ 56 |             return
+ 57 |         case .finished(let value):
+
+/Users/runner/work/Monstra/Monstra/Examples/KVHeavyTaskDataProviderExample/main.swift:57:28: warning: immutable value 'value' was never used; consider replacing with '_' or removing it
+ 55 |         case .running(let value):
+ 56 |             return
+ 57 |         case .finished(let value):
+    |                            `- warning: immutable value 'value' was never used; consider replacing with '_' or removing it
+ 58 |             return
+ 59 |         case .paused(let value):
+
+/Users/runner/work/Monstra/Monstra/Examples/KVHeavyTaskDataProviderExample/main.swift:371:9: warning: initialization of immutable value 'smallFileURL' was never used; consider replacing with assignment to '_' or removing it
+369 | func alamofireDataProviderTest() {
+370 |     let largeFileURL = "https://updatecdn.meeting.qq.com/cos/197eaf6e0ea4bcafff72e5bb623555e6/TencentMeeting_0300000000_3.35.1.437.publish.arm64.officialwebsite.dmg"
+371 |     let smallFileURL = "https://www.google.com"
+    |         `- warning: initialization of immutable value 'smallFileURL' was never used; consider replacing with assignment to '_' or removing it
+372 |
+373 |     /// Currently selected test URL for demonstration
+[92/102] Write Objects.LinkFileList
+[93/102] Linking KVHeavyTaskDataProviderExample
+[94/102] Applying KVHeavyTaskDataProviderExample
+[100/102] Emitting module MonstaskTests
+[101/103] Compiling MonstaskTests MonoTaskTests.swift
+[102/105] Emitting module MonstraPackageTests
+[103/105] Compiling MonstraPackageTests runner.swift
+[103/105] Write Objects.LinkFileList
+[104/105] Linking MonstraPackageTests
+Build complete! (56.62s)
+Test Suite 'Selected tests' started at 2025-08-23 19:41:18.360.
+Test Suite 'MonstraPackageTests.xctest' started at 2025-08-23 19:41:18.363.
+Test Suite 'MemoryCacheTests' started at 2025-08-23 19:41:18.363.
+Test Case '-[MonstoreTests.MemoryCacheTests testBasicSetAndGet]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBasicSetAndGet]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithExceededMemoryLimit]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithExceededMemoryLimit]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithExtremeConfigurationElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithExtremeConfigurationElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithInvalidCostProvider]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithInvalidCostProvider]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithInvalidKeyValidator]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithInvalidKeyValidator]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithMemoryFragmentation]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithMemoryFragmentation]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithZeroMemoryLimit]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithZeroMemoryLimit]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBoundaryConditionsWithMaximalElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBoundaryConditionsWithMaximalElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBoundaryConditionsWithMinimalElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBoundaryConditionsWithMinimalElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBulkOperations]' started.
+/Users/runner/work/Monstra/Monstra/Tests/MonstoreTests/MemoryCache/FeatureTest/MemoryCacheTests.swift:565: Test Case '-[MonstoreTests.MemoryCacheTests testBulkOperations]' measured [Time, seconds] average: 0.009, relative standard deviation: 28.475%, values: [0.011469, 0.011344, 0.010847, 0.011907, 0.009452, 0.010082, 0.005509, 0.007282, 0.009262, 0.003792], performanceMetricID:com.apple.XCTPerformanceMetric_WallClockTime, baselineName: "", baselineAverage: , polarity: prefers smaller, maxPercentRegression: 10.000%, maxPercentRelativeStandardDeviation: 10.000%, maxRegression: 0.100, maxStandardDeviation: 0.100
+Test Case '-[MonstoreTests.MemoryCacheTests testBulkOperations]' passed (0.795 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryOverwriteBehavior]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryOverwriteBehavior]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryStructureBehavior]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryStructureBehavior]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryWithMixedElementTypes]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryWithMixedElementTypes]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryWithNullElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryWithNullElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCapacityLimit]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCapacityLimit]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCapacityZero]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCapacityZero]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testComplexScenario]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testComplexScenario]' passed (0.224 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testComplexScenarioWithAllFeatures]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testComplexScenarioWithAllFeatures]' passed (0.211 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testConcurrentAccessWithMemoryPressure]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testConcurrentAccessWithMemoryPressure]' passed (0.003 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testConcurrentAccessWithMixedOperations]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testConcurrentAccessWithMixedOperations]' passed (0.005 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testConcurrentAccessWithRapidEvictionCycles]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testConcurrentAccessWithRapidEvictionCycles]' passed (0.018 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationImmutability]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationImmutability]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationWithExtremeElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationWithExtremeElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationWithMinimalElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationWithMinimalElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationWithZeroRandomization]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationWithZeroRandomization]' passed (0.191 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCostCalculationWithDifferentDataTypes]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCostCalculationWithDifferentDataTypes]' passed (0.002 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCostCalculationWithNilElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCostCalculationWithNilElements]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCostProvider]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCostProvider]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCostProviderWithComplexObjects]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCostProviderWithComplexObjects]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCostProviderWithDifferentDataTypes]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCostProviderWithDifferentDataTypes]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCustomConfiguration]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCustomConfiguration]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCustomKeyValidator]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCustomKeyValidator]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testDefaultConfiguration]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testDefaultConfiguration]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testEmptyCacheOperations]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testEmptyCacheOperations]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testEvictionLoopSafety]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testEvictionLoopSafety]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testEvictionLoopWithZeroCostItems]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testEvictionLoopWithZeroCostItems]' passed (0.002 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultConcurrentAccess]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultConcurrentAccess]' passed (0.006 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultEdgeCases]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultEdgeCases]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultElementProperty]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultElementProperty]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultHitNonNullElement]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultHitNonNullElement]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultHitNullElement]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultHitNullElement]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultInvalidKey]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultInvalidKey]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultIsMissProperty]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultIsMissProperty]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultMiss]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultMiss]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithComplexKeyValidator]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithComplexKeyValidator]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithEmptyCache]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithEmptyCache]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithExpiredElement]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithExpiredElement]' passed (0.211 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithNullElementExpiration]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithNullElementExpiration]' passed (0.255 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithStatisticsIntegration]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithStatisticsIntegration]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithZeroCapacity]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithZeroCapacity]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testInfiniteTTL]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testInfiniteTTL]' passed (0.103 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testLockBehaviorWithThreadSafetyDisabled]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testLockBehaviorWithThreadSafetyDisabled]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testLockBehaviorWithThreadSafetyEnabled]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testLockBehaviorWithThreadSafetyEnabled]' passed (0.004 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testLRUEvictionOrder]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testLRUEvictionOrder]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostCalculationEdgeCases]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostCalculationEdgeCases]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostOverflowScenarios]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostOverflowScenarios]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTracking]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTracking]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingAccuracy]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingAccuracy]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingAfterBugFix]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingAfterBugFix]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingWithEmptyCache]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingWithEmptyCache]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingWithLargeElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingWithLargeElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingWithNullElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingWithNullElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostWithComplexNestedObjects]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostWithComplexNestedObjects]' passed (0.004 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLayoutCostCalculation]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLayoutCostCalculation]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitBoundaryConditions]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitBoundaryConditions]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitConversionAccuracy]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitConversionAccuracy]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitEnforcement]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitEnforcement]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithExactByteCalculation]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithExactByteCalculation]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithExactCost]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithExactCost]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithNegativeMemory]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithNegativeMemory]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithSlightlyLargerCost]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithSlightlyLargerCost]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithZeroMemory]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithZeroMemory]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testNegativeCapacity]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testNegativeCapacity]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testNegativeTTL]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testNegativeTTL]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testNullElementCaching]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testNullElementCaching]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testNullElementWithCustomTTL]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testNullElementWithCustomTTL]' passed (1.174 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testNumericKeyValidator]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testNumericKeyValidator]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testOverwriteExistingKey]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testOverwriteExistingKey]' passed (0.002 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testPerformanceWithRapidSetGetCycles]' started.
+/Users/runner/work/Monstra/Monstra/Tests/MonstoreTests/MemoryCache/FeatureTest/MemoryCacheTests.swift:2202: Test Case '-[MonstoreTests.MemoryCacheTests testPerformanceWithRapidSetGetCycles]' measured [Time, seconds] average: 0.291, relative standard deviation: 13.070%, values: [0.310382, 0.333381, 0.293026, 0.353982, 0.298407, 0.285962, 0.253291, 0.228259, 0.241412, 0.311545], performanceMetricID:com.apple.XCTPerformanceMetric_WallClockTime, baselineName: "", baselineAverage: , polarity: prefers smaller, maxPercentRegression: 10.000%, maxPercentRelativeStandardDeviation: 10.000%, maxRegression: 0.100, maxStandardDeviation: 0.100
+Test Case '-[MonstoreTests.MemoryCacheTests testPerformanceWithRapidSetGetCycles]' passed (3.238 seconds).
+Error: The operation was canceled.
+
+
+succeed github actin:
+
+Run swift test --filter MemoryCacheTests
+Fetching https://github.com/Alamofire/Alamofire.git
+[1/30176] Fetching alamofire
+Fetched https://github.com/Alamofire/Alamofire.git from cache (1.99s)
+Computing version for https://github.com/Alamofire/Alamofire.git
+Computed https://github.com/Alamofire/Alamofire.git at 5.10.2 (0.26s)
+Creating working copy for https://github.com/Alamofire/Alamofire.git
+Working copy of https://github.com/Alamofire/Alamofire.git resolved at 5.10.2
+warning: 'monstra': found 1 file(s) which are unhandled; explicitly declare them as resources or exclude from the target
+    /Users/runner/work/Monstra/Monstra/Sources/Monstore/MemoryCache/README.md
+Building for debugging...
+[0/18] /Users/runner/work/Monstra/Monstra/.build/arm64-apple-macosx/debug/MonstraPackageTests.derived/runner.swift
+[1/18] Write sources
+[6/18] Write KVHeavyTaskDataProviderExample-entitlement.plist
+[7/18] Copying PrivacyInfo.xcprivacy
+[11/18] Write sources
+[12/18] Write swift-version--4CD4308975962E7A.txt
+[14/53] Compiling Alamofire Alamofire.swift
+[15/53] Compiling Alamofire AFError.swift
+[16/53] Emitting module MonstraBase
+[17/53] Compiling Alamofire DataRequest.swift
+[18/53] Compiling Alamofire DataStreamRequest.swift
+[19/55] Compiling MonstraBase RetryCount.swift
+[20/55] Compiling MonstraBase TracingIDFactory.swift
+[21/66] Compiling Alamofire SessionDelegate.swift
+[22/66] Compiling Alamofire URLConvertible+URLRequestConvertible.swift
+[23/66] Compiling Alamofire UploadRequest.swift
+[24/66] Compiling Alamofire WebSocketRequest.swift
+[25/66] Compiling Alamofire DispatchQueue+Alamofire.swift
+[26/66] Compiling Alamofire OperationQueue+Alamofire.swift
+[27/66] Compiling Alamofire Result+Alamofire.swift
+[28/66] Compiling Alamofire StringEncoding+Alamofire.swift
+[29/66] Compiling Alamofire URLRequest+Alamofire.swift
+[30/66] Compiling Alamofire URLSessionConfiguration+Alamofire.swift
+[31/66] Compiling Alamofire AlamofireExtended.swift
+[32/66] Compiling Alamofire AuthenticationInterceptor.swift
+[33/66] Compiling Alamofire CachedResponseHandler.swift
+[34/66] Compiling Alamofire Combine.swift
+[35/80] Emitting module Monstore
+[36/80] Compiling Monstore TTLPriorityLRUQueue.swift
+[37/80] Compiling Monstore MemoryCache.swift
+[38/80] Compiling Monstore PriorityLRUQueue.swift
+[39/81] Compiling Monstore CacheStatistics.swift
+[40/87] Emitting module Alamofire
+[41/87] Compiling MonstoreTests MemoryCachePerformanceTests.swift
+[42/87] Compiling MonstoreTests PriorityLRUQueuePerformanceTests.swift
+[43/87] Compiling MonstoreTests MemoryCacheTests.swift
+[44/87] Compiling MonstoreTests PriorityLRUQueueTests.swift
+[45/87] Compiling MonstoreTests TTLPriorityLRUQueueTests.swift
+[46/87] Compiling MonstraBaseTests HeapTests.swift
+[47/87] Compiling Alamofire HTTPMethod.swift
+[48/87] Compiling Alamofire Notifications.swift
+[49/87] Compiling Alamofire ParameterEncoder.swift
+[50/87] Compiling Alamofire ParameterEncoding.swift
+[51/87] Compiling Alamofire Protected.swift
+[52/87] Compiling Alamofire Request.swift
+[53/87] Compiling Alamofire RequestTaskMap.swift
+[54/87] Compiling Alamofire Response.swift
+[55/87] Compiling Alamofire Session.swift
+[56/87] Compiling Alamofire Concurrency.swift
+[57/87] Compiling Alamofire EventMonitor.swift
+[58/87] Compiling Alamofire MultipartFormData.swift
+[59/87] Compiling Alamofire MultipartUpload.swift
+[60/87] Compiling Alamofire NetworkReachabilityManager.swift
+[61/87] Compiling Alamofire RedirectHandler.swift
+[62/87] Compiling Alamofire RequestCompression.swift
+[63/87] Compiling Alamofire RequestInterceptor.swift
+[64/87] Compiling Alamofire ResponseSerialization.swift
+[65/87] Compiling Alamofire RetryPolicy.swift
+[66/87] Compiling Alamofire ServerTrustEvaluation.swift
+[67/87] Compiling Alamofire URLEncodedFormEncoder.swift
+[68/87] Compiling Alamofire Validation.swift
+[69/87] Compiling Alamofire resource_bundle_accessor.swift
+[70/90] Emitting module Monstask
+[71/90] Compiling Monstask KVLightTasksManager.swift
+[72/90] Compiling Monstask KVHeavyTasksManager.swift
+[73/91] Compiling Monstask MonoTask.swift
+[74/96] Emitting module MonstraBaseTests
+[75/98] Compiling MonstaskTests MonoTaskCrossScenarioTests.swift
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:921:14: warning: result of call to 'remove(at:)' is unused
+ 919 |         heap.insert(10)
+ 920 |         heap.insert(20)
+ 921 |         heap.remove()
+     |              `- warning: result of call to 'remove(at:)' is unused
+ 922 |
+ 923 |         // Should have recorded events
+
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:945:22: warning: result of call to 'remove(at:)' is unused
+ 943 |
+ 944 |             for _ in 0..<1000 {
+ 945 |                 heap.remove()
+     |                      `- warning: result of call to 'remove(at:)' is unused
+ 946 |             }
+ 947 |         }
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:921:14: warning: result of call to 'remove(at:)' is unused
+ 919 |         heap.insert(10)
+ 920 |         heap.insert(20)
+ 921 |         heap.remove()
+     |              `- warning: result of call to 'remove(at:)' is unused
+ 922 |
+ 923 |         // Should have recorded events
+
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:945:22: warning: result of call to 'remove(at:)' is unused
+ 943 |
+ 944 |             for _ in 0..<1000 {
+ 945 |                 heap.remove()
+     |                      `- warning: result of call to 'remove(at:)' is unused
+ 946 |             }
+ 947 |         }
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:921:14: warning: result of call to 'remove(at:)' is unused
+ 919 |         heap.insert(10)
+ 920 |         heap.insert(20)
+ 921 |         heap.remove()
+     |              `- warning: result of call to 'remove(at:)' is unused
+ 922 |
+ 923 |         // Should have recorded events
+
+/Users/runner/work/Monstra/Monstra/Tests/MonstraBaseTests/HeapTests.swift:945:22: warning: result of call to 'remove(at:)' is unused
+ 943 |
+ 944 |             for _ in 0..<1000 {
+ 945 |                 heap.remove()
+     |                      `- warning: result of call to 'remove(at:)' is unused
+ 946 |             }
+ 947 |         }
+[78/98] Compiling MonstaskTests KVHeavyTasksManagerTests.swift
+[79/98] Compiling MonstaskTests KVLightTasksManagerTests.swift
+[80/98] Compiling MonstaskTests MonoTaskClearResultTests.swift
+[83/99] Compiling MonstraBaseTests RetryCountTests.swift
+[84/99] Compiling MonstraBaseTests TracingIDFactoryTest.swift
+[85/101] Emitting module KVHeavyTaskDataProviderExample
+[86/101] Compiling KVHeavyTaskDataProviderExample main.swift
+/Users/runner/work/Monstra/Monstra/Examples/KVHeavyTaskDataProviderExample/main.swift:55:27: warning: immutable value 'value' was never used; consider replacing with '_' or removing it
+ 53 |         case .idle:
+ 54 |             resumeData = ""
+ 55 |         case .running(let value):
+    |                           `- warning: immutable value 'value' was never used; consider replacing with '_' or removing it
+ 56 |             return
+ 57 |         case .finished(let value):
+
+/Users/runner/work/Monstra/Monstra/Examples/KVHeavyTaskDataProviderExample/main.swift:57:28: warning: immutable value 'value' was never used; consider replacing with '_' or removing it
+ 55 |         case .running(let value):
+ 56 |             return
+ 57 |         case .finished(let value):
+    |                            `- warning: immutable value 'value' was never used; consider replacing with '_' or removing it
+ 58 |             return
+ 59 |         case .paused(let value):
+
+/Users/runner/work/Monstra/Monstra/Examples/KVHeavyTaskDataProviderExample/main.swift:371:9: warning: initialization of immutable value 'smallFileURL' was never used; consider replacing with assignment to '_' or removing it
+369 | func alamofireDataProviderTest() {
+370 |     let largeFileURL = "https://updatecdn.meeting.qq.com/cos/197eaf6e0ea4bcafff72e5bb623555e6/TencentMeeting_0300000000_3.35.1.437.publish.arm64.officialwebsite.dmg"
+371 |     let smallFileURL = "https://www.google.com"
+    |         `- warning: initialization of immutable value 'smallFileURL' was never used; consider replacing with assignment to '_' or removing it
+372 |
+373 |     /// Currently selected test URL for demonstration
+[89/101] Emitting module MonstoreTests
+[92/103] Write Objects.LinkFileList
+[93/103] Linking KVHeavyTaskDataProviderExample
+[94/103] Applying KVHeavyTaskDataProviderExample
+[96/103] Compiling MonstaskTests MonoTaskTests.swift
+[97/103] Compiling MonstoreTests TTLPriorityLRUQueuePerformanceTests.swift
+[98/103] Compiling MonstoreTests CacheStatisticsTests.swift
+[99/103] Emitting module MonstaskTests
+[102/105] Emitting module MonstraPackageTests
+[103/105] Compiling MonstraPackageTests runner.swift
+[103/105] Write Objects.LinkFileList
+[104/105] Linking MonstraPackageTests
+Build complete! (22.15s)
+Test Suite 'Selected tests' started at 2025-08-23 20:40:11.007.
+Test Suite 'MonstraPackageTests.xctest' started at 2025-08-23 20:40:11.008.
+Test Suite 'MemoryCacheTests' started at 2025-08-23 20:40:11.008.
+Test Case '-[MonstoreTests.MemoryCacheTests testBasicSetAndGet]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBasicSetAndGet]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithExceededMemoryLimit]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithExceededMemoryLimit]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithExtremeConfigurationElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithExtremeConfigurationElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithInvalidCostProvider]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithInvalidCostProvider]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithInvalidKeyValidator]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithInvalidKeyValidator]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithMemoryFragmentation]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithMemoryFragmentation]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithZeroMemoryLimit]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBehaviorWithZeroMemoryLimit]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBoundaryConditionsWithMaximalElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBoundaryConditionsWithMaximalElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBoundaryConditionsWithMinimalElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testBoundaryConditionsWithMinimalElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testBulkOperations]' started.
+/Users/runner/work/Monstra/Monstra/Tests/MonstoreTests/MemoryCache/FeatureTest/MemoryCacheTests.swift:565: Test Case '-[MonstoreTests.MemoryCacheTests testBulkOperations]' measured [Time, seconds] average: 0.003, relative standard deviation: 3.054%, values: [0.003366, 0.003064, 0.003094, 0.003055, 0.003069, 0.003177, 0.003049, 0.003053, 0.003058, 0.003053], performanceMetricID:com.apple.XCTPerformanceMetric_WallClockTime, baselineName: "", baselineAverage: , polarity: prefers smaller, maxPercentRegression: 10.000%, maxPercentRelativeStandardDeviation: 10.000%, maxRegression: 0.100, maxStandardDeviation: 0.100
+Test Case '-[MonstoreTests.MemoryCacheTests testBulkOperations]' passed (0.460 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryOverwriteBehavior]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryOverwriteBehavior]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryStructureBehavior]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryStructureBehavior]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryWithMixedElementTypes]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryWithMixedElementTypes]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryWithNullElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCacheEntryWithNullElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCapacityLimit]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCapacityLimit]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCapacityZero]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCapacityZero]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testComplexScenario]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testComplexScenario]' passed (0.269 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testComplexScenarioWithAllFeatures]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testComplexScenarioWithAllFeatures]' passed (0.223 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testConcurrentAccessWithMemoryPressure]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testConcurrentAccessWithMemoryPressure]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testConcurrentAccessWithMixedOperations]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testConcurrentAccessWithMixedOperations]' passed (0.003 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testConcurrentAccessWithRapidEvictionCycles]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testConcurrentAccessWithRapidEvictionCycles]' passed (0.010 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationImmutability]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationImmutability]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationWithExtremeElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationWithExtremeElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationWithMinimalElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationWithMinimalElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationWithZeroRandomization]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testConfigurationWithZeroRandomization]' passed (0.198 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCostCalculationWithDifferentDataTypes]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCostCalculationWithDifferentDataTypes]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCostCalculationWithNilElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCostCalculationWithNilElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCostProvider]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCostProvider]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCostProviderWithComplexObjects]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCostProviderWithComplexObjects]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCostProviderWithDifferentDataTypes]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCostProviderWithDifferentDataTypes]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCustomConfiguration]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCustomConfiguration]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testCustomKeyValidator]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testCustomKeyValidator]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testDefaultConfiguration]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testDefaultConfiguration]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testEmptyCacheOperations]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testEmptyCacheOperations]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testEvictionLoopSafety]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testEvictionLoopSafety]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testEvictionLoopWithZeroCostItems]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testEvictionLoopWithZeroCostItems]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultConcurrentAccess]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultConcurrentAccess]' passed (0.002 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultEdgeCases]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultEdgeCases]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultElementProperty]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultElementProperty]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultHitNonNullElement]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultHitNonNullElement]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultHitNullElement]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultHitNullElement]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultInvalidKey]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultInvalidKey]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultIsMissProperty]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultIsMissProperty]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultMiss]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultMiss]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithComplexKeyValidator]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithComplexKeyValidator]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithEmptyCache]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithEmptyCache]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithExpiredElement]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithExpiredElement]' passed (0.202 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithNullElementExpiration]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithNullElementExpiration]' passed (0.265 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithStatisticsIntegration]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithStatisticsIntegration]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithZeroCapacity]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testFetchResultWithZeroCapacity]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testInfiniteTTL]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testInfiniteTTL]' passed (0.124 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testLockBehaviorWithThreadSafetyDisabled]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testLockBehaviorWithThreadSafetyDisabled]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testLockBehaviorWithThreadSafetyEnabled]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testLockBehaviorWithThreadSafetyEnabled]' passed (0.005 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testLRUEvictionOrder]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testLRUEvictionOrder]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostCalculationEdgeCases]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostCalculationEdgeCases]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostOverflowScenarios]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostOverflowScenarios]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTracking]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTracking]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingAccuracy]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingAccuracy]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingAfterBugFix]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingAfterBugFix]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingWithEmptyCache]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingWithEmptyCache]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingWithLargeElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingWithLargeElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingWithNullElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostTrackingWithNullElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostWithComplexNestedObjects]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryCostWithComplexNestedObjects]' passed (0.002 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLayoutCostCalculation]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLayoutCostCalculation]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitBoundaryConditions]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitBoundaryConditions]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitConversionAccuracy]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitConversionAccuracy]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitEnforcement]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitEnforcement]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithExactByteCalculation]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithExactByteCalculation]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithExactCost]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithExactCost]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithNegativeMemory]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithNegativeMemory]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithSlightlyLargerCost]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithSlightlyLargerCost]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithZeroMemory]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testMemoryLimitWithZeroMemory]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testNegativeCapacity]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testNegativeCapacity]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testNegativeTTL]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testNegativeTTL]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testNullElementCaching]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testNullElementCaching]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testNullElementWithCustomTTL]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testNullElementWithCustomTTL]' passed (1.163 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testNumericKeyValidator]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testNumericKeyValidator]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testOverwriteExistingKey]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testOverwriteExistingKey]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testPerformanceWithRapidSetGetCycles]' started.
+/Users/runner/work/Monstra/Monstra/Tests/MonstoreTests/MemoryCache/FeatureTest/MemoryCacheTests.swift:2202: Test Case '-[MonstoreTests.MemoryCacheTests testPerformanceWithRapidSetGetCycles]' measured [Time, seconds] average: 0.112, relative standard deviation: 5.564%, values: [0.105492, 0.111042, 0.109477, 0.106291, 0.118638, 0.126229, 0.104870, 0.114319, 0.114585, 0.112712], performanceMetricID:com.apple.XCTPerformanceMetric_WallClockTime, baselineName: "", baselineAverage: , polarity: prefers smaller, maxPercentRegression: 10.000%, maxPercentRelativeStandardDeviation: 10.000%, maxRegression: 0.100, maxStandardDeviation: 0.100
+Test Case '-[MonstoreTests.MemoryCacheTests testPerformanceWithRapidSetGetCycles]' passed (1.440 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testPerformanceWithVeryLargeCapacity]' started.
+/Users/runner/work/Monstra/Monstra/Tests/MonstoreTests/MemoryCache/FeatureTest/MemoryCacheTests.swift:2158: Test Case '-[MonstoreTests.MemoryCacheTests testPerformanceWithVeryLargeCapacity]' measured [Time, seconds] average: 0.266, relative standard deviation: 5.084%, values: [0.279188, 0.252873, 0.268137, 0.256177, 0.262661, 0.258464, 0.250804, 0.263963, 0.269370, 0.298673], performanceMetricID:com.apple.XCTPerformanceMetric_WallClockTime, baselineName: "", baselineAverage: , polarity: prefers smaller, maxPercentRegression: 10.000%, maxPercentRelativeStandardDeviation: 10.000%, maxRegression: 0.100, maxStandardDeviation: 0.100
+Test Case '-[MonstoreTests.MemoryCacheTests testPerformanceWithVeryLargeCapacity]' passed (2.984 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testPerformanceWithVerySmallCapacity]' started.
+/Users/runner/work/Monstra/Monstra/Tests/MonstoreTests/MemoryCache/FeatureTest/MemoryCacheTests.swift:2183: Test Case '-[MonstoreTests.MemoryCacheTests testPerformanceWithVerySmallCapacity]' measured [Time, seconds] average: 0.007, relative standard deviation: 6.085%, values: [0.007326, 0.006610, 0.006531, 0.007133, 0.006425, 0.006402, 0.006381, 0.006133, 0.006096, 0.006112], performanceMetricID:com.apple.XCTPerformanceMetric_WallClockTime, baselineName: "", baselineAverage: , polarity: prefers smaller, maxPercentRegression: 10.000%, maxPercentRelativeStandardDeviation: 10.000%, maxRegression: 0.100, maxStandardDeviation: 0.100
+Test Case '-[MonstoreTests.MemoryCacheTests testPerformanceWithVerySmallCapacity]' passed (0.391 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testPriorityEdgeCases]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testPriorityEdgeCases]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testPriorityEviction]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testPriorityEviction]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testPropertyAccess]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testPropertyAccess]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testRemoveElement]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testRemoveElement]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testRemoveElementsToPercent]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testRemoveElementsToPercent]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testRemoveElementsToPercentWithExpiredElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testRemoveElementsToPercentWithExpiredElements]' passed (0.179 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testRemoveExpiredElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testRemoveExpiredElements]' passed (0.157 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsAccuracy]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsAccuracy]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsHitRateCalculation]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsHitRateCalculation]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsRecordingForGetElement]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsRecordingForGetElement]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsRecordingForSetElement]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsRecordingForSetElement]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsReportCallback]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsReportCallback]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsReset]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsReset]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsWithConcurrentAccess]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsWithConcurrentAccess]' passed (0.005 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsWithExpiredElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsWithExpiredElements]' passed (0.271 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsWithMixedOperations]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testStatisticsWithMixedOperations]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testStressScenario]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testStressScenario]' passed (0.007 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testStressTestWithAllOperations]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testStressTestWithAllOperations]' passed (0.017 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testThreadSafetyConcurrentAccess]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testThreadSafetyConcurrentAccess]' passed (0.001 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testThreadSafetyDisabled]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testThreadSafetyDisabled]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testThreadSafetyEnabled]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testThreadSafetyEnabled]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testThreadSafetyWithoutSynchronization]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testThreadSafetyWithoutSynchronization]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLCalculationWithInfiniteElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLCalculationWithInfiniteElements]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLPrecision]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLPrecision]' passed (0.010 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomization]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomization]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomizationDistribution]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomizationDistribution]' passed (10.077 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomizationEdgeCases]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomizationEdgeCases]' passed (0.000 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomizationWithBulkElements]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomizationWithBulkElements]' passed (2.341 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomizationWithInfiniteTTL]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomizationWithInfiniteTTL]' passed (0.175 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomizationWithMicrosecondPrecision]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomizationWithMicrosecondPrecision]' passed (3.006 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomizationWithSmallRange]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomizationWithSmallRange]' passed (0.217 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomizationZeroRange]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testTTLRandomizationZeroRange]' passed (1.174 seconds).
+Test Case '-[MonstoreTests.MemoryCacheTests testZeroTTL]' started.
+Test Case '-[MonstoreTests.MemoryCacheTests testZeroTTL]' passed (0.000 seconds).
+Test Suite 'MemoryCacheTests' passed at 2025-08-23 20:40:36.412.
+     Executed 114 tests, with 0 failures (0 unexpected) in 25.399 (25.403) seconds
+Test Suite 'MonstraPackageTests.xctest' passed at 2025-08-23 20:40:36.412.
+     Executed 114 tests, with 0 failures (0 unexpected) in 25.399 (25.403) seconds
+Test Suite 'Selected tests' passed at 2025-08-23 20:40:36.412.
+     Executed 114 tests, with 0 failures (0 unexpected) in 25.399 (25.404) seconds
+◇ Test run started.
+↳ Testing Library Version: 94 (arm64e-apple-macos13.0)
+✔ Test run with 0 tests passed after 0.001 seconds.

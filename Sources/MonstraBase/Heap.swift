@@ -107,6 +107,7 @@ public extension Heap {
     /// Removes and returns an element at the specified index (default: root).
     /// - Parameter index: Index of element to remove (defaults to root at index 0).
     /// - Returns: Removed element, or nil if index is invalid or heap is empty.
+    @discardableResult
     func remove(at index: Int = 0) -> Element? {
         guard capacity > 0, count > 0, isValid(index) else { return nil }
 

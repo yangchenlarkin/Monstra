@@ -159,6 +159,17 @@ public class MonoTask<TaskResult> {
         semaphore.wait()
         defer { semaphore.signal() }
         
+        // === Phase 1: Check Cache Validity ===
+        if let result = self.result, self.resultExpiresAt > .now() {
+            // Cache hit! Return cached result without executing task
+            completionCallback?(.success(result))
+            return
+        }
+        
+        // === Phase 2: Prepare for Fresh Execution ===
+        self.result = nil
+        self.resultExpiresAt = .zero
+        
         // Check if execution is already running
         let isAlreadyExecuting = waitingCallbacks != nil
         
@@ -201,19 +212,7 @@ public class MonoTask<TaskResult> {
         taskQueue.async { [weak self] in
             guard let self else { return }
             
-            // === Phase 1: Check Cache Validity ===
             semaphore.wait()
-            if self.result != nil && self.resultExpiresAt > .now() {
-                // Cache hit! Return cached result without executing task
-                _unsafe_callback(result: .success(self.result!))
-                semaphore.signal()
-                return
-            }
-            
-            // === Phase 2: Prepare for Fresh Execution ===
-            self.result = nil
-            self.resultExpiresAt = .zero
-            
             // Generate new execution ID for tracking (important for clearResult cancellation)
             let currentExecutionID = executionIDFactory.safeNextInt64()
             self.executionID = currentExecutionID

@@ -149,8 +149,10 @@ jobs:
           "HeapPerformanceTests"
           "CPUTimeStampPerformanceTests"
           "CacheStatisticsTests"
+          # MemoryCache tests are now split into 11 parallel jobs
+          # Note: Test file validation still based on actual Swift test files
           "MemoryCacheTests"
-          "PriorityLRUQueueTests"
+          "PriorityLRUQueueTests" 
           "TTLPriorityLRUQueueTests"
           "MemoryCachePerformanceTests"
           "PriorityLRUQueuePerformanceTests"
@@ -214,12 +216,18 @@ jobs:
           echo "✅ SUCCESS: All test files are properly covered by CI jobs!"
         fi
 
+  # ==============================================
+  # 🔄 OTHER UNIT TESTS (Start after fast feedback)
+  # ==============================================
+  # These tests can start as soon as Groups 1-6 complete
+  # No need to wait for high-risk Groups 7-10
+  
   # Monstask Tests
   test-monotask:
     name: MonoTask Tests
     runs-on: macos-latest
     if: needs.check-schedule.outputs.should-run == 'true'
-    needs: [check-schedule, validate-test-coverage]
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
     
     steps:
     - uses: actions/checkout@v4
@@ -232,7 +240,7 @@ jobs:
     name: MonoTask Cross-Scenario Tests
     runs-on: macos-latest
     if: needs.check-schedule.outputs.should-run == 'true'
-    needs: [check-schedule, validate-test-coverage]
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
     
     steps:
     - uses: actions/checkout@v4
@@ -245,7 +253,7 @@ jobs:
     name: MonoTask Clear Result Tests
     runs-on: macos-latest
     if: needs.check-schedule.outputs.should-run == 'true'
-    needs: [check-schedule, validate-test-coverage]
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
     
     steps:
     - uses: actions/checkout@v4
@@ -258,7 +266,7 @@ jobs:
     name: KV Heavy Tasks Manager Tests
     runs-on: macos-latest
     if: needs.check-schedule.outputs.should-run == 'true'
-    needs: [check-schedule, validate-test-coverage]
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
     
     steps:
     - uses: actions/checkout@v4
@@ -271,7 +279,7 @@ jobs:
     name: KV Light Tasks Manager Tests
     runs-on: macos-latest
     if: needs.check-schedule.outputs.should-run == 'true'
-    needs: [check-schedule, validate-test-coverage]
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
     
     steps:
     - uses: actions/checkout@v4
@@ -285,7 +293,7 @@ jobs:
     name: RetryCount Tests
     runs-on: macos-latest
     if: needs.check-schedule.outputs.should-run == 'true'
-    needs: [check-schedule, validate-test-coverage]
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
     
     steps:
     - uses: actions/checkout@v4
@@ -298,7 +306,7 @@ jobs:
     name: HashQueue Tests
     runs-on: macos-latest
     if: needs.check-schedule.outputs.should-run == 'true'
-    needs: [check-schedule, validate-test-coverage]
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
     
     steps:
     - uses: actions/checkout@v4
@@ -311,7 +319,7 @@ jobs:
     name: CPUTimeStamp Tests
     runs-on: macos-latest
     if: needs.check-schedule.outputs.should-run == 'true'
-    needs: [check-schedule, validate-test-coverage]
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
     
     steps:
     - uses: actions/checkout@v4
@@ -324,7 +332,7 @@ jobs:
     name: Heap Tests
     runs-on: macos-latest
     if: needs.check-schedule.outputs.should-run == 'true'
-    needs: [check-schedule, validate-test-coverage]
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
     
     steps:
     - uses: actions/checkout@v4
@@ -337,7 +345,7 @@ jobs:
     name: DoublyLink Tests
     runs-on: macos-latest
     if: needs.check-schedule.outputs.should-run == 'true'
-    needs: [check-schedule, validate-test-coverage]
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
     
     steps:
     - uses: actions/checkout@v4
@@ -350,7 +358,7 @@ jobs:
     name: TracingIDFactory Tests
     runs-on: macos-latest
     if: needs.check-schedule.outputs.should-run == 'true'
-    needs: [check-schedule, validate-test-coverage]
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
     
     steps:
     - uses: actions/checkout@v4
@@ -364,7 +372,7 @@ jobs:
     name: Heap Performance Tests
     runs-on: macos-latest
     if: needs.check-schedule.outputs.should-run == 'true'
-    needs: [check-schedule, validate-test-coverage]
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
     
     steps:
     - uses: actions/checkout@v4
@@ -377,7 +385,7 @@ jobs:
     name: CPUTimeStamp Performance Tests
     runs-on: macos-latest
     if: needs.check-schedule.outputs.should-run == 'true'
-    needs: [check-schedule, validate-test-coverage]
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
     
     steps:
     - uses: actions/checkout@v4
@@ -386,7 +394,7 @@ jobs:
     - name: Run CPUTimeStamp Performance Tests
       run: swift test --filter CPUTimeStampPerformanceTests
 
-  # Monstore Tests
+  # Monstore Tests - Cache Statistics (Keep original)
   test-cache-statistics:
     name: Cache Statistics Tests
     runs-on: macos-latest
@@ -400,9 +408,19 @@ jobs:
     - name: Run Cache Statistics Tests
       run: swift test --filter CacheStatisticsTests
 
-  test-memory-cache:
-    name: Memory Cache Tests
+  # ==============================================
+  # 🚀 10-GROUP PARALLEL MEMORY CACHE TEST STRATEGY
+  # ==============================================
+  # Strategy: Split 225 tests into 10 parallel groups for optimal CI performance
+  # Groups 1-4: Safe foundation tests (2-4 min total)
+  # Groups 5-7: Medium risk tests (4-8 min total) 
+  # Groups 8-10: High-risk tests with timeouts (5-15+ min, isolated)
+
+  # 🟢 GROUP 1: Core Basic Tests (Safest - ~23 tests)
+  test-memorycache-group1-basic:
+    name: "MemoryCache Group 1: Basic Operations"
     runs-on: macos-latest
+    timeout-minutes: 10
     if: needs.check-schedule.outputs.should-run == 'true'
     needs: [check-schedule, validate-test-coverage]
     
@@ -410,12 +428,16 @@ jobs:
     - uses: actions/checkout@v4
     - name: Select Xcode version
       run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
-    - name: Run Memory Cache Tests
-      run: swift test --filter MemoryCacheTests
+    - name: "🟢 Run Basic Operations Tests"
+      run: |
+        echo "🟢 GROUP 1: Basic functionality tests (LOW RISK)"
+        swift test --filter "MemoryCacheTests.(testBasic|testCapacity|testCustomKey|testNumericKey|testDefaultConfiguration|testPropertyAccess|testEmptyCache|testOverwrite)" --verbose
 
-  test-priority-lru-queue:
-    name: Priority LRU Queue Tests
+  # 🟢 GROUP 2: TTL & Priority Foundation (~25 tests)
+  test-memorycache-group2-ttl-priority:
+    name: "MemoryCache Group 2: TTL & Priority"  
     runs-on: macos-latest
+    timeout-minutes: 10
     if: needs.check-schedule.outputs.should-run == 'true'
     needs: [check-schedule, validate-test-coverage]
     
@@ -423,12 +445,16 @@ jobs:
     - uses: actions/checkout@v4
     - name: Select Xcode version
       run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
-    - name: Run Priority LRU Queue Tests
-      run: swift test --filter PriorityLRUQueueTests
+    - name: "🟢 Run TTL & Priority Tests"
+      run: |
+        echo "🟢 GROUP 2: TTL and Priority tests (LOW RISK)"
+        swift test --filter "MemoryCacheTests.(testNullElement|testTTL|testPriority|testFetchResult|testInfiniteTTL|testZeroTTL|testNegativeTTL)" --verbose
 
-  test-ttl-priority-lru-queue:
-    name: TTL Priority LRU Queue Tests
+  # 🟡 GROUP 3: PriorityLRUQueue Feature Tests (36 tests)
+  test-memorycache-group3-priority-lru:
+    name: "MemoryCache Group 3: PriorityLRU Queue"
     runs-on: macos-latest
+    timeout-minutes: 12
     if: needs.check-schedule.outputs.should-run == 'true'
     needs: [check-schedule, validate-test-coverage]
     
@@ -436,13 +462,16 @@ jobs:
     - uses: actions/checkout@v4
     - name: Select Xcode version
       run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
-    - name: Run TTL Priority LRU Queue Tests
-      run: swift test --filter TTLPriorityLRUQueueTests
+    - name: "🟡 Run PriorityLRU Queue Tests"
+      run: |
+        echo "🟡 GROUP 3: PriorityLRU data structure (MEDIUM RISK)"
+        swift test --filter PriorityLRUQueueTests --verbose
 
-  # Performance Tests (Monstore)
-  test-memory-cache-performance:
-    name: Memory Cache Performance Tests
-    runs-on: macos-latest
+  # 🟡 GROUP 4: TTLPriorityLRUQueue Feature Tests (37 tests)
+  test-memorycache-group4-ttl-priority-lru:
+    name: "MemoryCache Group 4: TTLPriorityLRU Queue"
+    runs-on: macos-latest  
+    timeout-minutes: 12
     if: needs.check-schedule.outputs.should-run == 'true'
     needs: [check-schedule, validate-test-coverage]
     
@@ -450,12 +479,16 @@ jobs:
     - uses: actions/checkout@v4
     - name: Select Xcode version
       run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
-    - name: Run Memory Cache Performance Tests
-      run: swift test --filter MemoryCachePerformanceTests
+    - name: "🟡 Run TTLPriorityLRU Queue Tests"
+      run: |
+        echo "🟡 GROUP 4: TTLPriorityLRU data structure (MEDIUM RISK)"
+        swift test --filter TTLPriorityLRUQueueTests --verbose
 
-  test-priority-lru-queue-performance:
-    name: Priority LRU Queue Performance Tests
+  # 🟡 GROUP 5: Cache Management & Config (~25 tests)
+  test-memorycache-group5-management:
+    name: "MemoryCache Group 5: Management & Config"
     runs-on: macos-latest
+    timeout-minutes: 15
     if: needs.check-schedule.outputs.should-run == 'true'
     needs: [check-schedule, validate-test-coverage]
     
@@ -463,34 +496,164 @@ jobs:
     - uses: actions/checkout@v4
     - name: Select Xcode version
       run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
-    - name: Run Priority LRU Queue Performance Tests
-      run: swift test --filter PriorityLRUQueuePerformanceTests
+    - name: "🟡 Run Management & Config Tests"
+      run: |
+        echo "🟡 GROUP 5: Cache management and configuration (MEDIUM RISK)"  
+        swift test --filter "MemoryCacheTests.(testRemove|testMemory|testCost|testConfiguration|testEviction|testBulkOperations)" --verbose
 
-  test-ttl-priority-lru-queue-performance:
-    name: TTL Priority LRU Queue Performance Tests
+  # 🟠 GROUP 6: Thread Safety & Concurrency (~25 tests)
+  test-memorycache-group6-concurrency:
+    name: "MemoryCache Group 6: Thread Safety"
     runs-on: macos-latest
-    if: needs.check-schedule.outputs.should-run == 'true'
+    timeout-minutes: 15
+    if: needs.check-schedule.outputs.should-run == 'true'  
     needs: [check-schedule, validate-test-coverage]
     
     steps:
     - uses: actions/checkout@v4
     - name: Select Xcode version
       run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
-    - name: Run TTL Priority LRU Queue Performance Tests
-      run: swift test --filter TTLPriorityLRUQueuePerformanceTests
+    - name: "🟠 Run Thread Safety Tests"
+      run: |
+        echo "🟠 GROUP 6: Thread safety and concurrency (MEDIUM-HIGH RISK)"
+        swift test --filter "MemoryCacheTests.(testThreadSafety|testConcurrent|testLockBehavior)" --verbose
 
-  # Summary job to check all tests passed
+  # 🟠 GROUP 7: Basic Performance Tests (~8 tests)
+  test-memorycache-group7-basic-performance:
+    name: "MemoryCache Group 7: Basic Performance" 
+    runs-on: macos-latest
+    timeout-minutes: 15
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: "🟠 Run Basic Performance Tests"
+      run: |
+        echo "🟠 GROUP 7: Basic performance tests (MEDIUM-HIGH RISK)"
+        swift test --filter "MemoryCachePerformanceTests.(testBulkInsert|testExpiration|testPriorityEviction|testLRUEviction|testMixedWorkload)" --verbose
+
+  # 🔴 GROUP 8: Small Capacity Performance (~12 tests)
+  test-memorycache-group8-small-capacity:
+    name: "MemoryCache Group 8: Small Capacity Performance"
+    runs-on: macos-latest
+    timeout-minutes: 20
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: "🔴 Run Small Capacity Performance Tests"
+      run: |
+        echo "🔴 GROUP 8: Small capacity edge case performance (HIGH RISK)"
+        swift test --filter "(MemoryCachePerformanceTests|PriorityLRUQueuePerformanceTests|TTLPriorityLRUQueuePerformanceTests).testSmallCapacity" --verbose
+
+  # 🔴 GROUP 9: Complex Integration & Edge Cases (~30 tests)
+  test-memorycache-group9-integration:
+    name: "MemoryCache Group 9: Complex Integration"
+    runs-on: macos-latest
+    timeout-minutes: 20
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: "🔴 Run Complex Integration Tests"
+      run: |
+        echo "🔴 GROUP 9: Complex scenarios and edge cases (HIGH RISK)"
+        swift test --filter "MemoryCacheTests.(testComplexScenario|testStressScenario|testBehaviorWith|testBoundaryConditions|testMemoryLayoutCostCalculation)" --verbose
+
+  # 💀 GROUP 10: High-Risk Performance & Stress (Critical - ~10 tests)
+  test-memorycache-group10-stress:
+    name: "MemoryCache Group 10: Stress & High-Risk Performance"
+    runs-on: macos-latest
+    timeout-minutes: 25
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: "💀 Run High-Risk Stress Tests"
+      run: |
+        echo "💀 GROUP 10: High-risk stress and long-running performance (CRITICAL RISK)"
+        echo "⚠️  Includes testStressLongRunningPerformance (50K ops) and testRandomizedWorkloadPerformance"
+        echo "⚠️  Includes testRemoveElementPerformance with dead loop protection"
+        swift test --filter "(MemoryCachePerformanceTests|PriorityLRUQueuePerformanceTests|TTLPriorityLRUQueuePerformanceTests).(testStressLongRunning|testRandomizedWorkload|testRemoveElement)" --verbose
+
+  # 🧪 REMAINING TESTS: Statistics and others not covered by groups 1-10
+  test-memorycache-remaining:
+    name: "MemoryCache Remaining: Statistics & Others"
+    runs-on: macos-latest
+    timeout-minutes: 15
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [check-schedule, validate-test-coverage, fast-feedback-complete]
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Select Xcode version
+      run: sudo xcode-select -switch /Applications/Xcode.app 2>/dev/null || sudo xcode-select -switch $(find /Applications -name "Xcode*.app" -maxdepth 1 | head -1)
+    - name: "🧪 Run Remaining Tests"
+      run: |
+        echo "🧪 REMAINING: Statistics and other unfiltered tests"
+        swift test --filter "MemoryCacheTests.testStatistics" --verbose
+        swift test --filter "MemoryCachePerformanceTests.(testRemoveExpiredElements|testRemoveElementsToPercent|testMixedCacheOperations)" --verbose
+        swift test --filter "(PriorityLRUQueuePerformanceTests|TTLPriorityLRUQueuePerformanceTests).(testRemoveAtRandomKey|testRemoveElement|testMixedWorkload|testExpiredEntries)" --verbose
+
+  # ==============================================
+  # 🚀 FAST FEEDBACK JOBS (Groups 1-6: Safe & Medium Risk)
+  # ==============================================
+  # These jobs must complete before starting other unit tests
+  # Provides fast feedback in 2-8 minutes instead of waiting for risky tests
+  
+  fast-feedback-complete:
+    name: "✅ Fast Feedback Complete"
+    runs-on: macos-latest
+    if: needs.check-schedule.outputs.should-run == 'true'
+    needs: [
+      check-schedule,
+      test-cache-statistics,
+      test-memorycache-group1-basic,
+      test-memorycache-group2-ttl-priority,
+      test-memorycache-group3-priority-lru,
+      test-memorycache-group4-ttl-priority-lru,
+      test-memorycache-group5-management,
+      test-memorycache-group6-concurrency
+    ]
+    
+    steps:
+    - name: "🚀 Fast Feedback Summary"
+      run: |
+        echo "✅ FAST FEEDBACK COMPLETE! Groups 1-6 passed in parallel"
+        echo "🟢 Groups 1-2: Basic operations (LOW RISK) - ✅ Completed"
+        echo "🟡 Groups 3-6: Data structures & concurrency (MEDIUM RISK) - ✅ Completed"
+        echo "🚀 Other unit tests can now proceed in parallel with remaining high-risk groups"
+
+  # ==============================================
+  # 🎯 ALL TESTS SUMMARY (Including High-Risk Groups)  
+  # ==============================================
+  # Summary job to check all tests passed (waits for ALL groups including risky ones)
+  
   all-tests:
     name: All Tests Complete
     runs-on: macos-latest
     if: needs.check-schedule.outputs.should-run == 'true'
     needs: [
       check-schedule,
+      # Monstask Tests
       test-monotask,
       test-monotask-cross-scenario,
       test-monotask-clear-result,
       test-kv-heavy-tasks-manager,
       test-kv-light-tasks-manager,
+      # MonstraBase Tests  
       test-retry-count,
       test-hash-queue,
       test-cpu-timestamp,
@@ -499,13 +662,19 @@ jobs:
       test-tracing-id-factory,
       test-heap-performance,
       test-cpu-timestamp-performance,
+      # MemoryCache Tests - 10 Parallel Groups
       test-cache-statistics,
-      test-memory-cache,
-      test-priority-lru-queue,
-      test-ttl-priority-lru-queue,
-      test-memory-cache-performance,
-      test-priority-lru-queue-performance,
-      test-ttl-priority-lru-queue-performance
+      test-memorycache-group1-basic,
+      test-memorycache-group2-ttl-priority,
+      test-memorycache-group3-priority-lru,
+      test-memorycache-group4-ttl-priority-lru,
+      test-memorycache-group5-management,
+      test-memorycache-group6-concurrency,
+      test-memorycache-group7-basic-performance,
+      test-memorycache-group8-small-capacity,
+      test-memorycache-group9-integration,
+      test-memorycache-group10-stress,
+      test-memorycache-remaining
     ]
     
     steps:

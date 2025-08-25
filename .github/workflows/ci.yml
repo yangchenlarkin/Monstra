@@ -608,10 +608,10 @@ jobs:
         swift test --filter "(PriorityLRUQueuePerformanceTests|TTLPriorityLRUQueuePerformanceTests).(testRemoveAtRandomKey|testRemoveElement|testMixedWorkload|testExpiredEntries)" --verbose
 
   # ==============================================
-  # 🚀 FAST FEEDBACK JOBS (Groups 1-6: Safe & Medium Risk)
+  # 🚀 FAST FEEDBACK JOBS (ALL 10 Groups + Cache Statistics)
   # ==============================================
-  # These jobs must complete before starting other unit tests
-  # Provides fast feedback in 2-8 minutes instead of waiting for risky tests
+  # All 10 MemoryCache groups must complete before starting other unit tests
+  # Provides fast parallel feedback instead of 60+ minute sequential runs
   
   fast-feedback-complete:
     name: "✅ Fast Feedback Complete"
@@ -625,16 +625,25 @@ jobs:
       test-memorycache-group3-priority-lru,
       test-memorycache-group4-ttl-priority-lru,
       test-memorycache-group5-management,
-      test-memorycache-group6-concurrency
+      test-memorycache-group6-concurrency,
+      test-memorycache-group7-basic-performance,
+      test-memorycache-group8-small-capacity,
+      test-memorycache-group9-integration,
+      test-memorycache-group10-stress,
+      test-memorycache-remaining
     ]
     
     steps:
     - name: "🚀 Fast Feedback Summary"
       run: |
-        echo "✅ FAST FEEDBACK COMPLETE! Groups 1-6 passed in parallel"
+        echo "✅ FAST FEEDBACK COMPLETE! All 10 MemoryCache groups completed in parallel"
         echo "🟢 Groups 1-2: Basic operations (LOW RISK) - ✅ Completed"
-        echo "🟡 Groups 3-6: Data structures & concurrency (MEDIUM RISK) - ✅ Completed"
-        echo "🚀 Other unit tests can now proceed in parallel with remaining high-risk groups"
+        echo "🟡 Groups 3-6: Data structures & concurrency (MEDIUM RISK) - ✅ Completed" 
+        echo "🟠 Group 7: Basic performance tests (MEDIUM-HIGH RISK) - ✅ Completed"
+        echo "🔴 Groups 8-9: High-risk performance & integration (HIGH RISK) - ✅ Completed"
+        echo "💀 Group 10: Stress tests with dead loop protection (CRITICAL RISK) - ✅ Completed"
+        echo "🧪 Group 11: Statistics and remaining tests - ✅ Completed"
+        echo "🚀 All MemoryCache tests passed! Other unit tests can now proceed"
 
   # ==============================================
   # 🎯 ALL TESTS SUMMARY (Including High-Risk Groups)  

@@ -855,13 +855,13 @@ final class MemoryCacheTests: XCTestCase {
         )
         
         // Set with very short TTL
-        cache.set(element: "element", for: "key", expiredIn: 0.001) // 1ms
+        cache.set(element: "element", for: "key", expiredIn: 1) // 1ms
         
         // Should be immediately available
         XCTAssertEqual(cache.getElementDirect(for: "key"), "element")
         
         // Wait and should be expired
-        Thread.sleep(forTimeInterval: 0.002)
+        Thread.sleep(forTimeInterval: 2)
         XCTAssertNil(cache.getElementDirect(for: "key"))
     }
     

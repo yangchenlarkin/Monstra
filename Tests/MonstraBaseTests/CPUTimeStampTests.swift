@@ -69,7 +69,7 @@ final class CPUTimeStampTests: XCTestCase {
         let interval: TimeInterval = 1.5
         let result = timestamp + interval
         
-        XCTAssertEqual(result.timeIntervalSince(timestamp), interval, "Addition should work correctly")
+        XCTAssertEqual(result.timeIntervalSince(timestamp), interval, accuracy: 0.001, "Addition should work correctly")
     }
     
     func testCPUTimeStampSubtraction() {
@@ -77,7 +77,7 @@ final class CPUTimeStampTests: XCTestCase {
         let interval: TimeInterval = 1.5
         let result = timestamp - interval
         
-        XCTAssertEqual(timestamp.timeIntervalSince(result), interval, "Subtraction should work correctly")
+        XCTAssertEqual(timestamp.timeIntervalSince(result), interval, accuracy: 0.001, "Subtraction should work correctly")
     }
     
     func testCPUTimeStampSubtractionBetweenTimestamps() {

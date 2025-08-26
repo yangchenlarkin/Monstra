@@ -107,6 +107,7 @@ let networkTask = MonoTask<Data>(
     resultExpireDuration: 300.0 // 5 minutes cache
 ) { callback in
     // Your network request logic here
+    let url = URL(string: "https://api.example.com/data")!
     URLSession.shared.dataTask(with: url) { data, response, error in
         if let error = error {
             callback(.failure(error))
@@ -126,9 +127,10 @@ case .failure(let error):
 }
 
 // Multiple execution patterns - only one network request
+// Note: All executions benefit from MonoTask's execution merging
 
 do {
-    let result2: Data = try await networkTask.executeThrows() // Returns cached result, throws on error
+    let result2: Data = try await networkTask.executeThrows() // Second execution, returns cached result
     print("Result2: \(result2)")
 } catch {
     print("Result2 error: \(error)")
@@ -137,7 +139,7 @@ do {
 networkTask.justExecute() // Fire-and-forget execution
 
 // Callback-based execution for result3
-networkTask.execute { (result: Result<Data, Error>) in
+networkTask.execute { result in
     switch result {
     case .success(let data):
         print("Result3 (callback): \(data.count) bytes")

@@ -71,7 +71,7 @@ Add Monstra to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/yangchenlarkin/Monstra.git", from: "v0.0.5")
+    .package(url: "https://github.com/yangchenlarkin/Monstra.git", from: "0.0.5")
 ]
 ```
 
@@ -189,6 +189,9 @@ let networkTask = MonoTask<Data> { callback in
 
 // Alternatively, you can use an asynchornic block to create MonoTask
 
+// Multiple execution patterns - only one network request
+// Note: All executions benefit from MonoTask's execution merging
+
 // Execute with async/await
 let result1: Result<Data, Error> = await networkTask.asyncExecute()
 switch result1 {
@@ -198,9 +201,7 @@ case .failure(let error):
     print("Error: \(error)")
 }
 
-// Multiple execution patterns - only one network request
-// Note: All executions benefit from MonoTask's execution merging
-
+// Execute with async/await and try/catch
 do {
     let result2: Data = try await networkTask.executeThrows() // Second execution, returns cached result
     print("Result2: \(result2)")
@@ -208,9 +209,10 @@ do {
     print("Result2 error: \(error)")
 }
 
-networkTask.justExecute() // Fire-and-forget execution
+ // Fire-and-forget execution
+networkTask.justExecute()
 
-// Callback-based execution for result3
+// Callback-based execution
 networkTask.execute { result in
     switch result {
     case .success(let data):
@@ -224,7 +226,30 @@ networkTask.execute { result in
 **Detailed Configuration Example:**
 ```swift
 // Advanced configuration with custom retry and queue settings
-let fileProcessor = MonoTask<ProcessedData>(
+let fileProcessor1 = MonoTask<ProcessedData>(
+    retry: 3,  // Simple retry count configuration
+    
+    // Result Caching: Use default cache configuration
+    resultExpireDuration: 300.0,      // 5 minutes cache duration
+    
+    // Task Queue: Custom dispatch queue for task execution
+    taskQueue: DispatchQueue.global(qos: .utility),  // Background priority queue
+    
+    // Callback Queue: Custom dispatch queue for callbacks
+    callbackQueue: DispatchQueue.global(qos: .userInitiated)  // High priority queue
+) { callback in
+    // Your file processing logic here
+    let filePath = "/path/to/large/file.txt"
+    do {
+        let data = try Data(contentsOf: URL(fileURLWithPath: filePath))
+        let processedData = ProcessedData(content: data, metadata: ["size": data.count])
+        callback(.success(processedData))
+    } catch {
+        callback(.failure(error))
+    }
+}
+// Advanced configuration with custom retry and queue settings
+let fileProcessor2 = MonoTask<ProcessedData>(
     // Retry Strategy: Exponential backoff with 3 attempts
     retry: .count(
         count: 3,    // Maximum retry attempts

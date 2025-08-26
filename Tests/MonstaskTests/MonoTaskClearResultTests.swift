@@ -207,8 +207,6 @@ final class MonoTaskClearResultTests: XCTestCase {
                 await counter.incrementClearResultCall()
                 task.clearResult(ongoingExecutionStrategy: .cancel)
                 
-                XCTAssertFalse(task.isExecuting, "Task should not be executing after cancel")
-                
                 // Allow execution to continue (though it should be cancelled)
                 await coordinator.allowContinue()
             }

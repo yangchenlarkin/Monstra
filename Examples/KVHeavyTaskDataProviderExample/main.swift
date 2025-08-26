@@ -1,8 +1,7 @@
 #!/usr/bin/env swift
 
 import Foundation
-import Monstask
-import MonstraBase
+import Monstra
 import Alamofire
 import CryptoKit
 
@@ -23,7 +22,7 @@ import CryptoKit
 /// - Graceful cancellation handling
 /// - Configurable processing delays
 /// - Simple progress tracking
-class LocalDataProvider: Monstask.KVHeavyTaskBaseDataProvider<String, String, Never>, Monstask.KVHeavyTaskDataProviderInterface {
+class LocalDataProvider: Monstra.KVHeavyTaskBaseDataProvider<String, String, Never>, Monstra.KVHeavyTaskDataProviderInterface {
     /// Flag to track pause state for task lifecycle management
     private enum State {
         case idle
@@ -129,7 +128,7 @@ class LocalDataProvider: Monstask.KVHeavyTaskBaseDataProvider<String, String, Ne
 /// - File integrity validation
 /// - Intelligent caching and deduplication
 /// - Error handling and retry logic
-class AlamofireDataProvider: Monstask.KVHeavyTaskBaseDataProvider<URL, Data, Progress>, Monstask.KVHeavyTaskDataProviderInterface {
+class AlamofireDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, Progress>, Monstra.KVHeavyTaskDataProviderInterface {
     /// The current download request (if active)
     /// 
     /// This property holds the Alamofire DownloadRequest instance, allowing

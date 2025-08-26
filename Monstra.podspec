@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "Monstra"
-  spec.version      = "1.0.0"
+  spec.version      = "0.0.3"
   spec.summary      = "High-performance task execution and caching framework for Swift"
   spec.description  = <<-DESC
     Monstra is a thread-safe, high-performance task executor that ensures only one instance
@@ -20,28 +20,21 @@ Pod::Spec.new do |spec|
   spec.author       = { "Larkin" => "yangchenlarkin@gmail.com" }
   spec.platform     = :ios, "13.0"
   spec.platform     = :osx, "10.15"
-  spec.source       = { :git => "https://github.com/yangchenlarkin/Monstra.git", :tag => "#{spec.version}" }
+  spec.source       = { :git => "https://github.com/yangchenlarkin/Monstra.git", :tag => "v#{spec.version}" }
   
   spec.swift_version = "5.5"
   
-  # Core Monstra library
-  spec.subspec "MonstraBase" do |ss|
-    ss.source_files = "Sources/MonstraBase/**/*.swift"
-  end
+  # Build all source files as one unified framework
+  spec.source_files = "Sources/**/*.swift"
   
-  spec.subspec "Monstore" do |ss|
-    ss.source_files = "Sources/Monstore/**/*.swift"
-    ss.dependency "Monstra/MonstraBase"
-  end
+  # Specify module name explicitly
+  spec.module_name = "Monstra"
   
-  spec.subspec "Monstask" do |ss|
-    ss.source_files = "Sources/Monstask/**/*.swift"
-    ss.dependency "Monstra/MonstraBase"
-    ss.dependency "Monstra/Monstore"
-  end
-  
-  # Default subspec includes all components
-  spec.default_subspecs = "Monstask"
+  # Ensure proper dependency resolution during linting
+  spec.pod_target_xcconfig = {
+    'SWIFT_VERSION' => '5.5',
+    'CLANG_ENABLE_MODULES' => 'YES'
+  }
   
   # Exclude test files and examples from pod
   spec.exclude_files = "Tests/**/*", "Examples/**/*"

@@ -12,16 +12,10 @@ let package = Package(
         .watchOS(.v6)
     ],
     products: [
-        // Products define the executables and libraries a package produces, making them visible to other packages.
+        // Main unified Monstra library
         .library(
-            name: "Monstore",
-            targets: ["Monstore"]),
-        .library(
-            name: "Monstask",
-            targets: ["Monstask"]),
-        .library(
-            name: "MonstraBase",
-            targets: ["MonstraBase"]),
+            name: "Monstra",
+            targets: ["Monstra"]),
         // Example executable
         .executable(
             name: "KVHeavyTaskDataProviderExample",
@@ -32,25 +26,11 @@ let package = Package(
         .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.9.0"),
     ],
     targets: [
-        // Targets are the basic building blocks of a package, defining a module or a test suite.
-        // Targets can depend on other targets in this package and products from dependencies.
+        // Main unified Monstra target with all source files
         .target(
-            name: "MonstraBase",
+            name: "Monstra",
             dependencies: [],
-            swiftSettings: [
-                .define("DEBUG", .when(configuration: .debug)),
-                .unsafeFlags(["-enable-testing"], .when(configuration: .debug))
-            ]),
-        .target(
-            name: "Monstore",
-            dependencies: ["MonstraBase"],
-            swiftSettings: [
-                .define("DEBUG", .when(configuration: .debug)),
-                .unsafeFlags(["-enable-testing"], .when(configuration: .debug))
-            ]),
-        .target(
-            name: "Monstask",
-            dependencies: ["MonstraBase", "Monstore"],
+            path: "Sources",
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug)),
                 .unsafeFlags(["-enable-testing"], .when(configuration: .debug))
@@ -58,26 +38,26 @@ let package = Package(
         // Example executable target
         .executableTarget(
             name: "KVHeavyTaskDataProviderExample",
-            dependencies: ["Monstask", "Alamofire"],
+            dependencies: ["Monstra", "Alamofire"],
             path: "Examples/KVHeavyTaskDataProviderExample",
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
             ]),
         .testTarget(
             name: "MonstraBaseTests",
-            dependencies: ["MonstraBase"],
+            dependencies: ["Monstra"],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
             ]),
         .testTarget(
             name: "MonstoreTests",
-            dependencies: ["Monstore"],
+            dependencies: ["Monstra"],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
             ]),
         .testTarget(
             name: "MonstaskTests",
-            dependencies: ["Monstask"],
+            dependencies: ["Monstra"],
             swiftSettings: [
                 .define("DEBUG", .when(configuration: .debug))
             ]),

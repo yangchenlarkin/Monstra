@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import Monstore
-import MonstraBase
 
 public extension KVLightTasksManager {
     enum DataProvider {
@@ -340,7 +338,7 @@ public class KVLightTasksManager<K: Hashable, Element> {
     }
     
     private let config: Config
-    private let cache: Monstore.MemoryCache<K, Element>
+    private let cache: MemoryCache<K, Element>
     private let keyQueue: HashQueue<K>
     
     //MARK: - fetch

@@ -36,8 +36,6 @@
 //
 
 import Foundation
-import MonstraBase
-import Monstore
 
 /// Base class for heavy task data providers that defines the foundation for task execution.
 ///
@@ -582,7 +580,7 @@ public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyT
     /// - Note: Initialization is lightweight and safe to call from any thread
     public init(config: Config) {
         self.config = config
-        self.cache = .init(configuration: config.cacheConfig, statisticsReport: config.cacheStatisticsReport)
+        self.cache = MemoryCache<K, Element>(configuration: config.cacheConfig, statisticsReport: config.cacheStatisticsReport)
         self.waitingQueue = .init(capacity: config.maxNumberOfQueueingTasks)
         self.runningKeys = .init(capacity: config.maxNumberOfRunningTasks)
     }
@@ -601,7 +599,7 @@ public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyT
     /// - TTL-based expiration for time-sensitive results
     /// - Key validation to filter malformed requests
     /// - Detailed statistics reporting for performance monitoring
-    private let cache: Monstore.MemoryCache<K, Element>
+    private let cache: MemoryCache<K, Element>
     
     /// Queue for tasks waiting to be executed when resources become available.
     ///

@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import MonstraBase
+@testable import Monstra
 
 /// Comprehensive test suite for TracingIDFactory unique ID generation functionality.
 ///

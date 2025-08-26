@@ -7,7 +7,7 @@
 //  Performance tests for Heap: measures throughput for bulk insertions, removals, and mixed workloads.
 
 import XCTest
-@testable import MonstraBase
+@testable import Monstra
 
 /// Performance tests for Heap.
 final class HeapPerformanceTests: XCTestCase {

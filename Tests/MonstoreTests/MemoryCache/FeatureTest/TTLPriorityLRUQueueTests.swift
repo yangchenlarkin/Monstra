@@ -10,7 +10,7 @@
 
 import XCTest
 
-@testable import Monstore
+@testable import Monstra
 
 /// Tests for TTLPriorityLRUQueue, a cache combining TTL, priority, and LRU eviction policies.
 /// Each test group covers a distinct aspect of the cache's behavior.

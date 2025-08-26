@@ -8,7 +8,7 @@
 //  eviction, and mixed workloads under load.
 
 import XCTest
-@testable import Monstore
+@testable import Monstra
 
 /// Performance tests for PriorityLRUQueue.
 final class PriorityLRUQueuePerformanceTests: XCTestCase {

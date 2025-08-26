@@ -1,5 +1,5 @@
 import XCTest
-@testable import MonstraBase
+@testable import Monstra
 
 /// Test suite for RetryCount enum and its IntervalProxy
 /// 

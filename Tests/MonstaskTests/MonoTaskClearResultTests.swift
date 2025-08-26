@@ -6,8 +6,8 @@
 //
 
 import XCTest
-@preconcurrency @testable import Monstask
-@testable import MonstraBase
+@preconcurrency @testable import Monstra
+@testable import Monstra
 
 /// Comprehensive test suite for MonoTask clearResult functionality
 ///

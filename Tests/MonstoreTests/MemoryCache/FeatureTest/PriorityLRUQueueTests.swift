@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import Monstore
+@testable import Monstra
 
 /// Test class for LRUQueue implementation
 final class PriorityLRUQueueTests: XCTestCase {

@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import Monstore
+@testable import Monstra
 
 /// Tests for CacheStatistics functionality
 final class CacheStatisticsTests: XCTestCase {

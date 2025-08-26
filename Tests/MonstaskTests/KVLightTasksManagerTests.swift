@@ -6,9 +6,9 @@
 //
 
 import XCTest
-@testable import Monstask
-@testable import MonstraBase
-@testable import Monstore
+@testable import Monstra
+@testable import Monstra
+@testable import Monstra
 
 final class KVLightTasksManagerTests: XCTestCase {
     

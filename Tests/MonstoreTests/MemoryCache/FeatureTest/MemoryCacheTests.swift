@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import Monstore
+@testable import Monstra
 
 // Helper extension to make testing easier with the new FetchResult API
 extension MemoryCache {

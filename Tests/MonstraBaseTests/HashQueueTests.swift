@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import MonstraBase
+@testable import Monstra
 
 final class HashQueueTests: XCTestCase {
 

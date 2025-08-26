@@ -58,9 +58,9 @@
 //
 
 import XCTest
-@testable import Monstask
-@testable import MonstraBase
-@testable import Monstore
+@testable import Monstra
+@testable import Monstra
+@testable import Monstra
 
 /// Extension providing safe array access to prevent index out of bounds crashes.
 ///
@@ -131,7 +131,7 @@ struct MockDataProviderProgress {
     let completedLength: Int
 }
 
-final class MockDataProvider: Monstask.KVHeavyTaskBaseDataProvider<String, String, MockDataProviderProgress>, Monstask.KVHeavyTaskDataProviderInterface {
+final class MockDataProvider: KVHeavyTaskBaseDataProvider<String, String, MockDataProviderProgress>, KVHeavyTaskDataProviderInterface {
     /// Flag to track pause state for task lifecycle management
     private enum State {
         case idle
@@ -266,11 +266,11 @@ final class MockDataProvider: Monstask.KVHeavyTaskBaseDataProvider<String, Strin
 // MARK: - Tests
 
 final class KVHeavyTasksManagerTests: XCTestCase {
-    private func makeManager(priority: Monstask.KVHeavyTasksManager<String, String, MockDataProviderProgress, MockDataProvider>.Config.PriorityStrategy,
+    private func makeManager(priority: KVHeavyTasksManager<String, String, MockDataProviderProgress, MockDataProvider>.Config.PriorityStrategy,
                              running: Int = 1,
                              queueing: Int = 8,
-                             cacheConfig: MemoryCache<String, String>.Configuration = .defaultConfig) -> Monstask.KVHeavyTasksManager<String, String, MockDataProviderProgress, MockDataProvider> {
-        let config = Monstask.KVHeavyTasksManager<String, String, MockDataProviderProgress, MockDataProvider>.Config(
+                             cacheConfig: MemoryCache<String, String>.Configuration = .defaultConfig) -> KVHeavyTasksManager<String, String, MockDataProviderProgress, MockDataProvider> {
+        let config = KVHeavyTasksManager<String, String, MockDataProviderProgress, MockDataProvider>.Config(
             maxNumberOfQueueingTasks: queueing,
             maxNumberOfRunningTasks: running,
             priorityStrategy: priority,

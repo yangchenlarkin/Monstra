@@ -22,7 +22,7 @@ let package = Package(
             targets: ["KVHeavyTaskDataProviderExample"]),
     ],
     dependencies: [
-        // Dependencies declare other packages that this package depends on.
+        // Dependencies declare other packages that this package produces, making them visible to other packages.
         .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.9.0"),
     ],
     targets: [

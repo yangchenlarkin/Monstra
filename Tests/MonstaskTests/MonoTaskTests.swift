@@ -19,8 +19,8 @@
 //you should check the functions and check their correction under concurrency senarios
 
 import XCTest
-@testable import Monstask
-@testable import MonstraBase
+@testable import Monstra
+@testable import Monstra
 
 /// Comprehensive test suite for MonoTask single task executor
 ///

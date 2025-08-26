@@ -22,7 +22,7 @@ Pod::Spec.new do |spec|
   spec.platform     = :osx, "10.15"
   spec.source       = { :git => "https://github.com/yangchenlarkin/Monstra.git", :tag => "v#{spec.version}" }
   
-  spec.swift_version = "5.0"
+  spec.swift_version = "5.5"
   
   # Build all source files as one unified framework
   spec.source_files = "Sources/**/*.swift"
@@ -32,7 +32,7 @@ Pod::Spec.new do |spec|
   
   # Ensure proper dependency resolution during linting
   spec.pod_target_xcconfig = {
-    'SWIFT_VERSION' => '5.0',
+    'SWIFT_VERSION' => '5.5',
     'CLANG_ENABLE_MODULES' => 'YES'
   }
   

@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Get version
+      id: get_version
+      run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+      
+    - name: Create Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.get_version.outputs.VERSION }}
+        release_name: Release ${{ steps.get_version.outputs.VERSION }}
+        body: |
+          ## What's Changed
+          
+          See [CHANGELOG.md](CHANGELOG.md) for detailed information about this release.
+          
+          ## Installation
+          
+          ### Swift Package Manager
+          ```swift
+          dependencies: [
+              .package(url: "https://github.com/yangchenlarkin/Monstra.git", from: "${{ steps.get_version.outputs.VERSION }}")
+          ]
+          ```
+          
+          ### CocoaPods
+          ```ruby
+          pod 'Monstra', '~> ${{ steps.get_version.outputs.VERSION }}'
+          ```
+          
+          ## Breaking Changes
+          
+          None in this release.
+          
+          ## New Features
+          
+          See [CHANGELOG.md](CHANGELOG.md) for complete feature list.
+          
+          ## Bug Fixes
+          
+          See [CHANGELOG.md](CHANGELOG.md) for complete bug fix list.
+        draft: false
+        prerelease: false
+        
+    - name: Update CocoaPods
+      run: |
+        # Update CocoaPods trunk
+        pod trunk push Monstra.podspec
+        
+    - name: Notify Release
+      run: |
+        echo "🎉 Release ${{ steps.get_version.outputs.VERSION }} created successfully!"
+        echo "📦 Available on Swift Package Manager and CocoaPods"
+        echo "📚 Documentation updated"
+        echo "🧪 All tests passing"

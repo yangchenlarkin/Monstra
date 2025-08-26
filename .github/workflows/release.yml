@@ -63,7 +63,7 @@ jobs:
             draft: false,
             prerelease: false
           });
-          console.log(`Release created: ${release.html_url}`);
+          console.log(\`Release created: \${release.html_url}\`);
         
     - name: Update CocoaPods
       run: |

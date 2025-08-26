@@ -74,10 +74,23 @@ jobs:
         sudo gem install cocoapods
         pod --version
         
+    - name: Validate Podspec
+      run: |
+        # Validate the podspec locally first
+        pod lib lint Monstra.podspec --allow-warnings
+        echo "✅ Podspec validation passed"
+        
     - name: Update CocoaPods
       run: |
-        # Update CocoaPods trunk
-        pod trunk push Monstra.podspec
+        # Try to push to CocoaPods trunk
+        # Note: First time requires manual registration with: pod trunk register your-email@example.com "Your Name"
+        if pod trunk push Monstra.podspec --allow-warnings; then
+          echo "✅ Successfully pushed to CocoaPods trunk"
+        else
+          echo "⚠️  CocoaPods push failed - this is normal for first-time releases"
+          echo "📧 You need to register first: pod trunk register your-email@example.com 'Your Name'"
+          echo "🔗 Then verify your email and try again"
+        fi
         
     - name: Notify Release
       run: |

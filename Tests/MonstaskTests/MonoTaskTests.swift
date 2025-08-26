@@ -786,7 +786,7 @@ final class MonoTaskTests: XCTestCase {
         
         let task = MonoTask<String>(
             retry: .never,
-            resultExpireDuration: 0.05  // Very short cache: 50ms
+            resultExpireDuration: 5  // Very short cache: 5s
         ) { callback in
             Task {
                 let count = await counter.increment()
@@ -798,16 +798,16 @@ final class MonoTaskTests: XCTestCase {
         let _ = await task.asyncExecute()
         
         // Wait almost until expiration
-        try? await Task.sleep(nanoseconds: 45_000_000) // 45ms
+        try? await Task.sleep(nanoseconds: 4_000_000_000) // 4s
         
         let resultCollector = ResultCollector<String>()
         
         // Concurrent requests right at expiration boundary
         await withTaskGroup(of: Void.self) { group in
-            for i in 0..<10 {
+            for i in 0...10 {
                 group.addTask {
                     // Stagger requests around expiration boundary
-                    try? await Task.sleep(nanoseconds: UInt64(i * 2_000_000)) // 0-18ms stagger
+                    try? await Task.sleep(nanoseconds: UInt64(i * 200_000_000)) // 0-2s stagger
                     let result = await task.asyncExecute()
                     if case .success(let value) = result {
                         await resultCollector.add(value)
@@ -816,18 +816,20 @@ final class MonoTaskTests: XCTestCase {
             }
         }
         
+        try? await Task.sleep(nanoseconds: 4_000_000_000) // 4s
+        
         let results = await resultCollector.getResults()
         let execCount = await counter.getCount()
         
         // Should have at most 2 executions (original + re-execution after expiry)
         XCTAssertLessThanOrEqual(execCount, 2, "Should have at most 2 executions")
-        XCTAssertEqual(results.count, 10, "All clients should get results")
+        XCTAssertEqual(results.count, 11, "All clients should get results")
         
         // Results should be consistent within each execution
         let result1Count = results.filter { $0.contains("expiration_race_1") }.count
         let result2Count = results.filter { $0.contains("expiration_race_2") }.count
         
-        XCTAssertEqual(result1Count + result2Count, 10, "All results should be from valid executions")
+        XCTAssertEqual(result1Count + result2Count, 11, "All results should be from valid executions")
     }
 
     // MARK: - Edge Case Tests (Minor Considerations)

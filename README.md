@@ -95,17 +95,87 @@ pod 'Monstra', '~> 0.0.5'
 ### 1. MemoryCache
 Basic caching operations with TTL and LRU eviction.
 
-### 2. MonoTask  
-Single-instance task execution with caching and retry logic.
-
+**Simple Example (Default Configuration):**
 ```swift
 import Monstra
 
-// Create a task with caching and retry logic
-let networkTask = MonoTask<Data>(
-    retry: .count(count: 3, intervalProxy: .exponentialBackoff(initialTimeInterval: 1.0)),
-    resultExpireDuration: 300.0 // 5 minutes cache
-) { callback in
+// Create a basic cache with default configuration
+let cache = MemoryCache<String, Int>()
+
+// Set values with different priorities and TTL
+cache.set(element: 42, for: "answer", priority: 10.0, expiredIn: 3600.0) // 1 hour, high priority
+cache.set(element: 100, for: "score", priority: 1.0) // Default TTL, low priority
+cache.set(element: nil, for: "user-999") // Cache null value
+
+// Get values using the FetchResult enum
+switch cache.getElement(for: "answer") {
+case .hitNonNullElement(let value):
+    print("Found answer: \(value)")
+case .hitNullElement:
+    print("Found null value")
+case .miss:
+    print("Key not found or expired")
+case .invalidKey:
+    print("Invalid key")
+}
+
+// Check cache status
+print("Cache count: \(cache.count)")
+print("Cache capacity: \(cache.capacity)")
+print("Is empty: \(cache.isEmpty)")
+print("Is full: \(cache.isFull)")
+
+// Remove specific element
+let removed = cache.removeElement(for: "score")
+print("Removed: \(removed ?? -1)")
+
+// Clean up expired elements
+cache.removeExpiredElements()
+```
+
+**Detailed Configuration Example:**
+```swift
+// Advanced configuration with all options
+let imageCache = MemoryCache<String, Data>(
+    configuration: .init(
+        // Thread Safety: Enable DispatchSemaphore synchronization for concurrent access
+        enableThreadSynchronization: true,
+        
+        // Memory & Capacity Limits: Maximum 100 items, 50MB memory usage
+        memoryUsageLimitation: .init(
+            capacity: 100,    // Maximum number of cached items
+            memory: 50        // Maximum memory usage in MB
+        ),
+        
+        // TTL Settings: How long items stay in cache
+        defaultTTL: 1800.0,              // 30 minutes for regular elements
+        defaultTTLForNullElement: 300.0, // 5 minutes for null/nil elements
+        
+        // Cache Stampede Prevention: Randomize TTL by ±30 seconds
+        ttlRandomizationRange: 30.0,     // Prevents all items expiring simultaneously
+        
+        // Key Validation: Only accept keys starting with "img_"
+        keyValidator: { key in
+            return key.hasPrefix("img_")  // Custom validation logic
+        },
+        
+        // Memory Cost Calculation: Use actual data size for eviction decisions
+        costProvider: { data in
+            return data.count             // Return size in bytes
+        }
+    )
+)
+```
+
+### 2. MonoTask  
+Single-instance task execution with caching and retry logic.
+
+**Simple Example (Default Configuration):**
+```swift
+import Monstra
+
+// Create a basic task with minimal configuration
+let networkTask = MonoTask<Data> { callback in
     // Your network request logic here
     let url = URL(string: "https://api.example.com/data")!
     URLSession.shared.dataTask(with: url) { data, response, error in
@@ -116,6 +186,8 @@ let networkTask = MonoTask<Data>(
         }
     }.resume()
 }
+
+// Alternatively, you can use an asynchornic block to create MonoTask
 
 // Execute with async/await
 let result1: Result<Data, Error> = await networkTask.asyncExecute()
@@ -147,6 +219,77 @@ networkTask.execute { result in
         print("Result3 (callback) error: \(error)")
     }
 }
+```
+
+**Detailed Configuration Example:**
+```swift
+// Advanced configuration with custom retry and queue settings
+let fileProcessor = MonoTask<ProcessedData>(
+    // Retry Strategy: Exponential backoff with 3 attempts
+    retry: .count(
+        count: 3,    // Maximum retry attempts
+        intervalProxy: .exponentialBackoff(
+            initialTimeInterval: 1.0,  // Start with 1 second delay
+            scaleRate: 2.0             // Double the delay each retry
+        )
+    ),
+    
+    // Result Caching: Use default cache configuration
+    resultExpireDuration: 300.0,      // 5 minutes cache duration
+    
+    // Task Queue: Custom dispatch queue for task execution
+    taskQueue: DispatchQueue.global(qos: .utility),  // Background priority queue
+    
+    // Callback Queue: Custom dispatch queue for callbacks
+    callbackQueue: DispatchQueue.global(qos: .userInitiated)  // High priority queue
+) { callback in
+    // Your file processing logic here
+    let filePath = "/path/to/large/file.txt"
+    do {
+        let data = try Data(contentsOf: URL(fileURLWithPath: filePath))
+        let processedData = ProcessedData(content: data, metadata: ["size": data.count])
+        callback(.success(processedData))
+    } catch {
+        callback(.failure(error))
+    }
+}
+```
+
+**Async Task Block Example:**
+```swift
+// Async/await initialization with modern Swift concurrency
+let unzipTask = MonoTask<[String]>(
+    // Retry Strategy: Fixed interval retry for file operations
+    retry: .count(
+        count: 2,    // Retry twice for file system issues
+        intervalProxy: .fixed(timeInterval: 1.0)  // Wait 1 second between retries
+    ),
+    
+    // Result Caching: Cache unzipped file list for 10 minutes
+    resultExpireDuration: 600.0,      // 10 minutes cache duration
+    
+    // Task Queue: Background queue for file operations
+    taskQueue: DispatchQueue.global(qos: .utility),
+    
+    // Callback Queue: Main queue for UI updates
+    callbackQueue: DispatchQueue.main
+) {
+    // Async task block that returns Result directly
+    do {
+        let archivePath = "/path/to/archive.zip"
+        let extractPath = "/path/to/extract/"
+        
+        // Simulate async unzip operation
+        let extractedFiles = try await unzipArchive(at: archivePath, to: extractPath)
+        return .success(extractedFiles)
+    } catch {
+        return .failure(error)
+    }
+}
+
+// Usage with async/await
+let extractedFiles = try await unzipTask.executeThrows()
+print("Extracted \(extractedFiles.count) files")
 ```
 
 ### 3. KVLightTasksManager

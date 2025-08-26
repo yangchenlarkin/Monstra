@@ -160,9 +160,13 @@ public class MonoTask<TaskResult> {
         defer { semaphore.signal() }
         
         // === Phase 1: Check Cache Validity ===
-        if let result = self.result, self.resultExpiresAt > .now() {
-            // Cache hit! Return cached result without executing task
-            completionCallback?(.success(result))
+        if let cachedResult = self.result, self.resultExpiresAt > .now() {
+            // Cache hit! Always invoke callback on the designated callbackQueue
+            if let completionCallback {
+                callbackQueue.async {
+                    completionCallback(.success(cachedResult))
+                }
+            }
             return
         }
         
@@ -570,13 +574,17 @@ public extension MonoTask {
         self.result = nil
         self.resultExpiresAt = .zero
         
-        if let currentlyWaitingCallbacks = self.waitingCallbacks {
+        if let callbacksToNotify = self.waitingCallbacks {
             // Task is currently executing - apply strategy
             switch ongoingExecutionStrategy {
             case .cancel:
-                // Cancel and notify all waiting callbacks
-                currentlyWaitingCallbacks.forEach { $0(.failure(Errors.executionCancelledDueToClearResult)) }
+                // Cancel and notify all waiting callbacks on the designated callbackQueue
                 self.waitingCallbacks = nil
+                callbackQueue.async {
+                    for callback in callbacksToNotify {
+                        callback(.failure(Errors.executionCancelledDueToClearResult))
+                    }
+                }
             case .restart:
                 // Let current execution complete, then restart
                 self._unsafe_execute(retry: self.retry)

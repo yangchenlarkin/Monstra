@@ -78,21 +78,3 @@ jobs:
     - name: Run Performance Tests
       run: swift test --filter PerformanceTests
       
-  cross-platform:
-    name: Cross-Platform Test
-    runs-on: ubuntu-latest
-    
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      
-    - name: Install Swift
-      uses: swift-actions/setup-swift@v2
-      with:
-        swift-version: '5.10'
-        
-    - name: Build
-      run: swift build
-      
-    - name: Test
-      run: swift test

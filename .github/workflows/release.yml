@@ -69,6 +69,11 @@ jobs:
           
           console.log('Release created: ' + release.html_url);
         
+    - name: Install CocoaPods
+      run: |
+        sudo gem install cocoapods
+        pod --version
+        
     - name: Update CocoaPods
       run: |
         # Update CocoaPods trunk

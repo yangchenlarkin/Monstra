@@ -221,7 +221,7 @@ cache.resetStatistics()
 ## Requirements
 
 - iOS 12.0+ / macOS 10.14+
-- Swift 5.0+
+- Swift 5.5+
 - Xcode 12.0+
 
 ## Installation

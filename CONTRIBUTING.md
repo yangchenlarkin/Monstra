@@ -19,7 +19,7 @@ We welcome various types of contributions:
 
 ### Prerequisites
 
-- Swift 5.10+
+- Swift 5.5+
 - Xcode 15+ (for iOS/macOS development)
 - Git
 
@@ -161,7 +161,7 @@ What actually happened
 
 **Environment**
 - OS: [e.g., macOS 14.0, iOS 17.0]
-- Swift Version: [e.g., 5.10]
+- Swift Version: [e.g., 5.5]
 - Monstra Version: [e.g., 1.0.0]
 
 **Additional Context**

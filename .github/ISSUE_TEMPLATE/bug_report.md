@@ -31,7 +31,7 @@ let cache = LRUQueue<String, Int>(capacity: 100)
 
 **Environment:**
  - OS: [e.g. iOS 17.0, macOS 14.0]
- - Swift Version: [e.g. 5.10]
+ - Swift Version: [e.g. 5.5]
  - Monstore Version: [e.g. 1.0.0]
  - Xcode Version: [e.g. 15.0]
 

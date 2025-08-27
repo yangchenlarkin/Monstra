@@ -1,4 +1,6 @@
-# Monstra
+<div align="center">
+  <img src="Logo.png" alt="Monstra Logo" width="50%">
+</div>
 
 [![Swift](https://img.shields.io/badge/Swift-5.5-orange.svg)](https://swift.org)
 [![Platform](https://img.shields.io/badge/platform-iOS%20%7C%20macOS%20%7C%20tvOS%20%7C%20watchOS-lightgrey.svg)](https://developer.apple.com)
@@ -10,56 +12,39 @@ A high-performance Swift framework providing efficient task execution, memory ca
 
 ## 🚀 Features
 
-### Monstore - Memory Caching System
-- **⚡ High Performance**: O(1) time complexity for core operations
-- **🧠 Memory Efficient**: Object pooling and optimized data structures
-- **⏰ TTL Support**: Automatic expiration with time-to-live functionality
-- **🛡️ Thread Safe**: Designed for concurrent access patterns
-- **📊 Comprehensive Testing**: Extensive unit and performance tests
-- **📈 Performance Benchmarked**: Detailed performance analysis and comparisons
-- **🎯 Queue Management**: Separate queues for execution and callbacks
-- **🔄 Cache Stampede Prevention**: TTL randomization prevents simultaneous cache expiration
-- **💥 Avalanche Protection**: Intelligent eviction policies prevent memory overflow
-- **🛡️ Breakdown Protection**: Priority-based LRU eviction with memory limit enforcement
-- **🔒 Null Element Caching**: Support for caching null/nil elements with separate TTL
-- **🎯 Priority-Based Eviction**: Higher priority entries retained longer during eviction
-- **📏 Memory Usage Tracking**: Configurable memory limits with automatic eviction
-- **🔍 External Key Validation**: Customizable key validation function at initialization
-- **📊 Statistics & Monitoring**: Built-in cache statistics and performance metrics
-- **⚙️ Configurable Thread Safety**: Optional DispatchSemaphore synchronization
-- **🧹 Automatic Cleanup**: Background removal of expired elements
-- **💾 Cost-Aware Storage**: Memory cost calculation for accurate eviction decisions
+### Monstore - Caching System
+
+#### MemoryCache
+- **⏰ TTL & Priority Support**: Advanced time-to-live functionality with automatic expiration and configurable priority-based eviction
+- **💥 Avalanche Protection**: Intelligent TTL randomization prevents cache stampede and simultaneous expiration cascades
+- **🛡️ Breakdown Protection**: Comprehensive null value caching and robust key validation for enhanced reliability
+- **📊 Statistics & Monitoring**: Built-in cache statistics, performance metrics, and real-time monitoring capabilities
 
 ### Monstask - Task Execution Framework
 
-#### **MonoTask - Single-Instance Task Executor**
+#### **MonoTask**
+
+**Single Task Execution & Merging**: Handles individual task execution and request merging, such as module initialization, configuration file reading, and API call consolidation with result caching (e.g., UserProfile, e-commerce Cart operations)
+
 - **🔄 Execution Merging**: Multiple concurrent requests merged into single execution
 - **⏱️ TTL Caching**: Results cached for configurable duration with automatic expiration
 - **🔄 Advanced Retry Logic**: Exponential backoff, fixed intervals, and hybrid retry strategies
 - **🎯 Manual Cache Control**: Fine-grained cache invalidation with execution strategy options
-- **🚀 Multiple Execution Patterns**: Callback-based, async/await, and fire-and-forget modes
-- **🛡️ Thread Safety**: Fine-grained locking with semaphores for concurrent access
-- **🔍 Execution State Management**: Track running tasks with cancellation and restart options
-- **📱 Queue Separation**: Separate queues for task execution and callback invocation
 
-#### **KVLightTasksManager - Lightweight Task Management**
-- **⚡ High Performance**: Optimized for fast, lightweight operations
-- **🎯 Priority-Based Scheduling**: LIFO/FIFO strategies with configurable limits
-- **🔄 Batch Processing**: Support for single and batch data provisioning
+#### **KVLightTasksManager**
+**High-Volume Task Execution**: Handles the execution and scheduling of numerous lightweight tasks, such as image downloads, local database batch reads, map tile downloads and cache warming operations
+- **📈 Peak Shaving**: Prevents excessive task execution volume through Priority-Based Scheduling (LIFO/FIFO strategies with configurable limits)
+- **🔄 Batch Processing**: Support for single and batch data provisioning to enhance backend execution efficiency
 - **📊 Concurrent Execution**: Configurable concurrent task limits (default: 4 running, 256 queued)
-- **🔒 Key Validation**: Automatic filtering of invalid keys to prevent unnecessary operations
-- **📈 Statistics & Monitoring**: Built-in cache statistics and performance metrics
-- **🧹 Memory Management**: Automatic cleanup with configurable resource limits
+- **💾 Result Caching**: Integrated MemoryCache for optimized performance
 
-#### **KVHeavyTasksManager - Heavy Task Coordination**
-- **🏗️ Resource-Intensive Operations**: Such as large file downloads, video processing, ML inference with progress tracking
-- **📊 Progress Tracking**: Real-time updates with custom event publishing and broadcasting
-- **🎯 Priority-Based Scheduling**: LIFO/FIFO strategies with interruption support
-- **🔄 Task Lifecycle Management**: Start/stop/resume with provider state preservation
-- **🛡️ Error Handling & Recovery**: Graceful degradation with detailed error propagation
-- **📱 Concurrent Control**: Limited concurrent execution (default: 2 running, 64 queued)
-- **🧹 Memory Optimization**: Automatic cleanup with configurable resource limits
-- **📈 Performance Monitoring**: Built-in performance tracking and optimization
+#### **KVHeavyTasksManager**
+**Resource-Intensive Operations**: Handles demanding tasks such as large file downloads, video processing, and ML inference with comprehensive progress tracking
+- **📊 Progress Tracking**: Real-time progress updates with custom event publishing and broadcasting capabilities
+- **🎯 Priority-Based Scheduling**: Advanced LIFO/FIFO strategies with intelligent interruption support
+- **🔄 Task Lifecycle Management**: Complete start/stop/resume functionality with provider state preservation
+- **📱 Concurrent Control**: Optimized concurrent execution limits (default: 2 running, 64 queued)
+- **💾 Result Caching**: Integrated MemoryCache for enhanced performance and efficiency
 
 ## 🚀 Quick Start
 

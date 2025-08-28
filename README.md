@@ -539,7 +539,7 @@ imageManager.fetch(keys: imageURLs) { url, result in
 ### **🏗️ KVHeavyTasksManager - Heavy Task Scenarios**
 | Scenario | Best Practices | Example Link |
 |----------|----------------|--------------|
-| **Large File Download Management** | Large file downloads with progress tracking | [Large File Downloader](Examples/KVHeavyTasksManager/LargeFileDownloadManagement/README.md) |
+| **Large File Download Management** | Large file downloads with progress tracking | [Large File Downloader](Examples/KVHeavyTasksManager/LargeFileDownloadManagement) |
 | **Large File Unzip** | Processing large archive files with progress tracking and resource management | Coming Soon |
 
 

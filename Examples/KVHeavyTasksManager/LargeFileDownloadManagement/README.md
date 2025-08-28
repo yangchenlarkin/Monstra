@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="../../../Logo.png" alt="Monstra Logo" width="200"/>
+</div>
+
 # Large File Download Management Example
 
 A comprehensive example demonstrating how to implement large file downloads with progress tracking, resume capability, and intelligent caching using the Monstra framework's `KVHeavyTasksManager` and Alamofire.

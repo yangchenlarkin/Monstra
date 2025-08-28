@@ -175,7 +175,6 @@ fileprivate extension String {
         return hexString
     }
 }
-```
 
 #### Download Strategy:
 1. **Cache Check**: Examines existing downloads for potential resume
@@ -186,59 +185,24 @@ fileprivate extension String {
 
 ### 2.2 Usage (in main)
 
-The main.swift file demonstrates a basic setup for using the `AlamofireDataProvider` with `KVHeavyTasksManager`.
+The main.swift file demonstrates advanced usage of the `AlamofireDataProvider` with `KVHeavyTasksManager`, including both modern async/await and traditional callback patterns.
 
-#### Current Implementation:
+#### Key Features Demonstrated:
 
+**1. Execution Merging (Multiple Callbacks, Single Download):**
 ```swift
-import Foundation
-import Alamofire
-import Monstra
-
-// Example URLs for testing large file downloads
-let chrome = URL(string: "https://dl.google.com/chrome/mac/universal/stable/GGRO/googlechrome.dmg")!
-let evernote = URL(string: "https://mac.desktop.evernote.com/builds/Evernote-latest.dmg")!
-let slack = URL(string: "https://downloads.slack-edge.com/desktop-releases/mac/universal/4.45.69/Slack-4.45.69-macOS.dmg")!
-
-// Create the task manager with AlamofireDataProvider
-let manager = KVHeavyTasksManager<URL, Data, Progress, AlamofireDataProvider>(config: .init())
-
-// Basic download example (currently incomplete)
-manager.fetch(key: chrome) { result in
-    // TODO: Handle download result
-}
-
-// Keep the main thread alive to allow async operations to complete
-RunLoop.main.run()
-```
-
-#### Enhanced Usage Examples:
-
-For more comprehensive usage, you can extend the main.swift file with:
-
-```swift
-// Download with completion handler
-manager.fetch(key: chrome) { result in
-    switch result {
-    case .success(let data):
-        print("✅ Download completed: \(data.count) bytes")
-    case .failure(let error):
-        print("❌ Download failed: \(error)")
+// Multiple async tasks share the same download
+await withTaskGroup(of: Void.self) { group in
+    for i in 0..<10 {
+        group.addTask {
+            let result = await manager1.asyncFetch(key: chrome, customEventObserver: { progress in
+                print("fetch task \(i). progress: \(progress.completedUnitCount) / \(progress.totalUnitCount)")
+            })
+            print("fetch task \(i). result: \(result)")
+        }
     }
 }
-
-// Download with progress tracking
-manager.fetch(key: chrome) { result in
-    // Handle completion
-} progress: { progress in
-    let percentage = progress.fractionCompleted * 100
-    let downloadedMB = Double(progress.completedUnitCount) / 1_048_576
-    let totalMB = Double(progress.totalUnitCount) / 1_048_576
-    
-    print("📥 Progress: \(String(format: "%.1f", percentage))% (\(String(format: "%.1f", downloadedMB))MB / \(String(format: "%.1f", totalMB))MB)")
-}
 ```
-
 #### Key Framework Behavior:
 
 **Multiple Callbacks, Single Execution**: The Monstra framework allows multiple callbacks to be registered for the same download task, but the actual download only happens once. This is demonstrated in the logs:
@@ -267,5 +231,80 @@ fetch task 9. result: success(Optional(229019705 bytes))
 - **Efficient resource usage** - no duplicate downloads for the same URL
 
 This pattern is useful for scenarios where multiple parts of your app need the same file, ensuring efficient downloads and consistent state across all consumers.
+
+
+**2. Task Queueing (Sequential Downloads):**
+```swift
+// Custom configuration for limited concurrency
+let config = Manager.Config(maxNumberOfQueueingTasks: 1, maxNumberOfRunningTasks: 1, priorityStrategy: .FIFO)
+let manager = Manager(config: config)
+
+// Downloads will execute sequentially
+manager.fetch(key: chrome) { result in
+    print("Chrome download completed")
+}
+manager.fetch(key: slack) { result in
+    print("Slack download completed")
+}
+manager.fetch(key: evernote) { result in
+    print("Evernote download completed")
+}
+```
+
+
+**Task Queueing Behavior:**
+This configuration ensures downloads execute sequentially with limited concurrency. The logs show the sequential execution:
+
+```
+📁 Using system caches directory: /Users/zennish/Library/Caches
+📁 Generated destination URL: /Users/zennish/Library/Caches/AlamofireDataProvider/b339168e62d77e242b7e9e454d82fb18
+🚀 Starting new download for key: https://dl.google.com/chrome/mac/universal/stable/GGRO/googlechrome.dmg
+did fetch evernote. result: failure(Monstra.KVHeavyTasksManager<Foundation.URL, Foundation.Data, __C.NSProgress, LargeFileDownloadManagement.AlamofireDataProvider>.Errors.taskEvictedDueToPriorityConstraints(https://mac.desktop.evernote.com/builds/Evernote-latest.dmg))
+downloading chrome: 0.0017893656792545428%
+downloading chrome: 0.004180426308731819%
+downloading chrome: 0.006571486938209094%
+downloading chrome: 0.008958617774832957%
+downloading chrome: 0.011349678404310231%
+......
+downloading chrome: 99.57528894729822%
+downloading chrome: 99.69696537684388%
+downloading chrome: 99.81857194340549%
+downloading chrome: 99.94018549626549%
+downloading chrome: 100.0%
+✅ Download completed successfully: 229019705 bytes
+📁 Using system caches directory: /Users/zennish/Library/Caches
+📁 Generated destination URL: /Users/zennish/Library/Caches/AlamofireDataProvider/5825d1009072c995406c037b2fdc7507
+🚀 Starting new download for key: https://downloads.slack-edge.com/desktop-releases/mac/universal/4.45.69/Slack-4.45.69-macOS.dmg
+did fetch chrome. result: success(Optional(229019705 bytes))
+downloading slack: 0.008185515174136616%
+downloading slack: 0.016579784322574478%
+downloading slack: 0.02497405347101234%
+downloading slack: 0.033368322619450205%
+downloading slack: 0.1747368217616714%
+......
+downloading slack: 99.78830551824257%
+downloading slack: 99.92599594674667%
+downloading slack: 100.0%
+✅ Download completed successfully: 194966348 bytes
+did fetch slack. result: success(Optional(229019705 bytes))
+```
+
+**What This Shows:**
+- **Sequential execution**: Chrome downloads first, then Slack
+- **Task eviction**: Evernote task was evicted due to priority constraints
+- **Progress tracking**: Real-time progress updates for each download
+- **Cache management**: Each download gets a unique cache file
+- **Completion handling**: Results are delivered as each download finishes
+
+---
+
+**💡 Pro Tip**: Try different priority strategies to see how they affect task execution! As noted in the code:
+
+```swift
+let config2 = Manager.Config(maxNumberOfQueueingTasks: 1, maxNumberOfRunningTasks: 1, priorityStrategy: .FIFO) // try other strategies to see the difference
+```
+
+Experiment with different `priorityStrategy` values to observe how they change the download order and task handling behavior.
+
 
 

@@ -35,7 +35,7 @@ class AlamofireDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, Prog
         if let resumeData {
             // Resume Logic: Use Alamofire's resume capability with existing data
             // This allows downloads to continue from where they left off
-            print("🔄 Resuming download from existing state...")
+            print("🔄 Resuming download from existing state for key: \(key)")
             request = AF.download(resumingWith: resumeData) { _, _ in
                 // Destination configuration for resumed downloads
                 // - createIntermediateDirectories: Ensures the full path exists
@@ -45,7 +45,7 @@ class AlamofireDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, Prog
         } else {
             // Fresh Download Logic: Start a new download from the beginning
             // This path is taken for first-time downloads or when resume data is unavailable
-            print("🚀 Starting new download from scratch...")
+            print("🚀 Starting new download for key: \(key)")
             request = AF.download(key, to: { _, _ in
                 // Destination configuration for new downloads
                 // Same options as resume to ensure consistency

@@ -674,6 +674,19 @@ public extension KVHeavyTasksManager {
         }
         self.start(key, customEventObserver: customEventObserver, resultCallback: resultCallback)
     }
+    
+    func asyncFetch(key: K,
+                   customEventObserver: DataProvider.CustomEventPublisher? = nil) async -> Result<V, Error> {
+        guard self.config.maxNumberOfRunningTasks > 0 else {
+            return .failure(Errors.invalidConcurrencyConfiguration)
+        }
+        
+        return await withCheckedContinuation { continuation in
+            self.start(key, customEventObserver: customEventObserver) { result in
+                continuation.resume(returning: result)
+            }
+        }
+    }
 }
 
 /// Private implementation details for internal task coordination and execution.

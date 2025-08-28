@@ -7,12 +7,13 @@ let chrome = URL(string: "https://dl.google.com/chrome/mac/universal/stable/GGRO
 let evernote = URL(string: "https://mac.desktop.evernote.com/builds/Evernote-latest.dmg")!
 let slack = URL(string: "https://downloads.slack-edge.com/desktop-releases/mac/universal/4.45.69/Slack-4.45.69-macOS.dmg")!
 
-typealias Manager = KVHeavyTasksManager<URL, Data, Progress, AlamofireDataProvider>
+typealias AFNetworkingManager = KVHeavyTasksManager<URL, Data, Progress, AFNetworkingDataProvider> // try AlamofireDataProvider to see the difference
+typealias AlamofireManager = KVHeavyTasksManager<URL, Data, Progress, AlamofireDataProvider> // try AFNetworkingDataProvider to see the difference
 
-let manager1 = Manager(config: .init())
+let manager1 = AFNetworkingManager(config: .init())
 
-let config2 = Manager.Config(maxNumberOfQueueingTasks: 1, maxNumberOfRunningTasks: 1, priorityStrategy: .FIFO) // try other  strategies to see the difference
-let manager2 = Manager(config: config2)
+let config2 = AlamofireManager.Config(maxNumberOfQueueingTasks: 1, maxNumberOfRunningTasks: 1, priorityStrategy: .FIFO) // try other strategies to see the difference
+let manager2 = AlamofireManager(config: config2)
 
 Task {
     // Execution Merging

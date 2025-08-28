@@ -11,12 +11,13 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../../../"),
-        .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.8.0")
+        .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.8.0"),
+        .package(url: "https://github.com/AFNetworking/AFNetworking.git", from: "4.0.0")
     ],
     targets: [
         .executableTarget(
             name: "LargeFileDownloadManagement",
-            dependencies: ["Monstra", "Alamofire"]
+            dependencies: ["Monstra", "Alamofire", "AFNetworking"]
         )
     ]
 )

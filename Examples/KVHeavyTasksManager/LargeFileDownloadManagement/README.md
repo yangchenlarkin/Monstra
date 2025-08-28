@@ -175,7 +175,6 @@ fileprivate extension String {
         return hexString
     }
 }
-```
 
 #### Download Strategy:
 1. **Cache Check**: Examines existing downloads for potential resume
@@ -186,7 +185,7 @@ fileprivate extension String {
 
 ### 2.2 Usage (in main)
 
-The main.swift file demonstrates advanced usage of the `AlamofireDataProvider` with `KVHeavyTasksManager`, including both modern async/await and traditional callback patterns.
+The main.swift file demonstrates advanced usage of the `AlamofireDataProvider` and `AFNetworkingDataProvider` with `KVHeavyTasksManager`, including both modern async/await and traditional callback patterns.
 
 #### Key Features Demonstrated:
 
@@ -211,13 +210,16 @@ await withTaskGroup(of: Void.self) { group in
 **File System & Caching Behavior:**
 ```
 📁 Using system caches directory: /Users/zennish/Library/Caches
-📁 Generated destination URL: /Users/zennish/Library/Caches/AlamofireDataProvider/b339168e62d77e242b7e9e454d82fb18
-🚀 Starting new download from scratch...
+📁 Generated destination URL: /Users/zennish/Library/Caches/AFNetworkingDataProvider/b339168e62d77e242b7e9e454d82fb18
+🚀 Starting download for key: https://dl.google.com/chrome/mac/universal/stable/GGRO/googlechrome.dmg
 fetch task 0. progress: 10943 / 229019705
 fetch task 1. progress: 10943 / 229019705
 fetch task 2. progress: 10943 / 229019705
 ...
 fetch task 9. progress: 229019705 / 229019705
+📁 AFNetworking destination callback called, returning: /Users/zennish/Library/Caches/AFNetworkingDataProvider/b339168e62d77e242b7e9e454d82fb18.dmg
+📁 Download completed, file URL: /Users/zennish/Library/Caches/AFNetworkingDataProvider/b339168e62d77e242b7e9e454d82fb18.dmg
+📁 Expected destination: /Users/zennish/Library/Caches/AFNetworkingDataProvider/b339168e62d77e242b7e9e454d82fb18.dmg
 ✅ Download completed successfully: 229019705 bytes
 fetch task 0. result: success(Optional(229019705 bytes))
 fetch task 1. result: success(Optional(229019705 bytes))
@@ -306,6 +308,36 @@ let config2 = Manager.Config(maxNumberOfQueueingTasks: 1, maxNumberOfRunningTask
 ```
 
 Experiment with different `priorityStrategy` values to observe how they change the download order and task handling behavior.
+
+---
+
+## 🔄 **Provider Comparison**
+
+This example includes two different network data providers to demonstrate the flexibility of the Monstra framework:
+
+### **AlamofireDataProvider**
+- Uses **Alamofire** networking library
+- Built-in resume capability with `resumeData`
+- Automatic file path management
+- Progress tracking with Alamofire's progress system
+
+### **AFNetworkingDataProvider**  
+- Uses **AFNetworking** networking library
+- Custom resume implementation with progress tracking
+- Manual directory creation and file management
+- Progress tracking with AFNetworking's progress system
+
+**💡 Try switching between providers to see the difference:**
+
+```swift
+// try AlamofireDataProvider to see the difference
+let manager = Manager<URL, Data, Progress, AlamofireDataProvider>()
+
+// try AFNetworkingDataProvider to see the difference  
+let manager = Manager<URL, Data, Progress, AFNetworkingDataProvider>()
+```
+
+Both providers implement the same `KVHeavyTaskDataProviderInterface`, so you can easily swap between them without changing your business logic!
 
 
 

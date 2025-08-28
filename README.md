@@ -509,22 +509,24 @@ imageManager.fetch(keys: imageURLs) { url, result in
 ### **⚡ MonoTask - Task Execution Scenarios**
 | Scenario | Best Practices | Example Link |
 |----------|----------------|--------------|
-| **API Response Caching** | Cache API responses to reduce network calls | [API Caching Examples](docs/AdvancedUsage.md#api-response-caching) |
-| **Configuration Management** | Cache app configuration with retry logic | [Config Management Examples](docs/AdvancedUsage.md#configuration-management) |
+| **API Response Caching** | Cache API responses to reduce network calls | Coming Soon |
+| **Module Initialization** | Cache app configuration with retry logic | Coming Soon |
+| **UserProfile Manager** | Single-instance user profile management with caching | Coming Soon |
 
 ### **🚀 KVLightTasksManager - Light Task Scenarios**
 | Scenario | Best Practices | Example Link |
 |----------|----------------|--------------|
-| **User Profile Fetching** | High-frequency user data operations | [User Profile Examples](docs/AdvancedUsage.md#user-profile-fetching) |
-| **Real-time Data Streaming** | Streaming data with caching and deduplication | [Streaming Examples](docs/AdvancedUsage.md#real-time-data-streaming) |
+| **Image Download** | Efficient image downloading with caching and batch processing | Coming Soon |
+| **Object Fetch Task** | Batch fetch objects by ID list with performance enhancement | Coming Soon |
+| **Small Unzip Task** | Efficient batch processing of small archive files with caching and progress tracking | Coming Soon |
 
 ### **🏗️ KVHeavyTasksManager - Heavy Task Scenarios**
 | Scenario | Best Practices | Example Link |
 |----------|----------------|--------------|
-| **File Download Management** | Large file downloads with progress tracking | [File Download Examples](docs/AdvancedUsage.md#file-download-management) |
-| **Video Processing Pipeline** | Multi-phase video processing with ML inference | [Video Processing Examples](docs/AdvancedUsage.md#video-processing-pipeline) |
+| **Large File Download Management** | Large file downloads with progress tracking | Coming Soon |
+| **Large File Unzip** | Processing large archive files with progress tracking and resource management | Coming Soon |
 
-*Note: All example links point to the Advanced Usage documentation (Coming Soon)*
+
 
 ## 📊 Performance
 

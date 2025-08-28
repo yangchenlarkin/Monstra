@@ -10,16 +10,13 @@ let package = Package(
         .iOS(.v16)
     ],
     dependencies: [
-        .package(url: "https://github.com/yangchenlarkin/Monstra.git", from: "0.0.5")
+        .package(path: "../../../"),
+        .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.8.0")
     ],
     targets: [
         .executableTarget(
             name: "LargeFileDownloadManagement",
-            dependencies: ["Monstra"]
-        ),
-        .testTarget(
-            name: "LargeFileDownloadManagementTests",
-            dependencies: ["LargeFileDownloadManagement"]
+            dependencies: ["Monstra", "Alamofire"]
         )
     ]
 )

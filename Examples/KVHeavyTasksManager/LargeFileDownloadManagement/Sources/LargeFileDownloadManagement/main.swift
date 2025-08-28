@@ -10,8 +10,12 @@ let slack = URL(string: "https://downloads.slack-edge.com/desktop-releases/mac/u
 
 let manager = KVHeavyTasksManager<URL, Data, Progress, AlamofireDataProvider>(config: .init())
 
-manager.fetch(key: chrome) { result in
-    
+for i in 0..<10 {
+    manager.fetch(key: chrome, customEventObserver: { progress in
+        print("fetch task \(i). progress: \(progress.completedUnitCount) / \(progress.totalUnitCount)")
+    }) { result in
+        print("fetch task \(i). result: \(result)")
+    }
 }
 
 RunLoop.main.run()

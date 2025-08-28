@@ -10,199 +10,188 @@ import Monstra
 import Alamofire
 import CryptoKit
 
-/// Example implementation of a network data provider using Alamofire for file downloads
-///
-/// This provider demonstrates how to implement the KVHeavyTaskDataProvider protocol
-/// for network-based tasks like file downloads. It leverages Alamofire's built-in
-/// resume capability and provides progress tracking through custom events.
-///
-/// ## Use Cases
-/// - Large file downloads with progress tracking
-/// - Resume downloads after network interruption
-/// - File integrity validation
-/// - Background download management
-///
-/// ## Key Features
-/// - Automatic resume capability using Alamofire
-/// - Progress tracking with detailed metrics
-/// - File integrity validation
-/// - Intelligent caching and deduplication
-/// - Error handling and retry logic
+/// Network data provider using Alamofire for file downloads with resume capability and progress tracking.
+/// Implements KVHeavyTaskDataProvider protocol for large file downloads with intelligent caching.
 class AlamofireDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, Progress>, Monstra.KVHeavyTaskDataProviderInterface {
-    /// The current download request (if active)
-    ///
-    /// This property holds the Alamofire DownloadRequest instance, allowing
-    /// for cancellation, pausing, and resuming of the download operation.
+    
+    // MARK: - Private Properties
+    
+    /// Active Alamofire download request for progress tracking, cancellation, and resume capability.
     private var request: DownloadRequest? = nil
+    
+    /// Resume data for interrupted downloads, enabling automatic download resumption.
     private var resumeData: Data? = nil
     
-    /// Downloads the file from the specified URL with intelligent resume capability
-    ///
-    /// This method implements sophisticated download logic that provides:
-    ///
-    /// ## Download Strategy
-    /// 1. **Cache Check**: Examines existing downloads for potential resume
-    /// 2. **Integrity Validation**: Compares local and remote file sizes
-    /// 3. **Resume Logic**: Automatically resumes from partial downloads
-    /// 4. **Progress Tracking**: Real-time progress updates via custom events
-    /// 5. **Error Handling**: Comprehensive error management and reporting
-    ///
-    /// ## Implementation Flow
-    /// - First checks if a partial download exists at the destination
-    /// - Validates file integrity by comparing local vs remote file sizes
-    /// - If sizes match, returns cached data immediately
-    /// - If sizes differ, resumes download from existing data
-    /// - If no existing data, starts fresh download
-    /// - Publishes progress events throughout the download
-    ///
-    /// - Returns: The downloaded file data as Data object, or nil if cancelled
-    /// - Throws: Network errors (AFError), file system errors, or validation errors
+    // MARK: - Core Download Methods
+    
+    /// Starts or resumes a file download with automatic resume capability and progress tracking.
+    /// Handles both fresh downloads and resume from interrupted downloads.
     func start() {
+        // Step 1: Determine the destination URL for this download
+        // This ensures consistent file storage and enables resume functionality
         let destinationURL = Self.destinationURL(key)
         
-        // Step 1: Check for existing download and validate integrity
+        // Step 2: Check for existing resume data and implement resume logic
         if let resumeData {
+            // Resume Logic: Use Alamofire's resume capability with existing data
+            // This allows downloads to continue from where they left off
+            print("🔄 Resuming download from existing state...")
             request = AF.download(resumingWith: resumeData) { _, _ in
+                // Destination configuration for resumed downloads
+                // - createIntermediateDirectories: Ensures the full path exists
+                // - removePreviousFile: Prevents conflicts with partial downloads
                 return (destinationURL, [.createIntermediateDirectories, .removePreviousFile])
             }
         } else {
-            // Step 4: Start fresh download
-            print("🚀 Starting new download")
+            // Fresh Download Logic: Start a new download from the beginning
+            // This path is taken for first-time downloads or when resume data is unavailable
+            print("🚀 Starting new download from scratch...")
             request = AF.download(key, to: { _, _ in
+                // Destination configuration for new downloads
+                // Same options as resume to ensure consistency
                 return (destinationURL, [.createIntermediateDirectories, .removePreviousFile])
             })
         }
         
-        // Step 5: Set up progress tracking with custom event publishing
-        
+        // Step 3: Configure progress tracking and event publishing
+        // This enables real-time progress updates through the Monstra event system
         request?.downloadProgress(queue: .global(), closure: customEventPublisher)
         
-        // Step 6: Wait for download completion using async/await
-        request?.responseData { response in
+        // Step 4: Set up completion handling with comprehensive error management
+        // This ensures proper state management and result publishing
+        request?.responseData { [weak self] response in
+            // Use weak self to prevent retain cycles in the closure
+            guard let self = self else { return }
+            
             switch response.result {
             case .success(let data):
-                self.resumeData = nil
-                self.resultPublisher(.success(data))
+                // Download Success: Clear resume data and publish success result
+                print("✅ Download completed successfully: \(data.count) bytes")
+                self.resumeData = nil  // Clear resume data as it's no longer needed
+                self.resultPublisher(.success(data))  // Publish success through Monstra
+                
             case .failure(let error):
+                // Download Failure: Handle different types of failures appropriately
+                print("❌ Download failed with error: \(error)")
+                
+                // Only publish failure if this wasn't a resume attempt
+                // Resume failures should not propagate to avoid breaking the resume cycle
                 if self.resumeData == nil {
                     self.resultPublisher(.failure(error))
+                } else {
+                    // Resume failed, but we can try a fresh download next time
+                    print("🔄 Resume failed, will attempt fresh download on next start")
                 }
             }
         }
     }
     
-    /// Stops the current download and saves resume data for later resumption
-    ///
-    /// This method leverages Alamofire's built-in resume capability to gracefully
-    /// cancel the current download while preserving the download state. The resume
-    /// data is automatically saved to disk for later use.
-    ///
-    /// ## How It Works
-    /// - Cancels the active download request
-    /// - Alamofire automatically generates resume data
-    /// - Resume data is saved to the destination URL
-    /// - Future downloads can resume from this point
-    ///
-    /// ## Usage
-    /// ```swift
-    /// let resumeTask = await provider.stop()
-    /// // ... do other work ...
-    /// await resumeTask?() // Resume download
-    /// ```
-    ///
-    /// - Returns: An async closure that can resume the download, or nil if already finished
+    /// Stops the current download and generates resume data for future resumption.
+    /// Returns whether the provider can be reused or should be deallocated.
     @discardableResult
     func stop() -> KVHeavyTaskDataProviderStopAction {
+        // Step 1: Validate that there's an active download to stop
+        // This prevents unnecessary operations and provides clear feedback
         guard let request = request, !request.isFinished else {
-            print("📋 No active download to stop")
-            self.resumeData = nil
-            return .dealloc
+            print("📋 No active download to stop - request is nil or already finished")
+            self.resumeData = nil  // Clear any stale resume data
+            return .dealloc  // Indicate that this provider should be deallocated
         }
         
-        print("⏸️ Stopping download and saving resume data...")
+        // Step 2: Initiate graceful cancellation with resume data generation
+        print("⏸️ Stopping download and generating resume data...")
+        
+        // Use a semaphore to synchronously wait for resume data generation
+        // This ensures the method doesn't return until the cancellation is complete
         let semaphore = DispatchSemaphore(value: 0)
-        var res: Data? = nil
-        request.cancel(byProducingResumeData: {
-            print("⏸️ Downloading stopped")
-            res = $0
-            semaphore.signal()
+        var resumeDataResult: Data? = nil
+        
+        // Cancel the download and capture resume data
+        // The completion handler will be called when resume data is ready
+        request.cancel(byProducingResumeData: { resumeData in
+            print("⏸️ Download cancelled, resume data generated: \(resumeData?.count ?? 0) bytes")
+            resumeDataResult = resumeData
+            semaphore.signal()  // Signal that resume data generation is complete
         })
-        switch semaphore.wait(timeout: .now() + 1) {
+        
+        // Step 3: Wait for resume data generation with timeout protection
+        // This prevents the method from hanging indefinitely if something goes wrong
+        let waitResult = semaphore.wait(timeout: .now() + 1)  // 1 second timeout
+        
+        switch waitResult {
         case .success:
-            print("⏸️ Downloading stopped success")
-            self.resumeData = res
-            return .reuse
+            // Resume data generated successfully
+            print("⏸️ Download stopped successfully with resume data")
+            self.resumeData = resumeDataResult  // Store resume data for future use
+            return .reuse  // Indicate that this provider can be reused
+            
         case .timedOut:
-            print("⏸️ Downloading stopped timeout")
-            self.resumeData = nil
-            return .dealloc
+            // Resume data generation timed out
+            print("⏸️ Download stop timed out - resume data generation failed")
+            self.resumeData = nil  // Clear any partial resume data
+            return .dealloc  // Force deallocation to prevent hanging state
         }
     }
     
-    /// Gets the caches directory for storing downloaded files
-    ///
-    /// This method returns the appropriate directory for storing downloaded files.
-    /// It first tries to use the system caches directory, falling back to the
-    /// temporary directory if the caches directory is not available.
-    ///
-    /// ## Directory Priority
-    /// 1. System caches directory (preferred for persistence)
-    /// 2. Temporary directory (fallback for limited environments)
-    ///
-    /// - Returns: The URL of the directory to use for file storage
+    // MARK: - File Management & Caching
+    
+    /// Returns the optimal directory for file storage (caches directory preferred, temp directory as fallback).
     private static func getCachesDirectory() -> URL {
+        // Step 1: Attempt to access the system caches directory
+        // This is the preferred location for persistent file storage
         if let cachesDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
-           return cachesDirectory
+            print("📁 Using system caches directory: \(cachesDirectory.path)")
+            return cachesDirectory
         }
-        return FileManager.default.temporaryDirectory
+        
+        // Step 2: Fallback to temporary directory if caches directory is unavailable
+        // This ensures the provider can function even in restricted environments
+        let tempDirectory = FileManager.default.temporaryDirectory
+        print("📁 Falling back to temporary directory: \(tempDirectory.path)")
+        return tempDirectory
     }
     
-    /// Generates the destination URL for a given download key
-    ///
-    /// This method creates a unique file path based on the URL's MD5 hash,
-    /// ensuring that each download has a consistent location regardless of
-    /// when or how many times it's downloaded.
-    ///
-    /// ## File Naming Strategy
-    /// - Uses MD5 hash of the URL for uniqueness
-    /// - Avoids conflicts between different URLs
-    /// - Provides consistent caching behavior
-    ///
-    /// - Parameter key: The URL of the file to download
-    /// - Returns: The destination URL where the file will be saved
+    /// Generates a unique destination URL for downloads using MD5 hash of the source URL.
+    /// Ensures consistent file paths and enables resume functionality.
     private static func destinationURL(_ key: URL) -> URL {
+        // Step 1: Get the base cache directory (caches or temporary)
         let cacheDirectory = getCachesDirectory()
+        
+        // Step 2: Create a dedicated subdirectory for this provider
+        // This organizes downloads and prevents conflicts with other components
         let downloadFolder = cacheDirectory.appendingPathComponent("AlamofireDataProvider", isDirectory: true)
+        
+        // Step 3: Generate the final destination URL using MD5 hash of the source URL
+        // This ensures unique, deterministic file naming for each download
         let destinationURL = downloadFolder.appendingPathComponent(key.absoluteString.md5())
+        
+        print("📁 Generated destination URL: \(destinationURL.path)")
         return destinationURL
     }
 }
 
-/// Extension to add MD5 hashing capability to String
-///
-/// This extension provides a simple way to generate MD5 hashes from strings,
-/// which is useful for creating unique file names and cache keys.
-///
-/// ## Use Cases
-/// - Creating unique file names for downloads
-/// - Generating cache keys for data storage
-/// - Ensuring consistent file paths across sessions
-/// - Avoiding filename conflicts in shared directories
+// MARK: - String Extension for MD5 Hashing
+
+/// Extension to add MD5 hashing capability to String objects for file naming and cache keys.
 fileprivate extension String {
-    /// Generates an MD5 hash of the string
-    ///
-    /// This method converts the string to UTF-8 data and computes its MD5 hash.
-    /// The result is returned as a hexadecimal string.
-    ///
-    /// ## Hash Properties
-    /// - Deterministic: Same input always produces same output
-    /// - Fixed length: Always returns 32 hexadecimal characters
-    /// - Collision resistant: Different inputs produce different hashes
-    ///
-    /// - Returns: A 32-character hexadecimal string representing the MD5 hash
+    
+    /// Generates an MD5 hash of the string using CryptoKit for file naming and integrity checking.
+    /// Returns a 32-character hexadecimal string.
     func md5() -> String {
+        // Step 1: Convert string to UTF-8 encoded Data
+        // UTF-8 is the most efficient encoding for hash computation
         let data = Data(self.utf8)
+        
+        // Step 2: Compute MD5 hash using CryptoKit
+        // CryptoKit provides optimized, secure hash implementations
         let hash = Insecure.MD5.hash(data: data)
-        return hash.map { String(format: "%02x", $0) }.joined()
+        
+        // Step 3: Convert hash bytes to hexadecimal string
+        // Each byte becomes two hexadecimal characters
+        let hexString = hash.map { byte in
+            String(format: "%02x", byte)  // %02x ensures 2-digit hex with leading zeros
+        }.joined()  // Join all hex digits into single string
+        
+        return hexString
     }
 }

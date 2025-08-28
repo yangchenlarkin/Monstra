@@ -676,7 +676,7 @@ public extension KVHeavyTasksManager {
     }
     
     func asyncFetch(key: K,
-                   customEventObserver: DataProvider.CustomEventPublisher? = nil) async -> Result<V, Error> {
+                   customEventObserver: DataProvider.CustomEventPublisher? = nil) async -> Result<Element?, Error> {
         guard self.config.maxNumberOfRunningTasks > 0 else {
             return .failure(Errors.invalidConcurrencyConfiguration)
         }

@@ -303,7 +303,200 @@ print("Extracted \(extractedFiles.count) files")
 ```
 
 ### 3. KVLightTasksManager
-Lightweight task management for high-frequency operations.
+Lightweight task management for high-volume operations with peak shaving and batch processing.
+
+**Simple Example (Default Configuration):**
+```swift
+import Monstra
+
+// Create a lightweight tasks manager for handling image downloads
+let imageTaskManager = KVLightTasksManager<UIImage> { (imageURL: URL, completion: @escaping (Result<UIImage?, Error>) -> Void) in
+    // Simple image download task
+    URLSession.shared.dataTask(with: imageURL) { data, response, error in
+        if let error = error {
+            completion(.failure(error))
+        } else if let data = data, let image = UIImage(data: data) {
+            completion(.success(image))
+        } else {
+            completion(.failure(NSError(domain: "ImageError", code: -1, userInfo: nil)))
+        }
+    }.resume()
+}
+
+// Fetch multiple images
+let imageURLs = [
+    "https://example.com/image1.jpg",
+    "https://example.com/image2.jpg", 
+    "https://example.com/image3.jpg"
+].compactMap { URL(string: $0) }
+
+// Fetch images individually
+for (index, url) in imageURLs.enumerated() {
+    imageTaskManager.fetch(key: url) { key, result in
+        switch result {
+        case .success(let image):
+            if let image = image {
+                print("Image \(index + 1) downloaded successfully: \(image.size)")
+            } else {
+                print("Image \(index + 1) returned nil")
+            }
+        case .failure(let error):
+            print("Image \(index + 1) failed: \(error)")
+        }
+    }
+}
+
+// Fetch multiple images at once with batch callback
+imageTaskManager.fetch(keys: imageURLs) { key, result in
+    switch result {
+    case .success(let image):
+        if let image = image {
+            print("Image downloaded: \(image.size)")
+        } else {
+            print("Image returned nil")
+        }
+    case .failure(let error):
+        print("Image failed: \(error)")
+    }
+}
+```
+
+**Batch Processing Example:**
+```swift
+// Create a manager for batch fetching user profile data
+let userProfileManager = KVLightTasksManager<[String: UserProfile?]> { (userIDs: [String], completion: @escaping (Result<[String: UserProfile?], Error>) -> Void) in
+    // Simulate batch API call to fetch multiple user profiles
+    DispatchQueue.global(qos: .utility).async {
+        // Simulate network delay
+        Thread.sleep(forTimeInterval: 0.1)
+        
+        var profiles: [String: UserProfile?] = [:]
+        
+        // Simulate batch API response
+        for userID in userIDs {
+            let profile = UserProfile(
+                id: userID,
+                name: "User \(userID)",
+                email: "user\(userID)@example.com",
+                avatar: "https://example.com/avatars/\(userID).jpg"
+            )
+            profiles[userID] = profile
+        }
+        
+        completion(.success(profiles))
+    }
+}
+
+// Fetch multiple user profiles in a single batch
+let userIDs = ["user1", "user2", "user3"]
+
+// Using batch callback for all results at once
+userProfileManager.fetch(keys: userIDs, multiCallback: { results in
+    print("Batch loaded \(results.count) users:")
+    for (userID, result) in results {
+        switch result {
+        case .success(let profile):
+            if let profile = profile {
+                print("  ✓ \(profile.name) (\(profile.email))")
+            } else {
+                print("  - \(userID): No profile found")
+            }
+        case .failure(let error):
+            print("  ✗ \(userID): \(error)")
+        }
+    }
+})
+
+// Using individual callbacks for each user (still benefits from batch processing)
+userProfileManager.fetch(keys: userIDs) { userID, result in
+    switch result {
+    case .success(let profile):
+        if let profile = profile {
+            print("Individual: \(profile.name) loaded")
+        } else {
+            print("Individual: \(userID) - No profile found")
+        }
+    case .failure(let error):
+        print("Individual: \(userID) - \(error)")
+    }
+}
+```
+
+**Advanced Configuration Example:**
+```swift
+// Create a manager with custom configuration for image downloads
+let imageManager = KVLightTasksManager<UIImage>(
+    config: .init(
+        dataProvider: .multiprovide(maximumBatchCount: 4) { (imageURLs: [String], completion: @escaping (Result<[String: UIImage?], Error>) -> Void) in
+            // Download multiple images in parallel
+            let group = DispatchGroup()
+            var results = [String: UIImage?]()
+            let lock = NSLock()
+            
+            for urlString in imageURLs {
+                group.enter()
+                
+                guard let url = URL(string: urlString) else {
+                    lock.lock()
+                    results[urlString] = nil
+                    lock.unlock()
+                    group.leave()
+                    continue
+                }
+                
+                URLSession.shared.dataTask(with: url) { data, response, error in
+                    defer { group.leave() }
+                    
+                    lock.lock()
+                    if let data = data, let image = UIImage(data: data) {
+                        results[urlString] = image
+                    } else {
+                        results[urlString] = nil
+                    }
+                    lock.unlock()
+                }.resume()
+            }
+            
+            group.notify(queue: .main) {
+                completion(.success(results))
+            }
+        },
+        maxNumberOfQueueingTasks: 32,     // Queue up to 32 image requests
+        maxNumberOfRunningTasks: 4,       // Download 4 images simultaneously
+        retryCount: 1,                    // Retry failed downloads once
+        PriorityStrategy: .FIFO,          // Process oldest requests first
+        cacheConfig: .init(
+            capacity: 100,                // Cache up to 100 images
+            memory: 50,                   // 50MB memory limit
+            defaultTTL: 3600.0,           // 1 hour cache duration
+            enableThreadSynchronization: true
+        )
+    )
+)
+
+// Download multiple images
+let imageURLs = [
+    "https://example.com/image1.jpg",
+    "https://example.com/image2.jpg",
+    "https://example.com/image3.jpg"
+]
+
+// Download all images
+imageManager.fetch(keys: imageURLs) { url, result in
+    switch result {
+    case .success(let image):
+        if let image = image {
+            print("✓ Downloaded: \(image.size)")
+        } else {
+            print("- Failed to download: \(url)")
+        }
+    case .failure(let error):
+        print("✗ Error: \(error)")
+        }
+    }
+```
+
+
 
 ### 4. KVHeavyTasksManager
 Heavy task coordination for resource-intensive operations.

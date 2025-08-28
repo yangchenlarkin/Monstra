@@ -24,22 +24,18 @@ A high-performance Swift framework providing efficient task execution, memory ca
 
 #### **MonoTask**
 
-**Single Task Execution & Merging**: Handles individual task execution and request merging, such as module initialization, configuration file reading, and API call consolidation with result caching (e.g., UserProfile, e-commerce Cart operations)
-
 - **🔄 Execution Merging**: Multiple concurrent requests merged into single execution
 - **⏱️ TTL Caching**: Results cached for configurable duration with automatic expiration
 - **🔄 Advanced Retry Logic**: Exponential backoff, fixed intervals, and hybrid retry strategies
 - **🎯 Manual Cache Control**: Fine-grained cache invalidation with execution strategy options
 
 #### **KVLightTasksManager**
-**High-Volume Task Execution**: Handles the execution and scheduling of numerous lightweight tasks, such as image downloads, local database batch reads, map tile downloads and cache warming operations
 - **📈 Peak Shaving**: Prevents excessive task execution volume through Priority-Based Scheduling (LIFO/FIFO strategies with configurable limits)
 - **🔄 Batch Processing**: Support for single and batch data provisioning to enhance backend execution efficiency
 - **📊 Concurrent Execution**: Configurable concurrent task limits (default: 4 running, 256 queued)
 - **💾 Result Caching**: Integrated MemoryCache for optimized performance
 
 #### **KVHeavyTasksManager**
-**Resource-Intensive Operations**: Handles demanding tasks such as large file downloads, video processing, and ML inference with comprehensive progress tracking
 - **📊 Progress Tracking**: Real-time progress updates with custom event publishing and broadcasting capabilities
 - **🎯 Priority-Based Scheduling**: Advanced LIFO/FIFO strategies with intelligent interruption support
 - **🔄 Task Lifecycle Management**: Complete start/stop/resume functionality with provider state preservation
@@ -78,7 +74,7 @@ pod 'Monstra', '~> 0.0.5'
 ## 💡 Simple Examples
 
 ### 1. MemoryCache
-Basic caching operations with TTL and LRU eviction.
+Basic caching operations with TTL, priority-based and LRU eviction.
 
 **Simple Example (Default Configuration):**
 ```swift
@@ -153,7 +149,7 @@ let imageCache = MemoryCache<String, Data>(
 ```
 
 ### 2. MonoTask  
-Single-instance task execution with caching and retry logic.
+**Single Task Execution & Merging**: Handles individual task execution, request merging and result cache, such as module initialization, configuration file reading, and API call consolidation with result caching (e.g., UserProfile, e-commerce Cart operations)
 
 **Simple Example (Default Configuration):**
 ```swift
@@ -303,7 +299,7 @@ print("Extracted \(extractedFiles.count) files")
 ```
 
 ### 3. KVLightTasksManager
-Lightweight task management for high-volume operations with peak shaving and batch processing.
+**High-Volume Task Execution**: Handles high-volume operations with peak shaving, such as image downloads, local database batch reads, map tile downloads and cache warming operations
 
 **Simple Example (Default Configuration):**
 ```swift
@@ -499,20 +495,16 @@ imageManager.fetch(keys: imageURLs) { url, result in
 
 
 ### 4. KVHeavyTasksManager
-Heavy task coordination for resource-intensive operations.
+
+**Resource-Intensive Operations**: Handles demanding tasks such as large file downloads, video processing, and ML inference with comprehensive progress tracking
+
+**Note**: Due to the complexity of HeavyTasksManager's data provider, please reference the Advanced Examples section directly for comprehensive usage examples.
 
 
 
 
 
 ## 🚀 Advanced Examples
-
-### **🧠 MemoryCache - Caching Scenarios**
-| Scenario | Best Practices | Example Link |
-|----------|----------------|--------------|
-| **Image Caching Strategy** | Efficient image caching with TTL and memory limits | [Image Caching Examples](docs/AdvancedUsage.md#image-caching-strategy) |
-| **Search Result Caching** | Cache search results to improve user experience | [Search Caching Examples](docs/AdvancedUsage.md#search-result-caching) |
-| **Database Query Caching** | Cache expensive database queries | [DB Query Examples](docs/AdvancedUsage.md#database-query-caching) |
 
 ### **⚡ MonoTask - Task Execution Scenarios**
 | Scenario | Best Practices | Example Link |

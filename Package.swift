@@ -28,27 +28,17 @@ let package = Package(
             dependencies: [],
             path: "Sources",
             swiftSettings: [
-                .define("DEBUG", .when(configuration: .debug)),
-                .unsafeFlags(["-enable-testing"], .when(configuration: .debug))
+                .define("DEBUG", .when(configuration: .debug))
             ]),
 
         .testTarget(
             name: "MonstraBaseTests",
-            dependencies: ["Monstra"],
-            swiftSettings: [
-                .define("DEBUG", .when(configuration: .debug))
-            ]),
+            dependencies: ["Monstra"]),
         .testTarget(
             name: "MonstoreTests",
-            dependencies: ["Monstra"],
-            swiftSettings: [
-                .define("DEBUG", .when(configuration: .debug))
-            ]),
+            dependencies: ["Monstra"]),
         .testTarget(
             name: "MonstaskTests",
-            dependencies: ["Monstra"],
-            swiftSettings: [
-                .define("DEBUG", .when(configuration: .debug))
-            ]),
+            dependencies: ["Monstra"]),
     ]
 )

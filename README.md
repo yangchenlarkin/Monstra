@@ -33,6 +33,7 @@ A high-performance Swift framework providing efficient task execution, memory ca
 - **📈 Peak Shaving**: Prevents excessive task execution volume through Priority-Based Scheduling (LIFO/FIFO strategies with configurable limits)
 - **🔄 Batch Processing**: Support for single and batch data provisioning to enhance backend execution efficiency
 - **📊 Concurrent Execution**: Configurable concurrent task limits (default: 4 running, 256 queued)
+- **🎯 Execution Merging**: Intelligent request deduplication and merging to prevent duplicate work and optimize resource usage
 - **💾 Result Caching**: Integrated MemoryCache for optimized performance
 
 #### **KVHeavyTasksManager**
@@ -40,6 +41,7 @@ A high-performance Swift framework providing efficient task execution, memory ca
 - **🎯 Priority-Based Scheduling**: Advanced LIFO/FIFO strategies with intelligent interruption support
 - **🔄 Task Lifecycle Management**: Complete start/stop/resume functionality with provider state preservation
 - **📱 Concurrent Control**: Optimized concurrent execution limits (default: 2 running, 64 queued)
+- **🎯 Execution Merging**: Intelligent request deduplication and merging to prevent duplicate work and optimize resource usage
 - **💾 Result Caching**: Integrated MemoryCache for enhanced performance and efficiency
 
 ## 🚀 Quick Start
@@ -70,6 +72,20 @@ pod 'Monstra', '~> 0.0.5'
 ```
 
 **Note**: Monstra is published as a unified framework, so you get all components together.
+
+## 🎯 When to Use Each Component
+
+| Component | Best For | Key Features |
+|-----------|----------|-------------|
+| **MonoTask** | Single expensive operations | Execution merging, TTL caching, retry logic |
+| **KVLightTasksManager** | Fast, lightweight operations | Batch processing, key validation, high throughput |
+| **KVHeavyTasksManager** | Resource-intensive operations | Progress tracking, lifecycle management, error recovery |
+
+#### **Some Scenarios for Each Component**
+
+- **MonoTask**: API calls, database queries, expensive computations that benefit from caching and deduplication
+- **KVLightTasksManager**: User profile fetching, search results, configuration loading, high-frequency operations
+- **KVHeavyTasksManager**: File downloads, video processing, ML inference, long-running operations with progress updates
 
 ## 💡 Simple Examples
 
@@ -528,53 +544,7 @@ imageManager.fetch(keys: imageURLs) { url, result in
 
 
 
-## 📊 Performance
 
-### Time Complexity
-
-| Operation | LRUQueue | TTLPriorityLRUQueue |
-|-----------|----------|------------------|
-| Insert/Update | O(1) | O(1) |
-| Retrieve | O(1) | O(1) |
-| Remove | O(1) | O(1) |
-| TTL Management | N/A | O(log n) |
-
-### Benchmark Results
-
-Based on comprehensive testing with 10,000 operations:
-
-- **LRUQueue**: 97.3x time scaling (near-linear O(1))
-- **TTLPriorityLRUQueue**: 79.7x time scaling (better than linear)
-- **Memory Usage**: 50-60% less than NSCache
-- **Access Performance**: Comparable to NSCache
-
-See [Performance Test Report](Tests/MonstoreTests/MemoryCache/PerformanceTestReport.md) for detailed benchmarks.
-
-## 🧪 Testing
-
-### Running Tests
-
-```bash
-# Run all tests
-swift test
-
-# Run specific test suites
-swift test --filter LRUQueueTests
-swift test --filter PerformanceTests
-swift test --filter ScaleTests
-
-# Run with verbose output
-swift test --verbose
-```
-
-### Test Coverage
-
-- ✅ Unit tests for all components
-- ✅ Performance benchmarks
-- ✅ Scale testing (10,000 operations)
-- ✅ Time complexity verification
-- ✅ Memory usage analysis
-- ✅ Thread safety considerations
 
 ## 📋 Requirements
 
@@ -591,36 +561,7 @@ swift test --verbose
 - **Foundation**: Built-in (no external dependencies)
 - **Alamofire**: Only for example executable (not required for core library)
 
-## 🔧 Development
 
-### Prerequisites
-
-- Swift 5.5+
-- Xcode 13+ (for iOS/macOS development)
-- SwiftLint and SwiftFormat
-
-### Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/yourusername/Monstra.git
-cd Monstra
-
-# Install development tools
-brew install swiftlint swiftformat sourcekitten
-
-# Build the project
-swift build
-
-# Run tests
-swift test
-
-# Run linting
-swiftlint lint Sources/
-
-# Format code
-swiftformat .
-```
 
 ## 🛡️ Key Advantages & Protection Mechanisms
 
@@ -738,13 +679,6 @@ task.clearResult(ongoingExecutionStrategy: .restart)
 
 // Let execution complete normally, just clear cache
 task.clearResult(ongoingExecutionStrategy: .allowCompletion)
-
-// Check if task is currently executing
-if task.isExecuting {
-    showLoadingSpinner()
-} else {
-    hideLoadingSpinner()
-}
 ```
 
 #### **MonoTask - Multiple Execution Patterns**
@@ -803,149 +737,22 @@ let heavyManager = KVHeavyTasksManager<String, Video>(
 )
 ```
 
-### **Component Comparison & Use Cases**
 
-| Component | Best For | Concurrent Tasks | Queue Size | Key Features |
-|-----------|----------|------------------|------------|--------------|
-| **MonoTask** | Single expensive operations | 1 (merged) | Unlimited | Execution merging, TTL caching, retry logic |
-| **KVLightTasksManager** | Fast, lightweight operations | 4 running | 256 queued | Batch processing, key validation, high throughput |
-| **KVHeavyTasksManager** | Resource-intensive operations | 2 running | 64 queued | Progress tracking, lifecycle management, error recovery |
 
-#### **When to Use Each Component**
 
-- **MonoTask**: API calls, database queries, expensive computations that benefit from caching and deduplication
-- **KVLightTasksManager**: User profile fetching, search results, configuration loading, high-frequency operations
-- **KVHeavyTasksManager**: File downloads, video processing, ML inference, long-running operations with progress updates
 
-## 🎯 Typical Scenarios & Best Practices
 
-### 1. **API Response Caching**
-```swift
-// Cache API responses to reduce network calls
-let userProfileTask = MonoTask<UserProfile>(
-    retry: .count(count: 2, intervalProxy: .fixed(interval: 1.0)),
-    resultExpireDuration: 1800.0 // 30 minutes
-) { callback in
-    // API call logic
-    apiClient.fetchUserProfile { result in
-        callback(result)
-    }
-}
 
-// Use in your view models
-class ProfileViewModel: ObservableObject {
-    @Published var profile: UserProfile?
-    
-    func loadProfile() async {
-        let result = await userProfileTask.asyncExecute()
-        await MainActor.run {
-            self.profile = try? result.get()
-        }
-    }
-}
-```
 
-### 2. **Image Caching Strategy**
-```swift
-// Efficient image caching with TTL
-let imageCache = MemoryCache<String, UIImage>(capacity: 200)
 
-// Set with expiration
-imageCache.setValue(image, for: imageURL.absoluteString)
 
-// Automatic cleanup of expired images
-imageCache.removeExpiredElements()
-```
 
-### 3. **Search Result Caching**
-```swift
-// Cache search results to improve UX
-let searchTask = MonoTask<[SearchResult]>(
-    retry: .count(count: 1, intervalProxy: .fixed(interval: 0.5)),
-    resultExpireDuration: 300.0 // 5 minutes
-) { callback in
-    searchService.search(query: query) { results in
-        callback(.success(results))
-    }
-}
-```
 
-### 4. **Configuration Management**
-```swift
-// Cache app configuration
-let configTask = MonoTask<AppConfig>(
-    retry: .count(count: 3, intervalProxy: .exponentialBackoff(initialTimeInterval: 2.0)),
-    resultExpireDuration: 3600.0 // 1 hour
-) { callback in
-    configService.fetchConfig { config in
-        callback(.success(config))
-    }
-}
-```
 
-### 5. **Database Query Caching**
-```swift
-// Cache expensive database queries
-let queryCache = MemoryCache<String, [DatabaseRecord]>(capacity: 100)
 
-// Use query hash as key
-let queryHash = "SELECT * FROM users WHERE active = true"
-if let cached = queryCache.getValue(for: queryHash) {
-    return cached
-}
 
-// Execute query and cache result
-let results = database.execute(query)
-queryCache.setValue(results, for: queryHash)
-return results
-```
 
-## 📚 API Reference
 
-### LRUQueue
-
-```swift
-class LRUQueue<K: Hashable, Element> {
-    init(capacity: Int)
-    
-    func setValue(_ value: Element, for key: K) -> Element?
-    func getValue(for key: K) -> Element?
-    func removeValue(for key: K) -> Element?
-    
-    var count: Int { get }
-    var isEmpty: Bool { get }
-    var isFull: Bool { get }
-}
-```
-
-### TTLPriorityLRUQueue
-
-```swift
-class TTLPriorityLRUQueue<Key: Hashable, Value> {
-    init(capacity: Int)
-    
-    func unsafeSet(value: Value, for key: Key, expiredIn duration: TimeInterval) -> Value?
-    func getValue(for key: Key) -> Value?
-    func unsafeRemoveValue(for key: Key) -> Value?
-}
-```
-
-### MonoTask
-
-```swift
-class MonoTask<TaskResult> {
-    init(retry: RetryCount, resultExpireDuration: Double, taskQueue: DispatchQueue, callbackQueue: DispatchQueue, task: @escaping CallbackExecution)
-    
-    func execute(then completionHandler: ResultCallback?)
-    func asyncExecute() async -> Result<TaskResult, Error>
-    func executeThrows() async throws -> TaskResult
-    func justExecute()
-    func clearResult(ongoingExecutionStrategy: OngoingExecutionStrategy)
-    
-    var currentResult: TaskResult? { get }
-    var isExecuting: Bool { get }
-}
-```
 
 ## 🤝 Contributing
 
@@ -974,27 +781,11 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🗺️ Roadmap
 
-- [ ] Thread-safe variants
-- [ ] Disk persistence support
-- [ ] Compression algorithms
-- [ ] Advanced eviction policies
-- [ ] Metrics and monitoring
-- [ ] SwiftUI integration examples
 
-## 📖 Detailed Documentation
 
-- **📚 API Reference**: [Full API Documentation](docs/API.md) *(Coming Soon)*
-- **🔧 Advanced Usage**: [Advanced Patterns & Examples](docs/AdvancedUsage.md) *(Coming Soon)*
-- **📊 Performance Guide**: [Performance Optimization](docs/Performance.md) *(Coming Soon)*
-- **🏗️ Architecture**: [System Design & Architecture](docs/Architecture.md) *(Coming Soon)*
 
-## 📞 Support
 
-- 🐛 [Issue Tracker](https://github.com/yangchenlarkin/Monstra/issues)
-- 💬 [Discussions](https://github.com/yangchenlarkin/Monstra/discussions)
-- 📧 [Email Support](mailto:yangchenlarkin@gmail.com)
 
 ## 🙏 Acknowledgments
 
@@ -1002,6 +793,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with Swift's excellent type system and performance characteristics
 - Tested extensively for production readiness
 - Special thanks to the Swift community for feedback and contributions
+- Special thanks to [Cursor](https://cursor.sh) - AI-first code editor for enhancing development productivity
 
 ---
 

@@ -16,14 +16,10 @@ let package = Package(
         .library(
             name: "Monstra",
             targets: ["Monstra"]),
-        // Example executable
-        .executable(
-            name: "KVHeavyTaskDataProviderExample",
-            targets: ["KVHeavyTaskDataProviderExample"]),
+
     ],
     dependencies: [
         // Dependencies declare other packages that this package produces, making them visible to other packages.
-        .package(url: "https://github.com/Alamofire/Alamofire.git", from: "5.9.0"),
     ],
     targets: [
         // Main unified Monstra target with all source files
@@ -35,14 +31,7 @@ let package = Package(
                 .define("DEBUG", .when(configuration: .debug)),
                 .unsafeFlags(["-enable-testing"], .when(configuration: .debug))
             ]),
-        // Example executable target
-        .executableTarget(
-            name: "KVHeavyTaskDataProviderExample",
-            dependencies: ["Monstra", "Alamofire"],
-            path: "Examples/KVHeavyTaskDataProviderExample",
-            swiftSettings: [
-                .define("DEBUG", .when(configuration: .debug))
-            ]),
+
         .testTarget(
             name: "MonstraBaseTests",
             dependencies: ["Monstra"],

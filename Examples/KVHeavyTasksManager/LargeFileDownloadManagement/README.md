@@ -175,6 +175,7 @@ fileprivate extension String {
         return hexString
     }
 }
+```
 
 #### Download Strategy:
 1. **Cache Check**: Examines existing downloads for potential resume

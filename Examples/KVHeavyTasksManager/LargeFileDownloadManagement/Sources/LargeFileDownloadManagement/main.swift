@@ -8,18 +8,10 @@ let evernote = URL(string: "https://mac.desktop.evernote.com/builds/Evernote-lat
 let slack = URL(string: "https://downloads.slack-edge.com/desktop-releases/mac/universal/4.45.69/Slack-4.45.69-macOS.dmg")!
 
 
-// Main entry point
-func main() async {
-    let manager = KVHeavyTasksManager<URL, Data, Progress, AlamofireDataProvider>(config: .init())
+let manager = KVHeavyTasksManager<URL, Data, Progress, AlamofireDataProvider>(config: .init())
+
+manager.fetch(key: chrome) { result in
     
-    manager.fetch(key: chrome) { result in
-        
-    }
 }
 
-// Start the main function
-Task {
-    await main()
-}
-
-
+RunLoop.main.run()

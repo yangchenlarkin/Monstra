@@ -653,11 +653,6 @@ manager.fetch(
       <td>Batch fetch objects by ID list with performance enhancement</td>
       <td>Coming Soon</td>
     </tr>
-    <tr>
-      <td>Small Unzip Task</td>
-      <td>Efficient batch processing of small archive files with caching and progress tracking</td>
-      <td>Coming Soon</td>
-    </tr>
   </tbody>
  </table>
 

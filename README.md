@@ -649,11 +649,6 @@ manager.fetch(
   </thead>
   <tbody>
     <tr>
-      <td>Image Download</td>
-      <td>Efficient image downloading with caching and batch processing</td>
-      <td>Coming Soon</td>
-    </tr>
-    <tr>
       <td>Object Fetch Task</td>
       <td>Batch fetch objects by ID list with performance enhancement</td>
       <td>Coming Soon</td>

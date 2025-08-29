@@ -609,7 +609,7 @@ manager.fetch(
   </colgroup>
   <thead>
     <tr>
-      <th>Scenario</th>
+      <th>Scenarios</th>
       <th>Best Practices</th>
       <th>Example Link</th>
     </tr>
@@ -642,7 +642,7 @@ manager.fetch(
   </colgroup>
   <thead>
     <tr>
-      <th>Scenario</th>
+      <th>Scenarios</th>
       <th>Best Practices</th>
       <th>Example Link</th>
     </tr>
@@ -665,7 +665,7 @@ manager.fetch(
   </colgroup>
   <thead>
     <tr>
-      <th>Scenario</th>
+      <th>Scenarios</th>
       <th>Best Practices</th>
       <th>Example Link</th>
     </tr>

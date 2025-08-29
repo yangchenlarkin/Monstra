@@ -1,10 +1,3 @@
-//
-//  PriorityLRUQueue.swift
-//  Monstore
-//
-//  Created by Larkin on 2025/5/8.
-//
-
 import Foundation
 
 /// A priority-based LRU (Least Recently Used) queue that maintains separate LRU queues for each priority level.
@@ -19,9 +12,10 @@ public class PriorityLRUQueue<K: Hashable, Element> {
         fileprivate var priority: Double
         fileprivate var priorityIndex: Int? = nil /// Index of the priority in the heap for efficient removal
     }
+
     private typealias LRULink = DoublyLink<LRUElement>
     private typealias LRUNode = LRULink.Node
-    
+
     /// The maximum number of elements the queue can hold.
     public let capacity: Int
     /// The current number of elements in the queue.
@@ -33,8 +27,8 @@ public class PriorityLRUQueue<K: Hashable, Element> {
     /// Returns a string representation of the queue for debugging.
     var description: String {
         var elements = [String]()
-        priorities.elements.forEach { priority in
-            guard let link = links[priority] else { return }
+        for priority in priorities.elements {
+            guard let link = links[priority] else { continue }
             var node = link.front
             while let currentNode = node {
                 elements.append("\(currentNode.element.element)")
@@ -43,30 +37,30 @@ public class PriorityLRUQueue<K: Hashable, Element> {
         }
         return "[\(elements.joined(separator: ", "))]"
     }
-    
+
     private var links: [Double: LRULink] = .init()
     private var priorityIndex: [Double: Int] = .init()
     private var priorities: Heap<Double> = .minHeap(capacity: .max)
     /// Key-to-node map for O(1) access to nodes.
     private var keyNodeMap: [K: LRUNode] = [:]
-    
+
     /// Initializes a new empty queue with specified capacity.
     /// - Parameter capacity: Maximum elements allowed; negative values treated as zero.
     public init(capacity: Int) {
         self.capacity = Swift.max(0, capacity)
-        self.priorities.onEvent = { [weak self] in
+        priorities.onEvent = { [weak self] in
             guard let self else { return }
             switch $0 {
-            case .insert(element: let element, at: let at):
+            case let .insert(element: element, at: at):
                 priorityIndex[element] = at
-            case .remove(element: let element):
+            case let .remove(element: element):
                 priorityIndex.removeValue(forKey: element)
-            case .move(element: let element, to: let to):
+            case let .move(element: element, to: to):
                 priorityIndex[element] = to
             }
         }
     }
-    
+
     /// Inserts or updates a element for the given key and priority.
     /// - Parameters:
     ///   - element: The element to store.
@@ -80,7 +74,7 @@ public class PriorityLRUQueue<K: Hashable, Element> {
             // Key already exists: remove old node, update element, re-insert at front
             if let link = links[node.element.priority] {
                 link.removeNode(node)
-                self.removeLinkIfEmpty(of: node.element.priority)
+                removeLinkIfEmpty(of: node.element.priority)
             }
             node.element.element = element
             node.element.priority = priority
@@ -101,10 +95,10 @@ public class PriorityLRUQueue<K: Hashable, Element> {
         }
         let newNode = LRUNode(element: .init(key: key, element: element, priority: priority))
         keyNodeMap[key] = newNode
-        _=getOrCreateLink(for: priority).enqueueFront(node: newNode, evictedStrategy: .FIFO)
+        _ = getOrCreateLink(for: priority).enqueueFront(node: newNode, evictedStrategy: .FIFO)
         return evictedNode?.element.element
     }
-    
+
     /// Retrieves the element for the given key, updating its recency.
     /// - Parameter key: The key to look up.
     /// - Returns: The element if present, or nil if not found.
@@ -116,10 +110,10 @@ public class PriorityLRUQueue<K: Hashable, Element> {
             return nil
         }
         link.removeNode(node)
-        _=link.enqueueFront(node: node, evictedStrategy: .FIFO)
+        _ = link.enqueueFront(node: node, evictedStrategy: .FIFO)
         return node.element.element
     }
-    
+
     /// Removes the element for the given key, if present.
     /// - Parameter key: The key to remove.
     /// - Returns: The removed element, or nil if not found.
@@ -132,7 +126,7 @@ public class PriorityLRUQueue<K: Hashable, Element> {
         removeLinkIfEmpty(of: node.element.priority)
         return node.element.element
     }
-    
+
     /// Removes and returns the least recently used element.
     /// - Returns: The removed element, or nil if cache is empty
     @discardableResult
@@ -140,14 +134,14 @@ public class PriorityLRUQueue<K: Hashable, Element> {
         guard let key = getLeastRecentKey() else { return nil }
         return removeElement(for: key)
     }
-    
+
     /// Gets the least recently used key for eviction.
     /// - Returns: The key of the least recently used entry, or nil if queue is empty
     public func getLeastRecentKey() -> K? {
         // Find the lowest priority first
         guard let minPriority = priorities.root else { return nil }
         guard let link = links[minPriority] else { return nil }
-        
+
         // Return the key of the least recently used node (back of the queue)
         return link.back?.element.key
     }
@@ -162,12 +156,13 @@ private extension PriorityLRUQueue {
         priorities.insert(priority)
         return link
     }
+
     /// Removes the LRU queue (link) for the given priority if it is empty.
     private func removeLinkIfEmpty(of priority: Double) {
         guard let link = links[priority] else { return }
         guard link.count == 0 else { return }
         if let index = priorityIndex[priority] {
-            _=priorities.remove(at: index)
+            _ = priorities.remove(at: index)
         }
         links.removeValue(forKey: priority)
     }

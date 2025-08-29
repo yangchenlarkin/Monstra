@@ -29,8 +29,14 @@ opt_in_rules:
 # Exclude files
 excluded:
   - Tests/
-  - .build/
   - Package.swift
+  # Exclude all build/checkouts directories anywhere in the repo
+  - '**/.build/**'
+  - '**/checkouts/**'
+  # Exclude vendored third-party examples pulled by SPM in example packages
+  - 'Examples/**/Alamofire/**'
+  - 'Examples/**/AFNetworking/**'
+  - 'Examples/**/ZIPFoundation/**'
 
 # Line length configuration (relaxed for performance code)
 line_length:

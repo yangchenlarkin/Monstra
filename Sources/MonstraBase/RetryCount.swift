@@ -1,39 +1,43 @@
-//
-//  RetryCount.swift
-//  Monstask
-//
-//  Created by Larkin on 2025/7/20.
-//
-
 import Foundation
 
 public enum RetryCount {
     public enum IntervalProxy {
         public static let DefaultInitialTimeInterval: TimeInterval = 1
         public static let DefaultExponentialBackoffScaleRate: Double = 2.0
-        
+
         case fixed(timeInterval: TimeInterval = 0)
-        case exponentialBackoff(initialTimeInterval: TimeInterval = DefaultInitialTimeInterval, scaleRate: Double = DefaultExponentialBackoffScaleRate)
+        case exponentialBackoff(
+            initialTimeInterval: TimeInterval = DefaultInitialTimeInterval,
+            scaleRate: Double = DefaultExponentialBackoffScaleRate
+        )
         case exponentialBackoffBeforeFixed(
-            initialTimeInterval: TimeInterval = DefaultInitialTimeInterval, 
+            initialTimeInterval: TimeInterval = DefaultInitialTimeInterval,
             originalInitialInterval: TimeInterval = DefaultInitialTimeInterval,
-            maxExponentialBackoffCount: UInt = 0, 
+            maxExponentialBackoffCount: UInt = 0,
             scaleRate: Double = DefaultExponentialBackoffScaleRate
         )
         case exponentialBackoffAfterFixed(
             initialTimeInterval: TimeInterval = DefaultInitialTimeInterval,
             originalInitialInterval: TimeInterval = DefaultInitialTimeInterval,
-            maxFixedCount: UInt = 0, 
+            maxFixedCount: UInt = 0,
             scaleRate: Double = DefaultExponentialBackoffScaleRate
         )
-        
+
         public func next() -> Self {
             switch self {
-            case .fixed(_):
+            case .fixed:
                 return self
-            case .exponentialBackoff(initialTimeInterval: let initialTimeInterval, scaleRate: let rate):
-                return .exponentialBackoff(initialTimeInterval: nextTimeInterval(of: initialTimeInterval, scale: rate), scaleRate: rate)
-            case .exponentialBackoffBeforeFixed(initialTimeInterval: let initialTimeInterval, originalInitialInterval: let originalInterval, maxExponentialBackoffCount: let maxExponentialBackoffCount, scaleRate: let rate):
+            case let .exponentialBackoff(initialTimeInterval: initialTimeInterval, scaleRate: rate):
+                return .exponentialBackoff(
+                    initialTimeInterval: nextTimeInterval(of: initialTimeInterval, scale: rate),
+                    scaleRate: rate
+                )
+            case let .exponentialBackoffBeforeFixed(
+                initialTimeInterval: initialTimeInterval,
+                originalInitialInterval: originalInterval,
+                maxExponentialBackoffCount: maxExponentialBackoffCount,
+                scaleRate: rate
+            ):
                 if maxExponentialBackoffCount == 0 {
                     return .fixed(timeInterval: originalInterval)
                 } else {
@@ -44,9 +48,17 @@ public enum RetryCount {
                         scaleRate: rate
                     )
                 }
-            case .exponentialBackoffAfterFixed(initialTimeInterval: let initialTimeInterval, originalInitialInterval: let originalInterval, maxFixedCount: let maxFixedCount, scaleRate: let rate):
+            case let .exponentialBackoffAfterFixed(
+                initialTimeInterval: initialTimeInterval,
+                originalInitialInterval: originalInterval,
+                maxFixedCount: maxFixedCount,
+                scaleRate: rate
+            ):
                 if maxFixedCount == 0 {
-                    return .exponentialBackoff(initialTimeInterval: nextTimeInterval(of: initialTimeInterval, scale: rate), scaleRate: rate)
+                    return .exponentialBackoff(
+                        initialTimeInterval: nextTimeInterval(of: initialTimeInterval, scale: rate),
+                        scaleRate: rate
+                    )
                 } else {
                     return .exponentialBackoffAfterFixed(
                         initialTimeInterval: originalInterval,
@@ -57,20 +69,20 @@ public enum RetryCount {
                 }
             }
         }
-        
+
         public var timeInterval: TimeInterval {
             switch self {
-            case .fixed(timeInterval: let timeInterval):
+            case let .fixed(timeInterval: timeInterval):
                 return timeInterval
-            case .exponentialBackoff(initialTimeInterval: let initialTimeInterval, _):
+            case let .exponentialBackoff(initialTimeInterval: initialTimeInterval, _):
                 return initialTimeInterval
-            case .exponentialBackoffBeforeFixed(initialTimeInterval: let initialTimeInterval, _, _, _):
+            case let .exponentialBackoffBeforeFixed(initialTimeInterval: initialTimeInterval, _, _, _):
                 return initialTimeInterval
-            case .exponentialBackoffAfterFixed(initialTimeInterval: let initialTimeInterval, _, _, _):
+            case let .exponentialBackoffAfterFixed(initialTimeInterval: initialTimeInterval, _, _, _):
                 return initialTimeInterval
             }
         }
-        
+
         private func nextTimeInterval(of initialTimeInterval: TimeInterval, scale rate: Double) -> TimeInterval {
             let rate = max(rate, 1.0)
             if initialTimeInterval < .greatestFiniteMagnitude / rate {
@@ -79,16 +91,16 @@ public enum RetryCount {
             return .greatestFiniteMagnitude
         }
     }
-    
+
     case infinity(intervalProxy: IntervalProxy = .fixed())
     case count(count: UInt, intervalProxy: IntervalProxy = .fixed())
     case never
-    
+
     public func next() -> Self {
         switch self {
-        case .infinity(intervalProxy: let intervalProxy):
+        case let .infinity(intervalProxy: intervalProxy):
             return .infinity(intervalProxy: intervalProxy.next())
-        case .count(count: let count, intervalProxy: let intervalProxy):
+        case let .count(count: count, intervalProxy: intervalProxy):
             guard count > 1 else {
                 return .never
             }
@@ -97,19 +109,19 @@ public enum RetryCount {
             return .never
         }
     }
-    
+
     public var shouldRetry: Bool {
         switch self {
         case .never: false
         default: true
         }
     }
-    
+
     public var timeInterval: TimeInterval {
         switch self {
-        case .infinity(intervalProxy: let intervalProxy):
+        case let .infinity(intervalProxy: intervalProxy):
             fallthrough
-        case .count(_, intervalProxy: let intervalProxy):
+        case let .count(_, intervalProxy: intervalProxy):
             return intervalProxy.timeInterval
         case .never:
             return 0

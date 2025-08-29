@@ -1,10 +1,3 @@
-//
-//  DoublyLink.swift
-//  Monstra
-//
-//  Created by Larkin on 2025/7/21.
-//
-
 import Foundation
 
 public extension DoublyLink {
@@ -13,9 +6,9 @@ public extension DoublyLink {
         /// The stored element value. Mutable.
         public var element: Element
         /// Next node in the list (closer to the front).
-        public var next: Node? = nil
+        public var next: Node?
         /// Previous node in the list (closer to the back).
-        public var previous: Node? = nil
+        public var previous: Node?
         /// Initializes a new node with key, value and optional links.
         public init(element: Element, next: Node? = nil, previous: Node? = nil) {
             self.element = element
@@ -24,6 +17,7 @@ public extension DoublyLink {
         }
     }
 }
+
 /// A doubly linked list for LRU management within a priority level.
 public class DoublyLink<Element> {
     public private(set) var front: Node?
@@ -33,6 +27,7 @@ public class DoublyLink<Element> {
     public init(with capacity: Int) {
         self.capacity = max(0, capacity)
     }
+
     /// Enqueues a new element at the front of the queue.
     /// If the queue is full, removes the least recently used (back) node.
     /// - Parameters:
@@ -60,12 +55,12 @@ public class DoublyLink<Element> {
         count += 1
         return (newNode, evictedNode)
     }
-    
+
     public enum EvictedStrategy {
         case FIFO
         case LIFO
     }
-    
+
     /// Enqueues an existing node to the front of the queue.
     /// Removes the least recently used node if at capacity.
     /// - Parameter node: Node to enqueue.
@@ -95,6 +90,7 @@ public class DoublyLink<Element> {
         count += 1
         return evictedNode
     }
+
     /// Removes and returns the node at the back of the queue (least recently used).
     /// - Returns: The removed node, or nil if queue is empty.
     @discardableResult
@@ -110,6 +106,7 @@ public class DoublyLink<Element> {
         oldBack.next = nil
         return oldBack
     }
+
     /// Removes and returns the node at the front of the queue (most recently used).
     /// - Returns: The removed node, or nil if queue is empty.
     @discardableResult
@@ -125,6 +122,7 @@ public class DoublyLink<Element> {
         oldFront.previous = nil
         return oldFront
     }
+
     /// Removes a specific node from the queue.
     /// - Parameter node: The node to remove. Must be currently in the queue.
     public func removeNode(_ node: Node) {

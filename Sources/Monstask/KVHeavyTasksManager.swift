@@ -1,40 +1,3 @@
-//
-//  KVHeavyTasksManager.swift
-//  Monstra
-//
-//  Created by Larkin on 2025/7/27.
-//
-//  ## Overview
-//  KVHeavyTasksManager is a sophisticated task management system designed for resource-intensive operations
-//  that require careful coordination, caching, and lifecycle management. It serves as a centralized coordinator
-//  for heavy computational tasks while providing robust concurrency control and memory optimization.
-//
-//  ## Supported Task Types
-//  - **Large file downloads**: Videos, 3D models, datasets with progress tracking
-//  - **Complex image processing**: Photo editing, AI-generated content, batch processing
-//  - **Video encoding/decoding**: Format conversions, compression, streaming preparations
-//  - **Machine learning inference**: Model predictions, data preprocessing, feature extraction
-//  - **Database operations**: Large queries, bulk operations, data migrations
-//  - **Network operations**: Multi-part uploads, API batching, distributed computing
-//
-//  ## Core Capabilities
-//  - **Priority-based task scheduling**: LIFO/FIFO strategies with interruption support
-//  - **Concurrent task execution**: Configurable limits with automatic load balancing
-//  - **Intelligent caching**: Multi-level caching with TTL, memory limits, and statistics
-//  - **Progress tracking**: Real-time updates with custom event publishing
-//  - **Task lifecycle management**: Start/stop/resume with provider state preservation
-//  - **Error handling & recovery**: Graceful degradation with detailed error propagation
-//  - **Memory management**: Automatic cleanup with configurable resource limits
-//  - **Thread safety**: Complete concurrency protection with minimal performance impact
-//
-//  ## Architecture Layers
-//  1. **Public API**: Simple fetch interface with callback-based results
-//  2. **Task Coordination**: Priority queues, concurrency control, and task routing  
-//  3. **Cache Layer**: Multi-state caching (hit/miss/null/invalid) with validation
-//  4. **Provider Management**: DataProvider lifecycle with dealloc/reuse strategies
-//  5. **Event System**: Progress tracking and custom event broadcasting
-//
-
 import Foundation
 
 /// Base class for heavy task data providers that defines the foundation for task execution.
@@ -45,17 +8,17 @@ import Foundation
 ///
 /// ## Key Responsibilities
 /// - **Task Identification**: Maintains unique key for task tracking and cache coordination
-/// - **Event Broadcasting**: Provides mechanism for real-time progress and status updates  
+/// - **Event Broadcasting**: Provides mechanism for real-time progress and status updates
 /// - **Result Delivery**: Handles final result publishing with success/failure states
 /// - **Type Safety**: Enforces generic type constraints for keys, elements, and events
 ///
 /// ## Generic Parameters
 /// - `K`: Key type (must be Hashable) used for task identification and caching
-/// - `Element`: Result type returned upon successful task completion  
+/// - `Element`: Result type returned upon successful task completion
 /// - `CustomEvent`: Event type for progress updates and status notifications
 ///
 /// ## Usage Pattern
-/// Concrete implementations should inherit from this class and implement the 
+/// Concrete implementations should inherit from this class and implement the
 /// `KVHeavyTaskDataProviderInterface` protocol to provide actual task execution logic.
 open class KVHeavyTaskBaseDataProvider<K: Hashable, Element, CustomEvent> {
     /// Callback type for publishing custom events during task execution.
@@ -68,7 +31,7 @@ open class KVHeavyTaskBaseDataProvider<K: Hashable, Element, CustomEvent> {
     ///
     /// Events are published asynchronously to avoid blocking task execution.
     public typealias CustomEventPublisher = @Sendable (CustomEvent) -> Void
-    
+
     /// Callback type for publishing the final task result.
     ///
     /// This closure is called exactly once per task execution to deliver:
@@ -76,24 +39,24 @@ open class KVHeavyTaskBaseDataProvider<K: Hashable, Element, CustomEvent> {
     /// - **Failure case**: Contains detailed error information for debugging and recovery
     ///
     /// The callback is thread-safe and handles proper cleanup after result delivery.
-    public typealias ResultPublisher = @Sendable (Result<Element?, Error>)->Void
-    
+    public typealias ResultPublisher = @Sendable (Result<Element?, Error>) -> Void
+
     /// The unique identifier for this task instance.
     ///
     /// This key serves multiple purposes:
     /// - **Task identification**: Uniquely identifies this task across the system
-    /// - **Cache coordination**: Used as cache key for result storage and retrieval  
+    /// - **Cache coordination**: Used as cache key for result storage and retrieval
     /// - **Deduplication**: Prevents duplicate tasks from running simultaneously
     /// - **Progress tracking**: Associates events and callbacks with specific tasks
     public internal(set) var key: K
-    
+
     /// Publisher for broadcasting custom events during task execution.
     ///
     /// Use this callback to send real-time updates to observers. Events are delivered
     /// asynchronously on a global queue to prevent blocking the main task execution.
     /// Multiple observers can be registered for the same task key.
     public internal(set) var customEventPublisher: CustomEventPublisher
-    
+
     /// Publisher for delivering the final task result.
     ///
     /// **Critical**: This callback must be called exactly once per task execution.
@@ -101,7 +64,7 @@ open class KVHeavyTaskBaseDataProvider<K: Hashable, Element, CustomEvent> {
     /// memory leaks, or hanging operations. The manager relies on this callback
     /// for proper task lifecycle management and resource cleanup.
     public internal(set) var resultPublisher: ResultPublisher
-    
+
     /// Initializes a new heavy task data provider instance.
     ///
     /// This initializer sets up the essential communication channels between the data provider
@@ -114,7 +77,11 @@ open class KVHeavyTaskBaseDataProvider<K: Hashable, Element, CustomEvent> {
     ///
     /// - Note: Both publishers are thread-safe and can be called from any queue.
     /// - Warning: The resultPublisher must be called exactly once per task execution.
-    required public init(key: K, customEventPublisher: @escaping CustomEventPublisher, resultPublisher: @escaping ResultPublisher) {
+    public required init(
+        key: K,
+        customEventPublisher: @escaping CustomEventPublisher,
+        resultPublisher: @escaping ResultPublisher
+    ) {
         self.key = key
         self.customEventPublisher = customEventPublisher
         self.resultPublisher = resultPublisher
@@ -148,7 +115,7 @@ public enum KVHeavyTaskDataProviderStopAction {
     /// - ❌ Higher memory usage (provider remains in memory)
     /// - ❌ Potential memory leaks if tasks never resume
     case reuse
-    
+
     /// Deallocate the DataProvider instance to free memory immediately.
     ///
     /// **When to use**:
@@ -196,14 +163,14 @@ public enum KVHeavyTaskDataProviderStopAction {
 /// ```swift
 /// class MyHeavyTaskProvider: KVHeavyTaskBaseDataProvider<String, Data, Progress>, KVHeavyTaskDataProviderInterface {
 ///     private var isStopped = false
-///     
+///
 ///     func start() {
 ///         // Validate input and setup
-///         guard isValidKey(key) else { 
+///         guard isValidKey(key) else {
 ///             resultPublisher(.failure(ValidationError.invalidKey))
-///             return 
+///             return
 ///         }
-///         
+///
 ///         // Execute task with progress updates
 ///         performHeavyOperation { progress in
 ///             guard !isStopped else { return }
@@ -212,7 +179,7 @@ public enum KVHeavyTaskDataProviderStopAction {
 ///             resultPublisher(result)
 ///         }
 ///     }
-///     
+///
 ///     func stop() -> KVHeavyTaskDataProviderStopAction {
 ///         isStopped = true
 ///         return shouldPreserveState ? .reuse : .dealloc
@@ -245,7 +212,7 @@ public protocol KVHeavyTaskDataProviderInterface {
     /// - Consider memory usage, especially for tasks that may be interrupted
     /// - Implement appropriate cancellation points for responsive interruption
     func start()
-    
+
     /// Gracefully stops the currently executing task and determines cleanup strategy.
     ///
     /// This method is called by the task manager when a higher-priority task requires
@@ -330,29 +297,29 @@ public extension KVHeavyTasksManager {
             /// - ❌ Lower responsiveness for high-priority tasks
             /// - ❌ Potential priority inversion in some scenarios
             case await
-            
-            /// New tasks stop currently running tasks to start immediately.
-            ///
-            /// **Behavior**: When a new high-priority task is added, it immediately stops
-            /// one or more running tasks, moves them to the waiting queue, and starts execution.
-            /// Stopped tasks are automatically restarted when resources become available.
-            ///
-            /// **Best for**:
-            /// - Interactive applications where responsiveness is critical
-            /// - Tasks that support efficient state preservation and resumption
-            /// - Scenarios with clear priority hierarchies (user-initiated vs background tasks)
-            /// - Operations where recent requests are more valuable than older ones
-            ///
-            /// **Trade-offs**:
-            /// - ✅ Maximum responsiveness for high-priority tasks
-            /// - ✅ Better resource utilization in dynamic priority scenarios
-            /// - ✅ Natural handling of priority changes during execution
-            /// - ❌ Additional complexity from task interruption and resumption
-            /// - ❌ Potential efficiency loss from task restarts (if using .dealloc)
-            /// - ❌ More complex debugging due to task state transitions
-            case stop
+
+                /// New tasks stop currently running tasks to start immediately.
+                ///
+                /// **Behavior**: When a new high-priority task is added, it immediately stops
+                /// one or more running tasks, moves them to the waiting queue, and starts execution.
+                /// Stopped tasks are automatically restarted when resources become available.
+                ///
+                /// **Best for**:
+                /// - Interactive applications where responsiveness is critical
+                /// - Tasks that support efficient state preservation and resumption
+                /// - Scenarios with clear priority hierarchies (user-initiated vs background tasks)
+                /// - Operations where recent requests are more valuable than older ones
+                ///
+                /// **Trade-offs**:
+                /// - ✅ Maximum responsiveness for high-priority tasks
+                /// - ✅ Better resource utilization in dynamic priority scenarios
+                /// - ✅ Natural handling of priority changes during execution
+                /// - ❌ Additional complexity from task interruption and resumption
+                /// - ❌ Potential efficiency loss from task restarts (if using .dealloc)
+                /// - ❌ More complex debugging due to task state transitions
+                case stop
         }
-        
+
         /// Defines the overall task execution order and priority handling strategy.
         ///
         /// This is the primary control for task scheduling behavior and significantly
@@ -377,7 +344,7 @@ public extension KVHeavyTasksManager {
             /// - Systems with relatively uniform task priorities
             /// - Operations where interruption would be problematic
             case FIFO
-            
+
             /// Last In, First Out - most recent tasks get priority.
             ///
             /// **Characteristics**:
@@ -395,7 +362,7 @@ public extension KVHeavyTasksManager {
             /// - Parameter strategy: How to handle resource conflicts with running tasks
             case LIFO(LIFOStrategy)
         }
-        
+
         /// Maximum number of tasks that can wait in the queue simultaneously.
         ///
         /// This setting controls memory usage and prevents unbounded queue growth.
@@ -407,7 +374,7 @@ public extension KVHeavyTasksManager {
         /// - **High values (100+)**: Lower eviction risk, higher memory usage
         /// - **Consider**: Peak load, task submission rate, average task duration
         public let maxNumberOfQueueingTasks: Int
-        
+
         /// Maximum number of tasks that can execute concurrently.
         ///
         /// This setting directly controls resource usage and system load. The optimal
@@ -423,13 +390,13 @@ public extension KVHeavyTasksManager {
         /// - Higher values: Better throughput, higher resource usage
         /// - Lower values: Better resource control, potential throughput limitation
         public let maxNumberOfRunningTasks: Int
-        
+
         /// Strategy for determining task execution order and priority handling.
         ///
         /// This setting affects the entire task scheduling behavior and should be chosen
         /// based on the specific requirements of your application's task characteristics.
         public let priorityStrategy: PriorityStrategy
-        
+
         /// Configuration for caching completed task results.
         ///
         /// The cache prevents duplicate task execution and provides immediate results
@@ -442,7 +409,7 @@ public extension KVHeavyTasksManager {
         /// - **Key validation**: Filter out invalid or malformed keys
         /// - **Eviction policy**: How to handle cache capacity limits
         public let cacheConfig: MemoryCache<K, Element>.Configuration
-        
+
         /// Optional callback for monitoring cache performance and behavior.
         ///
         /// This callback provides detailed statistics about cache hits, misses, evictions,
@@ -454,7 +421,7 @@ public extension KVHeavyTasksManager {
         /// - Eviction counts and reasons
         /// - Access patterns and timing information
         public let cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)?
-        
+
         /// Initializes a new KVHeavyTasksManager configuration with specified parameters.
         ///
         /// This initializer provides sensible defaults for most use cases while allowing
@@ -474,11 +441,13 @@ public extension KVHeavyTasksManager {
         ///   - priorityStrategy: Task execution order and priority handling (default: .LIFO(.await))
         ///   - cacheConfig: Cache configuration for task results (default: .defaultConfig)
         ///   - cacheStatisticsReport: Optional statistics monitoring callback (default: nil)
-        public init(maxNumberOfQueueingTasks: Int = 50,
-                    maxNumberOfRunningTasks: Int = 4,
-                    priorityStrategy: PriorityStrategy = .LIFO(.await),
-                    cacheConfig: MemoryCache<K, Element>.Configuration = .defaultConfig,
-                    cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil) {
+        public init(
+            maxNumberOfQueueingTasks: Int = 50,
+            maxNumberOfRunningTasks: Int = 4,
+            priorityStrategy: PriorityStrategy = .LIFO(.await),
+            cacheConfig: MemoryCache<K, Element>.Configuration = .defaultConfig,
+            cacheStatisticsReport: ((CacheStatistics, CacheRecord) -> Void)? = nil
+        ) {
             self.maxNumberOfQueueingTasks = maxNumberOfQueueingTasks
             self.maxNumberOfRunningTasks = maxNumberOfRunningTasks
             self.priorityStrategy = priorityStrategy
@@ -530,7 +499,7 @@ public extension KVHeavyTasksManager {
 ///             resultPublisher(result)
 ///         }
 ///     }
-///     
+///
 ///     func stop() -> KVHeavyTaskDataProviderStopAction {
 ///         return .reuse // Preserve processing state for resumption
 ///     }
@@ -545,7 +514,7 @@ public extension KVHeavyTasksManager {
 /// let manager = KVHeavyTasksManager<String, UIImage, ProcessingProgress, ImageProcessingProvider>(config: config)
 ///
 /// // Execute tasks with progress monitoring
-/// manager.fetch(key: "process_photo_123", 
+/// manager.fetch(key: "process_photo_123",
 ///               customEventObserver: { progress in
 ///                   print("Processing progress: \(progress.percentage)%")
 ///               },
@@ -566,11 +535,16 @@ public extension KVHeavyTasksManager {
 ///
 /// ## Performance Considerations
 /// - **Queue sizing**: Balance memory usage vs task eviction risk
-/// - **Concurrency limits**: Optimize for your specific task characteristics and system resources  
+/// - **Concurrency limits**: Optimize for your specific task characteristics and system resources
 /// - **Cache configuration**: Tune for your result size and access patterns
 /// - **Priority strategy**: Choose based on responsiveness vs predictability requirements
 /// - **Provider lifecycle**: Balance setup cost vs memory usage with reuse/dealloc decisions
-public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyTaskBaseDataProvider<K, Element, CustomEvent>> where DataProvider: KVHeavyTaskDataProviderInterface {
+public class KVHeavyTasksManager<
+    K,
+    Element,
+    CustomEvent,
+    DataProvider: KVHeavyTaskBaseDataProvider<K, Element, CustomEvent>
+> where DataProvider: KVHeavyTaskDataProviderInterface {
     /// Initializes a new KVHeavyTasksManager with the specified configuration.
     ///
     /// This initializer sets up all internal systems including queues, cache, and synchronization
@@ -580,17 +554,20 @@ public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyT
     /// - Note: Initialization is lightweight and safe to call from any thread
     public init(config: Config) {
         self.config = config
-        self.cache = MemoryCache<K, Element>(configuration: config.cacheConfig, statisticsReport: config.cacheStatisticsReport)
-        self.waitingQueue = .init(capacity: config.maxNumberOfQueueingTasks)
-        self.runningKeys = .init(capacity: config.maxNumberOfRunningTasks)
+        cache = MemoryCache<K, Element>(
+            configuration: config.cacheConfig,
+            statisticsReport: config.cacheStatisticsReport
+        )
+        waitingQueue = .init(capacity: config.maxNumberOfQueueingTasks)
+        runningKeys = .init(capacity: config.maxNumberOfRunningTasks)
     }
-    
+
     /// Immutable configuration that defines all manager behavior.
     ///
     /// This configuration is set at initialization and cannot be changed during the manager's
     /// lifetime, ensuring consistent and predictable behavior for all operations.
     public let config: Config
-    
+
     /// High-performance memory cache for storing completed task results.
     ///
     /// The cache provides immediate results for previously computed tasks and supports:
@@ -600,7 +577,7 @@ public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyT
     /// - Key validation to filter malformed requests
     /// - Detailed statistics reporting for performance monitoring
     private let cache: MemoryCache<K, Element>
-    
+
     /// Queue for tasks waiting to be executed when resources become available.
     ///
     /// This queue manages overflow from the running queue and provides:
@@ -609,7 +586,7 @@ public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyT
     /// - Efficient key-based lookup and removal operations
     /// - Automatic integration with running queue management
     private let waitingQueue: HashQueue<K>
-    
+
     /// Queue for tasks currently being executed by DataProviders.
     ///
     /// This queue tracks active tasks and enforces concurrency limits:
@@ -618,21 +595,21 @@ public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyT
     /// - Support for task interruption and queue reordering in LIFO(.stop) mode
     /// - Integrated with DataProvider lifecycle management
     private let runningKeys: HashQueue<K>
-    
+
     /// Registry of custom event observers for active tasks.
     ///
     /// Maps task keys to arrays of observer callbacks that receive real-time progress updates.
     /// Multiple observers can be registered for the same task, and all are notified of events.
     /// Automatically cleaned up when tasks complete or are evicted.
     private var customEventObservers: [K: [DataProvider.CustomEventPublisher]] = .init()
-    
+
     /// Registry of result callbacks for active tasks.
     ///
     /// Maps task keys to arrays of result callbacks that receive final task outcomes.
     /// Multiple callbacks can be registered for the same task, enabling fan-out notification.
     /// Automatically cleaned up after result delivery to prevent memory leaks.
     private var resultCallbacks: [K: [DataProvider.ResultPublisher]] = .init()
-    
+
     /// Active DataProvider instances indexed by task key.
     ///
     /// This dictionary manages the lifecycle of DataProvider instances:
@@ -641,7 +618,7 @@ public class KVHeavyTasksManager<K, Element, CustomEvent, DataProvider: KVHeavyT
     /// - Removed when tasks complete or when stop() returns .dealloc
     /// - Provides provider persistence for efficient task resumption
     private var dataProviders: [K: DataProvider] = .init()
-    
+
     /// Semaphore providing thread-safe access to all manager state.
     ///
     /// This binary semaphore coordinates access to all shared mutable state including:
@@ -664,23 +641,27 @@ public extension KVHeavyTasksManager {
         case invalidConcurrencyConfiguration
         case taskEvictedDueToPriorityConstraints(K)
     }
-    
-    func fetch(key: K,
-               customEventObserver: DataProvider.CustomEventPublisher? = nil,
-               result resultCallback: DataProvider.ResultPublisher? = nil) {
-        guard self.config.maxNumberOfRunningTasks > 0 else {
+
+    func fetch(
+        key: K,
+        customEventObserver: DataProvider.CustomEventPublisher? = nil,
+        result resultCallback: DataProvider.ResultPublisher? = nil
+    ) {
+        guard config.maxNumberOfRunningTasks > 0 else {
             resultCallback?(.failure(Errors.invalidConcurrencyConfiguration))
             return
         }
-        self.start(key, customEventObserver: customEventObserver, resultCallback: resultCallback)
+        start(key, customEventObserver: customEventObserver, resultCallback: resultCallback)
     }
-    
-    func asyncFetch(key: K,
-                   customEventObserver: DataProvider.CustomEventPublisher? = nil) async -> Result<Element?, Error> {
-        guard self.config.maxNumberOfRunningTasks > 0 else {
+
+    func asyncFetch(
+        key: K,
+        customEventObserver: DataProvider.CustomEventPublisher? = nil
+    ) async -> Result<Element?, Error> {
+        guard config.maxNumberOfRunningTasks > 0 else {
             return .failure(Errors.invalidConcurrencyConfiguration)
         }
-        
+
         return await withCheckedContinuation { continuation in
             self.start(key, customEventObserver: customEventObserver) { result in
                 continuation.resume(returning: result)
@@ -728,13 +709,17 @@ private extension KVHeavyTasksManager {
     ///
     /// - Note: All callbacks are executed asynchronously on global queues to prevent deadlock
     /// - Warning: Must be called within semaphore.wait()/signal() protection
-    private func start(_ key: K, customEventObserver: DataProvider.CustomEventPublisher?, resultCallback: DataProvider.ResultPublisher?) {
+    private func start(
+        _ key: K,
+        customEventObserver: DataProvider.CustomEventPublisher?,
+        resultCallback: DataProvider.ResultPublisher?
+    ) {
         semaphore.wait()
         defer { semaphore.signal() }
-        
+
         // First, consult the cache to avoid duplicate work
         switch cache.getElement(for: key) {
-        case .hitNonNullElement(let element):
+        case let .hitNonNullElement(element):
             // Cache hit with valid result - return immediately without task execution
             DispatchQueue.global().async {
                 resultCallback?(.success(element))
@@ -744,18 +729,19 @@ private extension KVHeavyTasksManager {
         case .hitNullElement:
             // Cache hit with null result - return nil immediately (previously computed null result)
             fallthrough
+
         case .invalidKey:
             // Key rejected by cache validation - return nil immediately (invalid request)
             DispatchQueue.global().async {
                 resultCallback?(.success(nil))
             }
             return
-            
+
         case .miss:
             // Cache miss - proceed with task execution
             break
         }
-        
+
         // Register custom event observer for progress updates
         if let customEventObserver {
             if !customEventObservers.keys.contains(key) {
@@ -763,7 +749,7 @@ private extension KVHeavyTasksManager {
             }
             customEventObservers[key]?.append(customEventObserver)
         }
-        
+
         // Register result callback for final outcome delivery
         if !resultCallbacks.keys.contains(key) {
             resultCallbacks[key] = .init()
@@ -771,7 +757,7 @@ private extension KVHeavyTasksManager {
         if let resultCallback {
             resultCallbacks[key]?.append(resultCallback)
         }
-        
+
         // Route to appropriate priority strategy implementation
         switch config.priorityStrategy {
         case .FIFO:
@@ -782,7 +768,7 @@ private extension KVHeavyTasksManager {
             executeLIFOStop(key)
         }
     }
-    
+
     /// Implements First In, First Out priority strategy for task execution.
     ///
     /// FIFO strategy provides fair resource allocation by executing tasks in submission order.
@@ -812,25 +798,25 @@ private extension KVHeavyTasksManager {
         if runningKeys.contains(key: key) {
             return
         }
-        
+
         // Remove from waiting queue if present (handles re-submission)
         if waitingQueue.contains(key: key) {
             waitingQueue.remove(key: key)
         }
-        
+
         // Start immediately if we have available running capacity
-        if runningKeys.count < self.config.maxNumberOfRunningTasks {
+        if runningKeys.count < config.maxNumberOfRunningTasks {
             runningKeys.enqueueFront(key: key, evictedStrategy: .LIFO)
             startTask(for: key)
             return
         }
-        
+
         // Queue for later execution and handle waiting queue overflow
-        if let evictedKey = self.waitingQueue.enqueueFront(key: key, evictedStrategy: .LIFO) {
+        if let evictedKey = waitingQueue.enqueueFront(key: key, evictedStrategy: .LIFO) {
             consumeCallbacks(for: evictedKey, result: .failure(Errors.taskEvictedDueToPriorityConstraints(evictedKey)))
         }
     }
-    
+
     /// Implements Last In, First Out priority strategy with await behavior for running tasks.
     ///
     /// LIFO(.await) strategy prioritizes recent tasks while allowing running tasks to complete
@@ -840,7 +826,7 @@ private extension KVHeavyTasksManager {
     /// ## Execution Logic
     /// 1. **Duplicate check**: Skip if task is already running
     /// 2. **Queue cleanup**: Remove from waiting queue if present (re-submission case)
-    /// 3. **Direct execution**: Start immediately if running capacity available  
+    /// 3. **Direct execution**: Start immediately if running capacity available
     /// 4. **Queue for later**: Add to front of waiting queue (LIFO behavior)
     /// 5. **Eviction handling**: Remove oldest waiting tasks when queue is full
     ///
@@ -849,7 +835,7 @@ private extension KVHeavyTasksManager {
     /// - **Waiting queue**: Uses FIFO eviction to remove oldest waiting tasks when full
     /// - **Task promotion**: Most recent waiting tasks are promoted first when slots open
     ///
-    /// ## Characteristics  
+    /// ## Characteristics
     /// - ✅ Recent tasks get priority over older submissions
     /// - ✅ No task interruption complexity or overhead
     /// - ✅ Better responsiveness than pure FIFO
@@ -862,25 +848,25 @@ private extension KVHeavyTasksManager {
         if runningKeys.contains(key: key) {
             return
         }
-        
+
         // Remove from waiting queue if present (handles re-submission)
         if waitingQueue.contains(key: key) {
             waitingQueue.remove(key: key)
         }
-        
+
         // Start immediately if we have available running capacity
-        if runningKeys.count < self.config.maxNumberOfRunningTasks {
+        if runningKeys.count < config.maxNumberOfRunningTasks {
             runningKeys.enqueueFront(key: key, evictedStrategy: .FIFO)
             startTask(for: key)
             return
         }
-        
+
         // Add to front of waiting queue (LIFO) and handle overflow
-        if let evictedKey = self.waitingQueue.enqueueFront(key: key, evictedStrategy: .FIFO) {
+        if let evictedKey = waitingQueue.enqueueFront(key: key, evictedStrategy: .FIFO) {
             consumeCallbacks(for: evictedKey, result: .failure(Errors.taskEvictedDueToPriorityConstraints(evictedKey)))
         }
     }
-    
+
     /// Implements Last In, First Out priority strategy with stop behavior for running tasks.
     ///
     /// LIFO(.stop) strategy provides maximum responsiveness by immediately stopping running tasks
@@ -921,20 +907,23 @@ private extension KVHeavyTasksManager {
         if runningKeys.contains(key: key) {
             return
         }
-        
+
         // Remove from waiting queue if present (handles re-submission)
         if waitingQueue.contains(key: key) {
             waitingQueue.remove(key: key)
         }
-        
+
         // Force this task into the running queue, potentially evicting another task
         if let keyToStop = runningKeys.enqueueFront(key: key, evictedStrategy: .FIFO) {
             // Move the stopped task to waiting queue for automatic resumption later
-            if let evictedKey = self.waitingQueue.enqueueFront(key: keyToStop, evictedStrategy: .FIFO) {
+            if let evictedKey = waitingQueue.enqueueFront(key: keyToStop, evictedStrategy: .FIFO) {
                 // Notify evicted waiting task if waiting queue is full
-                consumeCallbacks(for: evictedKey, result: .failure(Errors.taskEvictedDueToPriorityConstraints(evictedKey)))
+                consumeCallbacks(
+                    for: evictedKey,
+                    result: .failure(Errors.taskEvictedDueToPriorityConstraints(evictedKey))
+                )
             }
-            
+
             // Stop the evicted DataProvider and handle its lifecycle based on return value
             if let dataProvider = dataProviders[keyToStop] {
                 switch dataProvider.stop() {
@@ -947,11 +936,11 @@ private extension KVHeavyTasksManager {
                 }
             }
         }
-        
+
         // Start the new high-priority task immediately
         startTask(for: key)
     }
-    
+
     /// Creates or reuses a DataProvider for the specified task and initiates execution.
     ///
     /// This method is the core of DataProvider lifecycle management and task execution coordination.
@@ -991,14 +980,14 @@ private extension KVHeavyTasksManager {
     /// - Warning: The DataProvider's start() method is called at the end without additional synchronization
     private func startTask(for key: K) {
         // Create new DataProvider instance if not already present (supports reuse from .reuse strategy)
-        if self.dataProviders[key] == nil {
-            self.dataProviders[key] = DataProvider(key: key, customEventPublisher: { [weak self] customEvent in
+        if dataProviders[key] == nil {
+            dataProviders[key] = DataProvider(key: key, customEventPublisher: { [weak self] customEvent in
                 // Handle custom events (progress updates, status changes, etc.)
                 DispatchQueue.global().async { [weak self] in
                     guard let taskManager = self else { return }
                     taskManager.semaphore.wait()
                     defer { taskManager.semaphore.signal() }
-                    
+
                     // Broadcast event to all registered observers for this key
                     taskManager.customEventObservers[key]?.forEach { observer in
                         DispatchQueue.global().async {
@@ -1012,21 +1001,21 @@ private extension KVHeavyTasksManager {
                     guard let taskManager = self else { return }
                     taskManager.semaphore.wait()
                     defer { taskManager.semaphore.signal() }
-                    
+
                     switch result {
-                    case .success(let element):
+                    case let .success(element):
                         // Cache successful results for future requests
                         taskManager.cache.set(element: element, for: key)
                         taskManager.consumeCallbacks(for: key, result: .success(element))
-                    case .failure(let error):
+                    case let .failure(error):
                         // Don't cache failures; directly notify callbacks
                         taskManager.consumeCallbacks(for: key, result: .failure(error))
                     }
-                    
+
                     // Clean up completed task and free resources
                     taskManager.dataProviders.removeValue(forKey: key)
                     taskManager.runningKeys.remove(key: key)
-                    
+
                     // Promote next waiting task to maintain optimal throughput
                     let nextKey: K?
                     switch taskManager.config.priorityStrategy {
@@ -1035,9 +1024,9 @@ private extension KVHeavyTasksManager {
                     case .LIFO:
                         nextKey = taskManager.waitingQueue.dequeueFront()
                     }
-                    
+
                     guard let nextKey else { return }
-                    
+
                     // Add promoted task to running queue with appropriate eviction strategy
                     switch taskManager.config.priorityStrategy {
                     case .FIFO:
@@ -1045,7 +1034,7 @@ private extension KVHeavyTasksManager {
                     case .LIFO:
                         taskManager.runningKeys.enqueueFront(key: nextKey, evictedStrategy: .FIFO)
                     }
-                    
+
                     // Start the newly promoted task
                     taskManager.startTask(for: nextKey)
                 }
@@ -1055,7 +1044,7 @@ private extension KVHeavyTasksManager {
         // Initiate task execution (provider is responsible for calling resultPublisher exactly once)
         dataProviders[key]!.start()
     }
-    
+
     /// Delivers final task results to all registered callbacks and performs cleanup.
     ///
     /// This method is the final step in the task lifecycle, responsible for:
@@ -1098,12 +1087,12 @@ private extension KVHeavyTasksManager {
     /// - Warning: After this method completes, no further callbacks can be registered for this key
     private func consumeCallbacks(for key: K, result: Result<Element?, Error>) {
         // Deliver result to all registered callbacks asynchronously
-        resultCallbacks[key]?.forEach{ callback in
+        resultCallbacks[key]?.forEach { callback in
             DispatchQueue.global().async {
                 callback(result)
             }
         }
-        
+
         // Clean up callback and observer registrations to prevent memory leaks
         resultCallbacks.removeValue(forKey: key)
         customEventObservers.removeValue(forKey: key)

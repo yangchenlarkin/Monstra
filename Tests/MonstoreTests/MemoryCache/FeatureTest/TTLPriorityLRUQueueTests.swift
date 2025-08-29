@@ -1,13 +1,3 @@
-//
-//  TTLPriorityLRUQueueTests.swift
-//  MonstoreTests
-//
-//  Created by Larkin on 2025/6/27.
-//
-//  Test suite for TTLPriorityLRUQueue: covers initialization, basic operations, TTL expiration,
-//  priority-based eviction, LRU policy, combined scenarios, and edge/stress cases.
-//  Ensures correctness of all algorithmic behaviors and edge cases for the cache.
-
 import XCTest
 
 @testable import Monstra
@@ -17,6 +7,7 @@ import XCTest
 final class TTLPriorityLRUQueueTests: XCTestCase {}
 
 // MARK: - Initialization Tests
+
 /// Tests for correct initialization and capacity handling.
 extension TTLPriorityLRUQueueTests {
     func testInitialization() {
@@ -28,6 +19,7 @@ extension TTLPriorityLRUQueueTests {
 }
 
 // MARK: - Basic Operations
+
 /// Tests for insert, retrieve, remove, duplicate keys, and zero capacity.
 extension TTLPriorityLRUQueueTests {
     func testInsertAndRetrieve() {
@@ -38,12 +30,14 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertEqual(cache.getElement(for: "key2"), 20)
         XCTAssertNil(cache.getElement(for: "key3"))
     }
+
     func testOverwriteExistingKey() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
         _ = cache.set(element: 10, for: "key1", expiredIn: 10)
         _ = cache.set(element: 20, for: "key1", expiredIn: 20)
         XCTAssertEqual(cache.getElement(for: "key1"), 20)
     }
+
     func testRemoveElement() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
         _ = cache.set(element: 40, for: "key1", expiredIn: 10)
@@ -52,12 +46,14 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertNil(cache.getElement(for: "key1"))
         XCTAssertNil(cache.removeElement(for: "key3"))
     }
+
     func testInsertDuplicates() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 5)
         _ = cache.set(element: 10, for: "key1", expiredIn: 10)
         _ = cache.set(element: 20, for: "key1", expiredIn: 20)
         XCTAssertEqual(cache.getElement(for: "key1"), 20)
     }
+
     func testCapacityZero() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 0)
         _ = cache.set(element: 10, for: "key1", expiredIn: 10)
@@ -66,6 +62,7 @@ extension TTLPriorityLRUQueueTests {
 }
 
 // MARK: - TTL Expiration
+
 /// Tests for TTL expiration and retrieval of expired keys.
 extension TTLPriorityLRUQueueTests {
     func testExpiration() {
@@ -74,6 +71,7 @@ extension TTLPriorityLRUQueueTests {
         sleep(2)
         XCTAssertNil(cache.getElement(for: "key1"))
     }
+
     func testMultipleExpiration() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 5)
         _ = cache.set(element: 10, for: "key1", expiredIn: 1)
@@ -82,6 +80,7 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertNil(cache.getElement(for: "key1"))
         XCTAssertEqual(cache.getElement(for: "key2"), 20)
     }
+
     func testZeroOrNegativeTTLKey() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
         _ = cache.set(element: 10, for: "Key1", expiredIn: 0)
@@ -89,6 +88,7 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertNil(cache.getElement(for: "Key1"))
         XCTAssertNil(cache.getElement(for: "Key2"))
     }
+
     func testRetrievingExpiredKeys() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
         _ = cache.set(element: 10, for: "key1", expiredIn: 1)
@@ -97,6 +97,7 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertNil(cache.getElement(for: "key1"))
         XCTAssertEqual(cache.getElement(for: "key2"), 20)
     }
+
     func testRemoveExpiredKey() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
         _ = cache.set(element: 10, for: "Key1", expiredIn: 1)
@@ -105,6 +106,7 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertEqual(removedElement, 10)
         XCTAssertNil(cache.getElement(for: "Key1"))
     }
+
     func testReSetAfterExpiration() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
         _ = cache.set(element: 10, for: "Key1", expiredIn: 1)
@@ -112,6 +114,7 @@ extension TTLPriorityLRUQueueTests {
         _ = cache.set(element: 20, for: "Key1", expiredIn: 5)
         XCTAssertEqual(cache.getElement(for: "Key1"), 20)
     }
+
     func testMultipleKeysExpireSimultaneously() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
         _ = cache.set(element: 10, for: "Key1", expiredIn: 2)
@@ -122,12 +125,14 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertNil(cache.getElement(for: "Key2"))
         XCTAssertEqual(cache.getElement(for: "Key3"), 30)
     }
+
     func testInfiniteTTL() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 1)
         _ = cache.set(element: 1, for: "A", priority: 1, expiredIn: .infinity)
         sleep(1)
         XCTAssertEqual(cache.getElement(for: "A"), 1)
     }
+
     func testShortTTLExpiresImmediately() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 1)
         _ = cache.set(element: 1, for: "A", priority: 1, expiredIn: 0.001)
@@ -137,6 +142,7 @@ extension TTLPriorityLRUQueueTests {
 }
 
 // MARK: - Priority
+
 /// Tests for priority-based eviction and retrieval.
 extension TTLPriorityLRUQueueTests {
     func testEvictionPrefersPriorityOverTTL() {
@@ -148,6 +154,7 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertEqual(cache.getElement(for: "B"), 2)
         XCTAssertEqual(cache.getElement(for: "C"), 3)
     }
+
     func testMaxMinPriority() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
         _ = cache.set(element: 1, for: "min", priority: -Double.greatestFiniteMagnitude, expiredIn: 100)
@@ -157,6 +164,7 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertEqual(cache.getElement(for: "max"), 2)
         XCTAssertEqual(cache.getElement(for: "mid"), 3)
     }
+
     func testInsertSameKeyLowerPriority() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
         _ = cache.set(element: 1, for: "A", priority: 10, expiredIn: 10)
@@ -167,6 +175,7 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertEqual(cache.getElement(for: "B"), 3)
         XCTAssertEqual(cache.getElement(for: "C"), 4)
     }
+
     func testDuplicateKeysDifferentPriorities() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
         _ = cache.set(element: 1, for: "A", priority: 1, expiredIn: 10)
@@ -180,6 +189,7 @@ extension TTLPriorityLRUQueueTests {
 }
 
 // MARK: - LRU
+
 /// Tests for LRU eviction and access updates.
 extension TTLPriorityLRUQueueTests {
     func testLRUEviction() {
@@ -191,6 +201,7 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertEqual(cache.getElement(for: "key2"), 70)
         XCTAssertEqual(cache.getElement(for: "key3"), 80)
     }
+
     func testLRUAccessUpdatesPosition() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
         _ = cache.set(element: 90, for: "key1", expiredIn: 10)
@@ -201,6 +212,7 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertNil(cache.getElement(for: "key2"))
         XCTAssertEqual(cache.getElement(for: "key3"), 110)
     }
+
     func testEvictionLRUWhenPrioritiesEqual() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
         _ = cache.set(element: 1, for: "A", priority: 1, expiredIn: 100)
@@ -211,6 +223,7 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertEqual(cache.getElement(for: "A"), 1)
         XCTAssertEqual(cache.getElement(for: "C"), 3)
     }
+
     func testEvictAllEqualLRU() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
         _ = cache.set(element: 1, for: "A", priority: 1, expiredIn: 10)
@@ -224,6 +237,7 @@ extension TTLPriorityLRUQueueTests {
 }
 
 // MARK: - Combined TTL + Priority
+
 /// Tests for combined TTL and priority scenarios.
 extension TTLPriorityLRUQueueTests {
     func testTTLExpirationWithPriority() {
@@ -234,6 +248,7 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertNil(cache.getElement(for: "A"))
         XCTAssertEqual(cache.getElement(for: "B"), 2)
     }
+
     func testUpdatePriorityAndTTL() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
         _ = cache.set(element: 1, for: "A", priority: 1, expiredIn: 1)
@@ -246,6 +261,7 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertEqual(cache.getElement(for: "A"), 10)
         XCTAssertEqual(cache.getElement(for: "C"), 3)
     }
+
     func testSimultaneousExpirationAndInsertion() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
         _ = cache.set(element: 1, for: "A", priority: 1, expiredIn: 1)
@@ -256,6 +272,7 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertNil(cache.getElement(for: "B"))
         XCTAssertEqual(cache.getElement(for: "C"), 3)
     }
+
     func testInsertSameKeyShorterTTL() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 1)
         _ = cache.set(element: 1, for: "A", priority: 1, expiredIn: 10)
@@ -263,6 +280,7 @@ extension TTLPriorityLRUQueueTests {
         sleep(2)
         XCTAssertNil(cache.getElement(for: "A"))
     }
+
     func testInsertSameKeyLongerTTL() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 1)
         _ = cache.set(element: 1, for: "A", priority: 1, expiredIn: 1)
@@ -273,15 +291,16 @@ extension TTLPriorityLRUQueueTests {
 }
 
 // MARK: - Edge and Stress Cases
+
 /// Tests for edge cases and stress scenarios.
 extension TTLPriorityLRUQueueTests {
     func testStressInsertAccess() {
         let cache = TTLPriorityLRUQueue<Int, Int>(capacity: 100)
-        for i in 0..<1000 {
+        for i in 0 ..< 1000 {
             _ = cache.set(element: i, for: i, priority: Double(i % 10), expiredIn: 10)
         }
         var found = 0
-        for i in 0..<1000 {
+        for i in 0 ..< 1000 {
             if let _ = cache.getElement(for: i) { found += 1 }
         }
         XCTAssertEqual(found, 100)
@@ -289,14 +308,20 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertEqual(cache.isFull, true)
         XCTAssertEqual(cache.isEmpty, false)
     }
+
     func testInternalStateAfterManyOps() {
         let cache = TTLPriorityLRUQueue<Int, Int>(capacity: 10)
-        for i in 0..<10 { _ = cache.set(element: i, for: i, priority: Double(i), expiredIn: 10) }
+        for i in 0 ..< 10 {
+            _ = cache.set(element: i, for: i, priority: Double(i), expiredIn: 10)
+        }
         XCTAssertEqual(cache.isFull, true)
         XCTAssertEqual(cache.isEmpty, false)
-        for i in 0..<10 { _ = cache.removeElement(for: i) }
+        for i in 0 ..< 10 {
+            _ = cache.removeElement(for: i)
+        }
         XCTAssertEqual(cache.isEmpty, true)
     }
+
     func testEvictWhenAllItemsExpired() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
         _ = cache.set(element: 1, for: "A", priority: 1, expiredIn: 1)
@@ -307,6 +332,7 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertNil(cache.getElement(for: "B"))
         XCTAssertEqual(cache.getElement(for: "C"), 3)
     }
+
     func testEvictExpiredBeforeNonExpired() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 2)
         _ = cache.set(element: 1, for: "A", priority: 1, expiredIn: 1)
@@ -317,30 +343,31 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertEqual(cache.getElement(for: "B"), 2)
         XCTAssertEqual(cache.getElement(for: "C"), 3)
     }
+
     func testRemoveNonExistentKey() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 1)
         XCTAssertNil(cache.removeElement(for: "nope"))
     }
-    
+
     // MARK: - Remove Expired Elements Tests
-    
+
     func testRemoveExpiredElements() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 5)
-        
+
         // Add elements with different expiration times
         cache.set(element: 10, for: "key1", expiredIn: 0.1) // Expires quickly
         cache.set(element: 20, for: "key2", expiredIn: 0.1) // Expires quickly
         cache.set(element: 30, for: "key3", expiredIn: 10.0) // Long TTL
         cache.set(element: 40, for: "key4", expiredIn: 10.0) // Long TTL
-        
+
         XCTAssertEqual(cache.count, 4)
-        
+
         // Wait for expiration
         Thread.sleep(forTimeInterval: 0.15)
-        
+
         // Remove expired elements
         cache.removeExpiredElements()
-        
+
         // Should only have long TTL elements remaining
         XCTAssertEqual(cache.count, 2)
         XCTAssertNil(cache.getElement(for: "key1"))
@@ -348,43 +375,43 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertEqual(cache.getElement(for: "key3"), 30)
         XCTAssertEqual(cache.getElement(for: "key4"), 40)
     }
-    
+
     func testRemoveExpiredElementsWithNoExpired() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
-        
+
         // Add elements with long TTL
         cache.set(element: 10, for: "key1", expiredIn: 10.0)
         cache.set(element: 20, for: "key2", expiredIn: 10.0)
         cache.set(element: 30, for: "key3", expiredIn: 10.0)
-        
+
         XCTAssertEqual(cache.count, 3)
-        
+
         // Remove expired elements (none should be expired)
         cache.removeExpiredElements()
-        
+
         // All elements should remain
         XCTAssertEqual(cache.count, 3)
         XCTAssertEqual(cache.getElement(for: "key1"), 10)
         XCTAssertEqual(cache.getElement(for: "key2"), 20)
         XCTAssertEqual(cache.getElement(for: "key3"), 30)
     }
-    
+
     func testRemoveExpiredElementsWithAllExpired() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 3)
-        
+
         // Add elements with short TTL
         cache.set(element: 10, for: "key1", expiredIn: 0.1)
         cache.set(element: 20, for: "key2", expiredIn: 0.1)
         cache.set(element: 30, for: "key3", expiredIn: 0.1)
-        
+
         XCTAssertEqual(cache.count, 3)
-        
+
         // Wait for expiration
         Thread.sleep(forTimeInterval: 0.15)
-        
+
         // Remove expired elements
         cache.removeExpiredElements()
-        
+
         // All elements should be removed
         XCTAssertEqual(cache.count, 0)
         XCTAssertTrue(cache.isEmpty)
@@ -392,25 +419,25 @@ extension TTLPriorityLRUQueueTests {
         XCTAssertNil(cache.getElement(for: "key2"))
         XCTAssertNil(cache.getElement(for: "key3"))
     }
-    
+
     func testRemoveExpiredElementsWithMixedExpiration() {
         let cache = TTLPriorityLRUQueue<String, Int>(capacity: 5)
-        
+
         // Add elements with mixed expiration times
         cache.set(element: 10, for: "key1", expiredIn: 0.1) // Expires quickly
         cache.set(element: 20, for: "key2", expiredIn: 10.0) // Long TTL
         cache.set(element: 30, for: "key3", expiredIn: 0.1) // Expires quickly
         cache.set(element: 40, for: "key4", expiredIn: 10.0) // Long TTL
         cache.set(element: 50, for: "key5", expiredIn: 0.1) // Expires quickly
-        
+
         XCTAssertEqual(cache.count, 5)
-        
+
         // Wait for expiration
         Thread.sleep(forTimeInterval: 0.15)
-        
+
         // Remove expired elements
         cache.removeExpiredElements()
-        
+
         // Should only have long TTL elements remaining
         XCTAssertEqual(cache.count, 2)
         XCTAssertNil(cache.getElement(for: "key1"))

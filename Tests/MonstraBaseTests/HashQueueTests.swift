@@ -1,15 +1,7 @@
-//
-//  HashQueueTests.swift
-//  MonstraBaseTests
-//
-//  Created by Larkin on 2025/7/22.
-//
-
-import XCTest
 @testable import Monstra
+import XCTest
 
 final class HashQueueTests: XCTestCase {
-
     // MARK: - Basic Operations Tests
 
     func testInitialization() {
@@ -40,15 +32,15 @@ final class HashQueueTests: XCTestCase {
 
     func testLRUBehavior() {
         let queue = HashQueue<String>(capacity: 5)
-        
+
         // Add keys
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         // Re-insert "A" - should move to front
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
-        
+
         // Dequeue from front should return "A" (most recently used)
         XCTAssertEqual(queue.dequeueFront(), "A")
         XCTAssertEqual(queue.dequeueFront(), "C")
@@ -58,16 +50,16 @@ final class HashQueueTests: XCTestCase {
 
     func testLRUBehaviorWithMultipleReinserts() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         // Re-insert in reverse order
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
-        
+
         // Should return in reverse order of re-insertion
         XCTAssertEqual(queue.dequeueFront(), "A")
         XCTAssertEqual(queue.dequeueFront(), "B")
@@ -78,14 +70,14 @@ final class HashQueueTests: XCTestCase {
 
     func testEnqueueFront() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         XCTAssertEqual(queue.count, 1)
         XCTAssertFalse(queue.isEmpty)
-        
+
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         XCTAssertEqual(queue.count, 2)
-        
+
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
         XCTAssertEqual(queue.count, 3)
         XCTAssertTrue(queue.isFull)
@@ -93,20 +85,20 @@ final class HashQueueTests: XCTestCase {
 
     func testDequeueFront() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         // Empty queue
         XCTAssertNil(queue.dequeueFront())
-        
+
         // Single element
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         XCTAssertEqual(queue.dequeueFront(), "A")
         XCTAssertTrue(queue.isEmpty)
-        
+
         // Multiple elements
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.dequeueFront(), "C")
         XCTAssertEqual(queue.dequeueFront(), "B")
         XCTAssertEqual(queue.dequeueFront(), "A")
@@ -115,29 +107,29 @@ final class HashQueueTests: XCTestCase {
 
     func testDequeueFrontWithCount() {
         let queue = HashQueue<String>(capacity: 5)
-        
+
         // Empty queue
         XCTAssertEqual(queue.dequeueFront(count: 3), [])
-        
+
         // Single element
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         XCTAssertEqual(queue.dequeueFront(count: 1), ["A"])
         XCTAssertTrue(queue.isEmpty)
-        
+
         // Multiple elements - request less than available
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.dequeueFront(count: 2), ["C", "B"])
         XCTAssertEqual(queue.count, 1)
         XCTAssertEqual(queue.dequeueFront(), "A")
-        
+
         // Multiple elements - request more than available
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.dequeueFront(count: 5), ["C", "B", "A"])
         XCTAssertTrue(queue.isEmpty)
     }
@@ -146,7 +138,7 @@ final class HashQueueTests: XCTestCase {
         let queue = HashQueue<String>(capacity: 3)
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.dequeueFront(count: 0), [])
         XCTAssertEqual(queue.count, 2)
     }
@@ -156,7 +148,7 @@ final class HashQueueTests: XCTestCase {
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         // Request more than available
         let result = queue.dequeueFront(count: 10)
         XCTAssertEqual(result, ["C", "B", "A"])
@@ -165,20 +157,20 @@ final class HashQueueTests: XCTestCase {
 
     func testDequeueBack() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         // Empty queue
         XCTAssertNil(queue.dequeueBack())
-        
+
         // Single element
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         XCTAssertEqual(queue.dequeueBack(), "A")
         XCTAssertTrue(queue.isEmpty)
-        
+
         // Multiple elements
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.dequeueBack(), "A")
         XCTAssertEqual(queue.dequeueBack(), "B")
         XCTAssertEqual(queue.dequeueBack(), "C")
@@ -187,29 +179,29 @@ final class HashQueueTests: XCTestCase {
 
     func testDequeueBackWithCount() {
         let queue = HashQueue<String>(capacity: 5)
-        
+
         // Empty queue
         XCTAssertEqual(queue.dequeueBack(count: 3), [])
-        
+
         // Single element
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         XCTAssertEqual(queue.dequeueBack(count: 1), ["A"])
         XCTAssertTrue(queue.isEmpty)
-        
+
         // Multiple elements - request less than available
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.dequeueBack(count: 2), ["A", "B"])
         XCTAssertEqual(queue.count, 1)
         XCTAssertEqual(queue.dequeueBack(), "C")
-        
+
         // Multiple elements - request more than available
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.dequeueBack(count: 5), ["A", "B", "C"])
         XCTAssertTrue(queue.isEmpty)
     }
@@ -218,7 +210,7 @@ final class HashQueueTests: XCTestCase {
         let queue = HashQueue<String>(capacity: 3)
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.dequeueBack(count: 0), [])
         XCTAssertEqual(queue.count, 2)
     }
@@ -228,7 +220,7 @@ final class HashQueueTests: XCTestCase {
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         // Request more than available
         let result = queue.dequeueBack(count: 10)
         XCTAssertEqual(result, ["A", "B", "C"])
@@ -237,13 +229,13 @@ final class HashQueueTests: XCTestCase {
 
     func testMixedDequeueOperations() {
         let queue = HashQueue<String>(capacity: 5)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "D", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "E", evictedStrategy: .FIFO)
-        
+
         // Dequeue from front then back
         XCTAssertEqual(queue.dequeueFront(), "E")
         XCTAssertEqual(queue.dequeueBack(), "A")
@@ -255,22 +247,22 @@ final class HashQueueTests: XCTestCase {
 
     func testMixedDequeueWithCount() {
         let queue = HashQueue<String>(capacity: 6)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "D", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "E", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "F", evictedStrategy: .FIFO)
-        
+
         // Dequeue multiple from front
         XCTAssertEqual(queue.dequeueFront(count: 2), ["F", "E"])
         XCTAssertEqual(queue.count, 4)
-        
+
         // Dequeue multiple from back
         XCTAssertEqual(queue.dequeueBack(count: 2), ["A", "B"])
         XCTAssertEqual(queue.count, 2)
-        
+
         // Dequeue remaining
         XCTAssertEqual(queue.dequeueFront(count: 3), ["D", "C"])
         XCTAssertTrue(queue.isEmpty)
@@ -278,20 +270,20 @@ final class HashQueueTests: XCTestCase {
 
     func testDequeueWithCountAfterLRU() {
         let queue = HashQueue<String>(capacity: 4)
-        
+
         // Initial state: [A, B, C, D]
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "D", evictedStrategy: .FIFO)
-        
+
         // Access "B" to make it most recently used: [B, D, C, A]
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
-        
+
         // Dequeue 2 from front
         XCTAssertEqual(queue.dequeueFront(count: 2), ["B", "D"])
         XCTAssertEqual(queue.count, 2)
-        
+
         // Dequeue 2 from back
         XCTAssertEqual(queue.dequeueBack(count: 2), ["A", "C"])
         XCTAssertTrue(queue.isEmpty)
@@ -299,42 +291,42 @@ final class HashQueueTests: XCTestCase {
 
     func testDequeueWithCountPerformance() {
         let queue = HashQueue<Int>(capacity: 1000)
-        
+
         // Fill the queue
-        for i in 1...1000 {
+        for i in 1 ... 1000 {
             queue.enqueueFront(key: i, evictedStrategy: .FIFO)
         }
-        
+
         // Dequeue in batches
         let batch1 = queue.dequeueFront(count: 100)
         XCTAssertEqual(batch1.count, 100)
         XCTAssertEqual(batch1.first, 1000)
         XCTAssertEqual(batch1.last, 901)
-        
+
         let batch2 = queue.dequeueBack(count: 100)
         XCTAssertEqual(batch2.count, 100)
         XCTAssertEqual(batch2.first, 1)
         XCTAssertEqual(batch2.last, 100)
-        
+
         XCTAssertEqual(queue.count, 800)
     }
 
     func testDequeueWithCountEdgeCases() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         // Test with UInt.max
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         let result = queue.dequeueFront(count: UInt.max)
         XCTAssertEqual(result, ["C", "B", "A"])
         XCTAssertTrue(queue.isEmpty)
-        
+
         // Test with zero count multiple times
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.dequeueFront(count: 0), [])
         XCTAssertEqual(queue.dequeueBack(count: 0), [])
         XCTAssertEqual(queue.count, 2)
@@ -342,37 +334,37 @@ final class HashQueueTests: XCTestCase {
 
     func testDequeueWithCountConsistency() {
         let queue = HashQueue<String>(capacity: 5)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "D", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "E", evictedStrategy: .FIFO)
-        
+
         // Dequeue 3 from front, then 2 from back
         let frontResult = queue.dequeueFront(count: 3)
         let backResult = queue.dequeueBack(count: 2)
-        
+
         XCTAssertEqual(frontResult, ["E", "D", "C"])
         XCTAssertEqual(backResult, ["A", "B"])
         XCTAssertTrue(queue.isEmpty)
-        
+
         // Verify consistency with individual dequeue operations
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         let individualResults = [
             queue.dequeueFront(),
             queue.dequeueFront(),
-            queue.dequeueFront()
+            queue.dequeueFront(),
         ].compactMap { $0 }
-        
+
         // Re-add elements for batch test
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         let batchResult = queue.dequeueFront(count: 3)
         XCTAssertEqual(individualResults, batchResult)
     }
@@ -381,14 +373,14 @@ final class HashQueueTests: XCTestCase {
 
     func testRemoveExistingKey() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         queue.remove(key: "B")
         XCTAssertEqual(queue.count, 2)
-        
+
         // Should return remaining keys in correct order
         XCTAssertEqual(queue.dequeueFront(), "C")
         XCTAssertEqual(queue.dequeueFront(), "A")
@@ -397,20 +389,20 @@ final class HashQueueTests: XCTestCase {
 
     func testRemoveNonExistentKey() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
-        
+
         queue.remove(key: "C") // Non-existent key
         XCTAssertEqual(queue.count, 2) // Count should remain unchanged
-        
+
         XCTAssertEqual(queue.dequeueFront(), "B")
         XCTAssertEqual(queue.dequeueFront(), "A")
     }
 
     func testRemoveFromEmptyQueue() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         queue.remove(key: "A")
         XCTAssertEqual(queue.count, 0)
         XCTAssertTrue(queue.isEmpty)
@@ -418,15 +410,15 @@ final class HashQueueTests: XCTestCase {
 
     func testRemoveAllKeys() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         queue.remove(key: "A")
         queue.remove(key: "B")
         queue.remove(key: "C")
-        
+
         XCTAssertEqual(queue.count, 0)
         XCTAssertTrue(queue.isEmpty)
         XCTAssertNil(queue.dequeueFront())
@@ -436,7 +428,7 @@ final class HashQueueTests: XCTestCase {
 
     func testEmptyQueueOperations() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         XCTAssertTrue(queue.isEmpty)
         XCTAssertEqual(queue.count, 0)
         XCTAssertFalse(queue.isFull)
@@ -446,19 +438,19 @@ final class HashQueueTests: XCTestCase {
 
     func testFullQueueOperations() {
         let queue = HashQueue<String>(capacity: 2)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
-        
+
         XCTAssertTrue(queue.isFull)
         XCTAssertEqual(queue.count, 2)
         XCTAssertFalse(queue.isEmpty)
-        
+
         // Adding another key should evict the least recently used
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
         XCTAssertEqual(queue.count, 2)
         XCTAssertTrue(queue.isFull)
-        
+
         // Should return "C" and "B", "A" should be evicted
         XCTAssertEqual(queue.dequeueFront(), "C")
         XCTAssertEqual(queue.dequeueFront(), "B")
@@ -467,12 +459,12 @@ final class HashQueueTests: XCTestCase {
 
     func testSingleElementQueue() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         XCTAssertEqual(queue.count, 1)
         XCTAssertFalse(queue.isEmpty)
         XCTAssertFalse(queue.isFull)
-        
+
         XCTAssertEqual(queue.dequeueFront(), "A")
         XCTAssertTrue(queue.isEmpty)
         XCTAssertNil(queue.dequeueFront())
@@ -482,18 +474,18 @@ final class HashQueueTests: XCTestCase {
 
     func testCapacityEviction() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         // Fill the queue
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         // Add one more - should evict "A" (least recently used)
         queue.enqueueFront(key: "D", evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.count, 3)
         XCTAssertTrue(queue.isFull)
-        
+
         // Should return "D", "C", "B" in order
         XCTAssertEqual(queue.dequeueFront(), "D")
         XCTAssertEqual(queue.dequeueFront(), "C")
@@ -503,17 +495,17 @@ final class HashQueueTests: XCTestCase {
 
     func testCapacityEvictionWithLRU() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         // Access "A" to make it most recently used
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
-        
+
         // Add "D" - should evict "B" (now least recently used)
         queue.enqueueFront(key: "D", evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.dequeueFront(), "D")
         XCTAssertEqual(queue.dequeueFront(), "A")
         XCTAssertEqual(queue.dequeueFront(), "C")
@@ -522,12 +514,12 @@ final class HashQueueTests: XCTestCase {
 
     func testZeroCapacityQueue() {
         let queue = HashQueue<String>(capacity: 0)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         XCTAssertEqual(queue.count, 0)
         XCTAssertTrue(queue.isEmpty)
         XCTAssertTrue(queue.isFull)
-        
+
         XCTAssertNil(queue.dequeueFront())
         XCTAssertNil(queue.dequeueBack())
     }
@@ -537,41 +529,41 @@ final class HashQueueTests: XCTestCase {
     func testLargeCapacityOperations() {
         let capacity = 1000
         let queue = HashQueue<Int>(capacity: capacity)
-        
+
         // Fill the queue
-        for i in 1...capacity {
+        for i in 1 ... capacity {
             queue.enqueueFront(key: i, evictedStrategy: .FIFO)
         }
-        
+
         XCTAssertEqual(queue.count, capacity)
         XCTAssertTrue(queue.isFull)
-        
+
         // Dequeue all elements
-        for i in (1...capacity).reversed() {
+        for i in (1 ... capacity).reversed() {
             XCTAssertEqual(queue.dequeueFront(), i)
         }
-        
+
         XCTAssertEqual(queue.count, 0)
         XCTAssertTrue(queue.isEmpty)
     }
 
     func testRepeatedOperations() {
         let queue = HashQueue<String>(capacity: 5)
-        
+
         // Perform many operations
-        for i in 1...100 {
+        for i in 1 ... 100 {
             queue.enqueueFront(key: "key\(i % 5)", evictedStrategy: .FIFO)
         }
-        
+
         XCTAssertEqual(queue.count, 5)
         XCTAssertTrue(queue.isFull)
-        
+
         // Should contain the last 5 keys used
         let expectedKeys = ["key0", "key1", "key2", "key3", "key4"]
         for expectedKey in expectedKeys {
             XCTAssertNotNil(queue.remove(key: expectedKey))
         }
-        
+
         XCTAssertTrue(queue.isEmpty)
     }
 
@@ -579,21 +571,21 @@ final class HashQueueTests: XCTestCase {
 
     func testStringKeys() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         queue.enqueueFront(key: "hello", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "world", evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.dequeueFront(), "world")
         XCTAssertEqual(queue.dequeueFront(), "hello")
     }
 
     func testIntKeys() {
         let queue = HashQueue<Int>(capacity: 3)
-        
+
         queue.enqueueFront(key: 1, evictedStrategy: .FIFO)
         queue.enqueueFront(key: 2, evictedStrategy: .FIFO)
         queue.enqueueFront(key: 3, evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.dequeueFront(), 3)
         XCTAssertEqual(queue.dequeueFront(), 2)
         XCTAssertEqual(queue.dequeueFront(), 1)
@@ -604,15 +596,15 @@ final class HashQueueTests: XCTestCase {
             let id: Int
             let name: String
         }
-        
+
         let queue = HashQueue<TestKey>(capacity: 3)
-        
+
         let key1 = TestKey(id: 1, name: "A")
         let key2 = TestKey(id: 2, name: "B")
-        
+
         queue.enqueueFront(key: key1, evictedStrategy: .FIFO)
         queue.enqueueFront(key: key2, evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.dequeueFront(), key2)
         XCTAssertEqual(queue.dequeueFront(), key1)
     }
@@ -621,14 +613,14 @@ final class HashQueueTests: XCTestCase {
 
     func testNodeCleanup() {
         let queue = HashQueue<String>(capacity: 2)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
-        
+
         // Remove and re-add to test node cleanup
         queue.remove(key: "A")
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.count, 2)
         XCTAssertEqual(queue.dequeueFront(), "C")
         XCTAssertEqual(queue.dequeueFront(), "B")
@@ -636,17 +628,17 @@ final class HashQueueTests: XCTestCase {
 
     func testMapConsistency() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
-        
+
         // Remove and verify map consistency
         queue.remove(key: "A")
-        
+
         // Try to remove again - should have no effect
         queue.remove(key: "A")
         XCTAssertEqual(queue.count, 1)
-        
+
         XCTAssertEqual(queue.dequeueFront(), "B")
         XCTAssertTrue(queue.isEmpty)
     }
@@ -655,22 +647,22 @@ final class HashQueueTests: XCTestCase {
 
     func testComplexLRUScenario() {
         let queue = HashQueue<String>(capacity: 4)
-        
+
         // Initial state: [A, B, C, D]
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "D", evictedStrategy: .FIFO)
-        
+
         // Access "B" to make it most recently used: [B, D, C, A]
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
-        
+
         // Access "A" to make it most recently used: [A, B, D, C]
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
-        
+
         // Add "E" - should evict "C": [E, A, B, D]
         queue.enqueueFront(key: "E", evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.dequeueFront(), "E")
         XCTAssertEqual(queue.dequeueFront(), "A")
         XCTAssertEqual(queue.dequeueFront(), "B")
@@ -680,15 +672,15 @@ final class HashQueueTests: XCTestCase {
 
     func testRemoveAndReinsert() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         // Remove "B" and re-insert
         queue.remove(key: "B")
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
-        
+
         XCTAssertEqual(queue.dequeueFront(), "B")
         XCTAssertEqual(queue.dequeueFront(), "C")
         XCTAssertEqual(queue.dequeueFront(), "A")
@@ -697,11 +689,11 @@ final class HashQueueTests: XCTestCase {
 
     func testStressTest() {
         let queue = HashQueue<Int>(capacity: 10)
-        
+
         // Perform many random operations
-        for i in 1...1000 {
+        for i in 1 ... 1000 {
             let operation = i % 4
-            
+
             switch operation {
             case 0:
                 queue.enqueueFront(key: i % 20, evictedStrategy: .FIFO)
@@ -715,97 +707,97 @@ final class HashQueueTests: XCTestCase {
                 break
             }
         }
-        
+
         // Queue should still be in a valid state
         XCTAssertLessThanOrEqual(queue.count, queue.capacity)
         XCTAssertGreaterThanOrEqual(queue.count, 0)
     }
-    
+
     // MARK: - Empty Queue and Guard Clause Tests
-    
+
     func testEnqueueToEmptyQueueWithPositiveCapacity() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         // Verify initial empty state
         XCTAssertTrue(queue.isEmpty)
         XCTAssertEqual(queue.count, 0)
         XCTAssertFalse(queue.isFull)
-        
+
         // Enqueue first key to empty queue
         let evictedKey = queue.enqueueFront(key: "FirstKey", evictedStrategy: .FIFO)
-        
+
         // Should not evict anything (no eviction on first enqueue to empty queue)
         XCTAssertNil(evictedKey, "First enqueue to empty queue should not evict anything")
-        
+
         // Verify queue state after first enqueue
         XCTAssertFalse(queue.isEmpty)
         XCTAssertEqual(queue.count, 1)
         XCTAssertFalse(queue.isFull)
         XCTAssertTrue(queue.contains(key: "FirstKey"))
-        
+
         // Verify key can be dequeued correctly
         XCTAssertEqual(queue.dequeueFront(), "FirstKey")
         XCTAssertTrue(queue.isEmpty)
     }
-    
+
     func testEnqueueToEmptyQueueWithZeroCapacity() {
         let queue = HashQueue<String>(capacity: 0)
-        
+
         // Verify initial empty state
         XCTAssertTrue(queue.isEmpty)
         XCTAssertEqual(queue.count, 0)
         XCTAssertTrue(queue.isFull) // Zero capacity is always full
-        
+
         // Enqueue to zero-capacity queue should immediately return the key
         let evictedKey = queue.enqueueFront(key: "TestKey", evictedStrategy: .FIFO)
-        
+
         // Should immediately return the key due to guard clause
         XCTAssertEqual(evictedKey, "TestKey", "Zero-capacity queue should immediately return enqueued key")
-        
+
         // Queue should remain empty
         XCTAssertTrue(queue.isEmpty)
         XCTAssertEqual(queue.count, 0)
         XCTAssertFalse(queue.contains(key: "TestKey"))
     }
-    
+
     func testEnqueueToEmptyQueueWithNegativeCapacity() {
         let queue = HashQueue<String>(capacity: -5)
-        
+
         // Negative capacity should be treated as zero capacity
         XCTAssertEqual(queue.capacity, 0)
         XCTAssertTrue(queue.isEmpty)
         XCTAssertTrue(queue.isFull)
-        
+
         // Enqueue should immediately return the key
         let evictedKey = queue.enqueueFront(key: "NegativeTest", evictedStrategy: .LIFO)
-        
+
         XCTAssertEqual(evictedKey, "NegativeTest", "Negative capacity queue should immediately return enqueued key")
         XCTAssertTrue(queue.isEmpty)
         XCTAssertEqual(queue.count, 0)
         XCTAssertFalse(queue.contains(key: "NegativeTest"))
     }
-    
+
     func testMultipleEnqueuesToEmptyQueue() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         // Enqueue multiple keys to initially empty queue
         let evicted1 = queue.enqueueFront(key: "First", evictedStrategy: .FIFO)
         let evicted2 = queue.enqueueFront(key: "Second", evictedStrategy: .FIFO)
         let evicted3 = queue.enqueueFront(key: "Third", evictedStrategy: .FIFO)
-        
+
         // First three enqueues should not evict anything
         XCTAssertNil(evicted1, "First enqueue should not evict")
         XCTAssertNil(evicted2, "Second enqueue should not evict")
         XCTAssertNil(evicted3, "Third enqueue should not evict")
-        
+
         // Queue should be full now
         XCTAssertTrue(queue.isFull)
         XCTAssertEqual(queue.count, 3)
-        
+
         // Fourth enqueue should now cause eviction
         let evicted4 = queue.enqueueFront(key: "Fourth", evictedStrategy: .FIFO)
         XCTAssertEqual(evicted4, "First", "Fourth enqueue should evict oldest key")
-        
+
         // Verify final state
         XCTAssertEqual(queue.count, 3)
         XCTAssertTrue(queue.contains(key: "Second"))
@@ -813,133 +805,133 @@ final class HashQueueTests: XCTestCase {
         XCTAssertTrue(queue.contains(key: "Fourth"))
         XCTAssertFalse(queue.contains(key: "First"))
     }
-    
+
     func testEnqueueToEmptyThenClearThenEnqueueAgain() {
         let queue = HashQueue<String>(capacity: 2)
-        
+
         // Initial enqueue to empty queue
         let evicted1 = queue.enqueueFront(key: "Initial", evictedStrategy: .FIFO)
         XCTAssertNil(evicted1)
         XCTAssertEqual(queue.count, 1)
-        
+
         // Clear the queue by dequeuing
         XCTAssertEqual(queue.dequeueFront(), "Initial")
         XCTAssertTrue(queue.isEmpty)
-        
+
         // Enqueue again to now-empty queue
         let evicted2 = queue.enqueueFront(key: "AfterClear", evictedStrategy: .LIFO)
         XCTAssertNil(evicted2, "Enqueue to empty queue after clearing should not evict")
-        
+
         XCTAssertEqual(queue.count, 1)
         XCTAssertTrue(queue.contains(key: "AfterClear"))
         XCTAssertFalse(queue.contains(key: "Initial"))
     }
-    
+
     func testGuardClauseConsistencyAcrossDifferentStrategies() {
         let zeroQueue = HashQueue<Int>(capacity: 0)
-        
+
         // Test both FIFO and LIFO strategies with zero capacity
         let fifoEvicted = zeroQueue.enqueueFront(key: 100, evictedStrategy: .FIFO)
         let lifoEvicted = zeroQueue.enqueueFront(key: 200, evictedStrategy: .LIFO)
-        
+
         // Both should immediately return the key regardless of strategy
         XCTAssertEqual(fifoEvicted, 100, "FIFO strategy should immediately return key for zero capacity")
         XCTAssertEqual(lifoEvicted, 200, "LIFO strategy should immediately return key for zero capacity")
-        
+
         // Queue should remain empty
         XCTAssertTrue(zeroQueue.isEmpty)
         XCTAssertEqual(zeroQueue.count, 0)
     }
-    
+
     func testEmptyQueueReturnValue() {
         let queue = HashQueue<String>(capacity: 5)
-        
+
         // Test that enqueueFront returns nil for successful enqueue to empty queue
         let result = queue.enqueueFront(key: "TestReturn", evictedStrategy: .FIFO)
-        
+
         XCTAssertNil(result, "Successful enqueue to empty queue should return nil")
         XCTAssertFalse(queue.isEmpty)
         XCTAssertEqual(queue.count, 1)
         XCTAssertTrue(queue.contains(key: "TestReturn"))
     }
-    
+
     // MARK: - Eviction and Contains Consistency Tests
-    
+
     func testContainsAfterEvictionFIFO() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         // Fill the queue
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         // Verify all keys are present
         XCTAssertTrue(queue.contains(key: "A"))
         XCTAssertTrue(queue.contains(key: "B"))
         XCTAssertTrue(queue.contains(key: "C"))
-        
+
         // Add new key with FIFO eviction - should evict "A" (oldest)
         let evictedKey = queue.enqueueFront(key: "D", evictedStrategy: .FIFO)
-        
+
         // Verify evicted key is returned and no longer contained
         XCTAssertEqual(evictedKey, "A")
         XCTAssertFalse(queue.contains(key: "A"), "Evicted key 'A' should not be contained in queue")
-        
+
         // Verify remaining keys are still present
         XCTAssertTrue(queue.contains(key: "B"))
         XCTAssertTrue(queue.contains(key: "C"))
         XCTAssertTrue(queue.contains(key: "D"))
-        
+
         // Verify count is correct
         XCTAssertEqual(queue.count, 3)
     }
-    
+
     func testContainsAfterEvictionLIFO() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         // Fill the queue
         queue.enqueueFront(key: "A", evictedStrategy: .LIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .LIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .LIFO)
-        
+
         // Verify all keys are present
         XCTAssertTrue(queue.contains(key: "A"))
         XCTAssertTrue(queue.contains(key: "B"))
         XCTAssertTrue(queue.contains(key: "C"))
-        
+
         // Add new key with LIFO eviction - should evict "C" (newest/front)
         let evictedKey = queue.enqueueFront(key: "D", evictedStrategy: .LIFO)
-        
+
         // Verify evicted key is returned and no longer contained
         XCTAssertEqual(evictedKey, "D")
         XCTAssertFalse(queue.contains(key: "D"), "Evicted key 'D' should not be contained in queue")
-        
+
         // Verify remaining keys are still present
         XCTAssertTrue(queue.contains(key: "A"))
         XCTAssertTrue(queue.contains(key: "B"))
         XCTAssertTrue(queue.contains(key: "C"))
-        
+
         // Verify count is correct
         XCTAssertEqual(queue.count, 3)
     }
-    
+
     func testContainsAfterMultipleEvictions() {
         let queue = HashQueue<String>(capacity: 2)
-        
+
         // Initial state: [A, B]
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
-        
+
         XCTAssertTrue(queue.contains(key: "A"))
         XCTAssertTrue(queue.contains(key: "B"))
-        
+
         // Add C, evict A: [C, B]
         let evicted1 = queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
         XCTAssertEqual(evicted1, "A")
         XCTAssertFalse(queue.contains(key: "A"))
         XCTAssertTrue(queue.contains(key: "B"))
         XCTAssertTrue(queue.contains(key: "C"))
-        
+
         // Add D, evict B: [D, C]
         let evicted2 = queue.enqueueFront(key: "D", evictedStrategy: .FIFO)
         XCTAssertEqual(evicted2, "B")
@@ -947,7 +939,7 @@ final class HashQueueTests: XCTestCase {
         XCTAssertFalse(queue.contains(key: "B"))
         XCTAssertTrue(queue.contains(key: "C"))
         XCTAssertTrue(queue.contains(key: "D"))
-        
+
         // Add E, evict C: [E, D]
         let evicted3 = queue.enqueueFront(key: "E", evictedStrategy: .FIFO)
         XCTAssertEqual(evicted3, "C")
@@ -957,59 +949,59 @@ final class HashQueueTests: XCTestCase {
         XCTAssertTrue(queue.contains(key: "D"))
         XCTAssertTrue(queue.contains(key: "E"))
     }
-    
+
     func testContainsAfterEvictionWithLRUAccess() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         // Fill the queue: [A, B, C]
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         // Access "A" to make it most recently used: [A, C, B]
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
-        
+
         // Verify all keys still present
         XCTAssertTrue(queue.contains(key: "A"))
         XCTAssertTrue(queue.contains(key: "B"))
         XCTAssertTrue(queue.contains(key: "C"))
-        
+
         // Add "D" with FIFO eviction - should evict "B" (now oldest): [D, A, C]
         let evictedKey = queue.enqueueFront(key: "D", evictedStrategy: .FIFO)
         XCTAssertEqual(evictedKey, "B")
-        
+
         // Verify evicted key is no longer contained
         XCTAssertFalse(queue.contains(key: "B"), "Evicted key 'B' should not be contained in queue")
-        
+
         // Verify remaining keys are still present
         XCTAssertTrue(queue.contains(key: "A"))
         XCTAssertTrue(queue.contains(key: "C"))
         XCTAssertTrue(queue.contains(key: "D"))
     }
-    
+
     func testContainsConsistencyAfterMixedOperations() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         // Add initial keys
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         // Manual removal
         queue.remove(key: "B")
         XCTAssertFalse(queue.contains(key: "B"))
         XCTAssertTrue(queue.contains(key: "A"))
         XCTAssertTrue(queue.contains(key: "C"))
-        
+
         // Add new key (no eviction since we have space)
         let noEviction = queue.enqueueFront(key: "D", evictedStrategy: .FIFO)
         XCTAssertNil(noEviction)
         XCTAssertTrue(queue.contains(key: "D"))
-        
+
         // Fill to capacity again
         let evictedKey1 = queue.enqueueFront(key: "E", evictedStrategy: .FIFO)
         XCTAssertTrue(queue.contains(key: "E"))
-        
+
         // Now eviction should occur
         let evictedKey2 = queue.enqueueFront(key: "F", evictedStrategy: .FIFO)
         XCTAssertEqual(evictedKey1, "A") // A should be evicted (oldest)
@@ -1018,28 +1010,28 @@ final class HashQueueTests: XCTestCase {
         XCTAssertFalse(queue.contains(key: "C"))
         XCTAssertTrue(queue.contains(key: "F"))
     }
-    
+
     func testContainsAfterDequeue() {
         let queue = HashQueue<String>(capacity: 3)
-        
+
         queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "B", evictedStrategy: .FIFO)
         queue.enqueueFront(key: "C", evictedStrategy: .FIFO)
-        
+
         // Dequeue from front
         let frontKey = queue.dequeueFront()
         XCTAssertEqual(frontKey, "C")
         XCTAssertFalse(queue.contains(key: "C"))
         XCTAssertTrue(queue.contains(key: "A"))
         XCTAssertTrue(queue.contains(key: "B"))
-        
+
         // Dequeue from back
         let backKey = queue.dequeueBack()
         XCTAssertEqual(backKey, "A")
         XCTAssertFalse(queue.contains(key: "A"))
         XCTAssertFalse(queue.contains(key: "C"))
         XCTAssertTrue(queue.contains(key: "B"))
-        
+
         // Final dequeue
         let lastKey = queue.dequeueFront()
         XCTAssertEqual(lastKey, "B")
@@ -1048,31 +1040,31 @@ final class HashQueueTests: XCTestCase {
         XCTAssertFalse(queue.contains(key: "C"))
         XCTAssertTrue(queue.isEmpty)
     }
-    
+
     func testContainsWithZeroCapacityQueue() {
         let queue = HashQueue<String>(capacity: 0)
-        
+
         // All enqueue operations should immediately evict
         let evicted1 = queue.enqueueFront(key: "A", evictedStrategy: .FIFO)
         XCTAssertEqual(evicted1, "A")
         XCTAssertFalse(queue.contains(key: "A"))
-        
+
         let evicted2 = queue.enqueueFront(key: "B", evictedStrategy: .LIFO)
         XCTAssertEqual(evicted2, "B")
         XCTAssertFalse(queue.contains(key: "B"))
-        
+
         XCTAssertTrue(queue.isEmpty)
         XCTAssertEqual(queue.count, 0)
     }
-    
+
     func testContainsEvictionStressTest() {
         let queue = HashQueue<Int>(capacity: 5)
         var expectedKeys = Set<Int>()
-        
+
         // Perform many operations and track expected state
-        for i in 1...100 {
+        for i in 1 ... 100 {
             let key = i % 20 // Use keys 0-19 to create collisions
-            
+
             if i % 3 == 0 {
                 // Remove operation
                 queue.remove(key: key)
@@ -1081,11 +1073,11 @@ final class HashQueueTests: XCTestCase {
                 // Enqueue operation
                 let evictedKey = queue.enqueueFront(key: key, evictedStrategy: .FIFO)
                 expectedKeys.insert(key)
-                
+
                 if let evicted = evictedKey {
                     expectedKeys.remove(evicted)
                 }
-                
+
                 // Ensure we don't exceed capacity
                 while expectedKeys.count > queue.capacity {
                     // This shouldn't happen with correct implementation
@@ -1093,13 +1085,16 @@ final class HashQueueTests: XCTestCase {
                     break
                 }
             }
-            
+
             // Verify contains consistency
-            for testKey in 0..<20 {
+            for testKey in 0 ..< 20 {
                 let shouldContain = expectedKeys.contains(testKey)
                 let actuallyContains = queue.contains(key: testKey)
-                XCTAssertEqual(shouldContain, actuallyContains, 
-                              "Key \(testKey) contains mismatch at iteration \(i): expected \(shouldContain), got \(actuallyContains)")
+                XCTAssertEqual(
+                    shouldContain,
+                    actuallyContains,
+                    "Key \(testKey) contains mismatch at iteration \(i): expected \(shouldContain), got \(actuallyContains)"
+                )
             }
         }
     }

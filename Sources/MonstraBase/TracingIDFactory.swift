@@ -1,10 +1,3 @@
-//
-//  TracingIDFactory.swift
-//  MonstraBase
-//
-//  Created by Larkin on 2025/7/18.
-//
-
 import Foundation
 
 /// Public interface for TracingIDFactory providing type-safe ID generation methods.
@@ -22,7 +15,7 @@ public extension TracingIDFactory {
     mutating func safeNextString() -> String {
         String(_safe_next())
     }
-    
+
     /// Generates a unique tracing ID as a String without thread safety guarantees.
     ///
     /// This method provides maximum performance by avoiding synchronization overhead.
@@ -33,7 +26,7 @@ public extension TracingIDFactory {
     mutating func unsafeNextString() -> String {
         String(_unsafe_next())
     }
-    
+
     /// Generates a thread-safe unique tracing ID as an unsigned 64-bit integer.
     ///
     /// This method uses internal locking to ensure thread safety. The UInt64 format provides
@@ -42,9 +35,9 @@ public extension TracingIDFactory {
     /// - Returns: A unique UInt64 tracing ID
     /// - Note: Thread-safe but slightly slower than unsafe variant
     mutating func safeNextUInt64() -> UInt64 {
-        return UInt64(self._safe_next())
+        return UInt64(_safe_next())
     }
-    
+
     /// Generates a unique tracing ID as an unsigned 64-bit integer without thread safety.
     ///
     /// This method provides maximum performance for numeric ID generation by avoiding
@@ -53,9 +46,9 @@ public extension TracingIDFactory {
     /// - Returns: A unique UInt64 tracing ID
     /// - Warning: Not thread-safe. Ensure single-threaded access or external synchronization
     mutating func unsafeNextUInt64() -> UInt64 {
-        return UInt64(self._unsafe_next())
+        return UInt64(_unsafe_next())
     }
-    
+
     /// Generates a thread-safe unique tracing ID as a signed 64-bit integer.
     ///
     /// This method returns the raw signed integer format used internally by the factory.
@@ -64,9 +57,9 @@ public extension TracingIDFactory {
     /// - Returns: A unique Int64 tracing ID (raw internal format)
     /// - Note: Thread-safe but slightly slower than unsafe variant
     mutating func safeNextInt64() -> Int64 {
-        return self._safe_next()
+        return _safe_next()
     }
-    
+
     /// Generates a unique tracing ID as a signed 64-bit integer without thread safety.
     ///
     /// This method returns the raw signed integer format with maximum performance.
@@ -75,7 +68,7 @@ public extension TracingIDFactory {
     /// - Returns: A unique Int64 tracing ID (raw internal format)
     /// - Warning: Not thread-safe. Ensure single-threaded access or external synchronization
     mutating func unsafeNextInt64() -> Int64 {
-        return self._unsafe_next()
+        return _unsafe_next()
     }
 }
 
@@ -93,7 +86,7 @@ public extension TracingIDFactory {
 /// - **Sequential component**: Incrementing counter that wraps at configurable loop count - ensures uniqueness
 /// - **Combined result**: Globally unique ID with built-in temporal and sequential properties
 ///
-/// ### Performance Characteristics  
+/// ### Performance Characteristics
 /// - **High throughput**: Generates millions of IDs per second with minimal overhead
 /// - **Memory efficient**: Minimal state (3 Int64 values + lock)
 /// - **CPU optimized**: Simple arithmetic operations, no string formatting or complex calculations
@@ -134,18 +127,18 @@ public extension TracingIDFactory {
 /// - **Memory footprint**: ~64 bytes total including lock and temporal calculation state
 public struct TracingIDFactory {
     // MARK: - Constants and Limits
-    
+
     /// Maximum value for time-based ID component to prevent Int64 overflow.
     ///
     /// This limit ensures that `(timeBasedID × loopCount) + sequentialCounter` never exceeds Int64.max.
     /// Value chosen to support maximum loop counts while maintaining 8-digit time-based IDs for readability.
     ///
-    /// **Mathematical basis**: 
+    /// **Mathematical basis**:
     /// - Int64.max = 9,223,372,036,854,775,807 (19 digits)
-    /// - Maximum year seconds ≈ 31,622,400 (leap year, ~8 digits)  
+    /// - Maximum year seconds ≈ 31,622,400 (leap year, ~8 digits)
     /// - Safety buffer allows loop counts up to 10 billion while preventing overflow
     private static let maximumBaseID: Int64 = 100_000_000
-    
+
     /// Maximum allowed value for sequential counter loop count.
     ///
     /// This defines the range of the sequential component before it wraps back to 0.
@@ -156,16 +149,16 @@ public struct TracingIDFactory {
     /// - Lower values: More frequent wraparound but better cache locality
     /// - Higher values: Longer uniqueness period but higher memory usage for large IDs
     public static let maximumLoopCount: Int64 = 10_000_000_000
-    public static let minimumLoopCount: Int64 = 1_000
-    
+    public static let minimumLoopCount: Int64 = 1000
+
     // MARK: - Instance Properties
-    
+
     /// The range for the sequential counter before wrapping back to 0.
     ///
     /// This value determines how many unique IDs can be generated for each time-based ID
     /// before the sequential component wraps. Clamped between 1 and `maximumLoopCount`.
     private let loopCount: Int64
-    
+
     /// The time-based component used as the base for ID generation.
     ///
     /// Calculated once during initialization as seconds elapsed since the start of the current year (UTC).
@@ -173,11 +166,11 @@ public struct TracingIDFactory {
     ///
     /// **Calculation method**:
     /// 1. Get current UTC time
-    /// 2. Calculate start of current year in UTC  
+    /// 2. Calculate start of current year in UTC
     /// 3. Compute elapsed seconds since year start
     /// 4. Apply modulo to keep within `maximumBaseID` range
     private let timeBasedIDBase: Int64
-    
+
     /// Current value of the sequential counter for ID generation.
     ///
     /// This counter increments with each ID generation and wraps at `loopCount`.
@@ -185,7 +178,7 @@ public struct TracingIDFactory {
     ///
     /// **Thread safety**: Access must be synchronized for safe methods via `lock`
     private var sequentialCounter: Int64 = 0
-    
+
     /// Initializes a new TracingIDFactory with configurable sequential counter range.
     ///
     /// The initializer performs one-time setup including temporal base ID calculation and
@@ -209,24 +202,24 @@ public struct TracingIDFactory {
     public init(loopCount: Int64 = Self.maximumLoopCount) {
         // Validate and normalize the loop count parameter
         self.loopCount = max(Self.minimumLoopCount, min(loopCount, Self.maximumLoopCount))
-        
+
         // Calculate time-based ID component using UTC timezone for consistency
-        self.timeBasedIDBase = {
+        timeBasedIDBase = {
             let currentTimestamp = CPUTimeStamp().timeIntervalSinceCPUStart()
             let integerPart = Double(Int64(currentTimestamp))
             let decimalPart = currentTimestamp - integerPart
             return Int64(decimalPart * 1_000_000_000) % Self.maximumBaseID
         }()
     }
-    
+
     // MARK: - Internal ID Generation
-    
+
     /// Low-level lock for thread-safe access to mutable state.
     ///
     /// Uses `os_unfair_lock` for minimal overhead while providing mutual exclusion.
     /// This lock protects the `sequentialCounter` during increment and ID calculation.
     private var lock = os_unfair_lock()
-    
+
     /// Core ID generation logic without thread safety (maximum performance).
     ///
     /// This method implements the hybrid ID generation algorithm that combines the time-based
@@ -255,13 +248,13 @@ public struct TracingIDFactory {
             let next = (self.sequentialCounter + 1) % self.loopCount
             self.sequentialCounter = next < 0 ? next + self.loopCount : next
         }
-        
+
         // Apply hybrid ID generation formula: combine time-based and sequential components
         // Formula: ID = (timeBasedBase × loopCount) + sequentialCounter
         // This ensures different time-based IDs generate completely separate ID ranges
-        return self.sequentialCounter + self.timeBasedIDBase * self.loopCount
+        return sequentialCounter + timeBasedIDBase * loopCount
     }
-    
+
     /// Thread-safe wrapper around core ID generation logic.
     ///
     /// This method provides mutual exclusion around the unsafe ID generation using `os_unfair_lock`.
@@ -282,12 +275,12 @@ public struct TracingIDFactory {
     /// - Note: Thread-safe but slightly slower than `_unsafe_next()`
     private mutating func _safe_next() -> Int64 {
         // Acquire exclusive access to mutable state
-        os_unfair_lock_lock(&self.lock)
+        os_unfair_lock_lock(&lock)
         defer {
             // Ensure lock is always released, even if _unsafe_next() throws or returns early
             os_unfair_lock_unlock(&self.lock)
         }
-        
+
         // Delegate to unsafe implementation now that we have exclusive access
         return _unsafe_next()
     }

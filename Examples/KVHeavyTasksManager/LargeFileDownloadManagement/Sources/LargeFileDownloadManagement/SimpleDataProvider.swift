@@ -1,14 +1,7 @@
-//
-//  SimpleDataProvider.swift
-//  LargeFileDownloadManagement
-//
-//  Created by Larkin on 2025/8/28.
-//
-
-import Foundation
-import Monstra
 import Alamofire
 import CryptoKit
+import Foundation
+import Monstra
 
 enum SimpleDataProviderEvent {
     case didStart
@@ -28,22 +21,24 @@ enum SimpleDataProviderEvent {
 /// - This is intentionally simple for educational purposes. Real providers usually
 ///   use streaming APIs (such as URLSession/Alamofire) to support progress, resume,
 ///   cancellation, and better memory behavior.
-class SimpleDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, SimpleDataProviderEvent>, Monstra.KVHeavyTaskDataProviderInterface {
+class SimpleDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, SimpleDataProviderEvent>,
+    Monstra.KVHeavyTaskDataProviderInterface
+{
     /// Lightweight lock protecting `isRunning` state transitions and result publication.
     let semaphore = DispatchSemaphore(value: 1)
-    
+
     /// Tracks whether a job is currently executing. Toggling this value publishes
     /// simple lifecycle events so observers can react to start/finish.
     var isRunning = false {
         didSet {
             if isRunning {
-                self.customEventPublisher(.didStart)
+                customEventPublisher(.didStart)
             } else {
-                self.customEventPublisher(.didFinish)
+                customEventPublisher(.didFinish)
             }
         }
     }
-    
+
     /// Starts the provider work.
     ///
     /// Behavior:
@@ -61,17 +56,17 @@ class SimpleDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, SimpleD
         defer { semaphore.signal() }
         guard !isRunning else { return }
         isRunning = true
-        
+
         DispatchQueue.global().async {
             // Perform the blocking read off the caller's thread
             let result: Result<Data?, Error>
             do {
                 let res = try Data(contentsOf: self.key, options: .mappedIfSafe)
                 result = .success(res)
-            } catch(let error) {
+            } catch {
                 result = .failure(error)
             }
-            
+
             // Publish exactly once if we haven't been stopped meanwhile
             self.semaphore.wait()
             defer { self.semaphore.signal() }
@@ -80,7 +75,7 @@ class SimpleDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, SimpleD
             self.resultPublisher(result)
         }
     }
-    
+
     /// Attempts to stop the current work.
     ///
     /// Since this example uses a simple synchronous read dispatched to a background
@@ -90,12 +85,12 @@ class SimpleDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, SimpleD
     /// `URLSessionTask.cancel()` or `DownloadRequest.cancel(byProducingResumeData:)`).
     @discardableResult
     func stop() -> KVHeavyTaskDataProviderStopAction {
-        self.semaphore.wait()
+        semaphore.wait()
         defer { self.semaphore.signal() }
-        guard self.isRunning else { return .dealloc }
-        
-        self.isRunning = false
-        
+        guard isRunning else { return .dealloc }
+
+        isRunning = false
+
         return .dealloc
     }
 }

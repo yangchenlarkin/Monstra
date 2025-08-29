@@ -13,7 +13,7 @@ manager.fetch(key: zipFile, customEventObserver: { event in
     switch event {
     case .didStart:
         print("Unzip started")
-    case .progress(let p):
+    case let .progress(p):
         print(String(format: "Progress: %.2f%%", p * 100))
     case .didFinish:
         print("Unzip finished")
@@ -23,5 +23,3 @@ manager.fetch(key: zipFile, customEventObserver: { event in
 })
 
 RunLoop.main.run()
-
-

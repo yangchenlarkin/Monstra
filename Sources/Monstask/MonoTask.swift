@@ -1,10 +1,3 @@
-//
-//  MonoTask.swift
-//  Monstra
-//
-//  Created by Larkin on 2025/8/18.
-//
-
 import Foundation
 
 /// **MonoTask: Single-Instance Task Executor with TTL Caching and Retry Logic**
@@ -76,52 +69,51 @@ import Foundation
 /// - Note: This class is designed for expensive, idempotent operations like network requests,
 ///         database queries, or complex computations that benefit from caching and deduplication.
 public class MonoTask<TaskResult> {
-    
     // MARK: - Configuration Properties
-    
+
     /// Retry configuration for failed executions (exponential backoff, fixed intervals, etc.)
     private let retry: RetryCount
-    
+
     /// Time-to-live for cached results in seconds
     private let resultExpireDuration: TimeInterval
-    
+
     /// The user-provided execution block that performs the actual work
-    private let executeBlock: (@escaping ResultCallback)->Void
-    
+    private let executeBlock: (@escaping ResultCallback) -> Void
+
     /// Queue where the actual task execution happens (can be background for expensive operations)
     private let taskQueue: DispatchQueue
-    
+
     /// Queue where callbacks are invoked (can be main queue for UI updates)
     private let callbackQueue: DispatchQueue
-    
+
     // MARK: - Result Caching State
-    
+
     /// Currently cached result (nil if no valid cache or expired)
-    private var result: TaskResult? = nil
-    
+    private var result: TaskResult?
+
     /// Timestamp when the cached result expires (using high-precision CPU timestamps)
     private var resultExpiresAt: CPUTimeStamp = .zero
-    
+
     /// Semaphore protecting result and expiration state (semaphore)
     private var semaphore = DispatchSemaphore(value: 1)
-    
+
     // MARK: - Execution Tracking
-    
+
     /// Factory for generating unique execution IDs for tracking and cancellation
     private var executionIDFactory = TracingIDFactory()
-    
+
     /// Current execution ID - used to ignore stale retry attempts after clearResult
-    private var executionID: Int64? = nil
-    
+    private var executionID: Int64?
+
     // MARK: - Callback Management
-    
+
     /// Array of callbacks waiting for current execution (nil = not executing)
     /// When nil: Task is idle
     /// When non-nil: Task is executing, callbacks waiting for result
-    private var waitingCallbacks: [ResultCallback]? = nil
-    
+    private var waitingCallbacks: [ResultCallback]?
+
     // MARK: - Initialization
-    
+
     /// Private initializer to enforce use of public convenience initializers
     /// - Parameters:
     ///   - retry: Retry configuration for failed executions
@@ -129,16 +121,22 @@ public class MonoTask<TaskResult> {
     ///   - taskQueue: Queue for executing the actual task
     ///   - callbackQueue: Queue for invoking callbacks
     ///   - executeBlock: User-provided task implementation
-    private init(retry: RetryCount, resultExpireDuration: Double, taskQueue: DispatchQueue, callbackQueue: DispatchQueue, executeBlock: @escaping (@escaping ResultCallback)->Void) {
+    private init(
+        retry: RetryCount,
+        resultExpireDuration: Double,
+        taskQueue: DispatchQueue,
+        callbackQueue: DispatchQueue,
+        executeBlock: @escaping (@escaping ResultCallback) -> Void
+    ) {
         self.retry = retry
         self.resultExpireDuration = resultExpireDuration
         self.taskQueue = taskQueue
         self.callbackQueue = callbackQueue
         self.executeBlock = executeBlock
     }
-    
+
     // MARK: - Core Execution Logic
-    
+
     /// Thread-safe execution coordinator that handles callback registration and execution merging
     ///
     /// This method is the main entry point for all execution requests. It:
@@ -157,9 +155,9 @@ public class MonoTask<TaskResult> {
     private func _safe_execute(then completionCallback: ResultCallback?) {
         semaphore.wait()
         defer { semaphore.signal() }
-        
+
         // === Phase 1: Check Cache Validity ===
-        if let cachedResult = self.result, self.resultExpiresAt > .now() {
+        if let cachedResult = result, resultExpiresAt > .now() {
             // Cache hit! Always invoke callback on the designated callbackQueue
             if let completionCallback {
                 callbackQueue.async {
@@ -168,27 +166,27 @@ public class MonoTask<TaskResult> {
             }
             return
         }
-        
+
         // === Phase 2: Prepare for Fresh Execution ===
-        self.result = nil
-        self.resultExpiresAt = .zero
-        
+        result = nil
+        resultExpiresAt = .zero
+
         // Check if execution is already running
         let isAlreadyExecuting = waitingCallbacks != nil
-        
+
         // Initialize callback array if needed (marks task as "executing")
         if waitingCallbacks == nil {
             waitingCallbacks = [ResultCallback]()
         }
-        
+
         // Register callback for result notification
         if let completionCallback {
             waitingCallbacks!.append(completionCallback)
         }
-        
+
         // Start execution only if not already running (execution merging)
-        guard !isAlreadyExecuting  else { return }
-        
+        guard !isAlreadyExecuting else { return }
+
         _unsafe_execute(retry: retry)
     }
 
@@ -214,34 +212,34 @@ public class MonoTask<TaskResult> {
     private func _unsafe_execute(retry retryConfiguration: RetryCount) {
         taskQueue.async { [weak self] in
             guard let self else { return }
-            
+
             semaphore.wait()
             // Generate new execution ID for tracking (important for clearResult cancellation)
             let currentExecutionID = executionIDFactory.safeNextInt64()
             self.executionID = currentExecutionID
             semaphore.signal()
-            
+
             // === Phase 3: Execute User Task ===
-            self.executeBlock() { [weak self] executionResult in
+            self.executeBlock { [weak self] executionResult in
                 guard let self else { return }
                 semaphore.wait()
                 defer { semaphore.signal() }
-                
+
                 // Check if this execution was cancelled (execution ID changed)
                 guard currentExecutionID == self.executionID else { return }
                 self.executionID = nil
-                
+
                 // === Phase 4: Handle Success ===
-                if case .success(let successData) = executionResult {
+                if case let .success(successData) = executionResult {
                     // Cache the result with TTL expiration
                     self.result = successData
                     self.resultExpiresAt = .now() + self.resultExpireDuration
                     _unsafe_callback(result: executionResult)
                     return
                 }
-                
+
                 // === Phase 5: Handle Failure & Retry Logic ===
-                
+
                 // Retry if retry attempts are available
                 if retryConfiguration.shouldRetry {
                     taskQueue.asyncAfter(deadline: .now() + retryConfiguration.timeInterval) {
@@ -249,13 +247,13 @@ public class MonoTask<TaskResult> {
                     }
                     return
                 }
-                
+
                 // No more retries available, notify callbacks with final error
                 _unsafe_callback(result: executionResult)
             }
         }
     }
-    
+
     /// Thread-safe callback distribution system
     ///
     /// This method safely notifies all waiting callbacks with the execution result:
@@ -274,9 +272,9 @@ public class MonoTask<TaskResult> {
     ///
     /// - Parameter executionResult: The result to distribute to all waiting callbacks
     private func _unsafe_callback(result executionResult: Result<TaskResult, Error>) {
-        let callbacksToNotify = self.waitingCallbacks
-        self.waitingCallbacks = nil  // Task transitions to "idle" state
-        
+        let callbacksToNotify = waitingCallbacks
+        waitingCallbacks = nil // Task transitions to "idle" state
+
         callbackQueue.async {
             // Notify all callbacks with the same result
             guard let callbacksToNotify else { return }
@@ -290,23 +288,22 @@ public class MonoTask<TaskResult> {
 // MARK: - Public API
 
 public extension MonoTask {
-    
     // MARK: - Type Aliases
-    
+
     /// Callback signature for receiving task execution results
     /// - Parameter result: Success with TaskResult data or failure with Error
-    typealias ResultCallback = (Result<TaskResult, Error>)->Void
-    
+    typealias ResultCallback = (Result<TaskResult, Error>) -> Void
+
     /// Callback-based execution block signature for traditional async patterns
     /// - Parameter callback: Callback to invoke with result when task completes
-    typealias CallbackExecution = (@escaping ResultCallback)->Void
-    
+    typealias CallbackExecution = (@escaping ResultCallback) -> Void
+
     /// Swift async/await execution block signature for modern async patterns
     /// - Returns: Result with success data or failure error
     typealias AsyncExecution = () async -> Result<TaskResult, Error>
-    
+
     // MARK: - Convenience Initializers
-    
+
     /// Create MonoTask with callback-based execution (traditional async pattern)
     ///
     /// Perfect for wrapping existing callback-based APIs like URLSession, Core Data, etc.
@@ -333,10 +330,22 @@ public extension MonoTask {
     ///   - taskQueue: Queue where task execution happens (default: global background)
     ///   - callbackQueue: Queue where callbacks are invoked (default: global background)
     ///   - task: The callback-based task to execute
-    convenience init(retry: RetryCount = .never, resultExpireDuration: Double, taskQueue: DispatchQueue = DispatchQueue.global(), callbackQueue: DispatchQueue = DispatchQueue.global(), task: @escaping CallbackExecution) {
-        self.init(retry: retry, resultExpireDuration: resultExpireDuration, taskQueue: taskQueue, callbackQueue: callbackQueue, executeBlock: task)
+    convenience init(
+        retry: RetryCount = .never,
+        resultExpireDuration: Double,
+        taskQueue: DispatchQueue = DispatchQueue.global(),
+        callbackQueue: DispatchQueue = DispatchQueue.global(),
+        task: @escaping CallbackExecution
+    ) {
+        self.init(
+            retry: retry,
+            resultExpireDuration: resultExpireDuration,
+            taskQueue: taskQueue,
+            callbackQueue: callbackQueue,
+            executeBlock: task
+        )
     }
-    
+
     /// Create MonoTask with async/await execution (modern async pattern)
     ///
     /// Perfect for wrapping modern async APIs and Swift concurrency patterns.
@@ -362,16 +371,27 @@ public extension MonoTask {
     ///   - taskQueue: Queue where task execution happens (default: global background)
     ///   - callbackQueue: Queue where callbacks are invoked (default: global background)
     ///   - task: The async task to execute
-    convenience init(retry: RetryCount = .never, resultExpireDuration: Double, taskQueue: DispatchQueue = DispatchQueue.global(), callbackQueue: DispatchQueue = DispatchQueue.global(), task: @escaping AsyncExecution) {
-        self.init(retry: retry, resultExpireDuration: resultExpireDuration, taskQueue: taskQueue, callbackQueue: callbackQueue) { callback in
+    convenience init(
+        retry: RetryCount = .never,
+        resultExpireDuration: Double,
+        taskQueue: DispatchQueue = DispatchQueue.global(),
+        callbackQueue: DispatchQueue = DispatchQueue.global(),
+        task: @escaping AsyncExecution
+    ) {
+        self.init(
+            retry: retry,
+            resultExpireDuration: resultExpireDuration,
+            taskQueue: taskQueue,
+            callbackQueue: callbackQueue
+        ) { callback in
             Task {
                 await callback(task())
             }
         }
     }
-    
+
     // MARK: - Execution Methods
-    
+
     /// Execute task without waiting for result (fire-and-forget)
     ///
     /// Useful when you want to trigger execution but don't need the result immediately.
@@ -388,7 +408,7 @@ public extension MonoTask {
     func justExecute() {
         _safe_execute(then: nil)
     }
-    
+
     /// Execute task with callback-based result handling
     ///
     /// Perfect for integrating with callback-based code or when you need to handle
@@ -410,7 +430,7 @@ public extension MonoTask {
     func execute(then completionHandler: ResultCallback?) {
         _safe_execute(then: completionHandler)
     }
-    
+
     /// Execute task with async/await and return Result type
     ///
     /// This is the recommended method for modern Swift code. Returns a Result type
@@ -433,12 +453,12 @@ public extension MonoTask {
     @discardableResult
     func asyncExecute() async -> Result<TaskResult, Error> {
         return await withCheckedContinuation { continuation in
-            self._safe_execute() { executionResult in
+            self._safe_execute { executionResult in
                 continuation.resume(returning: executionResult)
             }
         }
     }
-    
+
     /// Execute task with async/await and throw on failure
     ///
     /// Convenient when you want to use Swift's error throwing mechanism.
@@ -461,17 +481,17 @@ public extension MonoTask {
     @discardableResult
     func executeThrows() async throws -> TaskResult {
         switch await withCheckedContinuation({ continuation in
-            self._safe_execute() { executionResult in
+            self._safe_execute { executionResult in
                 continuation.resume(returning: executionResult)
             }
         }) {
-        case .success(let successValue): return successValue
-        case .failure(let executionError): throw executionError
+        case let .success(successValue): return successValue
+        case let .failure(executionError): throw executionError
         }
     }
-    
+
     // MARK: - State Properties
-    
+
     /// Get currently cached result without triggering execution
     ///
     /// Returns the cached result if available and not expired, otherwise nil.
@@ -502,39 +522,39 @@ public extension MonoTask {
     var currentResult: TaskResult? {
         semaphore.wait()
         defer { semaphore.signal() }
-        
+
         // Check if cached result has expired based on TTL
-        if self.resultExpiresAt <= .now() {
+        if resultExpiresAt <= .now() {
             // Cache expired, clear stale data
-            self.result = nil
-            self.resultExpiresAt = .zero
+            result = nil
+            resultExpiresAt = .zero
         }
-        
-        return self.result
+
+        return result
     }
-    
+
     // MARK: - Cache Management
-    
+
     /// Strategy for handling ongoing execution when clearing cached results
     ///
     /// Defines how to handle a running task when `clearResult()` is called.
     enum OngoingExecutionStrategy {
         /// Cancel the current execution immediately and notify callbacks with cancellation error
         case cancel
-        
+
         /// Allow current execution to complete, then automatically restart with fresh execution
         case restart
-        
+
         /// Allow current execution to complete normally, just clear the cached result
         case allowCompletion
     }
-    
+
     /// MonoTask-specific errors
     enum Errors: Error {
         /// Error sent to callbacks when execution is cancelled via clearResult(.cancel)
         case executionCancelledDueToClearResult
     }
-    
+
     /// Manually invalidate cached result with fine-grained control over ongoing execution
     ///
     /// This method provides powerful cache management capabilities:
@@ -565,20 +585,23 @@ public extension MonoTask {
     /// - Parameters:
     ///   - ongoingExecutionStrategy: How to handle currently running execution
     ///   - shouldRestartWhenIDLE: Whether to start new execution if task is idle
-    func clearResult(ongoingExecutionStrategy: OngoingExecutionStrategy = .allowCompletion, shouldRestartWhenIDLE: Bool = false) {
+    func clearResult(
+        ongoingExecutionStrategy: OngoingExecutionStrategy = .allowCompletion,
+        shouldRestartWhenIDLE: Bool = false
+    ) {
         semaphore.wait()
         defer { semaphore.signal() }
 
         // Always clear cached result and reset expiration timestamp
-        self.result = nil
-        self.resultExpiresAt = .zero
-        
-        if let callbacksToNotify = self.waitingCallbacks {
+        result = nil
+        resultExpiresAt = .zero
+
+        if let callbacksToNotify = waitingCallbacks {
             // Task is currently executing - apply strategy
             switch ongoingExecutionStrategy {
             case .cancel:
                 // Cancel and notify all waiting callbacks on the designated callbackQueue
-                self.waitingCallbacks = nil
+                waitingCallbacks = nil
                 callbackQueue.async {
                     for callback in callbacksToNotify {
                         callback(.failure(Errors.executionCancelledDueToClearResult))
@@ -586,7 +609,7 @@ public extension MonoTask {
                 }
             case .restart:
                 // Let current execution complete, then restart
-                self._unsafe_execute(retry: self.retry)
+                _unsafe_execute(retry: retry)
             case .allowCompletion:
                 // Do nothing, let execution complete normally
                 break
@@ -594,11 +617,11 @@ public extension MonoTask {
         } else {
             // Task is idle - optionally start fresh execution
             if shouldRestartWhenIDLE {
-                self._unsafe_execute(retry: self.retry)
+                _unsafe_execute(retry: retry)
             }
         }
     }
-    
+
     /// Check if task is currently executing (not idle)
     ///
     /// Returns `true` when task is actively running (either executing or retrying),
@@ -620,11 +643,9 @@ public extension MonoTask {
     /// }
     /// ```
     var isExecuting: Bool {
-        get {
-            semaphore.wait()
-            defer { semaphore.signal() }
-            
-            return self.waitingCallbacks != nil
-        }
+        semaphore.wait()
+        defer { semaphore.signal() }
+
+        return waitingCallbacks != nil
     }
 }

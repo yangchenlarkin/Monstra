@@ -1,10 +1,3 @@
-//
-//  Heap.swift
-//  Monstore
-//
-//  Created by Larkin on 2025/5/6.
-//
-
 /// A generic heap (priority queue) supporting custom ordering and capacity limits.
 public class Heap<Element> {
     /// Maximum number of elements the heap can store.
@@ -20,7 +13,7 @@ public class Heap<Element> {
     private var storage: [Element]
 
     /// Callback triggered on insert, remove, and index changes.
-    public var onEvent: ((Event) -> Void)? = nil
+    public var onEvent: ((Event) -> Void)?
 
     /// The root element (highest priority), or nil if heap is empty.
     public var root: Element? { storage.first }
@@ -31,10 +24,10 @@ public class Heap<Element> {
     /// Initializes a heap with given capacity and comparison strategy.
     public required init(capacity: Int, compare: @escaping (Element, Element) -> ComparisonResult) {
         self.capacity = max(0, capacity)
-        self.count = 0
+        count = 0
         self.compare = compare
         // Let Swift Array handle automatic expansion
-        self.storage = []
+        storage = []
     }
 }
 
@@ -80,7 +73,7 @@ public extension Heap {
                 return nil
             }
             let cmp = compare(element, root)
-            
+
             if force {
                 // Force insertion: reject if element has higher priority than root
                 guard cmp != .moreTop else { return element }
@@ -113,13 +106,13 @@ public extension Heap {
 
         let removed = storage[index]
         count -= 1
-        
+
         if index != count {
             storage[index] = storage[count]
             onEvent?(.move(element: storage[index], to: index))
             heapify(from: index)
         }
-        
+
         storage.removeLast()
         onEvent?(.remove(element: removed))
         return removed
@@ -196,7 +189,7 @@ private extension Heap {
             let left = leftChildIndex(of: currentIndex)
             let right = rightChildIndex(of: currentIndex)
             let target: Int
-            
+
             switch (isValid(left), isValid(right)) {
             case (true, true):
                 if compareAt(left, with: right) == .moreTop {
@@ -224,19 +217,19 @@ private extension Heap {
 private extension Heap {
     /// Returns the parent index of the given index.
     func parentIndex(of index: Int) -> Int { (index - 1) / 2 }
-    
+
     /// Returns the left child index of the given index.
     func leftChildIndex(of index: Int) -> Int { 2 * index + 1 }
-    
+
     /// Returns the right child index of the given index.
     func rightChildIndex(of index: Int) -> Int { 2 * index + 2 }
 
     /// Returns true if the index is the root (index 0).
     func isRoot(_ index: Int) -> Bool { index == 0 }
-    
+
     /// Returns true if the index is a leaf node (no children).
     func isLeaf(_ index: Int) -> Bool { leftChildIndex(of: index) >= count }
-    
+
     /// Returns true if the index is within valid bounds.
     func isValid(_ index: Int) -> Bool { index >= 0 && index < count }
 

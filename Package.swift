@@ -9,13 +9,14 @@ let package = Package(
         .iOS(.v13),
         .macOS(.v10_15),
         .tvOS(.v13),
-        .watchOS(.v6)
+        .watchOS(.v6),
     ],
     products: [
         // Main unified Monstra library
         .library(
             name: "Monstra",
-            targets: ["Monstra"]),
+            targets: ["Monstra"]
+        ),
 
     ],
     dependencies: [
@@ -28,17 +29,21 @@ let package = Package(
             dependencies: [],
             path: "Sources",
             swiftSettings: [
-                .define("DEBUG", .when(configuration: .debug))
-            ]),
+                .define("DEBUG", .when(configuration: .debug)),
+            ]
+        ),
 
         .testTarget(
             name: "MonstraBaseTests",
-            dependencies: ["Monstra"]),
+            dependencies: ["Monstra"]
+        ),
         .testTarget(
             name: "MonstoreTests",
-            dependencies: ["Monstra"]),
+            dependencies: ["Monstra"]
+        ),
         .testTarget(
             name: "MonstaskTests",
-            dependencies: ["Monstra"]),
+            dependencies: ["Monstra"]
+        ),
     ]
 )

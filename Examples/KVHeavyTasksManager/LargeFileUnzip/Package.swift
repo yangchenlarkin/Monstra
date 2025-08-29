@@ -7,18 +7,16 @@ let package = Package(
     name: "LargeFileUnzip",
     platforms: [
         .macOS(.v13),
-        .iOS(.v16)
+        .iOS(.v16),
     ],
     dependencies: [
         .package(path: "../../../"),
-        .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.16")
+        .package(url: "https://github.com/weichsel/ZIPFoundation.git", from: "0.9.16"),
     ],
     targets: [
         .executableTarget(
             name: "LargeFileUnzip",
             dependencies: ["Monstra", "ZIPFoundation"]
-        )
+        ),
     ]
 )
-
-

@@ -1,10 +1,3 @@
-//
-//  CPUTimeStamp.swift
-//  Monstore
-//
-//  Created by Larkin on 2025/5/10.
-//
-
 import Foundation
 
 /// Represents a high-precision CPU timestamp for accurate time measurements and cache expiration logic.
@@ -14,43 +7,44 @@ import Foundation
 public struct CPUTimeStamp {
     /// The timestamp value in seconds since CPU start.
     private let timestampSeconds: TimeInterval
-    
+
     /// Mach timebase info for converting between different time units. Cached for performance.
     private static let timebaseInfo: mach_timebase_info_data_t = {
         var info = mach_timebase_info_data_t()
         mach_timebase_info(&info)
         return info
     }()
-    
+
     /// Initialize with raw CPU ticks.
     private init(rawTicks: UInt64) {
-        self.timestampSeconds = Self.convertTicksToSeconds(rawTicks)
+        timestampSeconds = Self.convertTicksToSeconds(rawTicks)
     }
-    
+
     /// Initialize with a time interval (seconds).
     private init(timeInterval: TimeInterval) {
-        self.timestampSeconds = timeInterval
+        timestampSeconds = timeInterval
     }
-    
+
     /// A timestamp representing positive infinity (never expires).
     public static let infinity: Self = .init(timeInterval: .infinity)
-    
+
     /// Creates a timestamp representing the current moment.
     public static func now() -> Self { Self() }
-    
+
     /// A timestamp representing zero time (epoch).
-    public static var zero: Self = Self(timeInterval: 0.0)
-    
+    public static var zero: Self = .init(timeInterval: 0.0)
+
     /// Initialize with current CPU time.
     public init() {
         self.init(rawTicks: mach_absolute_time())
     }
-    
+
     /// Returns the time interval since CPU start in seconds.
     public func timeIntervalSinceCPUStart() -> TimeInterval { timestampSeconds }
 }
 
 // MARK: - Protocol Conformance
+
 extension CPUTimeStamp: Hashable {}
 extension CPUTimeStamp: Equatable {}
 
@@ -62,26 +56,27 @@ extension CPUTimeStamp: Comparable {
 }
 
 // MARK: - Arithmetic Operations
+
 public extension CPUTimeStamp {
     /// Adds a time interval to a timestamp.
     /// - Returns: A new timestamp offset by the specified interval.
     static func + (lhs: Self, rhs: TimeInterval) -> Self {
         Self(timeInterval: lhs.timestampSeconds + rhs)
     }
-    
+
     /// Subtracts a time interval from a timestamp.
     /// - Returns: A new timestamp offset backwards by the specified interval.
     static func - (lhs: Self, rhs: TimeInterval) -> Self {
         Self(timeInterval: lhs.timestampSeconds - rhs)
     }
-    
+
     /// Calculates the time interval between two timestamps.
     /// - Parameter other: The reference timestamp to measure against.
     /// - Returns: Time interval in seconds between the timestamps.
     func timeIntervalSince(_ other: Self) -> TimeInterval {
-        self.timestampSeconds - other.timestampSeconds
+        timestampSeconds - other.timestampSeconds
     }
-    
+
     /// Subtracts two timestamps to get the interval between them.
     /// - Returns: Time interval in seconds.
     static func - (lhs: Self, rhs: Self) -> TimeInterval {
@@ -90,6 +85,7 @@ public extension CPUTimeStamp {
 }
 
 // MARK: - Time Unit Conversion
+
 private extension CPUTimeStamp {
     /// Converts CPU ticks to seconds using timebase info.
     /// Handles potential overflow by performing division before multiplication.

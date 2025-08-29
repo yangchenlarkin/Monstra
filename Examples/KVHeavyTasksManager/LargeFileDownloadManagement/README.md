@@ -52,7 +52,48 @@ This avoids conflicts with the main project and opens the example as a standalon
 
 ## 2. Code Explanation
 
-### 2.1 AlamofireDataProvider
+### 2.1 SimpleDataProvider (Educational, synchronous)
+
+For learning purposes, this example also includes a very small provider: `SimpleDataProvider`.
+
+Characteristics:
+- Emits simple lifecycle events: `didStart` and `didFinish`
+- Performs a blocking read with `Data(contentsOf:)` on a background queue
+- No progress or resume support (keep it for educational use; prefer streaming in production)
+
+Minimal usage:
+
+```swift
+// Uses SimpleDataProvider with a custom event type
+typealias SimpleManager = KVHeavyTasksManager<URL, Data, SimpleDataProviderEvent, SimpleDataProvider>
+
+let simpleManager = SimpleManager(config: .init())
+let fileURL = URL(string: "https://example.com/file.bin")!
+
+simpleManager.fetch(
+    key: fileURL,
+    customEventObserver: { event in
+        switch event {
+        case .didStart:  print("simple provider: didStart")
+        case .didFinish: print("simple provider: didFinish")
+        }
+    },
+    result: { result in
+        switch result {
+        case .success(let data):
+            print("downloaded: \(data.count) bytes")
+        case .failure(let error):
+            print("failed: \(error)")
+        }
+    }
+)
+```
+
+Notes:
+- `Data(contentsOf:)` is synchronous and loads the whole payload into memory; this provider is intentionally simple.
+- For production, use `AlamofireDataProvider` or `AFNetworkingDataProvider` to get progress, cancellation, and resume.
+
+### 2.2 AlamofireDataProvider
 
 The `AlamofireDataProvider` is a custom implementation of the `KVHeavyTaskDataProvider` protocol that handles file downloads using Alamofire.
 
@@ -70,7 +111,7 @@ The `AlamofireDataProvider` is a custom implementation of the `KVHeavyTaskDataPr
 4. **Error Handling**: Comprehensive error management and reporting
 5. **File Management**: Automatic directory creation and file path management
 
-### 2.2 AFNetworkingDataProvider
+### 2.3 AFNetworkingDataProvider
 
 The `AFNetworkingDataProvider` is a custom implementation of the `KVHeavyTaskDataProvider` protocol that handles file downloads using AFNetworking 4.x.
 
@@ -88,7 +129,7 @@ The `AFNetworkingDataProvider` is a custom implementation of the `KVHeavyTaskDat
 4. **File Reading**: Reads completed downloads and returns Data objects
 5. **Session Management**: Proper URLSession lifecycle management
 
-### 2.3 Usage (in main)
+### 2.4 Usage (in main)
 
 The main.swift file demonstrates advanced usage of both providers with `KVHeavyTasksManager`, including both modern async/await and traditional callback patterns. It showcases how to easily switch between providers using type aliases.
 
@@ -252,6 +293,47 @@ let manager = Manager<URL, Data, Progress, AFNetworkingDataProvider>()
 ```
 
 Both providers implement the same `KVHeavyTaskDataProviderInterface`, so you can easily swap between them without changing your business logic!
+
+### 2.4 SimpleDataProvider (Educational, synchronous)
+
+For learning purposes, this example also includes a very small provider: `SimpleDataProvider`.
+
+Characteristics:
+- Emits simple lifecycle events: `didStart` and `didFinish`
+- Performs a blocking read with `Data(contentsOf:)` on a background queue
+- No progress or resume support (keep it for educational use; prefer streaming in production)
+
+Minimal usage:
+
+```swift
+// Uses SimpleDataProvider with a custom event type
+typealias SimpleManager = KVHeavyTasksManager<URL, Data, SimpleDataProviderEvent, SimpleDataProvider>
+
+let simpleManager = SimpleManager(config: .init())
+let fileURL = URL(string: "https://example.com/file.bin")!
+
+simpleManager.fetch(
+    key: fileURL,
+    customEventObserver: { event in
+        switch event {
+        case .didStart:  print("simple provider: didStart")
+        case .didFinish: print("simple provider: didFinish")
+        }
+    },
+    result: { result in
+        switch result {
+        case .success(let data):
+            print("downloaded: \(data.count) bytes")
+        case .failure(let error):
+            print("failed: \(error)")
+        }
+    }
+)
+```
+
+Notes:
+- `Data(contentsOf:)` is synchronous and loads the whole payload into memory; this provider is intentionally simple.
+- For production, use `AlamofireDataProvider` or `AFNetworkingDataProvider` to get progress, cancellation, and resume.
 
 ## 🏗️ **Implementation Details**
 

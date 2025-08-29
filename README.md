@@ -514,11 +514,91 @@ imageManager.fetch(keys: imageURLs) { url, result in
 
 **Resource-Intensive Operations**: Handles demanding tasks such as large file downloads, video processing, and ML inference with comprehensive progress tracking
 
-**Note**: Due to the complexity of HeavyTasksManager's data provider, please reference the Advanced Examples section directly for comprehensive usage examples.
+#### SimpleDataProvider implementation
 
+```swift
+import Foundation
+import Monstra
 
+enum SimpleDataProviderEvent {
+    case didStart
+    case didFinish
+}
 
+/// Minimal synchronous provider for educational purposes only.
+class SimpleDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, SimpleDataProviderEvent>, Monstra.KVHeavyTaskDataProviderInterface {
+    let semaphore = DispatchSemaphore(value: 1)
+    var isRunning = false {
+        didSet { customEventPublisher(isRunning ? .didStart : .didFinish) }
+    }
 
+    func start() {
+        semaphore.wait(); defer { semaphore.signal() }
+        guard !isRunning else { return }
+        isRunning = true
+
+        DispatchQueue.global().async {
+            let result: Result<Data?, Error>
+            do {
+                let data = try Data(contentsOf: self.key, options: .mappedIfSafe)
+                result = .success(data)
+            } catch {
+                result = .failure(error)
+            }
+
+            self.semaphore.wait(); defer { self.semaphore.signal() }
+            guard self.isRunning else { return }
+            self.isRunning = false
+            self.resultPublisher(result)
+        }
+    }
+
+    @discardableResult
+    func stop() -> KVHeavyTaskDataProviderStopAction {
+        semaphore.wait(); defer { semaphore.signal() }
+        guard isRunning else { return .dealloc }
+        isRunning = false
+        return .dealloc
+    }
+}
+```
+
+#### Minimal usage
+
+```swift
+import Monstra
+
+// Educational provider that does a blocking read on a background queue
+// See: Examples/KVHeavyTasksManager/LargeFileDownloadManagement/Sources/.../SimpleDataProvider.swift
+typealias SimpleHeavyManager = KVHeavyTasksManager<URL, Data, SimpleDataProviderEvent, SimpleDataProvider>
+
+let manager = SimpleHeavyManager(config: .init())
+let fileURL = URL(string: "https://example.com/file.bin")!
+
+// Observe simple start/finish events and get the result
+manager.fetch(
+    key: fileURL,
+    customEventObserver: { event in
+        switch event {
+        case .didStart:  print("SimpleDataProvider: didStart")
+        case .didFinish: print("SimpleDataProvider: didFinish")
+        }
+    },
+    result: { result in
+        switch result {
+        case .success(let data):
+            print("Downloaded: \(data.count) bytes")
+        case .failure(let error):
+            print("Failed: \(error)")
+        }
+    }
+)
+```
+
+Notes:
+- `SimpleDataProvider` is intentionally minimal (blocking I/O, no progress/resume) for clarity.
+- For production downloads with progress/resume/cancellation, see the advanced providers in
+  `Examples/KVHeavyTasksManager/LargeFileDownloadManagement`.
 
 ## 🚀 Advanced Examples
 
@@ -542,10 +622,6 @@ imageManager.fetch(keys: imageURLs) { url, result in
 | **Large File Download Management** | Large file downloads with progress tracking | [Large File Downloader](Examples/KVHeavyTasksManager/LargeFileDownloadManagement) |
 | **Large File Unzip** | Processing large archive files with progress tracking and resource management | Coming Soon |
 
-
-
-
-
 ## 📋 Requirements
 
 ### Platform Support
@@ -560,8 +636,6 @@ imageManager.fetch(keys: imageURLs) { url, result in
 ### Dependencies
 - **Foundation**: Built-in (no external dependencies)
 - **Alamofire**: Only for example executable (not required for core library)
-
-
 
 ## 🛡️ Key Advantages & Protection Mechanisms
 
@@ -737,23 +811,6 @@ let heavyManager = KVHeavyTasksManager<String, Video>(
 )
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
@@ -780,12 +837,6 @@ We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) f
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-
-
-
-
-
 
 ## 🙏 Acknowledgments
 

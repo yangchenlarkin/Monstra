@@ -516,6 +516,11 @@ imageManager.fetch(keys: imageURLs) { url, result in
 
 #### SimpleDataProvider implementation
 
+Notes:
+- `SimpleDataProvider` is intentionally minimal (blocking I/O, no progress/resume) for clarity.
+- For production downloads with progress/resume/cancellation, see the advanced providers in
+  `Examples/KVHeavyTasksManager/LargeFileDownloadManagement`.
+
 ```swift
 import Foundation
 import Monstra
@@ -594,11 +599,6 @@ manager.fetch(
     }
 )
 ```
-
-Notes:
-- `SimpleDataProvider` is intentionally minimal (blocking I/O, no progress/resume) for clarity.
-- For production downloads with progress/resume/cancellation, see the advanced providers in
-  `Examples/KVHeavyTasksManager/LargeFileDownloadManagement`.
 
 ## 🚀 Advanced Examples
 

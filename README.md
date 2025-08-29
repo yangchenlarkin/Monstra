@@ -508,8 +508,6 @@ imageManager.fetch(keys: imageURLs) { url, result in
     }
 ```
 
-
-
 ### 4. KVHeavyTasksManager
 
 **Resource-Intensive Operations**: Handles demanding tasks such as large file downloads, video processing, and ML inference with comprehensive progress tracking
@@ -603,24 +601,98 @@ manager.fetch(
 ## 🚀 Advanced Examples
 
 ### **⚡ MonoTask - Task Execution Scenarios**
-| Scenario | Best Practices | Example Link |
-|----------|----------------|--------------|
-| **API Response Caching** | Cache API responses to reduce network calls | Coming Soon |
-| **Module Initialization** | Cache app configuration with retry logic | Coming Soon |
-| **UserProfile Manager** | Single-instance user profile management with caching | Coming Soon |
+<table width="100%">
+  <colgroup>
+    <col width="40%" />
+    <col width="40%" />
+    <col width="20%" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Scenario</th>
+      <th>Best Practices</th>
+      <th>Example Link</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>API Response Caching</td>
+      <td>Cache API responses to reduce network calls</td>
+      <td>Coming Soon</td>
+    </tr>
+    <tr>
+      <td>Module Initialization</td>
+      <td>Cache app configuration with retry logic</td>
+      <td>Coming Soon</td>
+    </tr>
+    <tr>
+      <td>UserProfile Manager</td>
+      <td>Single-instance user profile management with caching</td>
+      <td>Coming Soon</td>
+    </tr>
+  </tbody>
+ </table>
 
 ### **🚀 KVLightTasksManager - Light Task Scenarios**
-| Scenario | Best Practices | Example Link |
-|----------|----------------|--------------|
-| **Image Download** | Efficient image downloading with caching and batch processing | Coming Soon |
-| **Object Fetch Task** | Batch fetch objects by ID list with performance enhancement | Coming Soon |
-| **Small Unzip Task** | Efficient batch processing of small archive files with caching and progress tracking | Coming Soon |
+<table width="100%">
+  <colgroup>
+    <col width="40%" />
+    <col width="40%" />
+    <col width="20%" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Scenario</th>
+      <th>Best Practices</th>
+      <th>Example Link</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Image Download</td>
+      <td>Efficient image downloading with caching and batch processing</td>
+      <td>Coming Soon</td>
+    </tr>
+    <tr>
+      <td>Object Fetch Task</td>
+      <td>Batch fetch objects by ID list with performance enhancement</td>
+      <td>Coming Soon</td>
+    </tr>
+    <tr>
+      <td>Small Unzip Task</td>
+      <td>Efficient batch processing of small archive files with caching and progress tracking</td>
+      <td>Coming Soon</td>
+    </tr>
+  </tbody>
+ </table>
 
 ### **🏗️ KVHeavyTasksManager - Heavy Task Scenarios**
-| Scenario | Best Practices | Example Link |
-|----------|----------------|--------------|
-| **Large File Download Management** | Large file downloads with progress tracking | [Large File Downloader](Examples/KVHeavyTasksManager/LargeFileDownloadManagement) |
-| **Large File Unzip** | Processing large archive files with progress tracking and resource management | Coming Soon |
+<table width="100%">
+  <colgroup>
+    <col width="40%" />
+    <col width="40%" />
+    <col width="20%" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Scenario</th>
+      <th>Best Practices</th>
+      <th>Example Link</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Large File Download Management</td>
+      <td>Large file downloads with progress tracking</td>
+      <td><a href="Examples/KVHeavyTasksManager/LargeFileDownloadManagement">Large File Downloader</a></td>
+    </tr>
+    <tr>
+      <td>Large File Unzip</td>
+      <td>Processing large archive files with progress tracking and resource management</td>
+      <td>Coming Soon</td>
+    </tr>
+  </tbody>
+ </table>
 
 ## 📋 Requirements
 

@@ -57,7 +57,7 @@ public extension KVLightTasksManager {
         ///     - The keyValidator in cacheConfig automatically filters invalid keys
         ///     - Invalid keys return nil without network requests
         ///   - cacheStatisticsReport: Optional callback for cache statistics
-        init(
+        public init(
             dataProvider: DataProvider,
             maxNumberOfQueueingTasks: Int = 256,
             maxNumberOfRunningTasks: Int = 4,

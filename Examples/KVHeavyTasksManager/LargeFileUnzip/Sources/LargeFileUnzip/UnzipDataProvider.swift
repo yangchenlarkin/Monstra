@@ -53,11 +53,7 @@ final class UnzipDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, [URL], U
 
                 var index = 0.0
                 for entry in archive {
-                    guard self.isRunning else { throw NSError(
-                        domain: "Unzip",
-                        code: -999,
-                        userInfo: [NSLocalizedDescriptionKey: "Cancelled"]
-                    ) }
+                    guard self.isRunning else { return }
                     let outURL = self.destinationDirectory.appendingPathComponent(entry.path)
                     let outDir = outURL.deletingLastPathComponent()
                     try FileManager.default.createDirectory(at: outDir, withIntermediateDirectories: true)

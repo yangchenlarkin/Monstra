@@ -16,7 +16,10 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "LargeFileUnzip",
-            dependencies: ["Monstra", "ZIPFoundation"]
+            dependencies: ["Monstra", "ZIPFoundation"],
+            resources: [
+                .process("Resources")
+            ]
         ),
     ]
 )

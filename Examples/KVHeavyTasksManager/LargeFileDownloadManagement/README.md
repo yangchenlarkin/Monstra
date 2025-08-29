@@ -93,6 +93,55 @@ Notes:
 - `Data(contentsOf:)` is synchronous and loads the whole payload into memory; this provider is intentionally simple.
 - For production, use `AlamofireDataProvider` or `AFNetworkingDataProvider` to get progress, cancellation, and resume.
 
+#### Implementation
+
+```swift
+import Foundation
+import Monstra
+
+enum SimpleDataProviderEvent {
+    case didStart
+    case didFinish
+}
+
+/// Minimal synchronous provider for educational purposes only.
+class SimpleDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, SimpleDataProviderEvent>, Monstra.KVHeavyTaskDataProviderInterface {
+    let semaphore = DispatchSemaphore(value: 1)
+    var isRunning = false {
+        didSet { customEventPublisher(isRunning ? .didStart : .didFinish) }
+    }
+
+    func start() {
+        semaphore.wait(); defer { semaphore.signal() }
+        guard !isRunning else { return }
+        isRunning = true
+
+        DispatchQueue.global().async {
+            let result: Result<Data?, Error>
+            do {
+                let data = try Data(contentsOf: self.key, options: .mappedIfSafe)
+                result = .success(data)
+            } catch {
+                result = .failure(error)
+            }
+
+            self.semaphore.wait(); defer { self.semaphore.signal() }
+            guard self.isRunning else { return }
+            self.isRunning = false
+            self.resultPublisher(result)
+        }
+    }
+
+    @discardableResult
+    func stop() -> KVHeavyTaskDataProviderStopAction {
+        semaphore.wait(); defer { semaphore.signal() }
+        guard isRunning else { return .dealloc }
+        isRunning = false
+        return .dealloc
+    }
+}
+```
+
 ### 2.2 AlamofireDataProvider
 
 The `AlamofireDataProvider` is a custom implementation of the `KVHeavyTaskDataProvider` protocol that handles file downloads using Alamofire.

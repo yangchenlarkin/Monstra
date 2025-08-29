@@ -17,6 +17,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved callback queue handling in MonoTask
 - Enhanced test coverage and reliability
 
+## [0.0.6] - 2025-08-28
+
+### Added
+- LargeFileDownloadManagement example enhancements
+- AFNetworkingDataProvider with modern AFNetworking 4.x support
+- Provider comparison and switching examples in README
+- Monstra logo added to example README
+
+### Changed
+- AlamofireDataProvider now uses MemoryCache for resume data with 1GB limit
+- Clarified MemoryCache.Configuration.costProvider docs (cost in bytes)
+- Updated example README with implementation details and demo URLs
+
 ## [1.0.0] - 2025-01-26
 
 ### Added

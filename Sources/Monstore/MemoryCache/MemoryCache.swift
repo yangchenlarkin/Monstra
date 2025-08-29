@@ -64,18 +64,18 @@ import Foundation
 /// Used to configure cache limits for memory-sensitive or size-sensitive scenarios.
 public struct MemoryUsageLimitation {
     /// Maximum memory usage allowed (in MB).
-    static let unlimitedMemoryUsage: Int = 1024 * 1024 * 1024 // In MB, approximately 1024TB
+    public static let unlimitedMemoryUsage: Int = 1024 * 1024 * 1024 // In MB, approximately 1024TB
     
     /// Maximum number of items allowed in the cache.
-    let capacity: Int
+    public let capacity: Int
     /// Maximum memory usage allowed (in MB).
-    let memory: Int
+    public let memory: Int
     
     /// Creates a new usage limitation with specified constraints.
     /// - Parameters:
     ///   - capacity: Maximum number of items (default: 1024)
     ///   - memory: Maximum memory usage in MB (default: unlimited)
-    init(capacity: Int = 1024, memory: Int = Self.unlimitedMemoryUsage) {
+    public init(capacity: Int = 1024, memory: Int = Self.unlimitedMemoryUsage) {
         self.capacity = max(0, capacity)
         self.memory = min(max(0, memory), Self.unlimitedMemoryUsage)
     }
@@ -89,22 +89,22 @@ public extension MemoryCache {
         /// Whether to enable thread synchronization using DispatchSemaphore (default: true)
         /// When true: All cache operations are synchronized for thread safety
         /// When false: No synchronization, caller must ensure thread safety
-        let enableThreadSynchronization: Bool
+        public let enableThreadSynchronization: Bool
         
         /// Memory and capacity constraints for the cache.
-        let memoryUsageLimitation: MemoryUsageLimitation
+        public let memoryUsageLimitation: MemoryUsageLimitation
         
         /// Default TTL for non-null elements (in seconds).
-        let defaultTTL: TimeInterval
+        public let defaultTTL: TimeInterval
         
         /// Default TTL for null elements (in seconds).
-        let defaultTTLForNullElement: TimeInterval
+        public let defaultTTLForNullElement: TimeInterval
         
         /// Randomization range for TTL elements to prevent cache stampede (in seconds).
-        let ttlRandomizationRange: TimeInterval
+        public let ttlRandomizationRange: TimeInterval
         
         /// Key validation function that returns true for valid keys. Fixed at initialization.
-        let keyValidator: (Key) -> Bool
+        public let keyValidator: (Key) -> Bool
         
         /// Function to calculate memory cost of elements in bytes.
         ///
@@ -138,12 +138,13 @@ public extension MemoryCache {
         /// ```
         ///
         /// ## Important Notes:
+        /// - **Cost Unit**: The returned value represents memory cost in **bytes**
         /// - The returned element should be **positive** and **reasonable** (avoid extremely large elements)
         /// - Should be **consistent** for the same input (deterministic)
         /// - **Performance**: This closure is called frequently during eviction, so keep it fast
         /// - **Memory limit**: Total cost across all elements should not exceed `MemoryUsageLimitation.memory`
         /// - **Default behavior**: Returns 0 if not specified, relying on automatic memory layout calculation
-        let costProvider: (Element) -> Int
+        public let costProvider: (Element) -> Int
         
         /// Creates a new configuration with specified parameters.
         /// - Parameters:
@@ -153,8 +154,8 @@ public extension MemoryCache {
         ///   - defaultTTLForNullElement: Default TTL for nil elements (default: .infinity)
         ///   - ttlRandomizationRange: TTL randomization range (default: 0)
         ///   - keyValidator: Key validation closure (default: always true)
-        ///   - costProvider: Memory cost calculation closure in bytes. Should return actual memory usage for accurate eviction decisions (default: returns 0)
-        init(
+        ///   - costProvider: Memory cost calculation closure that returns cost in **bytes**. Should return actual memory usage for accurate eviction decisions (default: returns 0)
+        public init(
             enableThreadSynchronization: Bool = true,
             memoryUsageLimitation: MemoryUsageLimitation = .init(),
             defaultTTL: TimeInterval = .infinity,

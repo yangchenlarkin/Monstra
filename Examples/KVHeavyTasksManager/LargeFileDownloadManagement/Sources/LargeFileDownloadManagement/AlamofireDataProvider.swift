@@ -13,14 +13,13 @@ import CryptoKit
 /// Network data provider using Alamofire for file downloads with resume capability and progress tracking.
 /// Implements KVHeavyTaskDataProvider protocol for large file downloads with intelligent caching.
 class AlamofireDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, Progress>, Monstra.KVHeavyTaskDataProviderInterface {
-    
     // MARK: - Private Properties
     
     /// Active Alamofire download request for progress tracking, cancellation, and resume capability.
     private var request: DownloadRequest? = nil
     
     /// Resume data for interrupted downloads, enabling automatic download resumption.
-    private var resumeData: Data? = nil
+    static let resumeDataCache: MemoryCache<URL, Data> = .init(configuration: .init(memoryUsageLimitation: .init(memory: 1024), costProvider: { $0.count })) // limit to 1 GB, this is a Demo project, you should modify the implementation according to your actual senario
     
     // MARK: - Core Download Methods
     
@@ -32,7 +31,7 @@ class AlamofireDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, Prog
         let destinationURL = Self.destinationURL(key)
         
         // Step 2: Check for existing resume data and implement resume logic
-        if let resumeData {
+        if let resumeData = Self.resumeDataCache.getElement(for: key).element {
             // Resume Logic: Use Alamofire's resume capability with existing data
             // This allows downloads to continue from where they left off
             print("🔄 Resuming download from existing state for key: \(key)")
@@ -67,21 +66,13 @@ class AlamofireDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, Prog
             case .success(let data):
                 // Download Success: Clear resume data and publish success result
                 print("✅ Download completed successfully: \(data.count) bytes")
-                self.resumeData = nil  // Clear resume data as it's no longer needed
+                Self.resumeDataCache.removeElement(for: key)  // Clear resume data as it's no longer needed
                 self.resultPublisher(.success(data))  // Publish success through Monstra
                 
             case .failure(let error):
                 // Download Failure: Handle different types of failures appropriately
                 print("❌ Download failed with error: \(error)")
-                
-                // Only publish failure if this wasn't a resume attempt
-                // Resume failures should not propagate to avoid breaking the resume cycle
-                if self.resumeData == nil {
-                    self.resultPublisher(.failure(error))
-                } else {
-                    // Resume failed, but we can try a fresh download next time
-                    print("🔄 Resume failed, will attempt fresh download on next start")
-                }
+                self.resultPublisher(.failure(error))
             }
         }
     }
@@ -94,7 +85,7 @@ class AlamofireDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, Prog
         // This prevents unnecessary operations and provides clear feedback
         guard let request = request, !request.isFinished else {
             print("📋 No active download to stop - request is nil or already finished")
-            self.resumeData = nil  // Clear any stale resume data
+            Self.resumeDataCache.removeElement(for: key)  // Clear any stale resume data
             return .dealloc  // Indicate that this provider should be deallocated
         }
         
@@ -122,13 +113,13 @@ class AlamofireDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, Prog
         case .success:
             // Resume data generated successfully
             print("⏸️ Download stopped successfully with resume data")
-            self.resumeData = resumeDataResult  // Store resume data for future use
-            return .reuse  // Indicate that this provider can be reused
+            Self.resumeDataCache.set(element: resumeDataResult, for: key)  // Store resume data for future use
+            return .dealloc  // Indicate that this provider can be reused
             
         case .timedOut:
             // Resume data generation timed out
             print("⏸️ Download stop timed out - resume data generation failed")
-            self.resumeData = nil  // Clear any partial resume data
+            Self.resumeDataCache.removeElement(for: key)  // Clear any partial resume data
             return .dealloc  // Force deallocation to prevent hanging state
         }
     }
@@ -174,7 +165,6 @@ class AlamofireDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, Prog
 
 /// Extension to add MD5 hashing capability to String objects for file naming and cache keys.
 fileprivate extension String {
-    
     /// Generates an MD5 hash of the string using CryptoKit for file naming and integrity checking.
     /// Returns a 32-character hexadecimal string.
     func md5() -> String {

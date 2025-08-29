@@ -4,7 +4,7 @@
 
 # Large File Download Management Example
 
-A comprehensive example demonstrating how to implement large file downloads with progress tracking, resume capability, and intelligent caching using the Monstra framework's `KVHeavyTasksManager` and Alamofire.
+A comprehensive example demonstrating how to implement large file downloads with progress tracking, resume capability, and intelligent caching using the Monstra framework's `KVHeavyTasksManager` with both Alamofire and AFNetworking providers.
 
 ## 1. How to Run This Example
 
@@ -19,6 +19,7 @@ A comprehensive example demonstrating how to implement large file downloads with
 - **Dependencies**: 
   - Monstra framework (local development version)
   - Alamofire 5.8.0+
+  - AFNetworking 4.0.0+
 
 ### 1.2 Download the Repo
 
@@ -56,142 +57,49 @@ This avoids conflicts with the main project and opens the example as a standalon
 The `AlamofireDataProvider` is a custom implementation of the `KVHeavyTaskDataProvider` protocol that handles file downloads using Alamofire.
 
 #### Key Features:
-- **Resume Capability**: Automatically resumes interrupted downloads
+- **Resume Capability**: Automatically resumes interrupted downloads using resume data caching
 - **Progress Tracking**: Real-time progress updates with detailed metrics
-- **File Integrity**: Validation and integrity checking
+- **Memory Cache Integration**: Uses Monstra's MemoryCache for resume data storage
 - **Error Handling**: Comprehensive error management and reporting
-- **Intelligent Caching**: Smart cache management and deduplication
-
-#### Implementation Details:
-
-```swift
-/// Network data provider using Alamofire for file downloads with resume capability and progress tracking.
-/// Implements KVHeavyTaskDataProvider protocol for large file downloads with intelligent caching.
-class AlamofireDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, Progress>, Monstra.KVHeavyTaskDataProviderInterface {
-    
-    // MARK: - Private Properties
-    
-    /// Active Alamofire download request for progress tracking, cancellation, and resume capability.
-    private var request: DownloadRequest? = nil
-    
-    /// Resume data for interrupted downloads, enabling automatic download resumption.
-    private var resumeData: Data? = nil
-    
-    // MARK: - Core Download Methods
-    
-    /// Starts or resumes a file download with automatic resume capability and progress tracking.
-    /// Handles both fresh downloads and resume from interrupted downloads.
-    func start() {
-        let destinationURL = Self.destinationURL(key)
-        
-        // Check for existing download and validate integrity
-        if let resumeData {
-            request = AF.download(resumingWith: resumeData) { _, _ in
-                return (destinationURL, [.createIntermediateDirectories, .removePreviousFile])
-            }
-        } else {
-            // Start fresh download
-            request = AF.download(key, to: { _, _ in
-                return (destinationURL, [.createIntermediateDirectories, .removePreviousFile])
-            })
-        }
-        
-        // Set up progress tracking
-        request?.downloadProgress(queue: .global(), closure: customEventPublisher)
-        
-        // Handle completion
-        request?.responseData { response in
-            switch response.result {
-            case .success(let data):
-                self.resumeData = nil
-                self.resultPublisher(.success(data))
-            case .failure(let error):
-                if self.resumeData == nil {
-                    self.resultPublisher(.failure(error))
-                }
-            }
-        }
-    }
-    
-    /// Stops the current download and generates resume data for future resumption.
-    /// Returns whether the provider can be reused or should be deallocated.
-    @discardableResult
-    func stop() -> KVHeavyTaskDataProviderStopAction {
-        guard let request = request, !request.isFinished else {
-            print("📋 No active download to stop")
-            self.resumeData = nil
-            return .dealloc
-        }
-        
-        print("⏸️ Stopping download and generating resume data...")
-        let semaphore = DispatchSemaphore(value: 0)
-        var res: Data? = nil
-        request.cancel(byProducingResumeData: {
-            print("⏸️ Downloading stopped")
-            res = $0
-            semaphore.signal()
-        })
-        switch semaphore.wait(timeout: .now() + 1) {
-        case .success:
-            print("⏸️ Downloading stopped success")
-            self.resumeData = res
-            return .reuse
-        case .timedOut:
-            print("⏸️ Downloading stopped timeout")
-            self.resumeData = nil
-            return .dealloc
-        }
-    }
-    
-    // MARK: - File Management & Caching
-    
-    /// Returns the optimal directory for file storage (caches directory preferred, temp directory as fallback).
-    private static func getCachesDirectory() -> URL {
-        if let cachesDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first {
-            return cachesDirectory
-        }
-        return FileManager.default.temporaryDirectory
-    }
-    
-    /// Generates a unique destination URL for downloads using MD5 hash of the source URL.
-    /// Ensures consistent file paths and enables resume functionality.
-    private static func destinationURL(_ key: URL) -> URL {
-        let cacheDirectory = getCachesDirectory()
-        let downloadFolder = cacheDirectory.appendingPathComponent("AlamofireDataProvider", isDirectory: true)
-        let destinationURL = downloadFolder.appendingPathComponent(key.absoluteString.md5())
-        return destinationURL
-    }
-}
-
-// MARK: - String Extension for MD5 Hashing
-
-/// Extension to add MD5 hashing capability to String objects for file naming and cache keys.
-fileprivate extension String {
-    
-    /// Generates an MD5 hash of the string using CryptoKit for file naming and integrity checking.
-    /// Returns a 32-character hexadecimal string.
-    func md5() -> String {
-        let data = Data(self.utf8)
-        let hash = Insecure.MD5.hash(data: data)
-        let hexString = hash.map { byte in
-            String(format: "%02x", byte)
-        }.joined()
-        return hexString
-    }
-}
+- **Intelligent Caching**: Smart cache management with 1GB memory limit for resume data
 
 #### Download Strategy:
-1. **Cache Check**: Examines existing downloads for potential resume
-2. **Integrity Validation**: Compares local and remote file sizes
-3. **Resume Logic**: Automatically resumes from partial downloads
-4. **Progress Tracking**: Real-time progress updates via custom events
-5. **Error Handling**: Comprehensive error management and reporting
+1. **Resume Data Cache**: Stores resume data in MemoryCache with 1GB limit
+2. **Resume Logic**: Automatically resumes from partial downloads using cached resume data
+3. **Progress Tracking**: Real-time progress updates via custom events
+4. **Error Handling**: Comprehensive error management and reporting
+5. **File Management**: Automatic directory creation and file path management
 
-### 2.2 Usage (in main)
+### 2.2 AFNetworkingDataProvider
 
-The main.swift file demonstrates advanced usage of the `AlamofireDataProvider` and `AFNetworkingDataProvider` with `KVHeavyTasksManager`, including both modern async/await and traditional callback patterns.
+The `AFNetworkingDataProvider` is a custom implementation of the `KVHeavyTaskDataProvider` protocol that handles file downloads using AFNetworking 4.x.
+
+#### Key Features:
+- **Modern AFNetworking**: Uses AFNetworking 4.x with URLSession-based architecture
+- **Progress Tracking**: Real-time progress updates with AFNetworking's progress system
+- **File Management**: Automatic directory creation and file path management
+- **Error Handling**: Comprehensive error handling with proper cleanup
+- **File Extension Preservation**: Maintains original file extensions for downloaded files
+
+#### Download Strategy:
+1. **Directory Creation**: Automatically creates download directories with proper permissions
+2. **File Naming**: Generates unique filenames with preserved extensions using MD5 hashing
+3. **Progress Tracking**: Real-time progress updates via AFNetworking's progress system
+4. **File Reading**: Reads completed downloads and returns Data objects
+5. **Session Management**: Proper URLSession lifecycle management
+
+### 2.3 Usage (in main)
+
+The main.swift file demonstrates advanced usage of both providers with `KVHeavyTasksManager`, including both modern async/await and traditional callback patterns. It showcases how to easily switch between providers using type aliases.
 
 #### Key Features Demonstrated:
+
+**0. Provider Switching with Type Aliases:**
+```swift
+typealias AFNetworkingManager = KVHeavyTasksManager<URL, Data, Progress, AFNetworkingDataProvider>
+typealias AlamofireManager = KVHeavyTasksManager<URL, Data, Progress, AlamofireDataProvider>
+```
+This allows easy switching between providers by changing the type alias usage.
 
 **1. Execution Merging (Multiple Callbacks, Single Download):**
 ```swift
@@ -321,15 +229,17 @@ This example includes two different network data providers to demonstrate the fl
 
 ### **AlamofireDataProvider**
 - Uses **Alamofire** networking library
-- Built-in resume capability with `resumeData`
-- Automatic file path management
+- Built-in resume capability with `resumeData` and MemoryCache integration
+- Automatic file path management with MD5 hashing
 - Progress tracking with Alamofire's progress system
+- Resume data caching with 1GB memory limit
 
 ### **AFNetworkingDataProvider**  
-- Uses **AFNetworking** networking library
-- Custom resume implementation with progress tracking
-- Manual directory creation and file management
+- Uses **AFNetworking 4.x** networking library
+- Modern URLSession-based architecture
+- Automatic directory creation and file management
 - Progress tracking with AFNetworking's progress system
+- File extension preservation with MD5-based naming
 
 **💡 Try switching between providers to see the difference:**
 
@@ -342,6 +252,96 @@ let manager = Manager<URL, Data, Progress, AFNetworkingDataProvider>()
 ```
 
 Both providers implement the same `KVHeavyTaskDataProviderInterface`, so you can easily swap between them without changing your business logic!
+
+## 🏗️ **Implementation Details**
+
+### **Current Code Structure**
+The example includes three main Swift files:
+
+1. **`main.swift`** - Main execution file demonstrating both providers
+2. **`AlamofireDataProvider.swift`** - Alamofire-based download provider with resume caching
+3. **`AFNetworkingDataProvider.swift`** - AFNetworking 4.x-based download provider
+
+### **Key Implementation Features**
+
+#### **Resume Data Caching (AlamofireDataProvider)**
+```swift
+static let resumeDataCache: MemoryCache<URL, Data> = .init(
+    configuration: .init(
+        memoryUsageLimitation: .init(memory: 1024), 
+        costProvider: { $0.count }
+    )
+) // 1GB limit for resume data
+```
+
+#### **File Extension Preservation (AFNetworkingDataProvider)**
+```swift
+let fileName = key.absoluteString.md5()
+let fileExtension = key.pathExtension.isEmpty ? "download" : key.pathExtension
+let destinationURL = downloadFolder.appendingPathComponent("\(fileName).\(fileExtension)")
+```
+
+#### **Easy Provider Switching**
+```swift
+// Switch between providers by changing the type alias
+let manager1 = AFNetworkingManager(config: .init())
+let manager2 = AlamofireManager(config: config2)
+```
+
+---
+
+## 🌐 **Demo URLs & File Types**
+
+The example downloads three different types of files to demonstrate various scenarios:
+
+- **Chrome DMG** (`googlechrome.dmg`) - Large macOS application installer (~229MB)
+- **Slack DMG** (`Slack-4.45.69-macOS.dmg`) - Medium-sized application installer (~195MB)  
+- **Evernote DMG** (`Evernote-latest.dmg`) - Application installer for priority constraint testing
+
+These files are chosen because they:
+- Represent real-world download scenarios
+- Have different sizes for testing memory management
+- Are publicly accessible for demonstration purposes
+- Show how the framework handles various file types and sizes
+
+---
+
+## 📚 **Enhanced Framework Documentation**
+
+The Monstra framework has been enhanced with clearer documentation for better developer experience:
+
+### **MemoryCache Cost Provider Clarification**
+The `MemoryCache.Configuration.costProvider` now includes clear documentation about cost units:
+
+```swift
+/// ## Important Notes:
+/// - **Cost Unit**: The returned value represents memory cost in **bytes**
+/// - The returned element should be **positive** and **reasonable** (avoid extremely large elements)
+/// - Should be **consistent** for the same input (deterministic)
+/// - **Performance**: This closure is called frequently during eviction, so keep it fast
+/// - **Memory limit**: Total cost across all elements should not exceed `MemoryUsageLimitation.memory`
+/// - **Default behavior**: Returns 0 if not specified, relying on automatic memory layout calculation
+public let costProvider: (Element) -> Int
+```
+
+**Key Benefits:**
+- **Clear Unit Specification**: Developers know to return values in bytes
+- **Accurate Memory Management**: Proper byte-level precision for eviction decisions
+- **Better Performance**: Understanding that costProvider is called frequently during eviction
+- **Consistent Behavior**: Guidelines for deterministic and reasonable cost calculations
+
+**Example Usage:**
+```swift
+let cache = MemoryCache<String, Data>(configuration: .init(
+    costProvider: { data in data.count }  // Returns bytes for Data objects
+))
+
+let stringCache = MemoryCache<String, String>(configuration: .init(
+    costProvider: { string in string.utf8.count }  // Returns bytes for String objects
+))
+```
+
+This enhancement ensures developers can make informed decisions about memory cost calculations and cache management strategies.
 
 
 

@@ -48,8 +48,6 @@ Or manually in Xcode:
 
 This avoids conflicts with the main project and opens the example as a standalone Swift package.
 
-
-
 ## 2. Code Explanation
 
 ### 2.1 SimpleDataProvider (Educational, synchronous)
@@ -60,34 +58,6 @@ Characteristics:
 - Emits simple lifecycle events: `didStart` and `didFinish`
 - Performs a blocking read with `Data(contentsOf:)` on a background queue
 - No progress or resume support (keep it for educational use; prefer streaming in production)
-
-Minimal usage:
-
-```swift
-// Uses SimpleDataProvider with a custom event type
-typealias SimpleManager = KVHeavyTasksManager<URL, Data, SimpleDataProviderEvent, SimpleDataProvider>
-
-let simpleManager = SimpleManager(config: .init())
-let fileURL = URL(string: "https://example.com/file.bin")!
-
-simpleManager.fetch(
-    key: fileURL,
-    customEventObserver: { event in
-        switch event {
-        case .didStart:  print("simple provider: didStart")
-        case .didFinish: print("simple provider: didFinish")
-        }
-    },
-    result: { result in
-        switch result {
-        case .success(let data):
-            print("downloaded: \(data.count) bytes")
-        case .failure(let error):
-            print("failed: \(error)")
-        }
-    }
-)
-```
 
 Notes:
 - `Data(contentsOf:)` is synchronous and loads the whole payload into memory; this provider is intentionally simple.
@@ -142,6 +112,33 @@ class SimpleDataProvider: Monstra.KVHeavyTaskBaseDataProvider<URL, Data, SimpleD
 }
 ```
 
+Minimal usage:
+
+```swift
+// Uses SimpleDataProvider with a custom event type
+typealias SimpleManager = KVHeavyTasksManager<URL, Data, SimpleDataProviderEvent, SimpleDataProvider>
+
+let simpleManager = SimpleManager(config: .init())
+let fileURL = URL(string: "https://example.com/file.bin")!
+
+simpleManager.fetch(
+    key: fileURL,
+    customEventObserver: { event in
+        switch event {
+        case .didStart:  print("simple provider: didStart")
+        case .didFinish: print("simple provider: didFinish")
+        }
+    },
+    result: { result in
+        switch result {
+        case .success(let data):
+            print("downloaded: \(data.count) bytes")
+        case .failure(let error):
+            print("failed: \(error)")
+        }
+    }
+)
+```
 ### 2.2 AlamofireDataProvider
 
 The `AlamofireDataProvider` is a custom implementation of the `KVHeavyTaskDataProvider` protocol that handles file downloads using Alamofire.

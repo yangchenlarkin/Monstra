@@ -689,7 +689,7 @@ manager.fetch(
     <tr>
       <td>Large File Unzip</td>
       <td>Processing large archive files with progress tracking and resource management</td>
-      <td>Coming Soon</td>
+      <td><a href="Examples/KVHeavyTasksManager/LargeFileUnzip">Large File Unzip</a></td>
     </tr>
   </tbody>
  </table>

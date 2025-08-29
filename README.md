@@ -651,7 +651,7 @@ manager.fetch(
     <tr>
       <td>Object Fetch Task</td>
       <td>Batch fetch objects by ID list with performance enhancement</td>
-      <td><a href="Examples/KVLightTasksManager/ObjectFetchTask">Object Fetch Task</a></td>
+      <td><a href="Examples/KVLightTasksManager/ObjectFetchTask">Open Example</a></td>
     </tr>
   </tbody>
  </table>

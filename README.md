@@ -618,7 +618,7 @@ manager.fetch(
     <tr>
       <td>Module Initialization</td>
       <td>Cache app configuration with retry logic</td>
-      <td>Coming Soon</td>
+      <td><a href="Examples/MonoTask/ModuleInitialization">Module Initialization</a></td>
     </tr>
     <tr>
       <td>UserProfile Manager</td>

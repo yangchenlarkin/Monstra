@@ -65,3 +65,26 @@ Program ended with exit code: 0
 - **Force refresh after set**: since set APIs do not return the updated model, the manager triggers `MonoTask` with `forceUpdate=true` to fetch fresh data.
 - **Cache-first UX**: `didLogin()` warms the cache; subsequent reads within TTL avoid redundant network calls.
 - **Clear on logout**: `didLogout()` cancels any in-flight work and clears cached data.
+
+## 2. Code Explanation
+
+- **UserProfileManager**
+  - **Publishers**:
+    - `userProfile`: `task.$result.removeDuplicates()` – emits the current cached `UserProfile?`, de-duplicated.
+    - `isLoading`: `task.$isExecuting.removeDuplicates()` – emits executing state for UI loading indicators.
+  - **MonoTask config**:
+    - `MonoTask<UserProfile>(retry: .never, resultExpireDuration: 3600)` – single-instance executor with 1h TTL.
+    - Execute block calls `UserProfileMockAPI.getUserProfileAPI()` and forwards the result via the callback.
+  - **Flows**:
+    - `didLogin()` → `task.justExecute(forceUpdate: false)` pre-warms cache if empty/expired.
+    - `setUser(firstName:)` / `setUser(age:)` → perform API set (no return object), then `await task.asyncExecute(forceUpdate: true)` to refresh cached profile.
+    - `didLogout()` → `task.clearResult(ongoingExecutionStrategy: .cancel)` clears cache and emits `nil`.
+
+- **MonoTask behavior**
+  - Merges concurrent requests; all waiters receive exactly one callback per execution.
+  - Respects TTL; cached result returned until expiration unless `forceUpdate=true` is used.
+  - `forceUpdate=true` triggers a new execution immediately and retains the previous cached result until the fresh one arrives.
+
+- **main.swift**
+  - Subscribes to `manager.userProfile` and `manager.isLoading` and prints changes.
+  - Sequence: `didLogin` → `set firstName` (refresh) → `set age` (refresh) → `didLogout`.

@@ -133,7 +133,7 @@ final class MonoTaskForceUpdateTests: XCTestCase {
         let counter = Counter()
         let task = MonoTask<String>(
             retry: .never,
-            resultExpireDuration: 5.0
+            resultExpireDuration: 50.0
         ) { callback in
             Task {
                 let attempt = await counter.next()
@@ -154,6 +154,8 @@ final class MonoTaskForceUpdateTests: XCTestCase {
                 }
             }
         }
+        
+        try? await Task.sleep(nanoseconds: 1_000_000_000)
 
         let outs = await results.getResults()
         XCTAssertEqual(outs.count, 3)

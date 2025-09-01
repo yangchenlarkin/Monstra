@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved callback queue handling in MonoTask
 - Enhanced test coverage and reliability
 
+## [0.0.7] - 2025-09-01
+
+### Added
+- MonoTask `forceUpdate` execution path and public APIs
+- Unit tests: comprehensive coverage for forceUpdate scenarios
+- Examples: UserProfileManager with Combine publishers and README
+- Examples: ModuleInitialization with initialization flow and README
+
+### Changed
+- Root README: added links to new examples, updated version references
+
 ## [0.0.6] - 2025-08-28
 
 ### Added
@@ -29,55 +40,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - AlamofireDataProvider now uses MemoryCache for resume data with 1GB limit
 - Clarified MemoryCache.Configuration.costProvider docs (cost in bytes)
 - Updated example README with implementation details and demo URLs
-
-## [1.0.0] - 2025-01-26
-
-### Added
-- **MonstraBase**: Foundation utilities and data structures
-  - `CPUTimeStamp`: High-precision CPU timestamp utilities
-  - `Heap`: Efficient heap data structure implementation
-  - `DoublyLink`: Doubly-linked list implementation
-  - `HashQueue`: Hash-based queue implementation
-  - `RetryCount`: Retry configuration and management
-  - `TracingIDFactory`: Unique ID generation for execution tracking
-
-- **Monstore**: Memory caching system
-  - `LRUQueue`: High-performance LRU cache with O(1) operations
-  - `TTLPriorityLRUQueue`: LRU cache with automatic TTL expiration
-  - `MemoryCache`: Core caching functionality
-  - `CacheStatistics`: Performance monitoring and metrics
-
-- **Monstask**: Task execution framework
-  - `MonoTask`: Single-instance task executor with TTL caching and retry logic
-  - `KVHeavyTasksManager`: Heavy task management with priority strategies
-  - `KVLightTasksManager`: Light task management for simple operations
-
-### Features
-- **Execution Merging**: Multiple concurrent requests merge into single execution
-- **TTL-based Caching**: Configurable result expiration
-- **Retry Logic**: Automatic retry with exponential backoff
-- **Thread Safety**: Full thread safety with semaphore protection
-- **Queue Management**: Separate queues for execution and callbacks
-- **Manual Cache Control**: Cache invalidation with execution strategies
-
-### Performance
-- O(1) time complexity for core cache operations
-- Optimized memory usage with object pooling
-- High-performance data structures
-- Comprehensive performance benchmarking
-
-### Testing
-- Extensive unit test coverage
-- Performance tests and benchmarks
-- Cross-scenario edge case testing
-- Memory pressure and resource management tests
-
-## [0.1.0] - 2024-12-01
-
-### Added
-- Initial project structure
-- Basic memory cache implementation
-- Foundation utilities
 
 ---
 

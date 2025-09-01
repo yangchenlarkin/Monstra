@@ -129,7 +129,7 @@ public class MonoTask<TaskResult> {
     ///   - executeBlock: User-provided task implementation
     private init(
         retry: RetryCount,
-        resultExpireDuration: Double,
+        resultExpireDuration: TimeInterval,
         taskQueue: DispatchQueue,
         callbackQueue: DispatchQueue,
         executeBlock: @escaping (@escaping ResultCallback) -> Void
@@ -360,7 +360,7 @@ public extension MonoTask {
     ///   - task: The callback-based task to execute
     convenience init(
         retry: RetryCount = .never,
-        resultExpireDuration: Double,
+        resultExpireDuration: TimeInterval,
         taskQueue: DispatchQueue = DispatchQueue.global(),
         callbackQueue: DispatchQueue = DispatchQueue.global(),
         task: @escaping CallbackExecution
@@ -401,7 +401,7 @@ public extension MonoTask {
     ///   - task: The async task to execute
     convenience init(
         retry: RetryCount = .never,
-        resultExpireDuration: Double,
+        resultExpireDuration: TimeInterval,
         taskQueue: DispatchQueue = DispatchQueue.global(),
         callbackQueue: DispatchQueue = DispatchQueue.global(),
         task: @escaping AsyncExecution

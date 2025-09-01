@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = "Monstra"
-  spec.version      = "0.0.6"
+  spec.version      = "0.0.7"
   spec.summary      = "High-performance task execution and caching framework for Swift"
   spec.description  = <<-DESC
     Monstra is a thread-safe, high-performance task executor that ensures only one instance

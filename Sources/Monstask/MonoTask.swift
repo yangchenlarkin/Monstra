@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 /// **MonoTask: Single-Instance Task Executor with TTL Caching and Retry Logic**
 ///
@@ -88,9 +89,6 @@ public class MonoTask<TaskResult> {
 
     // MARK: - Result Caching State
 
-    /// Currently cached result (nil if no valid cache or expired)
-    private var result: TaskResult?
-
     /// Timestamp when the cached result expires (using high-precision CPU timestamps)
     private var resultExpiresAt: CPUTimeStamp = .zero
 
@@ -110,7 +108,15 @@ public class MonoTask<TaskResult> {
     /// Array of callbacks waiting for current execution (nil = not executing)
     /// When nil: Task is idle
     /// When non-nil: Task is executing, callbacks waiting for result
-    private var waitingCallbacks: [ResultCallback]?
+    private var waitingCallbacks: [ResultCallback]? {
+        didSet {
+            if let waitingCallbacks, waitingCallbacks.count > 0 {
+                self.isExecuting = true
+            } else {
+                self.isExecuting = false
+            }
+        }
+    }
 
     // MARK: - Initialization
 
@@ -302,6 +308,9 @@ public class MonoTask<TaskResult> {
             }
         }
     }
+    
+    @Published public private(set) var result: TaskResult? = nil
+    @Published public private(set) var isExecuting: Bool = false
 }
 
 // MARK: - Public API
@@ -640,32 +649,5 @@ public extension MonoTask {
                 _unsafe_execute(retry: retry)
             }
         }
-    }
-
-    /// Check if task is currently executing (not idle)
-    ///
-    /// Returns `true` when task is actively running (either executing or retrying),
-    /// `false` when task is idle and ready for new execution.
-    ///
-    /// **Thread Safety**: This property is thread-safe and can be called from any queue
-    ///
-    /// **Use Cases**:
-    /// - Show/hide loading indicators
-    /// - Prevent duplicate execution triggers
-    /// - Implement execution state-dependent UI
-    ///
-    /// **Example**:
-    /// ```swift
-    /// if task.isExecuting {
-    ///     showLoadingSpinner()
-    /// } else {
-    ///     hideLoadingSpinner()
-    /// }
-    /// ```
-    var isExecuting: Bool {
-        semaphore.wait()
-        defer { semaphore.signal() }
-
-        return waitingCallbacks != nil
     }
 }

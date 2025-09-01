@@ -1,24 +1,45 @@
 import Foundation
 import Monstra
 
-// Minimal sanity check invoking the mock API directly for now
-// Repository/MonoTask usage can be layered next.
 let semaphore = DispatchSemaphore(value: 0)
+let manager = UserProfileManager()
 
-Task {
-    do {
-        if let p1 = try await UserProfileMockAPI.getUserProfileAPI(id: "1") {
-            print("Fetched: \([p1.id, p1.nickName, String(p1.age)].joined(separator: ", "))")
+// Initial get
+let userProfileHandler = manager.userProfile.sink { userProfile in
+    print("update userProfile: \(String(describing: userProfile))")
+}
+
+let isLoadingHandler = manager.isLoading.sink { isLoading in
+    print("isLoading: \(isLoading)")
+}
+
+print("trigger: didLogin")
+manager.didLogin()
+
+print("trigger set fistName: Alicia")
+// Update first name then age, forcing refresh after each
+manager.setUser(firstName: "Alicia") { result in
+    switch result {
+    case .success:
+        print("Did set firstName: Alicia")
+        print("trigger set age: 10")
+        manager.setUser(age: 10) { result in
+            switch result {
+            case .success:
+                print("Did set age: 10")
+                semaphore.signal()
+            case .failure(let e):
+                print("Set age error: \(e)")
+                semaphore.signal()
+            }
         }
-        try await UserProfileMockAPI.setUserFirstName(id: "1", firstName: "Alicia")
-        try await UserProfileMockAPI.setUserAge(id: "1", age: 25)
-        if let p1b = try await UserProfileMockAPI.getUserProfileAPI(id: "1") {
-            print("Updated: \([p1b.id, p1b.nickName, String(p1b.age)].joined(separator: ", "))")
-        }
-    } catch {
-        print("Error: \(error)")
+    case .failure(let e):
+        print("Set firstName error: \(e)")
+        semaphore.signal()
     }
-    semaphore.signal()
 }
 
 semaphore.wait()
+
+print("trigger didLogout")
+manager.didLogout()

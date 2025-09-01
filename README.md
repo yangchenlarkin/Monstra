@@ -616,11 +616,6 @@ manager.fetch(
   </thead>
   <tbody>
     <tr>
-      <td>API Response Caching</td>
-      <td>Cache API responses to reduce network calls</td>
-      <td>Coming Soon</td>
-    </tr>
-    <tr>
       <td>Module Initialization</td>
       <td>Cache app configuration with retry logic</td>
       <td>Coming Soon</td>
@@ -628,7 +623,7 @@ manager.fetch(
     <tr>
       <td>UserProfile Manager</td>
       <td>Single-instance user profile management with caching</td>
-      <td>Coming Soon</td>
+      <td><a href="Examples/MonoTask/UserProfileManager">UserProfile Manager</a></td>
     </tr>
   </tbody>
  </table>

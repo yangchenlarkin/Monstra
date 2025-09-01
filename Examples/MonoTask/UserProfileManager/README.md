@@ -1,44 +1,106 @@
+<div align="center">
+  <img src="../../../Logo.png" alt="Monstra Logo" width="200"/>
+</div>
+
 # UserProfile Manager Example
 
-This example demonstrates single-instance user profile management with caching using `MonoTask`.
+An example demonstrating how to manage a single user's profile using `MonoTask`—with execution merging, TTL caching, and post-mutation refresh via forced execution. It exposes Combine publishers for `userProfile` and `isLoading` to drive UI state.
 
-It shows how to:
-- Cache a single user's profile with a 1 hour TTL
-- Merge concurrent requests into one execution
-- Refresh the cached profile after mutations where the set APIs do not return the profile
-- Expose UI-friendly state via Combine publishers: `userProfile` and `isLoading`
+## 1. How to Run This Example
 
-## Architecture
+### 1.1 Requirements
 
-- `UserProfileManager`
-  - Holds a `MonoTask<UserProfile>` with `resultExpireDuration = 3600` seconds
-  - Exposes Combine publishers:
-    - `userProfile: AnyPublisher<UserProfile?, Never>`: emits cached/fetched profile
-    - `isLoading: AnyPublisher<Bool, Never>`: emits whether the task is executing
-  - Public API:
-    - `didLogin()`: kicks off a fetch (forceUpdate=false) to warm the cache
-    - `setUser(firstName:)`: updates nickname through API, then forces a refresh
-    - `setUser(age:)`: updates age through API, then forces a refresh
-    - `didLogout()`: clears cached result and cancels ongoing execution
+- **Platforms**:
+  - iOS 13.0+
+  - macOS 10.15+
+  - tvOS 13.0+
+  - watchOS 6.0+
+- **Swift**: 5.5+
+- **Dependencies**:
+  - Monstra framework (local development version)
 
-- `UserProfileMockAPI`
-  - Simulates get/set calls; setters do not return the profile
-
-- `main.swift`
-  - Subscribes to the two publishers and prints state transitions
-  - Drives a simple flow: login → set first name → set age → logout
-
-## How to Run
-
-From this example directory:
+### 1.2 Download the Repo
 
 ```bash
-swift run
+git clone https://github.com/yangchenlarkin/Monstra.git
+cd Monstra/Examples/MonoTask/UserProfileManager
 ```
 
-## Expected Output
+### 1.3 Open UserProfileManager Using Xcode
 
-Below is a sample run log from the demo program:
+```bash
+# From the UserProfileManager directory
+xed Package.swift
+```
+
+Or manually in Xcode:
+1. Open Xcode
+2. Go to `File → Open...`
+3. Navigate to the `UserProfileManager` folder
+4. Select `Package.swift` (not the root Monstra project)
+5. Click Open
+
+This opens the example as a standalone Swift package.
+
+## 2. Code Explanation
+
+### 2.1 UserProfile (Domain Model)
+
+Minimal model used for demonstration (see `Sources/.../UserProfile.swift`).
+
+### 2.2 UserProfileMockAPI (Data Source)
+
+Simulates a single active user's profile with small artificial latency. Setters do not return the updated profile, so the app must fetch after setting.
+
+```swift
+enum UserProfileMockAPI {
+    static func getUserProfileAPI() async throws -> UserProfile { /* ... */ }
+    static func setUser(firstName: String) async throws { /* ... */ }
+    static func setUser(age: Int) async throws { /* ... */ }
+}
+```
+
+### 2.3 UserProfileManager (Data/State Layer)
+
+Wraps `MonoTask<UserProfile>` to manage a single cached profile with `resultExpireDuration = 3600` seconds.
+
+- **Publishers**:
+  - `userProfile: AnyPublisher<UserProfile?, Never>` — emits cached/fetched profile
+  - `isLoading: AnyPublisher<Bool, Never>` — emits execution state
+- **Public API**:
+  - `didLogin()` — pre-warm cache (forceUpdate=false)
+  - `setUser(firstName:)` — set nickname, then `forceUpdate=true` to refresh
+  - `setUser(age:)` — set age, then `forceUpdate=true` to refresh
+  - `didLogout()` — cancel in-flight and clear cached result
+
+### 2.4 Usage (in main)
+
+`main.swift` subscribes to both publishers and prints state transitions to demonstrate the flow.
+
+```swift
+let manager = UserProfileManager()
+let userProfileHandler = manager.userProfile.sink { print("update userProfile: \($0 as Any)") }
+let isLoadingHandler = manager.isLoading.sink { print("isLoading: \($0)") }
+
+print("trigger: didLogin")
+manager.didLogin()
+
+print("trigger set fistName: Alicia")
+manager.setUser(firstName: "Alicia") { /* ... */ }
+```
+
+## 3. Key Behavior & Logs
+
+### 3.1 Behavior
+
+- **Execution Merging**: multiple concurrent reads merge into one execution.
+- **TTL Caching**: profile is cached for 1 hour.
+- **Forced Refresh**: since setters return `Void`, a fresh execution updates the cached profile.
+- **State Exposure**: UI can subscribe to `userProfile` and `isLoading` for updates.
+
+### 3.2 Sample Logs
+
+From a sample run of this example:
 
 ```
 update userProfile: nil
@@ -59,32 +121,23 @@ update userProfile: nil
 Program ended with exit code: 0
 ```
 
-## Key Points
+## 4. Clean Architecture Notes
 
-- **One-call-one-callback**: all concurrent subscribers receive the same single result per execution.
-- **Force refresh after set**: since set APIs do not return the updated model, the manager triggers `MonoTask` with `forceUpdate=true` to fetch fresh data.
-- **Cache-first UX**: `didLogin()` warms the cache; subsequent reads within TTL avoid redundant network calls.
-- **Clear on logout**: `didLogout()` cancels any in-flight work and clears cached data.
+- **UserProfileManager**: Data/state layer that wraps `MonoTask` and the mock API.
+- **Domain Layer**: Define a protocol if needed for DI and testing.
+- **Presentation Layer**: UI/ViewModels subscribe to the two publishers.
 
-## 2. Code Explanation
+## 5. Implementation Details
 
-- **UserProfileManager**
-  - **Publishers**:
-    - `userProfile`: `task.$result.removeDuplicates()` – emits the current cached `UserProfile?`, de-duplicated.
-    - `isLoading`: `task.$isExecuting.removeDuplicates()` – emits executing state for UI loading indicators.
-  - **MonoTask config**:
-    - `MonoTask<UserProfile>(retry: .never, resultExpireDuration: 3600)` – single-instance executor with 1h TTL.
-    - Execute block calls `UserProfileMockAPI.getUserProfileAPI()` and forwards the result via the callback.
-  - **Flows**:
-    - `didLogin()` → `task.justExecute(forceUpdate: false)` pre-warms cache if empty/expired.
-    - `setUser(firstName:)` / `setUser(age:)` → perform API set (no return object), then `await task.asyncExecute(forceUpdate: true)` to refresh cached profile.
-    - `didLogout()` → `task.clearResult(ongoingExecutionStrategy: .cancel)` clears cache and emits `nil`.
+### Current Code Structure
+- `Package.swift` — SPM manifest (Monstra dependency)
+- `Sources/UserProfileManager/UserProfile.swift` — domain model
+- `Sources/UserProfileManager/UserProfileMockAPI.swift` — mocked data source
+- `Sources/UserProfileManager/UserProfileManager.swift` — manager wrapping `MonoTask`
+- `Sources/UserProfileManager/main.swift` — publishers demo
 
-- **MonoTask behavior**
-  - Merges concurrent requests; all waiters receive exactly one callback per execution.
-  - Respects TTL; cached result returned until expiration unless `forceUpdate=true` is used.
-  - `forceUpdate=true` triggers a new execution immediately and retains the previous cached result until the fresh one arrives.
-
-- **main.swift**
-  - Subscribes to `manager.userProfile` and `manager.isLoading` and prints changes.
-  - Sequence: `didLogin` → `set firstName` (refresh) → `set age` (refresh) → `didLogout`.
+### Key Implementation Points
+- `MonoTask<UserProfile>` with `resultExpireDuration = 3600` (1h TTL)
+- Post-mutation refresh via `asyncExecute(forceUpdate: true)` keeping one-call-one-callback
+- Combine publishers expose `result` and `isExecuting` as `userProfile` and `isLoading`
+- Deterministic mock data for repeatable runs

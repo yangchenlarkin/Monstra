@@ -152,10 +152,27 @@ public class MonoTask<TaskResult> {
     /// - All callbacks receive the same result when execution completes
     ///
     /// - Parameter completionCallback: Optional callback to invoke when execution completes
-    private func _safe_execute(then completionCallback: ResultCallback?) {
+    private func _safe_execute(forceUpdate: Bool, then completionCallback: ResultCallback?) {
         semaphore.wait()
         defer { semaphore.signal() }
 
+        if forceUpdate {
+            // Force a fresh execution regardless of current state, while retaining cached result
+            // 1) Ensure callbacks array exists to keep one-call-one-callback semantics
+            if waitingCallbacks == nil {
+                waitingCallbacks = [ResultCallback]()
+            }
+
+            // 2) Register callback for result notification
+            if let completionCallback {
+                waitingCallbacks!.append(completionCallback)
+            }
+            
+            // 3) Schedule a brand-new execution and mark force scheduled
+            _unsafe_execute(retry: retry)
+            return
+        }
+        
         // === Phase 1: Check Cache Validity ===
         if let cachedResult = result, resultExpiresAt > .now() {
             // Cache hit! Always invoke callback on the designated callbackQueue
@@ -210,6 +227,8 @@ public class MonoTask<TaskResult> {
     ///
     /// - Parameter retryConfiguration: Current retry configuration (decrements on each retry)
     private func _unsafe_execute(retry retryConfiguration: RetryCount) {
+        executionID = executionIDFactory.safeNextInt64()
+        
         taskQueue.async { [weak self] in
             guard let self else { return }
 
@@ -227,7 +246,7 @@ public class MonoTask<TaskResult> {
 
                 // Check if this execution was cancelled (execution ID changed)
                 guard currentExecutionID == self.executionID else { return }
-                self.executionID = nil
+                self.executionID = executionIDFactory.safeNextInt64()
 
                 // === Phase 4: Handle Success ===
                 if case let .success(successData) = executionResult {
@@ -405,8 +424,8 @@ public extension MonoTask {
     /// // Later, this will likely return cached result
     /// let result = await task.asyncExecute()
     /// ```
-    func justExecute() {
-        _safe_execute(then: nil)
+    func justExecute(forceUpdate: Bool = false) {
+        _safe_execute(forceUpdate: forceUpdate, then: nil)
     }
 
     /// Execute task with callback-based result handling
@@ -427,8 +446,8 @@ public extension MonoTask {
     /// ```
     ///
     /// - Parameter completionHandler: Optional callback to receive the result
-    func execute(then completionHandler: ResultCallback?) {
-        _safe_execute(then: completionHandler)
+    func execute(forceUpdate: Bool = false, then completionHandler: ResultCallback?) {
+        _safe_execute(forceUpdate: forceUpdate, then: completionHandler)
     }
 
     /// Execute task with async/await and return Result type
@@ -451,9 +470,9 @@ public extension MonoTask {
     ///
     /// - Returns: Result containing either success data or failure error
     @discardableResult
-    func asyncExecute() async -> Result<TaskResult, Error> {
+    func asyncExecute(forceUpdate: Bool = false) async -> Result<TaskResult, Error> {
         return await withCheckedContinuation { continuation in
-            self._safe_execute { executionResult in
+            self._safe_execute(forceUpdate: forceUpdate) { executionResult in
                 continuation.resume(returning: executionResult)
             }
         }
@@ -479,9 +498,9 @@ public extension MonoTask {
     /// - Returns: The successful result data
     /// - Throws: The underlying error if execution fails
     @discardableResult
-    func executeThrows() async throws -> TaskResult {
+    func executeThrows(forceUpdate: Bool = false) async throws -> TaskResult {
         switch await withCheckedContinuation({ continuation in
-            self._safe_execute { executionResult in
+            self._safe_execute(forceUpdate: forceUpdate) { executionResult in
                 continuation.resume(returning: executionResult)
             }
         }) {
@@ -602,6 +621,7 @@ public extension MonoTask {
             case .cancel:
                 // Cancel and notify all waiting callbacks on the designated callbackQueue
                 waitingCallbacks = nil
+                executionID = executionIDFactory.safeNextInt64()
                 callbackQueue.async {
                     for callback in callbacksToNotify {
                         callback(.failure(Errors.executionCancelledDueToClearResult))

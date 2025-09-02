@@ -233,19 +233,13 @@ public class MonoTask<TaskResult> {
     ///
     /// - Parameter retryConfiguration: Current retry configuration (decrements on each retry)
     private func _unsafe_execute(retry retryConfiguration: RetryCount) {
-        executionID = executionIDFactory.safeNextInt64()
+        // Generate new execution ID for tracking (important for clearResult cancellation)
+        let currentExecutionID = executionIDFactory.safeNextInt64()
+        self.executionID = currentExecutionID
         
         taskQueue.async { [weak self] in
-            guard let self else { return }
-
-            semaphore.wait()
-            // Generate new execution ID for tracking (important for clearResult cancellation)
-            let currentExecutionID = executionIDFactory.safeNextInt64()
-            self.executionID = currentExecutionID
-            semaphore.signal()
-
-            // === Phase 3: Execute User Task ===
-            self.executeBlock { [weak self] executionResult in
+            // === Execute User Task ===
+            self?.executeBlock { [weak self] executionResult in
                 guard let self else { return }
                 semaphore.wait()
                 defer { semaphore.signal() }

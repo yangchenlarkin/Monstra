@@ -137,7 +137,7 @@ final class MonoTaskForceUpdateTests: XCTestCase {
         ) { callback in
             Task {
                 let attempt = await counter.next()
-                try? await Task.sleep(nanoseconds: 50_000_000)
+                try? await Task.sleep(nanoseconds: 5_000_000_000)
                 callback(.success("attempt_\(attempt)"))
             }
         }
@@ -147,7 +147,7 @@ final class MonoTaskForceUpdateTests: XCTestCase {
 
         let results = ResultCollector<String>()
         await withTaskGroup(of: Void.self) { group in
-            for _ in 0 ..< 3 {
+            for _ in 0 ..< 30 {
                 group.addTask {
                     let r = await task.asyncExecute(forceUpdate: true)
                     if case let .success(v) = r { await results.add(v) }
@@ -158,12 +158,12 @@ final class MonoTaskForceUpdateTests: XCTestCase {
         try? await Task.sleep(nanoseconds: 1_000_000_000)
 
         let outs = await results.getResults()
-        XCTAssertEqual(outs.count, 3)
+        XCTAssertEqual(outs.count, 30)
         // Due to restart semantics, only the last execution's result should be delivered to all
-        for v in outs { XCTAssertEqual(v, "attempt_4") }
+        for v in outs { XCTAssertEqual(v, "attempt_31") }
         // attempts: 1 (seed) + 3 force updates = 4
         let attempts = await counter.get()
-        XCTAssertEqual(attempts, 4)
+        XCTAssertEqual(attempts, 31)
     }
 
     /// Force update path for throws API

@@ -679,22 +679,6 @@ manager.fetch(
   </tbody>
  </table>
 
-## 📚 Documentation
-
-### 📖 Getting Started
-- **[Installation & Quick Start](Monstra.docc/Getting-Started.md)** - Installation instructions and basic usage
-- **[Caching Strategies](Monstra.docc/Caching-Strategies.md)** - Advanced usage patterns and best practices
-
-### 🏗️ API Reference
-- **MemoryCache** - High-performance in-memory caching with TTL and priority eviction
-- **MonoTask** - Single-instance task executor with execution merging and retry logic
-- **KVLightTasksManager** - High-volume task execution with batching and peak shaving
-- **KVHeavyTasksManager** - Resource-intensive operations with progress tracking
-
-### 📋 Additional Resources
-- **[Examples Directory](Examples/)** - Working examples for all components
-- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to Monstra
-
 ## 📋 Requirements
 
 ### Platform Support

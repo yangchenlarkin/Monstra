@@ -1,112 +1,57 @@
 import Foundation
 
-/// A high-performance, in-memory key-value cache with configurable thread safety and memory management.
-///
-/// ## Overview
-///
-/// MemoryCache provides a thread-safe, high-performance caching solution with advanced features like
-/// TTL expiration, priority-based eviction, and memory usage tracking. It's designed for scenarios
-/// where you need fine-grained control over cache behavior and performance.
-///
-/// ## Key Features
-///
-/// - **TTL Expiration**: Automatic cleanup of expired entries with configurable durations
-/// - **Priority-Based Eviction**: Higher priority entries are retained longer during memory pressure
-/// - **LRU Eviction**: Within priority levels, least recently used entries are evicted first
-/// - **Null Element Caching**: Support for caching nil/null values with separate TTL configuration
-/// - **Key Validation**: Customizable validation functions for cache keys
-/// - **TTL Randomization**: Prevents cache stampede by randomizing expiration times
-/// - **Thread Safety**: Configurable synchronization using DispatchSemaphore
-/// - **Memory Limits**: Configurable capacity and memory usage limits with automatic eviction
-///
-/// ## Thread Safety
-///
-/// Choose the appropriate synchronization mode based on your use case:
-///
-/// - **Synchronized Mode** (`enableThreadSynchronization=true`): All operations are thread-safe
-/// - **Non-Synchronized Mode** (`enableThreadSynchronization=false`): No synchronization overhead
-///
-/// ## Performance Characteristics
-///
-/// - **Time Complexity**: O(1) average case for get/set operations
-/// - **Memory Efficiency**: Configurable limits prevent memory bloat
-/// - **Automatic Cleanup**: Background expiration and eviction
-/// - **Eviction Policy**: Priority-based LRU with memory limit enforcement
-///
-/// ## Usage
-///
-/// ### Basic Usage
-/// ```swift
-/// import Monstra
-///
-/// // Create a simple cache
-/// let cache = MemoryCache<String, Data>()
-///
-/// // Store data with default TTL
-/// cache.set(element: imageData, for: "profile-image")
-///
-/// // Retrieve data
-/// switch cache.getElement(for: "profile-image") {
-/// case .hitNonNullElement(let data):
-///     print("Found cached data: \(data.count) bytes")
-/// case .miss:
-///     print("Data not found or expired")
-/// case .invalidKey:
-///     print("Invalid key provided")
-/// }
-/// ```
-///
-/// ### Advanced Configuration
-/// ```swift
-/// // High-performance image cache with memory limits
-/// let imageCache = MemoryCache<String, UIImage>(
-///     configuration: .init(
-///         enableThreadSynchronization: true,
-///         memoryUsageLimitation: .init(capacity: 1000, memory: 500), // 500MB
-///         defaultTTL: 3600, // 1 hour
-///         ttlRandomizationRange: 60, // ±60 seconds randomization
-///         keyValidator: { $0.hasPrefix("https://") },
-///         costProvider: { image in
-///             // Calculate memory cost in bytes
-///             guard let cgImage = image.cgImage else { return 0 }
-///             return cgImage.bytesPerRow * cgImage.height
-///         }
-///     )
-/// )
-/// ```
-///
-/// ### Null Element Caching
-/// ```swift
-/// // Cache nil values to prevent repeated expensive lookups
-/// let apiCache = MemoryCache<String, User?>(
-///     configuration: .init(
-///         defaultTTL: 300, // 5 minutes for regular data
-///         defaultTTLForNullElement: 60 // 1 minute for null data
-///     )
-/// )
-///
-/// // Cache both existing and non-existing users
-/// apiCache.set(element: user, for: "user-123")     // Regular cache
-/// apiCache.set(element: nil, for: "user-999")      // Null cache
-/// ```
-///
-/// ## Topics
-///
-/// ### Configuration
-/// - ``Configuration``
-/// - ``MemoryUsageLimitation``
-///
-/// ### Operations
-/// - ``set(element:for:priority:expiredIn:)``
-/// - ``getElement(for:)``
-/// - ``removeElement(for:)``
-/// - ``removeExpiredElements()``
-///
-/// ### Properties
-/// - ``count``
-/// - ``capacity``
-/// - ``isEmpty``
-/// - ``isFull``
+/**
+ A high-performance, in-memory key-value cache with configurable thread safety and memory management.
+
+ ## Core Features
+
+ - **TTL (Time-to-Live) Expiration**: Automatic cleanup of expired entries
+ - **Priority-Based Eviction**: Higher priority entries are retained longer during eviction
+ - **LRU (Least Recently Used) Eviction**: Within priority levels, least recently used entries are evicted first
+ - **Null Element Caching**: Support for caching null/nil elements with separate TTL configuration
+ - **External Key Validation**: Customizable key validation function set at initialization
+ - **TTL Randomization**: Prevents cache stampede by randomizing expiration times
+ - **Configurable Thread Safety**: Optional DispatchSemaphore synchronization for concurrent access
+ - **Memory Usage Tracking**: Configurable memory limits with automatic eviction
+
+ ## Thread Safety
+
+ - **Synchronized Mode** (`enableThreadSynchronization=true`): All operations are thread-safe using DispatchSemaphore
+ - **Non-Synchronized Mode** (`enableThreadSynchronization=false`): No synchronization; caller must ensure thread safety
+
+ ## Performance Characteristics
+
+ - **Time Complexity**: O(1) average case for get/set operations
+ - **Memory Efficiency**: Configurable capacity and memory limits
+ - **Automatic Expiration**: Background cleanup of expired entries
+ - **Eviction Policy**: Priority-based LRU eviction with memory limit enforcement
+
+ ## Example Usage
+
+ ```swift
+ // Thread-synchronized cache with custom validation and memory limits
+ let imageCache = MemoryCache<String, UIImage>(
+     configuration: .init(
+         enableThreadSynchronization: true,
+         memoryUsageLimitation: .init(capacity: 1000, memory: 500), // 500MB limit
+         defaultTTL: 3600, // 1 hour
+         keyValidator: { $0.hasPrefix("https://") },
+         costProvider: { image in
+             guard let cgImage = image.cgImage else { return 0 }
+             return cgImage.bytesPerRow * cgImage.height // Returns bytes
+         }
+     )
+ )
+
+ // Non-synchronized cache for single-threaded scenarios
+ let fastCache = MemoryCache<String, Int>(
+     configuration: .init(
+         enableThreadSynchronization: false,
+         memoryUsageLimitation: .init(capacity: 500, memory: 100)
+     )
+ )
+ ```
+ */
 
 /// Represents memory and capacity constraints for the cache.
 /// Used to configure cache limits for memory-sensitive or size-sensitive scenarios.

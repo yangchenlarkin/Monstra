@@ -23,7 +23,7 @@ jobs:
         swift --version
       
     - name: Cache Build Artifacts
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: .build
         key: ${{ runner.os }}-swift-build-${{ hashFiles('**/Package.resolved') }}
@@ -44,7 +44,7 @@ jobs:
       
     - name: Upload Test Results on Failure
       if: failure()
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-failure-logs-${{ github.run_number }}
         path: |

@@ -44,7 +44,7 @@ jobs:
 
     # Cache build artifacts for faster subsequent runs
     - name: Cache Build Artifacts
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: .build
         key: ${{ runner.os }}-swift-build-${{ hashFiles('**/Package.resolved') }}
@@ -67,7 +67,7 @@ jobs:
 
     # Cache SwiftLint for faster subsequent runs
     - name: Cache SwiftLint
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.mint
         key: ${{ runner.os }}-swiftlint-${{ hashFiles('**/Mintfile') }}

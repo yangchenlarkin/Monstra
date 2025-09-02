@@ -1,0 +1,33 @@
+version: 2
+updates:
+  # Enable version updates for Swift Package Manager dependencies
+  - package-ecosystem: "swift"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "yangchenlarkin"
+    assignees:
+      - "yangchenlarkin"
+    commit-message:
+      prefix: "chore(deps): "
+      include: "scope"
+
+  # Enable version updates for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+    open-pull-requests-limit: 3
+    reviewers:
+      - "yangchenlarkin"
+    assignees:
+      - "yangchenlarkin"
+    commit-message:
+      prefix: "ci: "
+      include: "scope"

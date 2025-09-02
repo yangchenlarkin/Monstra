@@ -29,20 +29,50 @@ jobs:
       
     - name: Test with verbose output
       run: swift test --verbose
+
+    - name: Generate Test Coverage
+      run: swift test --enable-code-coverage
+
+    - name: Upload Coverage to Codecov
+      if: success()
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./.build/debug/codecov/default.profdata
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+    # Cache build artifacts for faster subsequent runs
+    - name: Cache Build Artifacts
+      uses: actions/cache@v3
+      with:
+        path: .build
+        key: ${{ runner.os }}-swift-build-${{ hashFiles('**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-swift-build-
       
   lint:
     name: Lint
     runs-on: macos-latest
-    
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-      
+
     - name: Install SwiftLint
       run: brew install swiftlint
-      
+
     - name: Lint
-      run: swiftlint lint Sources/
+      run: swiftlint lint Sources/ --reporter github-actions-logging
+
+    # Cache SwiftLint for faster subsequent runs
+    - name: Cache SwiftLint
+      uses: actions/cache@v3
+      with:
+        path: ~/.mint
+        key: ${{ runner.os }}-swiftlint-${{ hashFiles('**/Mintfile') }}
+        restore-keys: |
+          ${{ runner.os }}-swiftlint-
       
   pod-lib-lint:
     name: Pod Lib Lint
@@ -70,4 +100,37 @@ jobs:
       
     - name: Run Performance Tests
       run: swift test --filter PerformanceTests
-      
+
+  # Multi-Xcode version testing for library compatibility
+  xcode-compatibility:
+    name: Xcode Compatibility
+    runs-on: macos-latest
+    # Only run on main branch and when explicitly requested
+    if: |
+      github.ref == 'refs/heads/main' ||
+      contains(github.event.pull_request.labels.*.name, 'test-compatibility')
+
+    strategy:
+      matrix:
+        xcode: ["14.3", "15.0"]
+        include:
+          - xcode: "14.3"
+            macos: macos-12
+          - xcode: "15.0"
+            macos: macos-13
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Select Xcode ${{ matrix.xcode }}
+      run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.app
+
+    - name: Swift Version
+      run: swift --version
+
+    - name: Build and Test
+      run: |
+        swift build
+        swift test --parallel
+

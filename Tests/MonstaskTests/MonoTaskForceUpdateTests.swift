@@ -92,32 +92,49 @@ final class MonoTaskForceUpdateTests: XCTestCase {
             resultExpireDuration: 50.0
         ) { callback in
             Task {
+                print("🚀 [EXEC] Starting execution")
                 let attempt = await counter.next()
+                print("📊 [EXEC] Got attempt number: \(attempt)")
                 executionStartedExpectation.fulfill() // Signal that this execution started
                 try? await Task.sleep(nanoseconds: 5_000_000_000)
+                print("✅ [EXEC] Execution \(attempt) completed, calling callback")
                 callback(.success("attempt_\(attempt)"))
+                print("📤 [EXEC] Callback invoked for attempt \(attempt)")
             }
         }
 
         // Seed cache
+        print("🌱 [SEED] Starting seed execution")
         _ = await task.asyncExecute()
-
+        print("🌱 [SEED] Seed execution completed")
+        
+        print("⚡ [FORCE] Starting 30 force update tasks")
         let results = ResultCollector<String>()
         await withTaskGroup(of: Void.self) { group in
-            for _ in 0 ..< 30 {
+            for i in 0 ..< 30 {
                 group.addTask {
+                    print("⚡ [FORCE-\(i)] Starting force update task \(i)")
                     let r = await task.asyncExecute(forceUpdate: true)
-                    if case let .success(v) = r { await results.add(v) }
+                    print("⚡ [FORCE-\(i)] Force update task \(i) completed with result: \(r)")
+                    if case let .success(v) = r {
+                        print("📝 [RESULT-\(i)] Adding result \(v) to collector")
+                        await results.add(v)
+                        print("📝 [RESULT-\(i)] Successfully added \(v) to collector")
+                    }
                 }
             }
         }
         
         // Wait for all executions to actually start (call counter.next())
+        print("⏳ [WAIT] Waiting for all 31 executions to start...")
         await fulfillment(of: [executionStartedExpectation], timeout: 15.0)
+        print("✅ [WAIT] All executions have started!")
 
         let outs = await results.getResults()
+        print("📋 [RESULTS] Collected \(outs.count) results: \(outs)")
         XCTAssertEqual(outs.count, 30)
         // Due to restart semantics, only the last execution's result should be delivered to all
+        print("🔍 [VERIFY] Checking that all results are 'attempt_31'")
         for v in outs { XCTAssertEqual(v, "attempt_31") }
         // attempts: 1 (seed) + 30 force updates = 31
         let attempts = await counter.get()

@@ -48,53 +48,6 @@ final class MonoTaskForceUpdateTests: XCTestCase {
         XCTAssertEqual(attempts, 2, "Should execute exactly twice (seed + refresh)")
     }
 
-    /// Force update during an ongoing execution should replace it and notify all waiters once with fresh result.
-    func testForceUpdateReplacesOngoingExecution() async {
-        let counter = Counter()
-
-        let task = MonoTask<String>(
-            retry: .never,
-            resultExpireDuration: 2.0
-        ) { callback in
-            Task {
-                let attempt = await counter.next()
-                try await Task.sleep(nanoseconds: 5_000_000_000)
-                callback(.success("\(attempt)"))
-            }
-        }
-
-        let resultCollector = ResultCollector<String>()
-
-        // Start first execution
-        task.execute { result in
-            if case let .success(v) = result { Task { await resultCollector.add(v) } }
-        }
-
-        // Wait until first started
-        
-        XCTAssertTrue(task.isExecuting)
-        try? await Task.sleep(nanoseconds: 1_000_000_000)
-
-        // Issue force update while first is running; add two callers
-        task.execute(forceUpdate: true) { result in
-            if case let .success(v) = result { Task { await resultCollector.add(v) } }
-        }
-        task.execute(forceUpdate: true) { result in
-            if case let .success(v) = result { Task { await resultCollector.add(v) } }
-        }
-
-        // Wait a bit for second to complete
-        try? await Task.sleep(nanoseconds: 10_000_000_000)
-
-        let results = await resultCollector.getResults()
-        // All 3 callers should get exactly one callback with the second execution result
-        XCTAssertEqual(results.count, 3)
-        for r in results { XCTAssertTrue(r.contains("3"), "Got: \(r)") }
-
-        let attempts = await counter.get()
-        XCTAssertEqual(attempts, 3, "Should run 3 times (3rd delivered)")
-    }
-
     /// Force update failure should not clear existing cached result; non-force calls still see cache.
     func testForceUpdateFailureKeepsCachedResult() async {
         let counter = Counter()

@@ -40,11 +40,12 @@ jobs:
           --target Monstra \
           --disable-indexing \
           --transform-for-static-hosting \
-          --hosting-base-path Monstra \
+          --hosting-base-path /Monstra \
           --output-path ./docs
 
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
+        # List generated files for debugging
+        echo "Generated documentation files:"
+        find ./docs -type f -name "*.html" | head -10
 
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v3

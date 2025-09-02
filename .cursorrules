@@ -1,0 +1,149 @@
+# Monstra Framework - Cursor Rules
+
+## Project Architecture
+
+### Overview
+Monstra is a Swift framework providing high-performance caching, task management, and data structures. It's designed for iOS/macOS applications requiring efficient memory management and concurrent task execution.
+
+### Module Structure
+
+#### 1. **Monstask** - Task Management
+- **MonoTask**: Single-instance task executor with execution merging, TTL caching, retry logic, and forceUpdate capabilities
+- **KVHeavyTasksManager**: Manager for heavy, resource-intensive tasks
+- **KVLightTasksManager**: Manager for lightweight, high-volume tasks
+
+Key Features:
+- Execution deduplication (multiple calls to same task merge into single execution)
+- TTL-based result caching with configurable expiration
+- Retry mechanisms with exponential backoff
+- Force update capability to bypass cache and restart execution
+- Thread-safe operations using semaphores and queues
+
+#### 2. **Monstore** - Caching System
+- **MemoryCache**: Thread-safe in-memory cache with TTL and LRU eviction
+- **PriorityLRUQueue**: Priority-based Least Recently Used queue implementation
+- **TTLPriorityLRUQueue**: TTL-aware priority LRU queue
+- **CacheStatistics**: Performance monitoring and metrics collection
+
+Key Features:
+- TTL (Time-To-Live) expiration
+- Priority-based eviction policies
+- LRU (Least Recently Used) eviction
+- Thread-safe concurrent access
+- Performance statistics and monitoring
+
+#### 3. **MonstraBase** - Core Data Structures
+- **DoublyLink**: Doubly-linked list implementation
+- **HashQueue**: Hash-based queue for O(1) operations
+- **Heap**: Min/Max heap implementation for priority operations
+- **CPUTimeStamp**: High-precision timing utilities
+- **TracingIDFactory**: Thread-safe ID generation
+- **RetryCount**: Retry logic with configurable backoff strategies
+
+### Design Patterns
+
+#### 1. **Single Responsibility Principle**
+Each class has a focused purpose:
+- MonoTask: Task execution and caching
+- MemoryCache: Data storage and eviction
+- Managers: Orchestration and coordination
+
+#### 2. **Thread Safety**
+All public APIs are thread-safe using:
+- DispatchSemaphore for critical sections
+- Concurrent queues for parallel execution
+- Atomic operations where appropriate
+
+#### 3. **Generic Programming**
+Heavy use of Swift generics for type safety:
+```swift
+class MonoTask<ResultType> { ... }
+class MemoryCache<Key: Hashable, Value> { ... }
+```
+
+#### 4. **Protocol-Oriented Design**
+Protocols define contracts for extensibility:
+- Cacheable protocols
+- Task execution protocols
+- Statistics collection protocols
+
+### Key Architectural Decisions
+
+#### 1. **Memory Management**
+- Automatic memory cleanup with TTL expiration
+- LRU eviction prevents unbounded growth
+- Weak references prevent retain cycles
+
+#### 2. **Concurrency Model**
+- Task-based concurrency with Swift's Task API
+- DispatchQueue for background execution
+- Semaphores for synchronization
+
+#### 3. **Error Handling**
+- Result types for explicit error handling
+- Retry mechanisms for transient failures
+- Graceful degradation on errors
+
+#### 4. **Performance Optimization**
+- O(1) cache operations where possible
+- Lazy initialization patterns
+- Efficient data structures (heaps, hash tables)
+
+### Testing Strategy
+
+#### 1. **Unit Tests**
+- Comprehensive test coverage for all modules
+- Performance tests for critical paths
+- Race condition testing for concurrent operations
+
+#### 2. **Integration Tests**
+- Cross-module interaction testing
+- Real-world usage scenarios
+- Memory leak detection
+
+#### 3. **Example Projects**
+- UserProfileManager: Demonstrates MonoTask with Combine
+- ModuleInitialization: Shows configuration management
+- ObjectFetchTask: API integration patterns
+
+### Dependencies
+- **Foundation**: Core Swift functionality
+- **Combine**: Reactive programming (in examples)
+- **Swift Concurrency**: async/await support
+
+### Distribution
+- **Swift Package Manager**: Primary distribution method
+- **CocoaPods**: Secondary distribution via podspec
+- **Semantic Versioning**: Version management strategy
+
+## Coding Guidelines
+
+### Swift Style
+- Follow Swift API Design Guidelines
+- Use descriptive naming conventions
+- Prefer value types over reference types where appropriate
+- Use access control modifiers appropriately (private, internal, public)
+
+### Documentation
+- All public APIs must have documentation comments
+- Use Swift DocC format for documentation
+- Include usage examples in documentation
+- Document thread safety guarantees
+
+### Testing
+- Write tests before implementing new features
+- Maintain >90% code coverage
+- Include performance benchmarks for critical paths
+- Test concurrent scenarios thoroughly
+
+### Git Workflow
+- Use conventional commit messages (feat:, fix:, docs:, etc.)
+- Create feature branches for new development
+- Require PR reviews for main branch changes
+- Run CI tests before merging
+
+### Performance Considerations
+- Profile memory usage regularly
+- Benchmark critical operations
+- Optimize for common use cases
+- Document performance characteristics

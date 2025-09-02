@@ -101,33 +101,27 @@ jobs:
     - name: Run Performance Tests
       run: swift test --filter PerformanceTests
 
-  # Multi-Xcode version testing for library compatibility
-  xcode-compatibility:
-    name: Xcode Compatibility
-    runs-on: macos-latest
+  # Multi-macOS version testing for library compatibility
+  compatibility:
+    name: macOS Compatibility
+    strategy:
+      matrix:
+        os: [macos-latest, macos-13]
+    runs-on: ${{ matrix.os }}
     # Only run on main branch and when explicitly requested
     if: |
       github.ref == 'refs/heads/main' ||
       contains(github.event.pull_request.labels.*.name, 'test-compatibility')
 
-    strategy:
-      matrix:
-        xcode: ["14.3", "15.0"]
-        include:
-          - xcode: "14.3"
-            macos: macos-12
-          - xcode: "15.0"
-            macos: macos-13
-
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Select Xcode ${{ matrix.xcode }}
-      run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.app
-
-    - name: Swift Version
-      run: swift --version
+    - name: Show Environment
+      run: |
+        echo "Runner OS: ${{ matrix.os }}"
+        xcodebuild -version
+        swift --version
 
     - name: Build and Test
       run: |

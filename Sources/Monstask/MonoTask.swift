@@ -236,6 +236,7 @@ public class MonoTask<TaskResult> {
         // Generate new execution ID for tracking (important for clearResult cancellation)
         let currentExecutionID = executionIDFactory.safeNextInt64()
         self.executionID = currentExecutionID
+        print("🟢 [ID-START]", "currentExeID:", currentExecutionID, "self.exeID:", self.executionID as Any)
         
         taskQueue.async { [weak self] in
             // === Execute User Task ===
@@ -245,8 +246,10 @@ public class MonoTask<TaskResult> {
                 defer { semaphore.signal() }
 
                 // Check if this execution was cancelled (execution ID changed)
+                print("🔴 [ID-CHECK]", "currentExeID:", currentExecutionID, "self.exeID:", self.executionID as Any)
                 guard currentExecutionID == self.executionID else { return }
                 self.executionID = executionIDFactory.safeNextInt64()
+                print("🟡 [ID-WIN]", "currentExeID:", currentExecutionID, "newSelf.exeID:", self.executionID as Any)
 
                 // === Phase 4: Handle Success ===
                 if case let .success(successData) = executionResult {

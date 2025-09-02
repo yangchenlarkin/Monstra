@@ -83,9 +83,11 @@ final class MonoTaskForceUpdateTests: XCTestCase {
 
     /// Multiple rapid force updates should result in only the last execution's result being delivered.
     func testMultipleRapidForceUpdatesDeliverLastResult() async {
+        let N = 100
+        
         let counter = Counter()
-        let executionStartedExpectation = expectation(description: "All executions started")
-        executionStartedExpectation.expectedFulfillmentCount = 31 // 1 seed + 30 force updates
+        let executionFinishedExpectation = expectation(description: "All executions started")
+        executionFinishedExpectation.expectedFulfillmentCount = N+1 // 1 seed + N force updates
         
         let task = MonoTask<String>(
             retry: .never,
@@ -95,11 +97,11 @@ final class MonoTaskForceUpdateTests: XCTestCase {
                 print("🚀 [EXEC] Starting execution")
                 let attempt = await counter.next()
                 print("📊 [EXEC] Got attempt number: \(attempt)")
-                executionStartedExpectation.fulfill() // Signal that this execution started
                 try? await Task.sleep(nanoseconds: 5_000_000_000)
                 print("✅ [EXEC] Execution \(attempt) completed, calling callback")
                 callback(.success("attempt_\(attempt)"))
                 print("📤 [EXEC] Callback invoked for attempt \(attempt)")
+                executionFinishedExpectation.fulfill() // Signal that this execution finished
             }
         }
 
@@ -108,10 +110,10 @@ final class MonoTaskForceUpdateTests: XCTestCase {
         _ = await task.asyncExecute()
         print("🌱 [SEED] Seed execution completed")
         
-        print("⚡ [FORCE] Starting 30 force update tasks")
+        print("⚡ [FORCE] Starting \(N) force update tasks")
         let results = ResultCollector<String>()
         await withTaskGroup(of: Void.self) { group in
-            for i in 0 ..< 30 {
+            for i in 0 ..< N {
                 group.addTask {
                     print("⚡ [FORCE-\(i)] Starting force update task \(i)")
                     let r = await task.asyncExecute(forceUpdate: true)
@@ -125,20 +127,22 @@ final class MonoTaskForceUpdateTests: XCTestCase {
             }
         }
         
-        // Wait for all executions to actually start (call counter.next())
-        print("⏳ [WAIT] Waiting for all 31 executions to start...")
-        await fulfillment(of: [executionStartedExpectation], timeout: 15.0)
+        // Wait for all executions to actually finish (call counter.next())
+        print("⏳ [WAIT] Waiting for all \(N+1) executions to finish...")
+        await fulfillment(of: [executionFinishedExpectation], timeout: 15.0)
+        try? await Task.sleep(nanoseconds: 3_000_000_000)
         print("✅ [WAIT] All executions have started!")
 
         let outs = await results.getResults()
         print("📋 [RESULTS] Collected \(outs.count) results: \(outs)")
-        XCTAssertEqual(outs.count, 30)
+        XCTAssertEqual(outs.count, N)
         // Due to restart semantics, only the last execution's result should be delivered to all
-        print("🔍 [VERIFY] Checking that all results are 'attempt_31'")
-        for v in outs { XCTAssertEqual(v, "attempt_31") }
-        // attempts: 1 (seed) + 30 force updates = 31
+        print("🔍 [VERIFY] Checking that all results are 'attempt_\(N+1)'")
+        for v in outs { XCTAssertEqual(v, "attempt_\(N+1)") }
+        // attempts: 1 (seed) + N force updates = N+1
         let attempts = await counter.get()
-        XCTAssertEqual(attempts, 31)
+        XCTAssertEqual(attempts, N+1)
+        try? await Task.sleep(nanoseconds: 3_000_000_000)
     }
 
     /// Force update path for throws API

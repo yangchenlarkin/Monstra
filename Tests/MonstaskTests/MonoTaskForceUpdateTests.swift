@@ -131,12 +131,16 @@ final class MonoTaskForceUpdateTests: XCTestCase {
     /// Multiple rapid force updates should result in only the last execution's result being delivered.
     func testMultipleRapidForceUpdatesDeliverLastResult() async {
         let counter = Counter()
+        let executionStartedExpectation = expectation(description: "All executions started")
+        executionStartedExpectation.expectedFulfillmentCount = 31 // 1 seed + 30 force updates
+        
         let task = MonoTask<String>(
             retry: .never,
             resultExpireDuration: 50.0
         ) { callback in
             Task {
                 let attempt = await counter.next()
+                executionStartedExpectation.fulfill() // Signal that this execution started
                 try? await Task.sleep(nanoseconds: 5_000_000_000)
                 callback(.success("attempt_\(attempt)"))
             }
@@ -155,13 +159,14 @@ final class MonoTaskForceUpdateTests: XCTestCase {
             }
         }
         
-        try? await Task.sleep(nanoseconds: 1_000_000_000)
+        // Wait for all executions to actually start (call counter.next())
+        await fulfillment(of: [executionStartedExpectation], timeout: 15.0)
 
         let outs = await results.getResults()
         XCTAssertEqual(outs.count, 30)
         // Due to restart semantics, only the last execution's result should be delivered to all
         for v in outs { XCTAssertEqual(v, "attempt_31") }
-        // attempts: 1 (seed) + 3 force updates = 4
+        // attempts: 1 (seed) + 30 force updates = 31
         let attempts = await counter.get()
         XCTAssertEqual(attempts, 31)
     }

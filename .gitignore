@@ -41,6 +41,7 @@ Icon
 
 ### IDE ###
 .idea/
+/.vscode/
 *.swp
 *.swo
 *~

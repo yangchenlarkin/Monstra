@@ -131,7 +131,7 @@ final class MonoTaskForceUpdateTests: XCTestCase {
         print("⏳ [WAIT] Waiting for all \(N+1) executions to finish...")
         await fulfillment(of: [executionFinishedExpectation], timeout: 15.0)
         try? await Task.sleep(nanoseconds: 3_000_000_000)
-        print("✅ [WAIT] All executions have started!")
+        print("✅ [WAIT] All executions have finished!")
 
         let outs = await results.getResults()
         print("📋 [RESULTS] Collected \(outs.count) results: \(outs)")

@@ -246,10 +246,10 @@ public class MonoTask<TaskResult> {
                 defer { semaphore.signal() }
 
                 // Check if this execution was cancelled (execution ID changed)
-                print("🔴 [ID-CHECK]", "currentExeID:", currentExecutionID, "self.exeID:", self.executionID as Any)
+                print("🔴 [ID-CHECK]", "currentExeID:", currentExecutionID, "self.exeID:", self.executionID as Any, "result:", executionResult)
                 guard currentExecutionID == self.executionID else { return }
                 self.executionID = executionIDFactory.safeNextInt64()
-                print("🟡 [ID-WIN]", "currentExeID:", currentExecutionID, "newSelf.exeID:", self.executionID as Any)
+                print("🟡 [ID-WIN]", "currentExeID:", currentExecutionID, "newSelf.exeID:", self.executionID as Any, "result:", executionResult)
 
                 // === Phase 4: Handle Success ===
                 if case let .success(successData) = executionResult {
@@ -296,9 +296,12 @@ public class MonoTask<TaskResult> {
     private func _unsafe_callback(result executionResult: Result<TaskResult, Error>) {
         let callbacksToNotify = waitingCallbacks
         waitingCallbacks = nil // Task transitions to "idle" state
-
+        
+        print("🩷 [ID-WIN-RESULT]", "result:", executionResult)
         callbackQueue.async {
             // Notify all callbacks with the same result
+            
+            print("🟤 [ID-WIN-RESULT]", "result:", executionResult)
             guard let callbacksToNotify else { return }
             for callback in callbacksToNotify {
                 callback(executionResult)

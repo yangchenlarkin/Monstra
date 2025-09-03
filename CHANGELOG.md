@@ -17,6 +17,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved callback queue handling in MonoTask
 - Enhanced test coverage and reliability
 
+## [0.0.8] - 2025-09-03
+
+### Added
+- Scheduled CI logs and analysis for long-running runs
+- Guidance and groundwork for Jazzy API docs on feature/api-doc branch
+
+### Changed
+- README install snippets bumped to 0.0.8
+- CocoaPods podspec version bumped to 0.0.8
+- CI maintenance: artifact/cache actions updated to v4 in workflows
+
+### Fixed
+- Intermittent CI flakiness analysis; clarified that cancellations were due to max job runtime
+
 ## [0.0.7] - 2025-09-01
 
 ### Added

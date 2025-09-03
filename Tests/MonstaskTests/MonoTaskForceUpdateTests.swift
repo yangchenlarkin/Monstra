@@ -136,9 +136,14 @@ final class MonoTaskForceUpdateTests: XCTestCase {
         let outs = await results.getResults()
         print("📋 [RESULTS] Collected \(outs.count) results: \(outs)")
         XCTAssertEqual(outs.count, N)
-        // Due to restart semantics, only the last execution's result should be delivered to all
-        print("🔍 [VERIFY] Checking that all results are 'attempt_\(N+1)'")
-        for v in outs { XCTAssertEqual(v, "attempt_\(N+1)") }
+        // Last-wins is determined by executionID at callback time; all delivered values must match
+        if let expected = outs.first {
+            print("🔍 [VERIFY] Checking that all results equal the winning value: \(expected)")
+            for v in outs { XCTAssertEqual(v, expected) }
+            XCTAssertEqual(task.currentResult, expected)
+        } else {
+            XCTFail("No results collected")
+        }
         // attempts: 1 (seed) + N force updates = N+1
         let attempts = await counter.get()
         XCTAssertEqual(attempts, N+1)

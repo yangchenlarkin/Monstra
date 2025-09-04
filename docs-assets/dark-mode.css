@@ -1,0 +1,53 @@
+/* Dark/Light mode support for Jazzy using prefers-color-scheme */
+:root {
+  --bg: #ffffff;
+  --fg: #1a1a1a;
+  --muted: #666666;
+  --link: #0b5fff;
+  --border: #e5e5e5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1115;
+    --fg: #e6e6e6;
+    --muted: #a0a0a0;
+    --link: #6aa4ff;
+    --border: #2a2f3a;
+  }
+}
+
+html, body {
+  background: var(--bg) !important;
+  color: var(--fg) !important;
+}
+
+/* Links */
+a, a:visited {
+  color: var(--link) !important;
+}
+
+/* Borders and subtle backgrounds */
+hr, .content-wrapper, .nav-group-name, .nav-category-name, .declaration, .task-group, .footer, .sidebar {
+  border-color: var(--border) !important;
+}
+
+/* Muted text */
+.small-caps, .graybox, .declaration .aside, .byline, .footer, code, pre code {
+  color: var(--muted) !important;
+}
+
+/* Code blocks */
+pre, code, pre code {
+  background: transparent !important;
+}
+
+/* Tables */
+.table, table {
+  color: var(--fg) !important;
+}
+
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--fg) !important;
+}

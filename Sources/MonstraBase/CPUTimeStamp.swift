@@ -1,9 +1,15 @@
 import Foundation
 
-/// Represents a high-precision CPU timestamp for accurate time measurements and cache expiration logic.
+/// CPUTimeStamp: High-precision, monotonic CPU time for measurements and TTL logic.
 ///
-/// - Provides nanosecond-level precision using mach timebase.
-/// - Supports arithmetic and comparison for time intervals and expiration checks.
+/// - Monotonic source based on `mach_absolute_time` converted via cached `mach_timebase_info`
+/// - Nanosecond-level precision with safe conversion order to avoid overflow
+/// - Arithmetic and comparison operators for intervals and ordering
+///
+/// - Notes:
+///   - Intended for measuring intervals and scheduling expirations; not wall-clock time
+///   - Thread-safe and value-semantic; creation is fast
+///   - `infinity` and `zero` helpers simplify sentinel usage
 public struct CPUTimeStamp {
     /// The timestamp value in seconds since CPU start.
     private let timestampSeconds: TimeInterval

@@ -236,8 +236,7 @@ public class MonoTask<TaskResult> {
         // Generate new execution ID for tracking (important for clearResult cancellation)
         let currentExecutionID = executionIDFactory.safeNextInt64()
         self.executionID = currentExecutionID
-        print("🟢 [ID-START]", "currentExeID:", currentExecutionID, "self.exeID:", self.executionID as Any)
-        
+
         taskQueue.async { [weak self] in
             // === Execute User Task ===
             self?.executeBlock { [weak self] executionResult in
@@ -246,10 +245,8 @@ public class MonoTask<TaskResult> {
                 defer { semaphore.signal() }
 
                 // Check if this execution was cancelled (execution ID changed)
-                print("🔴 [ID-CHECK]", "currentExeID:", currentExecutionID, "self.exeID:", self.executionID as Any, "result:", executionResult)
                 guard currentExecutionID == self.executionID else { return }
                 self.executionID = executionIDFactory.safeNextInt64()
-                print("🟡 [ID-WIN]", "currentExeID:", currentExecutionID, "newSelf.exeID:", self.executionID as Any, "result:", executionResult)
 
                 // === Phase 4: Handle Success ===
                 if case let .success(successData) = executionResult {
@@ -297,11 +294,9 @@ public class MonoTask<TaskResult> {
         let callbacksToNotify = waitingCallbacks
         waitingCallbacks = nil // Task transitions to "idle" state
         
-        print("🩷 [ID-WIN-RESULT]", "result:", executionResult)
         callbackQueue.async {
             // Notify all callbacks with the same result
             
-            print("🟤 [ID-WIN-RESULT]", "result:", executionResult)
             guard let callbacksToNotify else { return }
             for callback in callbacksToNotify {
                 callback(executionResult)

@@ -1,0 +1,16 @@
+author: Larkin
+author_url: mailto:yangchenlarkin@gmail.com
+github_url: https://github.com/yangchenlarkin/Monstra
+module: Monstra
+module_version: 0.0.9
+swift_build_tool: spm
+theme: apple
+min_acl: public
+readme: README.md
+output: docs
+clean: true
+exclude:
+  - Examples
+  - Tests
+  - .build
+

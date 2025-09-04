@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved callback queue handling in MonoTask
 - Enhanced test coverage and reliability
 
+## [0.0.9] - 2025-09-04
+
+### Changed
+- Removed debug print statements in `MonoTask` and routed output through `Log` where applicable
+- CI: split per-class test jobs on develop; scheduled tests split per class
+- README and installation snippets updated to 0.0.9
+- CocoaPods podspec version bumped to 0.0.9
+
+### Fixed
+- Minor workflow stability improvements
+
 ## [0.0.8] - 2025-09-03
 
 ### Added

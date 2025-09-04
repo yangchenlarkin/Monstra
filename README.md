@@ -54,7 +54,7 @@ Add Monstra to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/yangchenlarkin/Monstra.git", from: "0.0.8")
+    .package(url: "https://github.com/yangchenlarkin/Monstra.git", from: "0.0.9")
 ]
 ```
 
@@ -68,7 +68,7 @@ Or add it directly in Xcode:
 Add Monstra to your `Podfile`:
 
 ```ruby
-pod 'Monstra', '~> 0.0.8'
+pod 'Monstra', '~> 0.0.9'
 ```
 
 **Note**: Monstra is published as a unified framework, so you get all components together.

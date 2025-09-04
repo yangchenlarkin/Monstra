@@ -1,10 +1,15 @@
 import Foundation
 
-/// A cache that combines TTL (time-to-live), priority, and LRU (least recently used) eviction policies.
+/// TTLPriorityLRUQueue: Hybrid TTL + Priority + LRU cache.
 ///
-/// - Each entry has an expiration time (TTL), a priority, and is tracked for recency of use.
-/// - When the cache is full, expired entries are evicted first, then lower-priority entries, then least recently used.
-/// - Provides O(1) average case for access and update by key, with efficient expiration and eviction.
+/// This structure stores items with a time-to-live (TTL), an eviction priority, and tracks
+/// recency for LRU ordering. Eviction proceeds in the following order:
+/// 1) Expired entries
+/// 2) Lowest priority
+/// 3) Least-recently-used within the same priority
+///
+/// - Complexity: O(1) average for set/get/remove by key; O(k) to purge k expired entries.
+/// - Thread-safety: Not thread-safe by itself; use external synchronization if needed.
 public class TTLPriorityLRUQueue<Key: Hashable, Element> {
     /// The maximum number of elements the cache can hold.
     public let capacity: Int
@@ -50,13 +55,19 @@ public class TTLPriorityLRUQueue<Key: Hashable, Element> {
 }
 
 public extension TTLPriorityLRUQueue {
-    /// Inserts or updates a element for the given key, with optional priority and TTL.
+    /// Inserts or updates an element for the given key, with optional priority and TTL.
+    ///
+    /// - Behavior:
+    ///   - Overwrites existing keys and refreshes both TTL and LRU position
+    ///   - Chooses insertion path based on whether the earliest TTL has already expired
+    ///   - Returns an evicted element when capacity is exceeded following policy (expired → priority → LRU)
+    ///
     /// - Parameters:
-    ///   - element: The element to store.
-    ///   - key: The key to associate with the element.
-    ///   - priority: The priority for eviction (higher is less likely to be evicted).
-    ///   - duration: The TTL (in seconds) for the entry. Defaults to infinity (never expires).
-    /// - Returns: The evicted element, if any.
+    ///   - element: The element to store
+    ///   - key: The key to associate with the element
+    ///   - priority: Eviction priority (higher values retained longer)
+    ///   - duration: TTL in seconds (default: .infinity)
+    /// - Returns: The evicted element, if any
     @discardableResult
     func set(
         element: Element,
@@ -80,8 +91,8 @@ public extension TTLPriorityLRUQueue {
     }
 
     /// Retrieves the element for the given key if present and not expired.
-    /// - Parameter key: The key to look up.
-    /// - Returns: The element if present and valid, or nil if expired or missing.
+    /// - Parameter key: The key to look up
+    /// - Returns: The element if present and valid; otherwise nil (expired or missing)
     @discardableResult
     func getElement(for key: Key) -> Element? {
         guard let node = lruQueue.getElement(for: key) else { return nil }
@@ -93,8 +104,8 @@ public extension TTLPriorityLRUQueue {
     }
 
     /// Removes the element for the given key, if present.
-    /// - Parameter key: The key to remove.
-    /// - Returns: The removed element, or nil if not found.
+    /// - Parameter key: The key to remove
+    /// - Returns: The removed element, or nil if not found
     @discardableResult
     func removeElement(for key: Key) -> Element? {
         if let node = lruQueue.removeElement(for: key) {
@@ -107,8 +118,8 @@ public extension TTLPriorityLRUQueue {
         return nil
     }
 
-    /// Removes and returns the least recently used element.
-    /// - Returns: The removed element, or nil if cache is empty
+    /// Removes and returns one element following expiration/priority/LRU rules.
+    /// - Returns: The removed element, or nil if the cache is empty
     @discardableResult
     func removeElement() -> Element? {
         guard let root = ttlQueue.root else { return nil }
@@ -125,11 +136,10 @@ public extension TTLPriorityLRUQueue {
     /**
      Removes all expired elements from the cache.
 
-     This method iterates through the TTL queue and removes all entries that have expired
-     based on their expiration timestamps. The removal is done efficiently by checking
-     the root of the TTL heap, which contains the earliest expiring entry.
+     Iteratively checks the TTL heap root (earliest expiration) and removes expired entries
+     until the root is not expired. This ensures efficient cleanup without scanning all keys.
 
-     - Note: This operation has O(n) time complexity where n is the number of expired entries
+     - Note: O(k) where k is the number of expired entries removed.
      */
     func removeExpiredElements() {
         while let root = ttlQueue.root {

@@ -637,11 +637,29 @@ public class KVHeavyTasksManager<
 extension KVHeavyTasksManager: @unchecked Sendable {}
 
 public extension KVHeavyTasksManager {
+    /// Error types emitted by `KVHeavyTasksManager` operations.
+    ///
+    /// - Note: These errors cover configuration and queue-capacity conditions that
+    ///   prevent a task from executing under the current constraints.
     enum Errors: Error {
+        /// The configured maximum number of running tasks is invalid (<= 0).
         case invalidConcurrencyConfiguration
+        /// A task could not be enqueued due to priority/queue constraints.
+        /// - Parameter key: The key of the task that was evicted.
         case taskEvictedDueToPriorityConstraints(K)
     }
 
+    /// Fetch a single key using a heavy `DataProvider`, optionally observing custom events.
+    ///
+    /// This method registers observers and callbacks, consults the cache, and schedules
+    /// execution according to the configured priority strategy and concurrency limits.
+    ///
+    /// - Parameters:
+    ///   - key: Unique key to fetch.
+    ///   - customEventObserver: Optional observer for real-time progress/status updates.
+    ///   - result: Optional callback invoked once with the final result for `key`.
+    /// - Warning: If `maxNumberOfRunningTasks` is <= 0, the `result` will receive
+    ///   `.failure(Errors.invalidConcurrencyConfiguration)` and no work will be performed.
     func fetch(
         key: K,
         customEventObserver: DataProvider.CustomEventPublisher? = nil,
@@ -654,6 +672,16 @@ public extension KVHeavyTasksManager {
         start(key, customEventObserver: customEventObserver, resultCallback: resultCallback)
     }
 
+    /// Fetch a single key asynchronously using a heavy `DataProvider`.
+    ///
+    /// Registers the optional event observer, then returns a `Result` once the task completes.
+    ///
+    /// - Parameters:
+    ///   - key: Unique key to fetch.
+    ///   - customEventObserver: Optional observer for real-time progress/status updates.
+    /// - Returns: A `Result` containing the fetched element or an error.
+    /// - Note: If `maxNumberOfRunningTasks` is <= 0, this method returns
+    ///   `.failure(Errors.invalidConcurrencyConfiguration)` immediately.
     func asyncFetch(
         key: K,
         customEventObserver: DataProvider.CustomEventPublisher? = nil
@@ -726,11 +754,7 @@ private extension KVHeavyTasksManager {
             }
             return
 
-        case .hitNullElement:
-            // Cache hit with null result - return nil immediately (previously computed null result)
-            fallthrough
-
-        case .invalidKey:
+        case .hitNullElement, .invalidKey:
             // Key rejected by cache validation - return nil immediately (invalid request)
             DispatchQueue.global().async {
                 resultCallback?(.success(nil))
@@ -1042,7 +1066,9 @@ private extension KVHeavyTasksManager {
         }
 
         // Initiate task execution (provider is responsible for calling resultPublisher exactly once)
-        dataProviders[key]!.start()
+        if let provider = dataProviders[key] {
+            provider.start()
+        }
     }
 
     /// Delivers final task results to all registered callbacks and performs cleanup.

@@ -16,5 +16,10 @@ if [ -f docs-assets/dark-mode.css ]; then
 fi
 
 ruby -rjson -e "j=JSON.parse(File.read('docs/undocumented.json')); w=j['warnings'] || []; if !w.empty?; STDERR.puts(\"Jazzy undocumented warnings: #{w.size}\"); w.first(50).each{|x| STDERR.puts(\"#{x['file']}:#{x['line']} #{x['symbol']} #{x['warning']}\")}; exit 1; end"
+ 
+# Ensure README images render by copying repository assets referenced relatively
+if [ -f Logo.png ]; then
+  cp -f Logo.png docs/Logo.png || true
+fi
 echo "Docs generated under ./docs"
 

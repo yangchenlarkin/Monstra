@@ -18,7 +18,19 @@ public extension DoublyLink {
     }
 }
 
-/// A doubly linked list for LRU management within a priority level.
+/// DoublyLink: Minimal doubly linked list used for LRU ordering.
+///
+/// Designed as a building block for higher-level queues (such as priority-based LRU structures),
+/// providing O(1) average operations for push/pop from both ends and node removal when the
+/// node reference is known.
+///
+/// - Complexity:
+///   - enqueueFront: O(1)
+///   - dequeueFront / dequeueBack: O(1)
+///   - removeNode (with node reference): O(1)
+///
+/// - Thread-safety: Not synchronized; use external synchronization when accessed concurrently.
+/// - Invariants: `front` is the most-recent node; `back` is the least-recent node; `count` is >= 0.
 public class DoublyLink<Element> {
     public private(set) var front: Node?
     public private(set) var back: Node?
@@ -33,7 +45,8 @@ public class DoublyLink<Element> {
     /// - Parameters:
     ///   - key: Key of the new element.
     ///   - element: Value of the new element.
-    /// - Returns: Tuple of the new node and the evicted node (if any).
+    /// - Returns: Tuple of the new node and the evicted node (if any). When `capacity == 0`,
+    ///   no node is created and the returned `evictedNode` echoes the input element.
     @discardableResult
     public func enqueueFront(element: Element) -> (newNode: Node?, evictedNode: Node?) {
         guard capacity > 0 else { return (nil, Node(element: element)) }
@@ -56,15 +69,20 @@ public class DoublyLink<Element> {
         return (newNode, evictedNode)
     }
 
+    /// Eviction strategy applied when enqueuing into a full list.
     public enum EvictedStrategy {
+        /// Evict from the back (least-recent). This is the standard LRU behavior.
         case FIFO
+        /// Do not evict; reject the insertion by returning the provided node.
+        /// Useful when callers prefer to drop newcomers instead of evicting residents.
         case LIFO
     }
 
     /// Enqueues an existing node to the front of the queue.
-    /// Removes the least recently used node if at capacity.
+    /// Removes the least recently used node if at capacity, unless `.LIFO` is specified,
+    /// in which case the insertion is rejected and the original node is returned.
     /// - Parameter node: Node to enqueue.
-    /// - Returns: Evicted node if any; otherwise nil.
+    /// - Returns: Evicted node if any; returns the input node when rejected due to `.LIFO` policy; otherwise nil.
     @discardableResult
     public func enqueueFront(node: Node, evictedStrategy: EvictedStrategy = .FIFO) -> Node? {
         guard capacity > 0 else { return node }
@@ -124,7 +142,9 @@ public class DoublyLink<Element> {
     }
 
     /// Removes a specific node from the queue.
-    /// - Parameter node: The node to remove. Must be currently in the queue.
+    /// - Important: The node must currently belong to this list; removing an external node
+    ///   yields undefined behavior and will corrupt `count`.
+    /// - Parameter node: The node to remove.
     public func removeNode(_ node: Node) {
         node.previous?.next = node.next
         node.next?.previous = node.previous

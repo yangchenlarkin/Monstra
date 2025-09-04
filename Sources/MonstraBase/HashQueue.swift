@@ -62,9 +62,18 @@ public class HashQueue<K: Hashable> {
         map = .init()
     }
 
-    /// Enqueues a key at the front of the queue (most recently used position).
-    /// If the key already exists, it is moved to the front (LRU behavior).
-    /// - Parameter key: The key to enqueue.
+    /// Enqueues a key at the front (most recently used position).
+    ///
+    /// - Behavior:
+    ///   - If `key` already exists, it is moved to the front (LRU behavior)
+    ///   - When at capacity, applies `evictedStrategy` from the underlying `DoublyLink`:
+    ///     - `.FIFO`: evicts the least-recent key from the back and returns it
+    ///     - `.LIFO`: rejects insertion and returns the provided `key` (no state change)
+    ///   - If `capacity == 0`, returns `key` immediately and performs no mutation
+    ///
+    /// - Parameter key: The key to enqueue
+    /// - Parameter evictedStrategy: Eviction policy when full (default: `.FIFO`)
+    /// - Returns: Evicted key (if any), or the input `key` when insertion is rejected; otherwise nil
     @discardableResult
     public func enqueueFront(key: K, evictedStrategy: DoublyLink<K>.EvictedStrategy) -> K? {
         guard capacity > 0 else { return key }
@@ -148,6 +157,9 @@ public extension HashQueue {
     /// Indicates if the queue is empty.
     var isEmpty: Bool { count == 0 }
 
+    /// Returns whether the queue currently contains `key`.
+    /// - Parameter key: The key to test for membership
+    /// - Returns: True if present, false otherwise
     func contains(key: K) -> Bool {
         map.keys.contains(key)
     }

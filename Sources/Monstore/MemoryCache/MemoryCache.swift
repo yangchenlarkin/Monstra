@@ -246,17 +246,17 @@ public extension MemoryCache {
     }
 
     /**
-     Inserts or updates a element for the given key with optional priority and expiration.
+     Inserts or updates an element for the given key with optional priority and expiration.
 
      This method handles both regular elements and null elements, applying appropriate TTL settings
      and memory cost tracking. When the cache exceeds its memory limit, it automatically
-     evicts the least recently used entries.
+     evicts entries according to priority-based LRU.
 
      - Parameters:
-       - element: The element to store (can be nil for null caching)
+       - element: The element to store (can be nil to cache a null element)
        - key: The key to associate with the element
-       - priority: The priority for eviction (higher is less likely to be evicted)
-       - duration: The TTL (in seconds) for the entry. Defaults to configuration default
+       - priority: Eviction priority where larger values are retained longer (default: 0)
+       - duration: TTL in seconds for this entry. If nil, uses configuration defaults
 
      - Returns: Array of evicted elements due to capacity or memory limits
 
@@ -352,12 +352,14 @@ public extension MemoryCache {
         return evictedElements
     }
 
+    /// Result of a cache fetch attempt for a key.
     enum FetchResult {
         case invalidKey
         case hitNullElement
         case hitNonNullElement(element: Element)
         case miss
 
+        /// Convenience accessor returning the associated element if present; otherwise nil.
         public var element: Element? {
             switch self {
             case let .hitNonNullElement(element):
@@ -367,6 +369,7 @@ public extension MemoryCache {
             }
         }
 
+        /// Indicates whether the fetch resulted in a miss.
         public var isMiss: Bool {
             switch self {
             case .miss:
@@ -378,13 +381,14 @@ public extension MemoryCache {
     }
 
     /**
-     Retrieves the element for the given key if present and not expired.
+     Retrieves the cached state for the given key.
 
-     This method validates the key using the configured validator and returns the element
-     if it exists and hasn't expired. The access updates the LRU order of the entry.
+     This method validates the key using the configured validator and returns a `FetchResult` that
+     distinguishes invalid keys, misses, null-element hits, and non-null element hits. Access updates
+     the LRU order of the entry when present.
 
      - Parameter key: The key to look up
-     - Returns: The element if present and valid, or nil if expired, missing, or invalid
+     - Returns: A `FetchResult` describing the cache state for `key`
 
      - Note: Thread safety depends on the `enableThreadSynchronization` configuration option
      */
@@ -487,6 +491,10 @@ public extension MemoryCache {
         }
     }
 
+    /// Resets all recorded cache statistics to zero.
+    ///
+    /// This clears counters such as hit/miss counts and total accesses. Useful for
+    /// measuring statistics over distinct time windows.
     func resetStatistics() {
         statistics.reset()
     }

@@ -1,30 +1,65 @@
 import Foundation
+/// KVLightTasksManager: Batched key-value fetching with pluggable providers and in-memory cache.
+///
+/// This manager fetches single or multiple keys using a configurable data provider and integrates
+/// an in-memory `MemoryCache` with key validation, TTL, and statistics reporting. It supports
+/// monoprovide and multiprovide styles (sync, async, and callback-based), deduplicates concurrent
+/// requests per key, and controls concurrency via queue sizing and a priority strategy.
+///
+/// - Features:
+///   - Single and batch fetch APIs (callback and async/await)
+///   - Cache-first lookups with invalid key short-circuiting
+///   - Deduplication of concurrent requests for the same key(s)
+///   - Retry policy per request path
+///   - LIFO/FIFO priority for queue management under pressure
+///
+/// - Concurrency & Threading:
+///   - Internal semaphore guards cache/update and callback bookkeeping
+///   - Provider work is dispatched on global queues
+///   - Callbacks are delivered on the provided or global queue
 
 public extension KVLightTasksManager {
     enum DataProvider {
+        /// Callback signature for single-key provider results.
         public typealias MonoprovideCallback = (Result<Element?, Error>) -> Void
+        /// Callback signature for multi-key provider results.
         public typealias MultiprovideCallback = (Result<[K: Element?], Error>) -> Void
 
+        /// Callback-based single-key provide.
         public typealias Monoprovide = (K, @escaping MonoprovideCallback) -> Void
+        /// Async/await single-key provide.
         public typealias AsyncMonoprovide = (K) async throws -> Element?
+        /// Sync single-key provide.
         public typealias SyncMonoprovide = (K) throws -> Element?
+        /// Callback-based multi-key provide.
         public typealias Multiprovide = ([K], @escaping MultiprovideCallback) -> Void
+        /// Async/await multi-key provide.
         public typealias AsyncMultiprovide = ([K]) async throws -> [K: Element?]
+        /// Sync multi-key provide.
         public typealias SyncMultiprovide = ([K]) throws -> [K: Element?]
 
+        /// Provide one key via callback.
         case monoprovide(Monoprovide)
+        /// Provide one key via async/await.
         case asyncMonoprovide(AsyncMonoprovide)
+        /// Provide one key synchronously.
         case syncMonoprovide(SyncMonoprovide)
+        /// Provide multiple keys via callback with batching.
         case multiprovide(maximumBatchCount: UInt = 20, Multiprovide)
+        /// Provide multiple keys via async/await with batching.
         case asyncMultiprovide(maximumBatchCount: UInt = 20, AsyncMultiprovide)
+        /// Provide multiple keys synchronously with batching.
         case syncMultiprovide(maximumBatchCount: UInt = 20, SyncMultiprovide)
     }
 
     struct Config {
         fileprivate let privateDataProvider: PrivateDataProvider
 
+        /// Queueing priority strategy applied when scheduling provider work.
         public enum PriorityStrategy {
+            /// Last-in, first-out. Newest keys are served first. Oldest may be evicted when queue is full.
             case LIFO
+            /// First-in, first-out. Oldest keys are served first. New arrivals may be rejected when full.
             case FIFO
         }
 
@@ -48,15 +83,15 @@ public extension KVLightTasksManager {
         /// Initializes a new KVLightTasksManager configuration.
         ///
         /// - Parameters:
-        ///   - dataProvider: The data provider for providing elements
-        ///   - maxNumberOfQueueingTasks: Maximum number of tasks in the queue (default: 16)
-        ///   - maxNumberOfRunningTasks: Maximum concurrent threads (default: 4)
-        ///   - retryCount: Retry configuration for failed requests (default: 0)
-        ///   - PriorityStrategy: Queue priority strategy (default: .LIFO)
-        ///   - cacheConfig: Cache configuration including key validation (default: .defaultConfig)
-        ///     - The keyValidator in cacheConfig automatically filters invalid keys
-        ///     - Invalid keys return nil without network requests
-        ///   - cacheStatisticsReport: Optional callback for cache statistics
+        ///   - dataProvider: The data provider for providing elements.
+        ///   - maxNumberOfQueueingTasks: Maximum queued keys capacity (default: 256).
+        ///   - maxNumberOfRunningTasks: Maximum concurrent provider tasks (default: 4).
+        ///   - retryCount: Retry configuration for failed requests (default: 0).
+        ///   - PriorityStrategy: Queue priority strategy (default: .LIFO).
+        ///   - cacheConfig: Cache configuration including key validation (default: .defaultConfig).
+        ///     - The keyValidator in cacheConfig automatically filters invalid keys.
+        ///     - Invalid keys return nil without network requests.
+        ///   - cacheStatisticsReport: Optional callback for cache statistics.
         public init(
             dataProvider: DataProvider,
             maxNumberOfQueueingTasks: Int = 256,
@@ -395,16 +430,14 @@ public class KVLightTasksManager<K: Hashable, Element> {
         }
     }
 
-    // MARK: -  result callback allocation management
+    // MARK: - Result callback allocation management
 
     private var resultCallbacks: [K: [ResultCallback]] = .init()
     private func cacheResultCallback(keys: [K], callback: @escaping ResultCallback) {
-        for key in keys {
-            if resultCallbacks[key] == nil {
-                resultCallbacks[key] = .init()
-            }
-            resultCallbacks[key]?.append(callback)
+        for key in keys where resultCallbacks[key] == nil {
+            resultCallbacks[key] = .init()
         }
+        for key in keys { resultCallbacks[key]?.append(callback) }
     }
 
     private func consumeCallbacks(key: K, dispatchQueue: DispatchQueue, result: Result<Element?, Error>) {
@@ -421,7 +454,7 @@ public class KVLightTasksManager<K: Hashable, Element> {
         if keys.count == 0 { return }
         var _keys = Set<K>()
         let keys = keys.filter { key in
-            if _keys.contains(key) { return false }
+            guard !_keys.contains(key) else { return false }
             _keys.insert(key)
             return true
         }
@@ -431,10 +464,8 @@ public class KVLightTasksManager<K: Hashable, Element> {
             let additionalThreadCount = min(config.maxNumberOfRunningTasks - activeThreadCount, keys.count)
             activeThreadCount += additionalThreadCount
 
-            for i in 0 ..< keys.count {
-                if i < additionalThreadCount {
-                    _startOneMonoprovideThread(key: keys[i], provide: monoprovide, callback: callback)
-                }
+            for i in 0 ..< keys.count where i < additionalThreadCount {
+                _startOneMonoprovideThread(key: keys[i], provide: monoprovide, callback: callback)
             }
             if additionalThreadCount < keys.count {
                 _pushKeyIntoHashQueue(keys: keys[additionalThreadCount...], callback: callback)
@@ -587,7 +618,14 @@ public class KVLightTasksManager<K: Hashable, Element> {
             guard let self else { return }
             switch res {
             case let .success(elements):
-                callback(keys.map { ($0, .success(elements[$0] ?? nil)) })
+                let mapped: [(K, Result<Element?, Error>)] = keys.map { key in
+                    if let value = elements[key] {
+                        return (key, .success(value))
+                    } else {
+                        return (key, .success(nil))
+                    }
+                }
+                callback(mapped)
             case let .failure(error):
                 let retryCount = retryCount ?? self.config.retryCount
                 if retryCount.shouldRetry {

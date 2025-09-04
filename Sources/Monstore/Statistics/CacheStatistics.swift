@@ -1,5 +1,6 @@
 import Foundation
 
+/// Discrete outcomes recorded by the cache for statistics.
 public enum CacheRecord {
     case invalidKey
     case hitNullElement
@@ -7,7 +8,12 @@ public enum CacheRecord {
     case miss
 }
 
-/// Statistics tracker for cache performance monitoring
+/// Statistics tracker for cache performance monitoring.
+///
+/// Tracks counts of cache results and computes derived metrics such as total accesses
+/// and hit rates. A lightweight `report` callback can be attached to observe each record.
+///
+/// - Thread-safety: This type is not synchronized; coordinate access externally if needed.
 public struct CacheStatistics {
     private(set) static var tracingIDFactory = TracingIDFactory()
 
@@ -25,27 +31,28 @@ public struct CacheStatistics {
     /// Number of cache misses
     private(set) var missCount: Int = 0
 
+    /// Optional callback invoked after every record to emit the latest statistics and result.
     public var report: ((Self, CacheRecord) -> Void)? = nil
 
-    /// Total number of cache accesses
+    /// Total number of cache accesses (invalid + null-hit + non-null-hit + miss).
     public var totalAccesses: Int {
         return invalidKeyCount + nullElementHitCount + nonNullElementHitCount + missCount
     }
 
-    /// Hit rate as a percentage (excluding invalid keys)
+    /// Hit rate (excluding invalid keys). Range: 0.0 ... 1.0
     public var hitRate: Double {
         let validAccesses = nullElementHitCount + nonNullElementHitCount + missCount
         guard validAccesses > 0 else { return 0.0 }
         return Double(nullElementHitCount + nonNullElementHitCount) / Double(validAccesses)
     }
 
-    /// Overall success rate including invalid keys
+    /// Overall success rate including invalid keys. Range: 0.0 ... 1.0
     public var successRate: Double {
         guard totalAccesses > 0 else { return 0.0 }
         return Double(nullElementHitCount + nonNullElementHitCount) / Double(totalAccesses)
     }
 
-    /// Record a cache result
+    /// Records a cache result and triggers the optional report callback.
     public mutating func record(_ result: CacheRecord) {
         switch result {
         case .invalidKey:
@@ -60,7 +67,7 @@ public struct CacheStatistics {
         report?(self, result)
     }
 
-    /// Reset all statistics
+    /// Resets all statistics and assigns a new tracing ID.
     public mutating func reset() {
         tracingID = Self.tracingIDFactory.unsafeNextUInt64()
         invalidKeyCount = 0

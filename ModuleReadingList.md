@@ -50,7 +50,7 @@ Goal: Enhance comments across all Swift files in `Sources` using clear, consiste
 - [x] `Sources/Monstore/MemoryCache/MemoryCache.swift`
 - [x] `Sources/Monstore/MemoryCache/PriorityLRUQueue.swift`
 - [x] `Sources/Monstore/MemoryCache/TTLPriorityLRUQueue.swift`
-- [ ] `Sources/Monstore/Statistics/CacheStatistics.swift`
+- [x] `Sources/Monstore/Statistics/CacheStatistics.swift`
 - [ ] `Sources/MonstraBase/CPUTimeStamp.swift`
 - [ ] `Sources/MonstraBase/DoublyLink.swift`
 - [ ] `Sources/MonstraBase/HashQueue.swift`

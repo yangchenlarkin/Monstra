@@ -1,10 +1,18 @@
 import Foundation
 
-/// A priority-based LRU (Least Recently Used) queue that maintains separate LRU queues for each priority level.
+/// PriorityLRUQueue: Priority-aware LRU queue with O(1) average access and updates.
 ///
-/// - Elements with lower priority are evicted first.
-/// - Within the same priority, least recently used elements are evicted first.
-/// - Provides O(1) average case for access, update, and removal by key.
+/// This data structure maintains separate LRU queues per priority level and evicts
+/// elements according to a two-tier policy:
+/// - By priority: lower priority values are evicted first
+/// - Within a priority: least-recently-used (LRU) elements are evicted first
+///
+/// - Complexity:
+///   - get/set/remove by key: O(1) average
+///   - eviction and priority promotion: O(1) average
+///
+/// - Thread-safety: This type is not thread-safe on its own. Wrap usage with external
+///   synchronization (such as a semaphore) when accessed from multiple threads.
 public class PriorityLRUQueue<K: Hashable, Element> {
     fileprivate struct LRUElement {
         fileprivate var key: K
@@ -17,6 +25,7 @@ public class PriorityLRUQueue<K: Hashable, Element> {
     private typealias LRUNode = LRULink.Node
 
     /// The maximum number of elements the queue can hold.
+    /// - Note: Negative capacities are normalized to 0 in `init(capacity:)`.
     public let capacity: Int
     /// The current number of elements in the queue.
     public var count: Int { keyNodeMap.count }
@@ -61,12 +70,18 @@ public class PriorityLRUQueue<K: Hashable, Element> {
         }
     }
 
-    /// Inserts or updates a element for the given key and priority.
+    /// Inserts or updates an element for the given key and priority.
+    ///
+    /// - Behavior:
+    ///   - If the key exists: updates its element and priority, and moves it to the front of its priority LRU.
+    ///   - If the queue is full: evicts from the lowest priority; within that level, evicts the LRU element.
+    ///   - If `capacity == 0`: returns the provided element (cannot be stored).
+    ///
     /// - Parameters:
     ///   - element: The element to store.
     ///   - key: The key to associate with the element.
-    ///   - priority: The priority for eviction (lower priority elements are evicted first).
-    /// - Returns: The evicted element, if any.
+    ///   - priority: Eviction priority (lower priority evicted first). Default is 0.
+    /// - Returns: The evicted element, if any; or the input element if it could not be stored (for capacity 0 or lower priority than current minimum).
     @discardableResult
     public func setElement(_ element: Element, for key: K, with priority: Double = 0) -> Element? {
         guard capacity > 0 else { return element }
@@ -99,9 +114,9 @@ public class PriorityLRUQueue<K: Hashable, Element> {
         return evictedNode?.element.element
     }
 
-    /// Retrieves the element for the given key, updating its recency.
+    /// Retrieves the element for the given key and refreshes its LRU position.
     /// - Parameter key: The key to look up.
-    /// - Returns: The element if present, or nil if not found.
+    /// - Returns: The element if present; otherwise nil.
     @discardableResult
     public func getElement(for key: K) -> Element? {
         guard let node = keyNodeMap[key] else { return nil }
@@ -127,16 +142,16 @@ public class PriorityLRUQueue<K: Hashable, Element> {
         return node.element.element
     }
 
-    /// Removes and returns the least recently used element.
-    /// - Returns: The removed element, or nil if cache is empty
+    /// Removes and returns the least recently used element across all priorities.
+    /// - Returns: The removed element, or nil if the queue is empty.
     @discardableResult
     public func removeElement() -> Element? {
         guard let key = getLeastRecentKey() else { return nil }
         return removeElement(for: key)
     }
 
-    /// Gets the least recently used key for eviction.
-    /// - Returns: The key of the least recently used entry, or nil if queue is empty
+    /// Returns the key of the least recently used entry across all priorities.
+    /// - Returns: The LRU key, or nil if the queue is empty.
     public func getLeastRecentKey() -> K? {
         // Find the lowest priority first
         guard let minPriority = priorities.root else { return nil }

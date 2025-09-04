@@ -1,4 +1,15 @@
-/// A generic heap (priority queue) supporting custom ordering and capacity limits.
+/// Heap: Generic priority queue with custom ordering and fixed capacity.
+///
+/// Provides a binary-heap implementation backed by a Swift `Array`, supporting a caller-supplied
+/// comparison closure to define ordering. Offers convenience builders for min/max heaps when
+/// `Element: Comparable`.
+///
+/// - Features:
+///   - Fixed logical capacity with optional force-insert semantics when full
+///   - Event callbacks for insert/remove/move to track external indices
+///   - O(log n) insertion and removal; O(1) root access
+///
+/// - Thread-safety: Not synchronized; guard with external synchronization when needed.
 public class Heap<Element> {
     /// Maximum number of elements the heap can store.
     private let capacity: Int
@@ -13,6 +24,9 @@ public class Heap<Element> {
     private var storage: [Element]
 
     /// Callback triggered on insert, remove, and index changes.
+    ///
+    /// Useful for synchronizing an external index stored alongside elements. The callback
+    /// is invoked after structural mutations and moves.
     public var onEvent: ((Event) -> Void)?
 
     /// The root element (highest priority), or nil if heap is empty.
@@ -22,6 +36,12 @@ public class Heap<Element> {
     public var elements: [Element] { storage }
 
     /// Initializes a heap with given capacity and comparison strategy.
+    /// - Parameters:
+    ///   - capacity: Maximum number of elements the heap can logically store. Negative values are treated as 0.
+    ///   - compare: Comparison function returning a `ComparisonResult` indicating relative priority.
+    ///     - `.moreTop` means the first argument should be closer to the root (higher priority)
+    ///     - `.moreBottom` means the first argument should be further from the root (lower priority)
+    ///     - `.equal` indicates equal priority
     public required init(capacity: Int, compare: @escaping (Element, Element) -> ComparisonResult) {
         self.capacity = max(0, capacity)
         count = 0
@@ -56,11 +76,19 @@ public extension Heap where Element: Comparable {
 // MARK: - Public Heap Operations
 
 public extension Heap {
-    /// Inserts an element into the heap.
+    /// Inserts an element.
+    ///
+    /// When the heap is not full, the element is appended then sifted to restore the heap property.
+    /// When the heap is full, behavior depends on `force` and the comparison with the current root:
+    /// - `force == false`: Only allows replacement when `compare(element, root) == .moreBottom` (lower priority
+    ///   than root); otherwise the insertion is rejected and the input `element` is returned.
+    /// - `force == true`: Allows replacement unless `compare(element, root) == .moreTop` (higher priority than root);
+    ///   in that case the insertion is rejected and the input `element` is returned.
+    ///
     /// - Parameters:
-    ///   - element: Element to insert.
-    ///   - force: If true, replaces root if heap is full and element has lower priority.
-    /// - Returns: Displaced root if force-inserted, otherwise nil.
+    ///   - element: Element to insert
+    ///   - force: Force-insert semantics when heap is full (default: false)
+    /// - Returns: Displaced root when a replacement occurs; the input element when rejected; otherwise nil
     @discardableResult
     func insert(_ element: Element, force: Bool = false) -> Element? {
         guard capacity > 0 else { return element }
@@ -98,8 +126,8 @@ public extension Heap {
     }
 
     /// Removes and returns an element at the specified index (default: root).
-    /// - Parameter index: Index of element to remove (defaults to root at index 0).
-    /// - Returns: Removed element, or nil if index is invalid or heap is empty.
+    /// - Parameter index: Index of element to remove (defaults to root at index 0)
+    /// - Returns: Removed element, or nil if index is invalid or heap is empty
     @discardableResult
     func remove(at index: Int = 0) -> Element? {
         guard capacity > 0, count > 0, isValid(index) else { return nil }

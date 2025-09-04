@@ -57,9 +57,8 @@ import Combine
 /// ```
 ///
 /// ## Thread Safety:
-/// MonoTask uses two semaphores for fine-grained thread safety:
-/// - `resultSemaphore`: Protects cached result and expiration state
-/// - `callbackSemaphore`: Protects callback array and execution state
+/// MonoTask uses a single internal semaphore for fine-grained thread safety:
+/// - Protects cached result, expiration timestamp, callback registration, and execution state
 ///
 /// ## Performance:
 /// - **Execution Merging**: Prevents duplicate work when multiple callers request same task
@@ -150,10 +149,10 @@ public class MonoTask<TaskResult> {
     /// 2. Determines if a new execution should be started (execution merging)
     /// 3. Starts execution only if no other execution is currently running
     ///
-    /// **Thread Safety**: Protected by `callbackSemaphore`
+    /// **Thread Safety**: Protected by a single internal semaphore
     ///
     /// **Execution Merging**: Multiple concurrent calls to this method will:
-    /// - All register their callbacks in the `_callbacks` array
+    /// - All register their callbacks in the `waitingCallbacks` array
     /// - Only the first call will trigger actual execution
     /// - All callbacks receive the same result when execution completes
     ///
@@ -171,7 +170,7 @@ public class MonoTask<TaskResult> {
 
             // 2) Register callback for result notification
             if let completionCallback {
-                waitingCallbacks!.append(completionCallback)
+                waitingCallbacks?.append(completionCallback)
             }
             
             // 3) Schedule a brand-new execution and mark force scheduled
@@ -204,7 +203,7 @@ public class MonoTask<TaskResult> {
 
         // Register callback for result notification
         if let completionCallback {
-            waitingCallbacks!.append(completionCallback)
+            waitingCallbacks?.append(completionCallback)
         }
 
         // Start execution only if not already running (execution merging)
@@ -228,8 +227,8 @@ public class MonoTask<TaskResult> {
     /// - If `clearResult()` is called during execution, execution ID changes
     /// - Stale retry attempts check their ID and abort if execution was cancelled
     ///
-    /// **Thread Safety**: This method runs on `taskQueue` and uses `resultSemaphore`
-    /// for cache state protection
+    /// **Thread Safety**: This method runs on `taskQueue` and uses the internal semaphore
+    /// for cache and execution state protection
     ///
     /// - Parameter retryConfiguration: Current retry configuration (decrements on each retry)
     private func _unsafe_execute(retry retryConfiguration: RetryCount) {
@@ -283,8 +282,8 @@ public class MonoTask<TaskResult> {
     /// 3. Invoke all callbacks with the same result
     /// 4. Transition task from "executing" to "idle" state
     ///
-    /// **Thread Safety**: Uses `callbackQueue` and `callbackSemaphore` for safe
-    /// callback array manipulation
+    /// **Thread Safety**: Uses `callbackQueue` for delivery. Callback extraction and state
+    /// transitions are protected by the internal semaphore before hopping to `callbackQueue`.
     ///
     /// **State Transition**: After this method completes, the task transitions from
     /// "executing" to "idle" state (`waitingCallbacks` becomes nil)
@@ -304,7 +303,18 @@ public class MonoTask<TaskResult> {
         }
     }
     
+    /// Latest successfully cached result if available and not expired.
+    ///
+    /// - Note: This property is `@Published` for Combine subscribers and updated on
+    ///   the internal synchronization boundary. Delivery occurs on `callbackQueue` when
+    ///   produced by an execution.
     @Published public private(set) var result: TaskResult? = nil
+
+    /// Indicates whether the task is currently executing.
+    ///
+    /// - Note: This property is `@Published` and flips to `true` when the first caller
+    ///   begins an execution (i.e., `waitingCallbacks` becomes non-nil) and back to `false`
+    ///   when callbacks have been notified and `waitingCallbacks` is cleared.
     @Published public private(set) var isExecuting: Bool = false
 }
 

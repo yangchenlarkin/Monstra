@@ -44,7 +44,7 @@ Goal: Enhance comments across all Swift files in `Sources` using clear, consiste
 
 ## Comment Enhancement Checklist (Sources)
 
-- [ ] `Sources/Monstask/MonoTask.swift`
+- [x] `Sources/Monstask/MonoTask.swift`
 - [ ] `Sources/Monstask/KVLightTasksManager.swift`
 - [ ] `Sources/Monstask/KVHeavyTasksManager.swift`
 - [ ] `Sources/Monstore/MemoryCache/MemoryCache.swift`

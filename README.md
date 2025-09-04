@@ -11,7 +11,7 @@
 
 A high-performance Swift framework providing efficient task execution, memory caching, and data management utilities with intelligent execution merging, TTL caching, and retry logic.
 
-Documentation: [API Reference (Jazzy)](https://yangchenlarkin.github.io/Monstra/)  
+Documentation: <a href="https://yangchenlarkin.github.io/Monstra/" target="_blank" rel="noopener noreferrer">API Reference (Jazzy)</a>  
 
 ## 🚀 Features
 

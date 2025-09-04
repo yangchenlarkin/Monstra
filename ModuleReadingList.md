@@ -55,8 +55,8 @@ Goal: Enhance comments across all Swift files in `Sources` using clear, consiste
 - [x] `Sources/MonstraBase/DoublyLink.swift`
 - [x] `Sources/MonstraBase/HashQueue.swift`
 - [x] `Sources/MonstraBase/Heap.swift`
-- [ ] `Sources/MonstraBase/RetryCount.swift`
-- [ ] `Sources/MonstraBase/TracingIDFactory.swift`
+- [x] `Sources/MonstraBase/RetryCount.swift`
+- [x] `Sources/MonstraBase/TracingIDFactory.swift`
 
 
 

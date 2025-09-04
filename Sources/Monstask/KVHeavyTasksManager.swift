@@ -251,6 +251,7 @@ public protocol KVHeavyTaskDataProviderInterface {
 }
 
 public extension KVHeavyTaskDataProviderInterface {
+    /// Default no-op resume implementation for providers that are not resumable.
     func resume() async {}
 }
 

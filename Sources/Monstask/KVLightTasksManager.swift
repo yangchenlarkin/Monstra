@@ -18,7 +18,11 @@ import Foundation
 ///   - Provider work is dispatched on global queues
 ///   - Callbacks are delivered on the provided or global queue
 
+/// Provider and configuration definitions for `KVLightTasksManager`.
+/// Public initializers and fetch APIs.
+/// Public initializers and fetch APIs for `KVLightTasksManager`.
 public extension KVLightTasksManager {
+    /// Data provider styles for single and batch fetching.
     enum DataProvider {
         /// Callback signature for single-key provider results.
         public typealias MonoprovideCallback = (Result<Element?, Error>) -> Void
@@ -52,6 +56,7 @@ public extension KVLightTasksManager {
         case syncMultiprovide(maximumBatchCount: UInt = 20, SyncMultiprovide)
     }
 
+    /// Configuration for queue sizing, priority, retries, and cache policy.
     struct Config {
         fileprivate let privateDataProvider: PrivateDataProvider
 
@@ -63,11 +68,16 @@ public extension KVLightTasksManager {
             case FIFO
         }
 
+        /// The selected data provider implementation.
         public let dataProvider: DataProvider
 
+        /// Maximum number of keys allowed to be queued awaiting execution.
         public let maxNumberOfQueueingTasks: Int
+        /// Maximum number of provider tasks allowed to run concurrently.
         public let maxNumberOfRunningTasks: Int
+        /// Retry policy applied to failed provider attempts.
         public let retryCount: RetryCount
+        /// Queue priority strategy used when scheduling work.
         public let PriorityStrategy: PriorityStrategy
 
         /// Cache configuration that controls memory limits, TTL, key validation, and thread safety.
@@ -161,42 +171,54 @@ public extension KVLightTasksManager {
 }
 
 public extension KVLightTasksManager {
+    /// Callback delivering the result for a single key.
     typealias ResultCallback = (K, Result<Element?, Error>) -> Void
+    /// Callback delivering results for a batch of keys.
     typealias BatchResultCallback = ([(K, Result<Element?, Error>)]) -> Void
 
+    /// Creates a manager using a prepared configuration.
     convenience init(config: Config) {
         self.init(config)
     }
 
+    /// Creates a manager from a provider with default configuration values.
     convenience init(dataProvider: DataProvider) {
         self.init(Config(dataProvider: dataProvider))
     }
 
+    /// Initializes using a callback-based single-key provider.
     convenience init(_ provide: @escaping DataProvider.Monoprovide) {
         self.init(dataProvider: .monoprovide(provide))
     }
 
+    /// Initializes using an async/await single-key provider.
     convenience init(_ provide: @escaping DataProvider.AsyncMonoprovide) {
         self.init(dataProvider: .asyncMonoprovide(provide))
     }
 
+    /// Initializes using a synchronous single-key provider.
     convenience init(_ provide: @escaping DataProvider.SyncMonoprovide) {
         self.init(dataProvider: .syncMonoprovide(provide))
     }
 
+    /// Initializes using a callback-based multi-key provider with optional batching.
     convenience init(maximumBatchCount: UInt = 20, _ provide: @escaping DataProvider.Multiprovide) {
         self.init(dataProvider: .multiprovide(maximumBatchCount: maximumBatchCount, provide))
     }
 
+    /// Initializes using an async/await multi-key provider with optional batching.
     convenience init(maximumBatchCount: UInt = 20, _ provide: @escaping DataProvider.AsyncMultiprovide) {
         self.init(dataProvider: .asyncMultiprovide(maximumBatchCount: maximumBatchCount, provide))
     }
 
+    /// Initializes using a synchronous multi-key provider with optional batching.
     convenience init(maximumBatchCount: UInt = 20, _ provide: @escaping DataProvider.SyncMultiprovide) {
         self.init(dataProvider: .syncMultiprovide(maximumBatchCount: maximumBatchCount, provide))
     }
 
+    /// Errors specific to `KVLightTasksManager`.
     enum Errors: Error {
+        /// Evicted by the active priority strategy (e.g., queue full with LIFO/FIFO policy).
         case evictedByPriorityStrategy
     }
 
@@ -360,6 +382,7 @@ private extension KVLightTasksManager {
     }
 }
 
+/// A lightweight key-value tasks manager that integrates a cache and configurable providers.
 public class KVLightTasksManager<K: Hashable, Element> {
     private init(_ config: Config) {
         self.config = config

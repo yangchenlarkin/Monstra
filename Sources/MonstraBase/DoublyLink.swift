@@ -32,10 +32,16 @@ public extension DoublyLink {
 /// - Thread-safety: Not synchronized; use external synchronization when accessed concurrently.
 /// - Invariants: `front` is the most-recent node; `back` is the least-recent node; `count` is >= 0.
 public class DoublyLink<Element> {
+    /// Most-recent node (head) of the list.
     public private(set) var front: Node?
+    /// Least-recent node (tail) of the list.
     public private(set) var back: Node?
+    /// Number of nodes currently in the list.
     public private(set) var count = 0
+    /// Maximum number of nodes allowed; 0 means no storage.
     public let capacity: Int
+    /// Creates a list with the given maximum number of nodes.
+    /// - Parameter capacity: Maximum number of nodes to retain.
     public init(with capacity: Int) {
         self.capacity = max(0, capacity)
     }

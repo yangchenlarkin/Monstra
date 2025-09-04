@@ -149,6 +149,8 @@ public struct TracingIDFactory {
     /// - Lower values: More frequent wraparound but better cache locality
     /// - Higher values: Longer uniqueness period but higher memory usage for large IDs
     public static let maximumLoopCount: Int64 = 10_000_000_000
+    /// Minimum allowed value for sequential counter loop count.
+    /// Ensures a floor on uniqueness window before wraparound.
     public static let minimumLoopCount: Int64 = 1000
 
     // MARK: - Instance Properties

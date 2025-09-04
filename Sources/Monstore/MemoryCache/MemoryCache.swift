@@ -354,9 +354,13 @@ public extension MemoryCache {
 
     /// Result of a cache fetch attempt for a key.
     enum FetchResult {
+        /// Key failed validation according to the configured validator.
         case invalidKey
+        /// Cache contained an explicit null entry for this key.
         case hitNullElement
+        /// Cache hit with a non-null element.
         case hitNonNullElement(element: Element)
+        /// Key not present in cache.
         case miss
 
         /// Convenience accessor returning the associated element if present; otherwise nil.

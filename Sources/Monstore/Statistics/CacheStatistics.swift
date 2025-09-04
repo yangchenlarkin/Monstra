@@ -2,9 +2,13 @@ import Foundation
 
 /// Discrete outcomes recorded by the cache for statistics.
 public enum CacheRecord {
+    /// Attempt used an invalid key (rejected by validator).
     case invalidKey
+    /// Cache contained a null element for the key.
     case hitNullElement
+    /// Cache contained a non-null element for the key.
     case hitNonNullElement
+    /// Key not found in cache.
     case miss
 }
 

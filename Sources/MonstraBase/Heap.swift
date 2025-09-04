@@ -152,15 +152,21 @@ public extension Heap {
 public extension Heap {
     /// Heap event used for notifications.
     enum Event {
+        /// Emitted after inserting an element at the specified index.
         case insert(element: Element, at: Int)
+        /// Emitted after removing an element from the heap.
         case remove(element: Element)
+        /// Emitted after moving an element to a new index due to heapify/swap.
         case move(element: Element, to: Int)
     }
 
     /// Relative priority between two elements.
     enum ComparisonResult {
+        /// Left-hand element should be closer to the root (higher priority).
         case moreTop
+        /// Left-hand element should be farther from the root (lower priority).
         case moreBottom
+        /// Elements have equivalent priority.
         case equal
     }
 }

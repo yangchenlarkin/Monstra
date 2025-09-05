@@ -549,6 +549,11 @@ public extension MonoTask {
         return resultCache
     }
     
+    /// Indicates whether the task is currently executing.
+    ///
+    /// Thread-safe. Returns true while an execution is in progress (i.e.,
+    /// there are registered callbacks waiting for completion), and false
+    /// when the task is idle.
     var isExecuting: Bool {
         semaphore.wait()
         defer { semaphore.signal() }

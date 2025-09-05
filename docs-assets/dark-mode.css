@@ -5,6 +5,7 @@
   --muted: #666666;
   --link: #0b5fff;
   --border: #e5e5e5;
+  --panel: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -14,6 +15,7 @@
     --muted: #a0a0a0;
     --link: #6aa4ff;
     --border: #2a2f3a;
+    --panel: #131721;
   }
 }
 
@@ -22,13 +24,20 @@ html, body {
   color: var(--fg) !important;
 }
 
-/* Links */
-a, a:visited {
-  color: var(--link) !important;
+/* Panels */
+.header, header, .content-wrapper, .sidebar, .task-group, .declaration, .footer {
+  background: var(--panel) !important;
+  color: var(--fg) !important;
 }
 
-/* Borders and subtle backgrounds */
-hr, .content-wrapper, .nav-group-name, .nav-category-name, .declaration, .task-group, .footer, .sidebar {
+/* Sidebar */
+.sidebar a { color: var(--fg) !important; }
+
+/* Links */
+a, a:visited { color: var(--link) !important; }
+
+/* Borders and subtle separators */
+hr, .nav-group-name, .nav-category-name, .declaration, .task-group, .footer, .sidebar {
   border-color: var(--border) !important;
 }
 
@@ -38,16 +47,10 @@ hr, .content-wrapper, .nav-group-name, .nav-category-name, .declaration, .task-g
 }
 
 /* Code blocks */
-pre, code, pre code {
-  background: transparent !important;
-}
+pre, code, pre code { background: transparent !important; }
 
 /* Tables */
-.table, table {
-  color: var(--fg) !important;
-}
+.table, table { color: var(--fg) !important; }
 
 /* Headings */
-h1, h2, h3, h4, h5, h6 {
-  color: var(--fg) !important;
-}
+h1, h2, h3, h4, h5, h6 { color: var(--fg) !important; }

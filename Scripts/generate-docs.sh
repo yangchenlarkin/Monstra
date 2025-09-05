@@ -10,10 +10,7 @@ if [ ! -f docs/undocumented.json ]; then
   exit 1
 fi
 
-# Ensure dark-mode assets are available inside docs/ root so the injected head can load them
-if [ -f docs-assets/dark-mode.css ]; then
-  cp -f docs-assets/dark-mode.css docs/dark-mode.css || true
-fi
+
 
 ruby -rjson -e "j=JSON.parse(File.read('docs/undocumented.json')); w=j['warnings'] || []; if !w.empty?; STDERR.puts(\"Jazzy undocumented warnings: #{w.size}\"); w.first(50).each{|x| STDERR.puts(\"#{x['file']}:#{x['line']} #{x['symbol']} #{x['warning']}\")}; exit 1; end"
  

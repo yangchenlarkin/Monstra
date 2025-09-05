@@ -1,5 +1,4 @@
 import Foundation
-import Combine
 
 /// **MonoTask: Single-Instance Task Executor with TTL Caching and Retry Logic**
 ///
@@ -107,15 +106,7 @@ public class MonoTask<TaskResult> {
     /// Array of callbacks waiting for current execution (nil = not executing)
     /// When nil: Task is idle
     /// When non-nil: Task is executing, callbacks waiting for result
-    private var waitingCallbacks: [ResultCallback]? {
-        didSet {
-            if let waitingCallbacks, waitingCallbacks.count > 0 {
-                self.isExecuting = true
-            } else {
-                self.isExecuting = false
-            }
-        }
-    }
+    private var waitingCallbacks: [ResultCallback]?
 
     // MARK: - Initialization
 
@@ -179,18 +170,18 @@ public class MonoTask<TaskResult> {
         }
         
         // === Phase 1: Check Cache Validity ===
-        if let cachedResult = result, resultExpiresAt > .now() {
+        if let resultCache, resultExpiresAt > .now() {
             // Cache hit! Always invoke callback on the designated callbackQueue
             if let completionCallback {
                 callbackQueue.async {
-                    completionCallback(.success(cachedResult))
+                    completionCallback(.success(resultCache))
                 }
             }
             return
         }
 
         // === Phase 2: Prepare for Fresh Execution ===
-        result = nil
+        resultCache = nil
         resultExpiresAt = .zero
 
         // Check if execution is already running
@@ -250,7 +241,7 @@ public class MonoTask<TaskResult> {
                 // === Phase 4: Handle Success ===
                 if case let .success(successData) = executionResult {
                     // Cache the result with TTL expiration
-                    self.result = successData
+                    self.resultCache = successData
                     self.resultExpiresAt = .now() + self.resultExpireDuration
                     _unsafe_callback(result: executionResult)
                     return
@@ -305,17 +296,9 @@ public class MonoTask<TaskResult> {
     
     /// Latest successfully cached result if available and not expired.
     ///
-    /// - Note: This property is `@Published` for Combine subscribers and updated on
-    ///   the internal synchronization boundary. Delivery occurs on `callbackQueue` when
-    ///   produced by an execution.
-    @Published public private(set) var result: TaskResult? = nil
-
-    /// Indicates whether the task is currently executing.
-    ///
-    /// - Note: This property is `@Published` and flips to `true` when the first caller
-    ///   begins an execution (i.e., `waitingCallbacks` becomes non-nil) and back to `false`
-    ///   when callbacks have been notified and `waitingCallbacks` is cleared.
-    @Published public private(set) var isExecuting: Bool = false
+    /// - Note: Thread-safe via the internal semaphore. Reading does not trigger execution
+    ///   and respects TTL; expired results are cleared and `nil` is returned.
+    private var resultCache: TaskResult? = nil
 }
 
 // MARK: - Public API
@@ -559,11 +542,18 @@ public extension MonoTask {
         // Check if cached result has expired based on TTL
         if resultExpiresAt <= .now() {
             // Cache expired, clear stale data
-            result = nil
+            resultCache = nil
             resultExpiresAt = .zero
         }
 
-        return result
+        return resultCache
+    }
+    
+    var isExecuting: Bool {
+        semaphore.wait()
+        defer { semaphore.signal() }
+        
+        return waitingCallbacks != nil
     }
 
     // MARK: - Cache Management
@@ -626,7 +616,7 @@ public extension MonoTask {
         defer { semaphore.signal() }
 
         // Always clear cached result and reset expiration timestamp
-        result = nil
+        resultCache = nil
         resultExpiresAt = .zero
 
         if let callbacksToNotify = waitingCallbacks {

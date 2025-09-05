@@ -3,8 +3,14 @@ import Monstra
 import Combine
 
 final class UserProfileManager {
-    var userProfile: AnyPublisher<UserProfile?, Never> { task.$result.removeDuplicates().eraseToAnyPublisher()}
-    var isLoading: AnyPublisher<Bool, Never> { task.$isExecuting.removeDuplicates().eraseToAnyPublisher() }
+    // Public publishers
+    var userProfile: AnyPublisher<UserProfile?, Never> { userProfileSubject.removeDuplicates().eraseToAnyPublisher() }
+    var isLoading: AnyPublisher<Bool, Never> { isLoadingSubject.removeDuplicates().eraseToAnyPublisher() }
+
+    // Internal subjects to bridge non-published MonoTask state
+    private let userProfileSubject = CurrentValueSubject<UserProfile?, Never>(nil)
+    private let isLoadingSubject = CurrentValueSubject<Bool, Never>(false)
+
     private let task: MonoTask<UserProfile>
 
     init() {
@@ -23,37 +29,70 @@ final class UserProfileManager {
                 }
             }
         }
+
+        // Initialize subjects from current MonoTask snapshot
+        self.userProfileSubject.send(task.currentResult)
+        self.isLoadingSubject.send(task.isExecuting)
     }
 
     func didLogin() {
-        task.justExecute(forceUpdate: false)
+        isLoadingSubject.send(true)
+        Task {
+            let result = await task.asyncExecute(forceUpdate: false)
+            switch result {
+            case .success(let profile):
+                userProfileSubject.send(profile)
+            case .failure:
+                // Keep last known value; optionally send nil
+                break
+            }
+            isLoadingSubject.send(false)
+        }
     }
 
     func setUser(firstName: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        isLoadingSubject.send(true)
         Task {
             do {
                 try await UserProfileMockAPI.setUser(firstName: firstName)
-                await task.asyncExecute(forceUpdate: true)
-                completion(.success(()))
+                let result = await task.asyncExecute(forceUpdate: true)
+                switch result {
+                case .success(let profile):
+                    userProfileSubject.send(profile)
+                    completion(.success(()))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
             } catch {
                 completion(.failure(error))
             }
+            isLoadingSubject.send(false)
         }
     }
 
     func setUser(age: Int, completion: @escaping (Result<Void, Error>) -> Void) {
+        isLoadingSubject.send(true)
         Task {
             do {
                 try await UserProfileMockAPI.setUser(age: age)
-                await task.asyncExecute(forceUpdate: true)
-                completion(.success(()))
+                let result = await task.asyncExecute(forceUpdate: true)
+                switch result {
+                case .success(let profile):
+                    userProfileSubject.send(profile)
+                    completion(.success(()))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
             } catch {
                 completion(.failure(error))
             }
+            isLoadingSubject.send(false)
         }
     }
     
     func didLogout() {
         task.clearResult(ongoingExecutionStrategy: .cancel, shouldRestartWhenIDLE: false)
+        userProfileSubject.send(nil)
+        isLoadingSubject.send(false)
     }
 }

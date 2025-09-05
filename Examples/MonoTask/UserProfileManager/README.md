@@ -4,7 +4,7 @@
 
 # UserProfile Manager Example
 
-An example demonstrating how to manage a single user's profile using `MonoTask`—with execution merging, TTL caching, and post-mutation refresh via forced execution. It exposes Combine publishers for `userProfile` and `isLoading` to drive UI state.
+An example demonstrating how to manage a single user's profile using `MonoTask`—with execution merging, TTL caching, and post-mutation refresh via forced execution.
 
 ## 1. How to Run This Example
 
@@ -64,9 +64,6 @@ enum UserProfileMockAPI {
 
 Wraps `MonoTask<UserProfile>` to manage a single cached profile with `resultExpireDuration = 3600` seconds.
 
-- **Publishers**:
-  - `userProfile: AnyPublisher<UserProfile?, Never>` — emits cached/fetched profile
-  - `isLoading: AnyPublisher<Bool, Never>` — emits execution state
 - **Public API**:
   - `didLogin()` — pre-warm cache (forceUpdate=false)
   - `setUser(firstName:)` — set nickname, then `forceUpdate=true` to refresh
@@ -75,18 +72,23 @@ Wraps `MonoTask<UserProfile>` to manage a single cached profile with `resultExpi
 
 ### 2.4 Usage (in main)
 
-`main.swift` subscribes to both publishers and prints state transitions to demonstrate the flow.
+`main.swift` demonstrates the flow by calling various methods and logging the results.
 
 ```swift
 let manager = UserProfileManager()
-let userProfileHandler = manager.userProfile.sink { print("update userProfile: \($0 as Any)") }
-let isLoadingHandler = manager.isLoading.sink { print("isLoading: \($0)") }
 
 print("trigger: didLogin")
 manager.didLogin()
 
-print("trigger set fistName: Alicia")
-manager.setUser(firstName: "Alicia") { /* ... */ }
+print("trigger set firstName: Alicia")
+manager.setUser(firstName: "Alicia") { result in
+    switch result {
+    case .success:
+        print("Did set firstName: Alicia")
+    case .failure(let error):
+        print("Failed to set firstName: \(error)")
+    }
+}
 ```
 
 ## 3. Key Behavior & Logs
@@ -96,7 +98,7 @@ manager.setUser(firstName: "Alicia") { /* ... */ }
 - **Execution Merging**: multiple concurrent reads merge into one execution.
 - **TTL Caching**: profile is cached for 1 hour.
 - **Forced Refresh**: since setters return `Void`, a fresh execution updates the cached profile.
-- **State Exposure**: UI can subscribe to `userProfile` and `isLoading` for updates.
+- **State Management**: Direct method calls with completion handlers for async operations.
 
 ### 3.2 Sample Logs
 
@@ -125,7 +127,7 @@ Program ended with exit code: 0
 
 - **UserProfileManager**: Data/state layer that wraps `MonoTask` and the mock API.
 - **Domain Layer**: Define a protocol if needed for DI and testing.
-- **Presentation Layer**: UI/ViewModels subscribe to the two publishers.
+- **Presentation Layer**: UI/ViewModels call manager methods and handle completion callbacks.
 
 ## 5. Implementation Details
 
@@ -134,10 +136,10 @@ Program ended with exit code: 0
 - `Sources/UserProfileManager/UserProfile.swift` — domain model
 - `Sources/UserProfileManager/UserProfileMockAPI.swift` — mocked data source
 - `Sources/UserProfileManager/UserProfileManager.swift` — manager wrapping `MonoTask`
-- `Sources/UserProfileManager/main.swift` — publishers demo
+- `Sources/UserProfileManager/main.swift` — method calls demo
 
 ### Key Implementation Points
 - `MonoTask<UserProfile>` with `resultExpireDuration = 3600` (1h TTL)
 - Post-mutation refresh via `asyncExecute(forceUpdate: true)` keeping one-call-one-callback
-- Combine publishers expose `result` and `isExecuting` as `userProfile` and `isLoading`
+- Direct method calls with completion handlers for async operations
 - Deterministic mock data for repeatable runs

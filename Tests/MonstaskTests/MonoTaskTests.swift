@@ -962,7 +962,7 @@ final class MonoTaskTests: XCTestCase {
         ) { callback in
             Task {
                 await counter.increment()
-                try? await Task.sleep(nanoseconds: 1_000_000_000) // 100ms
+                try? await Task.sleep(nanoseconds: 10_000_000_000) // 10s
                 callback(.success("memory_test"))
             }
         }

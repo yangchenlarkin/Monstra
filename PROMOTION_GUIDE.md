@@ -71,7 +71,7 @@ Never lose data due to temporary network issues!
 (5/6) 📦 Easy integration:
 
 Swift Package Manager:
-.package(url: "https://github.com/yangchenlarkin/Monstra.git", from: "1.0.0")
+.package(url: "https://github.com/yangchenlarkin/Monstra.git", from: "0.0.9")
 
 CocoaPods:
 pod 'Monstra'

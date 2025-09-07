@@ -4,6 +4,10 @@ on:
   push:
     branches: [develop]
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   # Job 1: MonstraBase Coverage
   test-monstra-base:

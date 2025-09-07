@@ -5,6 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: write
 
@@ -18,16 +22,20 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Install Ruby and Jazzy
+    - name: Setup Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+
+    - name: Install Jazzy
       run: |
-        brew install ruby
-        export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
         gem install jazzy
+        which jazzy
+        jazzy --version
         
     - name: Generate Documentation
-      run: |
-        export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
-        bash Scripts/generate-docs.sh
+      run: bash Scripts/generate-docs.sh
         
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3

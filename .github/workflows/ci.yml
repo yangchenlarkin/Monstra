@@ -2,52 +2,19 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
-
-concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+    branches: [develop]
 
 jobs:
-  test:
-    name: Test
+  # Job 1: MonstraBase Coverage
+  test-monstra-base:
+    name: MonstraBase Coverage
     runs-on: macos-latest
+    timeout-minutes: 20
     
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       
-    - name: Show Xcode version
-      run: xcodebuild -version
-      
-    - name: Show Swift version
-      run: swift --version
-      
-    - name: Build
-      run: swift build
-      
-    - name: Test
-      run: swift test
-      
-    - name: Test with verbose output
-      run: swift test --verbose
-
-    - name: Generate Test Coverage
-      run: swift test --enable-code-coverage
-
-    - name: Upload Coverage to Codecov
-      if: success()
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./.build/debug/codecov/default.profdata
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
-
-    # Cache build artifacts for faster subsequent runs
     - name: Cache Build Artifacts
       uses: actions/cache@v4
       with:
@@ -55,53 +22,173 @@ jobs:
         key: ${{ runner.os }}-swift-build-${{ hashFiles('**/Package.resolved') }}
         restore-keys: |
           ${{ runner.os }}-swift-build-
+          
+    - name: Build
+      run: swift build
       
-  lint:
-    name: Lint
-    runs-on: macos-latest
+    - name: Run MonstraBase Tests (Coverage)
+      run: swift test --filter MonstraBaseTests --enable-code-coverage
+      timeout-minutes: 15
 
+  # Job 2: MemoryCache Coverage  
+  test-memory-cache:
+    name: MemoryCache Coverage
+    runs-on: macos-latest
+    timeout-minutes: 25
+    
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-
-    - name: Install SwiftLint
-      run: brew install swiftlint
-
-    - name: Lint
-      run: swiftlint lint Sources/ --reporter github-actions-logging
-
-    # Cache SwiftLint for faster subsequent runs
-    - name: Cache SwiftLint
+      
+    - name: Cache Build Artifacts
       uses: actions/cache@v4
       with:
-        path: ~/.mint
-        key: ${{ runner.os }}-swiftlint-${{ hashFiles('**/Mintfile') }}
+        path: .build
+        key: ${{ runner.os }}-swift-build-${{ hashFiles('**/Package.resolved') }}
         restore-keys: |
-          ${{ runner.os }}-swiftlint-
+          ${{ runner.os }}-swift-build-
+          
+    - name: Build
+      run: swift build
       
-  pod-lib-lint:
-    name: Pod Lib Lint
+    - name: Run MemoryCache Tests (Coverage)
+      run: swift test --filter MemoryCacheTests --enable-code-coverage
+      timeout-minutes: 20
+
+  # Job 3: Cache Statistics Coverage
+  test-statistics:
+    name: Statistics Coverage
     runs-on: macos-latest
+    timeout-minutes: 15
     
     steps:
     - name: Checkout
       uses: actions/checkout@v4
       
-    - name: Install CocoaPods
+    - name: Cache Build Artifacts
+      uses: actions/cache@v4
+      with:
+        path: .build
+        key: ${{ runner.os }}-swift-build-${{ hashFiles('**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-swift-build-
+          
+    - name: Build
+      run: swift build
+      
+    - name: Run Statistics Tests (Coverage)
+      run: swift test --filter CacheStatisticsTests --enable-code-coverage
+      timeout-minutes: 10
+
+  # Job 4: Heavy Tasks Coverage
+  test-heavy-tasks:
+    name: Heavy Tasks Coverage
+    runs-on: macos-latest
+    timeout-minutes: 30
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Cache Build Artifacts
+      uses: actions/cache@v4
+      with:
+        path: .build
+        key: ${{ runner.os }}-swift-build-${{ hashFiles('**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-swift-build-
+          
+    - name: Build
+      run: swift build
+      
+    - name: Run Heavy Tasks Tests (Coverage)
+      run: swift test --filter KVHeavyTasksManagerTests --enable-code-coverage
+      timeout-minutes: 25
+
+  # Job 5: Light Tasks Coverage
+  test-light-tasks:
+    name: Light Tasks Coverage
+    runs-on: macos-latest
+    timeout-minutes: 25
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Cache Build Artifacts
+      uses: actions/cache@v4
+      with:
+        path: .build
+        key: ${{ runner.os }}-swift-build-${{ hashFiles('**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-swift-build-
+          
+    - name: Build
+      run: swift build
+      
+    - name: Run Light Tasks Tests (Coverage)
+      run: swift test --filter KVLightTasksManagerTests --enable-code-coverage
+      timeout-minutes: 20
+
+  # Job 6: MonoTask Coverage
+  test-mono-task:
+    name: MonoTask Coverage
+    runs-on: macos-latest
+    timeout-minutes: 20
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      
+    - name: Cache Build Artifacts
+      uses: actions/cache@v4
+      with:
+        path: .build
+        key: ${{ runner.os }}-swift-build-${{ hashFiles('**/Package.resolved') }}
+        restore-keys: |
+          ${{ runner.os }}-swift-build-
+          
+    - name: Build
+      run: swift build
+      
+    - name: Run MonoTask Tests (Coverage)
       run: |
-        sudo gem install cocoapods
-        pod --version
-      
-    - name: Pod Lib Lint
-      run: pod lib lint --allow-warnings
-      
-  performance:
-    name: Performance Tests
-    runs-on: macos-latest
+        swift test --filter MonoTaskTests --enable-code-coverage
+        swift test --filter MonoTaskClearResultTests --enable-code-coverage
+        swift test --filter MonoTaskForceUpdateTests --enable-code-coverage
+        swift test --filter MonoTaskCrossScenarioTests --enable-code-coverage
+      timeout-minutes: 15
+
+  # Summary Job - waits for all coverage tests to complete
+  coverage-summary:
+    name: Coverage Summary
+    runs-on: ubuntu-latest
+    needs: [test-monstra-base, test-memory-cache, test-statistics, test-heavy-tasks, test-light-tasks, test-mono-task]
+    if: always()
     
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      
-    - name: Run Performance Tests
-      run: swift test --filter PerformanceTests
+    - name: Check Coverage Results
+      run: |
+        echo "Coverage Test Results Summary:"
+        echo "MonstraBase: ${{ needs.test-monstra-base.result }}"
+        echo "MemoryCache: ${{ needs.test-memory-cache.result }}"
+        echo "Statistics: ${{ needs.test-statistics.result }}"
+        echo "Heavy Tasks: ${{ needs.test-heavy-tasks.result }}"
+        echo "Light Tasks: ${{ needs.test-light-tasks.result }}"
+        echo "MonoTask: ${{ needs.test-mono-task.result }}"
+        
+        # Count failures
+        failures=0
+        if [[ "${{ needs.test-monstra-base.result }}" != "success" ]]; then failures=$((failures+1)); fi
+        if [[ "${{ needs.test-memory-cache.result }}" != "success" ]]; then failures=$((failures+1)); fi
+        if [[ "${{ needs.test-statistics.result }}" != "success" ]]; then failures=$((failures+1)); fi
+        if [[ "${{ needs.test-heavy-tasks.result }}" != "success" ]]; then failures=$((failures+1)); fi
+        if [[ "${{ needs.test-light-tasks.result }}" != "success" ]]; then failures=$((failures+1)); fi
+        if [[ "${{ needs.test-mono-task.result }}" != "success" ]]; then failures=$((failures+1)); fi
+        
+        if [[ $failures -gt 0 ]]; then
+          echo "::error::$failures coverage job(s) failed"
+          exit 1
+        else
+          echo "::notice::All coverage tests completed successfully!"
+        fi

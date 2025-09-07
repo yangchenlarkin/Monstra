@@ -2,8 +2,7 @@ name: Docs
 
 on:
   push:
-    branches: [ main ]
-    tags: [ 'v*' ]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -13,35 +12,33 @@ jobs:
   build-and-deploy:
     name: Build and Deploy API Docs
     runs-on: macos-latest
+    timeout-minutes: 15
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Show Environment
+    - name: Install Ruby and Jazzy
       run: |
-        xcodebuild -version
-        swift --version
-
-    - name: Install Jazzy
+        brew install ruby
+        export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+        gem install jazzy
+        
+    - name: Generate Documentation
       run: |
-        sudo gem install jazzy --no-document
-        jazzy --version
-
-    - name: Generate Docs
-      run: bash Scripts/generate-docs.sh
-
-    - name: Upload Docs Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: api-docs
-        path: docs
-
+        export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+        bash Scripts/generate-docs.sh
+        
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./docs
-        publish_branch: gh-pages
         force_orphan: true
-
+        
+    - name: Upload Documentation Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: documentation-${{ github.sha }}
+        path: docs/
+        retention-days: 30

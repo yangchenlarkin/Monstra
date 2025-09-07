@@ -2,13 +2,14 @@ name: Scheduled Tests Dev
 
 on:
   schedule:
-    - cron: '*/10 * * * *'
+    - cron: '*/15 * * * *'  # Every 15 minutes
   workflow_dispatch: # Allow manual triggering
 
 jobs:
-  scheduled-test:
-    name: Scheduled Test Run
+  scheduled-test-dev:
+    name: Scheduled Dev Test Run
     runs-on: macos-latest
+    timeout-minutes: 15
     if: github.ref == 'refs/heads/develop'
     
     steps:
@@ -17,8 +18,9 @@ jobs:
       
     - name: Show Environment Info
       run: |
-        echo "Scheduled test run at: $(date)"
+        echo "Scheduled dev test run at: $(date)"
         echo "Runner OS: ${{ runner.os }}"
+        echo "Branch: ${{ github.ref }}"
         xcodebuild -version
         swift --version
       
@@ -33,27 +35,26 @@ jobs:
     - name: Build
       run: swift build
       
-    - name: Run All Tests
+    - name: Run All Tests (Fast)
       run: swift test --parallel
       
-    - name: Run Force Update Tests (Critical)
-      run: swift test --filter MonoTaskForceUpdateTests
-      
-    - name: Generate Test Coverage
-      run: swift test --enable-code-coverage
+    - name: Run Critical Tests (Extra Check)
+      run: |
+        swift test --filter MonoTaskForceUpdateTests
+        swift test --filter MemoryCacheTests.testNegativeCapacity
       
     - name: Upload Test Results on Failure
       if: failure()
       uses: actions/upload-artifact@v4
       with:
-        name: test-failure-logs-${{ github.run_number }}
+        name: dev-test-failure-${{ github.run_number }}
         path: |
           .build/debug/
           *.log
-        retention-days: 7
+        retention-days: 3
         
     - name: Notify on Failure
       if: failure()
       run: |
-        echo "::warning::Scheduled test run failed at $(date)"
-        echo "::error::Critical test failure detected in scheduled run"
+        echo "::warning::Scheduled dev test run failed at $(date)"
+        echo "::error::Critical test failure detected in dev scheduled run"

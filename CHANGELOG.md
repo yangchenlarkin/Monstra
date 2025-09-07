@@ -7,15 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- Enhanced README with comprehensive documentation
-- Added CocoaPods support with podspec
-- Created CONTRIBUTING.md guidelines
-- Added MonoTask usage examples
+## [0.1.0] - 2025-01-27
 
-### Changed
-- Improved callback queue handling in MonoTask
-- Enhanced test coverage and reliability
+### 🚀 Major Milestone: First Minor Release
+
+### Added
+- **Comprehensive Documentation**: Complete API documentation with Jazzy
+- **Security Policy**: Added SECURITY.md with vulnerability reporting guidelines
+- **Promotion Framework**: Swift Package Index submission and awesome-swift PR
+- **CI/CD Optimization**: Split test coverage across parallel jobs for reliability
+- **Release Workflow**: Professional release process with comprehensive checklists
+- **Community Ready**: GitHub repository optimized for discoverability
+
+### Enhanced
+- **README Documentation**: Comprehensive examples and usage guides
+- **CocoaPods Integration**: Full podspec with proper configuration
+- **Test Coverage**: Maintained 99%+ coverage with improved reliability
+- **Cross-Platform Support**: Verified iOS, macOS, tvOS, watchOS compatibility
+- **Performance**: Optimized task execution and memory management
+
+### Fixed
+- **CI Reliability**: Resolved timeout issues with parallel test execution
+- **Memory Management**: Fixed strong capture issues in MonoTask
+- **Documentation Links**: All internal and external links verified
+- **Version Consistency**: Synchronized versions across all project files
+
+### Community
+- **Swift Package Index**: Submitted for automatic discovery
+- **awesome-swift**: PR submitted for community visibility
+- **GitHub Optimization**: Enhanced repository with topics and social preview
 
 ## [0.0.9] - 2025-09-04
 

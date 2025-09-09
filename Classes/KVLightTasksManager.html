@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>KVLightTasksManager Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Class/KVLightTasksManager" class="dashAnchor"></a>
+    <a title="KVLightTasksManager Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">Monstra 0.0.9 Docs</a> (100% documented)</p>
+        <p class="header-right"><a href="https://github.com/yangchenlarkin/Monstra"><img src="../img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">Monstra</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        <a href="../Classes.html">Classes</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        KVLightTasksManager Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink.html">DoublyLink</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink/EvictedStrategy.html">– EvictedStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink/Node.html">– Node</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/HashQueue.html">HashQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap.html">Heap</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap/Event.html">– Event</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap/ComparisonResult.html">– ComparisonResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTaskBaseDataProvider.html">KVHeavyTaskBaseDataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager.html">KVHeavyTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager.html">KVLightTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/DataProvider.html">– DataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache.html">MemoryCache</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache/Configuration.html">– Configuration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache/FetchResult.html">– FetchResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask.html">MonoTask</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask/OngoingExecutionStrategy.html">– OngoingExecutionStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/PriorityLRUQueue.html">PriorityLRUQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/TTLPriorityLRUQueue.html">TTLPriorityLRUQueue</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/CacheRecord.html">CacheRecord</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/KVHeavyTaskDataProviderStopAction.html">KVHeavyTaskDataProviderStopAction</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/RetryCount.html">RetryCount</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/RetryCount/IntervalProxy.html">– IntervalProxy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/CPUTimeStamp.html">CPUTimeStamp</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CacheStatistics.html">CacheStatistics</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/MemoryUsageLimitation.html">MemoryUsageLimitation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/TracingIDFactory.html">TracingIDFactory</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>KVLightTasksManager</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">KVLightTasksManager</span><span class="o">&lt;</span><span class="kt">K</span><span class="p">,</span> <span class="kt">Element</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">K</span> <span class="p">:</span> <span class="kt">Hashable</span></code></pre>
+
+                </div>
+              </div>
+            <p>A lightweight key-value tasks manager that integrates a cache and configurable providers.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC12DataProviderO"></a>
+                    <a name="//apple_ref/swift/Enum/DataProvider" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC12DataProviderO">DataProvider</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Data provider styles for single and batch fetching.</p>
+
+                        <a href="../Classes/KVLightTasksManager/DataProvider.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">enum</span> <span class="kt">DataProvider</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC6ConfigV"></a>
+                    <a name="//apple_ref/swift/Struct/Config" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC6ConfigV">Config</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Configuration for queue sizing, priority, retries, and cache policy.</p>
+
+                        <a href="../Classes/KVLightTasksManager/Config.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">Config</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC14ResultCallbacka"></a>
+                    <a name="//apple_ref/swift/Alias/ResultCallback" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC14ResultCallbacka">ResultCallback</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Callback delivering the result for a single key.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">typealias</span> <span class="kt">ResultCallback</span> <span class="o">=</span> <span class="p">(</span><span class="kt">K</span><span class="p">,</span> <span class="kt">Result</span><span class="o">&lt;</span><span class="kt">Element</span><span class="p">?,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC19BatchResultCallbacka"></a>
+                    <a name="//apple_ref/swift/Alias/BatchResultCallback" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC19BatchResultCallbacka">BatchResultCallback</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Callback delivering results for a batch of keys.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">typealias</span> <span class="kt">BatchResultCallback</span> <span class="o">=</span> <span class="p">([(</span><span class="kt">K</span><span class="p">,</span> <span class="kt">Result</span><span class="o">&lt;</span><span class="kt">Element</span><span class="p">?,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)])</span> <span class="o">-&gt;</span> <span class="kt">Void</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC6configACyxq_GAC6ConfigVyxq__G_tcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(config:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC6configACyxq_GAC6ConfigVyxq__G_tcfc">init(config:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Creates a manager using a prepared configuration.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">convenience</span> <span class="nf">init</span><span class="p">(</span><span class="nv">config</span><span class="p">:</span> <span class="kt"><a href="../Classes/KVLightTasksManager/Config.html">Config</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC12dataProviderACyxq_GAC04DataF0Oyxq__G_tcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(dataProvider:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC12dataProviderACyxq_GAC04DataF0Oyxq__G_tcfc">init(dataProvider:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Creates a manager from a provider with default configuration values.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">convenience</span> <span class="nf">init</span><span class="p">(</span><span class="nv">dataProvider</span><span class="p">:</span> <span class="kt"><a href="../Classes/KVLightTasksManager/DataProvider.html">DataProvider</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerCyACyxq_Gyx_ys6ResultOyq_Sgs5Error_pGctccfc"></a>
+                    <a name="//apple_ref/swift/Method/init(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerCyACyxq_Gyx_ys6ResultOyq_Sgs5Error_pGctccfc">init(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initializes using a callback-based single-key provider.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">convenience</span> <span class="nf">init</span><span class="p">(</span><span class="n">_</span> <span class="nv">provide</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/KVLightTasksManager/DataProvider.html">DataProvider</a></span><span class="o">.</span><span class="kt">Monoprovide</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerCyACyxq_Gq_SgxYaKccfc"></a>
+                    <a name="//apple_ref/swift/Method/init(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerCyACyxq_Gq_SgxYaKccfc">init(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initializes using an async/await single-key provider.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">convenience</span> <span class="nf">init</span><span class="p">(</span><span class="n">_</span> <span class="nv">provide</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/KVLightTasksManager/DataProvider.html">DataProvider</a></span><span class="o">.</span><span class="kt">AsyncMonoprovide</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerCyACyxq_Gq_SgxKccfc"></a>
+                    <a name="//apple_ref/swift/Method/init(_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerCyACyxq_Gq_SgxKccfc">init(_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initializes using a synchronous single-key provider.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">convenience</span> <span class="nf">init</span><span class="p">(</span><span class="n">_</span> <span class="nv">provide</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/KVLightTasksManager/DataProvider.html">DataProvider</a></span><span class="o">.</span><span class="kt">SyncMonoprovide</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC17maximumBatchCount_ACyxq_GSu_ySayxG_ys6ResultOySDyxq_SgGs5Error_pGctctcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(maximumBatchCount:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC17maximumBatchCount_ACyxq_GSu_ySayxG_ys6ResultOySDyxq_SgGs5Error_pGctctcfc">init(maximumBatchCount:<wbr>_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initializes using a callback-based multi-key provider with optional batching.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">convenience</span> <span class="nf">init</span><span class="p">(</span><span class="nv">maximumBatchCount</span><span class="p">:</span> <span class="kt">UInt</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">_</span> <span class="nv">provide</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/KVLightTasksManager/DataProvider.html">DataProvider</a></span><span class="o">.</span><span class="kt">Multiprovide</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC17maximumBatchCount_ACyxq_GSu_SDyxq_SgGSayxGYaKctcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(maximumBatchCount:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC17maximumBatchCount_ACyxq_GSu_SDyxq_SgGSayxGYaKctcfc">init(maximumBatchCount:<wbr>_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initializes using an async/await multi-key provider with optional batching.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">convenience</span> <span class="nf">init</span><span class="p">(</span><span class="nv">maximumBatchCount</span><span class="p">:</span> <span class="kt">UInt</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">_</span> <span class="nv">provide</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/KVLightTasksManager/DataProvider.html">DataProvider</a></span><span class="o">.</span><span class="kt">AsyncMultiprovide</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC17maximumBatchCount_ACyxq_GSu_SDyxq_SgGSayxGKctcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(maximumBatchCount:_:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC17maximumBatchCount_ACyxq_GSu_SDyxq_SgGSayxGKctcfc">init(maximumBatchCount:<wbr>_:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initializes using a synchronous multi-key provider with optional batching.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">convenience</span> <span class="nf">init</span><span class="p">(</span><span class="nv">maximumBatchCount</span><span class="p">:</span> <span class="kt">UInt</span> <span class="o">=</span> <span class="mi">20</span><span class="p">,</span> <span class="n">_</span> <span class="nv">provide</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/KVLightTasksManager/DataProvider.html">DataProvider</a></span><span class="o">.</span><span class="kt">SyncMultiprovide</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC6ErrorsO"></a>
+                    <a name="//apple_ref/swift/Enum/Errors" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC6ErrorsO">Errors</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Errors specific to <code><a href="../Classes/KVLightTasksManager.html">KVLightTasksManager</a></code>.</p>
+
+                        <a href="../Classes/KVLightTasksManager/Errors.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">enum</span> <span class="kt">Errors</span> <span class="p">:</span> <span class="kt">Error</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC5fetch3key10completionyx_yx_s6ResultOyq_Sgs5Error_pGtctF"></a>
+                    <a name="//apple_ref/swift/Method/fetch(key:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC5fetch3key10completionyx_yx_s6ResultOyq_Sgs5Error_pGtctF">fetch(key:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Fetches a single key and returns the result via callback.</p>
+
+<p>This method automatically handles cache validation and ignores invalid keys
+as indicated by the cache configuration&rsquo;s keyValidator. Invalid keys will
+return nil without triggering any network requests.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">fetch</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="kt">K</span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/KVLightTasksManager.html#/s:7Monstra19KVLightTasksManagerC14ResultCallbacka">ResultCallback</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>key</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The key to fetch</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Callback that receives the result for the key</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC5fetch4keys10completionySayxG_yx_s6ResultOyq_Sgs5Error_pGtctF"></a>
+                    <a name="//apple_ref/swift/Method/fetch(keys:completion:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC5fetch4keys10completionySayxG_yx_s6ResultOyq_Sgs5Error_pGtctF">fetch(keys:<wbr>completion:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Fetches multiple keys and returns results via callback for each key.</p>
+
+<p>This method automatically handles cache validation and ignores invalid keys
+as indicated by the cache configuration&rsquo;s keyValidator. Invalid keys will
+return nil without triggering any network requests.</p>
+
+<p><strong>Important</strong>: This method guarantees that the completion callback will be called
+exactly once for each key in the input array, regardless of whether the key
+is found in cache or requires remote fetching. For example, if you pass 5 keys,
+the completion callback will be called exactly 5 times, once for each key.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">fetch</span><span class="p">(</span><span class="nv">keys</span><span class="p">:</span> <span class="p">[</span><span class="kt">K</span><span class="p">],</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/KVLightTasksManager.html#/s:7Monstra19KVLightTasksManagerC14ResultCallbacka">ResultCallback</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>keys</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Array of keys to fetch</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completion</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Callback that receives results for each key (called once per key)</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC5fetch4keys13multiCallbackySayxG_ySayx_s6ResultOyq_Sgs5Error_pGtGctF"></a>
+                    <a name="//apple_ref/swift/Method/fetch(keys:multiCallback:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC5fetch4keys13multiCallbackySayxG_ySayx_s6ResultOyq_Sgs5Error_pGtGctF">fetch(keys:<wbr>multiCallback:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Fetches multiple keys and returns results via batch callback.</p>
+
+<p>This method automatically handles cache validation and ignores invalid keys
+as indicated by the cache configuration&rsquo;s keyValidator. Invalid keys will
+return nil without triggering any network requests.</p>
+
+<p><strong>Important</strong>: This method guarantees that the batch callback will be called
+exactly once with all results, regardless of whether keys are found in cache
+or require remote fetching. The callback receives an array of (key, result) tuples.</p>
+
+<p><strong>Note</strong>: Duplicate keys in the input array are handled by deduplication at the
+unique key level, ensuring each unique key is fetched only once while still
+providing results for all input keys including duplicates.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">fetch</span><span class="p">(</span><span class="nv">keys</span><span class="p">:</span> <span class="p">[</span><span class="kt">K</span><span class="p">],</span> <span class="nv">multiCallback</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/KVLightTasksManager.html#/s:7Monstra19KVLightTasksManagerC19BatchResultCallbacka">BatchResultCallback</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>keys</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Array of keys to fetch (duplicates are allowed)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>multiCallback</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Batch callback that receives all results at once</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC10asyncFetch4keysSayx_s6ResultOyq_Sgs5Error_pGtGSayxG_tYaF"></a>
+                    <a name="//apple_ref/swift/Method/asyncFetch(keys:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC10asyncFetch4keysSayx_s6ResultOyq_Sgs5Error_pGtGSayxG_tYaF">asyncFetch(keys:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Fetches multiple keys and returns results asynchronously.</p>
+
+<p>This method automatically handles cache validation and ignores invalid keys
+as indicated by the cache configuration&rsquo;s keyValidator. Invalid keys will
+return nil without triggering any network requests.</p>
+
+<p><strong>Important</strong>: This method guarantees that results will be returned for each key
+in the input array, regardless of whether the key is found in cache or requires
+remote fetching. For example, if you pass 5 keys, you will receive exactly 5 results.</p>
+
+<p><strong>Note</strong>: Duplicate keys in the input array are handled by deduplication at the
+unique key level, ensuring each unique key is fetched only once while still
+providing results for all input keys including duplicates.</p>
+
+<p>This is the async/await version of the batch callback-based <code><a href="../Classes/KVLightTasksManager.html#/s:7Monstra19KVLightTasksManagerC5fetch4keys13multiCallbackySayxG_ySayx_s6ResultOyq_Sgs5Error_pGtGctF">fetch(keys:multiCallback:)</a></code> method.
+It provides a more modern Swift concurrency interface for batch key fetching.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">asyncFetch</span><span class="p">(</span><span class="nv">keys</span><span class="p">:</span> <span class="p">[</span><span class="kt">K</span><span class="p">])</span> <span class="k">async</span> <span class="o">-&gt;</span> <span class="p">[(</span><span class="kt">K</span><span class="p">,</span> <span class="kt">Result</span><span class="o">&lt;</span><span class="kt">Element</span><span class="p">?,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)]</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>keys</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Array of keys to fetch (duplicates are allowed)</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>Array of tuples containing (key, result) pairs</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC18asyncFetchThrowing3keyq_Sgx_tYaKF"></a>
+                    <a name="//apple_ref/swift/Method/asyncFetchThrowing(key:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC18asyncFetchThrowing3keyq_Sgx_tYaKF">asyncFetchThrowing(key:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Fetches a single key and returns the result asynchronously.</p>
+
+<p>This method automatically handles cache validation and ignores invalid keys
+as indicated by the cache configuration&rsquo;s keyValidator. Invalid keys will
+return nil without triggering any network requests.</p>
+
+<p>This is the async/await version of the callback-based <code><a href="../Classes/KVLightTasksManager.html#/s:7Monstra19KVLightTasksManagerC5fetch3key10completionyx_yx_s6ResultOyq_Sgs5Error_pGtctF">fetch(key:completion:)</a></code> method.
+It provides a more modern Swift concurrency interface for single key fetching.</p>
+<div class="aside aside-throws">
+    <p class="aside-title">Throws</p>
+    Any error that occurs during the fetch operation
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">asyncFetchThrowing</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="kt">K</span><span class="p">)</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Element</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>key</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The key to fetch</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The fetched element, or nil if not found or invalid</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC10asyncFetch3keys6ResultOyq_Sgs5Error_pGx_tYaF"></a>
+                    <a name="//apple_ref/swift/Method/asyncFetch(key:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC10asyncFetch3keys6ResultOyq_Sgs5Error_pGx_tYaF">asyncFetch(key:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Fetches a single key and returns the result asynchronously.</p>
+
+<p>This method automatically handles cache validation and ignores invalid keys
+as indicated by the cache configuration&rsquo;s keyValidator. Invalid keys will
+return nil without triggering any network requests.</p>
+
+<p>This is the async/await version of the callback-based <code><a href="../Classes/KVLightTasksManager.html#/s:7Monstra19KVLightTasksManagerC5fetch3key10completionyx_yx_s6ResultOyq_Sgs5Error_pGtctF">fetch(key:completion:)</a></code> method.
+It provides a more modern Swift concurrency interface for single key fetching.
+Unlike <code>asyncFetchThrowing</code>, this method returns a <code>Result</code> type that encapsulates
+both success and failure cases, allowing for more flexible error handling.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">asyncFetch</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="kt">K</span><span class="p">)</span> <span class="k">async</span> <span class="o">-&gt;</span> <span class="kt">Result</span><span class="o">&lt;</span><span class="kt">Element</span><span class="p">?,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>key</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The key to fetch</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>A Result containing the fetched element or an error</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2025 <a class="link" href="mailto:yangchenlarkin@gmail.com" target="_blank" rel="external noopener">Larkin</a>. All rights reserved. (Last updated: 2025-09-09)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

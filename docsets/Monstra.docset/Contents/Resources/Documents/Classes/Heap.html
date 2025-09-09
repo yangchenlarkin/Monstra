@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Heap Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Class/Heap" class="dashAnchor"></a>
+    <a title="Heap Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">Monstra 0.0.9 Docs</a> (100% documented)</p>
+        <p class="header-right"><a href="https://github.com/yangchenlarkin/Monstra"><img src="../img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">Monstra</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        <a href="../Classes.html">Classes</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        Heap Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink.html">DoublyLink</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink/EvictedStrategy.html">– EvictedStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink/Node.html">– Node</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/HashQueue.html">HashQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap.html">Heap</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap/Event.html">– Event</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap/ComparisonResult.html">– ComparisonResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTaskBaseDataProvider.html">KVHeavyTaskBaseDataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager.html">KVHeavyTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager.html">KVLightTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/DataProvider.html">– DataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache.html">MemoryCache</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache/Configuration.html">– Configuration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache/FetchResult.html">– FetchResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask.html">MonoTask</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask/OngoingExecutionStrategy.html">– OngoingExecutionStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/PriorityLRUQueue.html">PriorityLRUQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/TTLPriorityLRUQueue.html">TTLPriorityLRUQueue</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/CacheRecord.html">CacheRecord</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/KVHeavyTaskDataProviderStopAction.html">KVHeavyTaskDataProviderStopAction</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/RetryCount.html">RetryCount</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/RetryCount/IntervalProxy.html">– IntervalProxy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/CPUTimeStamp.html">CPUTimeStamp</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CacheStatistics.html">CacheStatistics</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/MemoryUsageLimitation.html">MemoryUsageLimitation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/TracingIDFactory.html">TracingIDFactory</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>Heap</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">Heap</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span></code></pre>
+
+                </div>
+              </div>
+            <p>Heap: Generic priority queue with custom ordering and fixed capacity.</p>
+
+<p>Provides a binary-heap implementation backed by a Swift <code>Array</code>, supporting a caller-supplied
+comparison closure to define ordering. Offers convenience builders for min/max heaps when
+<code>Element: Comparable</code>.</p>
+
+<ul>
+<li><p>Features:</p>
+
+<ul>
+<li>Fixed logical capacity with optional force-insert semantics when full</li>
+<li>Event callbacks for insert/remove/move to track external indices</li>
+<li>O(log n) insertion and removal; O(1) root access</li>
+</ul></li>
+<li><p>Thread-safety: Not synchronized; guard with external synchronization when needed.</p></li>
+</ul>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra4HeapC7onEventyAC0D0Oyx_GcSgvp"></a>
+                    <a name="//apple_ref/swift/Property/onEvent" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra4HeapC7onEventyAC0D0Oyx_GcSgvp">onEvent</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Callback triggered on insert, remove, and index changes.</p>
+
+<p>Useful for synchronizing an external index stored alongside elements. The callback
+is invoked after structural mutations and moves.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">onEvent</span><span class="p">:</span> <span class="p">((</span><span class="kt"><a href="../Classes/Heap/Event.html">Event</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra4HeapC4rootxSgvp"></a>
+                    <a name="//apple_ref/swift/Property/root" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra4HeapC4rootxSgvp">root</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The root element (highest priority), or nil if heap is empty.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">root</span><span class="p">:</span> <span class="kt">Element</span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra4HeapC8elementsSayxGvp"></a>
+                    <a name="//apple_ref/swift/Property/elements" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra4HeapC8elementsSayxGvp">elements</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>All elements currently in the heap.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">elements</span><span class="p">:</span> <span class="p">[</span><span class="kt">Element</span><span class="p">]</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra4HeapC8capacity7compareACyxGSi_AC16ComparisonResultOyx_Gx_xtctcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(capacity:compare:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra4HeapC8capacity7compareACyxGSi_AC16ComparisonResultOyx_Gx_xtctcfc">init(capacity:<wbr>compare:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initializes a heap with given capacity and comparison strategy.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">required</span> <span class="nf">init</span><span class="p">(</span><span class="nv">capacity</span><span class="p">:</span> <span class="kt">Int</span><span class="p">,</span> <span class="nv">compare</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Element</span><span class="p">,</span> <span class="kt">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/Heap/ComparisonResult.html">ComparisonResult</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>capacity</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Maximum number of elements the heap can logically store. Negative values are treated as 0.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>compare</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Comparison function returning a <code><a href="../Classes/Heap/ComparisonResult.html">ComparisonResult</a></code> indicating relative priority.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Public%20Heap%20Operations"></a>
+                <a name="//apple_ref/swift/Section/Public Heap Operations" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Public%20Heap%20Operations"></a>
+                  <h3 class="section-name"><span>Public Heap Operations</span>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra4HeapC6insert_5forcexSgx_SbtF"></a>
+                    <a name="//apple_ref/swift/Method/insert(_:force:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra4HeapC6insert_5forcexSgx_SbtF">insert(_:<wbr>force:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Inserts an element.</p>
+
+<p>When the heap is not full, the element is appended then sifted to restore the heap property.
+When the heap is full, behavior depends on <code>force</code> and the comparison with the current root:</p>
+
+<ul>
+<li><code>force == false</code>: Only allows replacement when <code>compare(element, root) == .moreBottom</code> (lower priority
+than root); otherwise the insertion is rejected and the input <code>element</code> is returned.</li>
+<li><p><code>force == true</code>: Allows replacement unless <code>compare(element, root) == .moreTop</code> (higher priority than root);
+in that case the insertion is rejected and the input <code>element</code> is returned.</p></li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@discardableResult</span>
+<span class="kd">func</span> <span class="nf">insert</span><span class="p">(</span><span class="n">_</span> <span class="nv">element</span><span class="p">:</span> <span class="kt">Element</span><span class="p">,</span> <span class="nv">force</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Element</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>element</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Element to insert</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>force</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Force-insert semantics when heap is full (default: false)</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>Displaced root when a replacement occurs; the input element when rejected; otherwise nil</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra4HeapC6remove2atxSgSi_tF"></a>
+                    <a name="//apple_ref/swift/Method/remove(at:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra4HeapC6remove2atxSgSi_tF">remove(at:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Removes and returns an element at the specified index (default: root).</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@discardableResult</span>
+<span class="kd">func</span> <span class="nf">remove</span><span class="p">(</span><span class="n">at</span> <span class="nv">index</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Element</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>index</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Index of element to remove (defaults to root at index 0)</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>Removed element, or nil if index is invalid or heap is empty</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Event%20%26%20Comparison%20Enums"></a>
+                <a name="//apple_ref/swift/Section/Event &amp; Comparison Enums" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Event%20%26%20Comparison%20Enums"></a>
+                  <h3 class="section-name"><span>Event &amp; Comparison Enums</span>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra4HeapC5EventO"></a>
+                    <a name="//apple_ref/swift/Enum/Event" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra4HeapC5EventO">Event</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Heap event used for notifications.</p>
+
+                        <a href="../Classes/Heap/Event.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">enum</span> <span class="kt">Event</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra4HeapC16ComparisonResultO"></a>
+                    <a name="//apple_ref/swift/Enum/ComparisonResult" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra4HeapC16ComparisonResultO">ComparisonResult</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Relative priority between two elements.</p>
+
+                        <a href="../Classes/Heap/ComparisonResult.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">enum</span> <span class="kt">ComparisonResult</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Available%20where%20%60Element%60%3A%20%60Comparable%60"></a>
+                <a name="//apple_ref/swift/Section/Available where `Element`: `Comparable`" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Available%20where%20%60Element%60%3A%20%60Comparable%60"></a>
+                  <h3 class="section-name"><span>Available where <code>Element</code>: <code>Comparable</code></span>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra4HeapCAASLRzlE03maxB08capacityACyxGXDSi_tFZ"></a>
+                    <a name="//apple_ref/swift/Method/maxHeap(capacity:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra4HeapCAASLRzlE03maxB08capacityACyxGXDSi_tFZ">maxHeap(capacity:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns a max heap (largest elements at root).</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">func</span> <span class="nf">maxHeap</span><span class="p">(</span><span class="nv">capacity</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">Self</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra4HeapCAASLRzlE03minB08capacityACyxGXDSi_tFZ"></a>
+                    <a name="//apple_ref/swift/Method/minHeap(capacity:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra4HeapCAASLRzlE03minB08capacityACyxGXDSi_tFZ">minHeap(capacity:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns a min heap (smallest elements at root).</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">static</span> <span class="kd">func</span> <span class="nf">minHeap</span><span class="p">(</span><span class="nv">capacity</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">Self</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2025 <a class="link" href="mailto:yangchenlarkin@gmail.com" target="_blank" rel="external noopener">Larkin</a>. All rights reserved. (Last updated: 2025-09-09)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

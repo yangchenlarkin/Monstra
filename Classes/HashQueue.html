@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>HashQueue Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Class/HashQueue" class="dashAnchor"></a>
+    <a title="HashQueue Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">Monstra 0.0.9 Docs</a> (100% documented)</p>
+        <p class="header-right"><a href="https://github.com/yangchenlarkin/Monstra"><img src="../img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">Monstra</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        <a href="../Classes.html">Classes</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        HashQueue Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink.html">DoublyLink</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink/EvictedStrategy.html">– EvictedStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink/Node.html">– Node</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/HashQueue.html">HashQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap.html">Heap</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap/Event.html">– Event</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap/ComparisonResult.html">– ComparisonResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTaskBaseDataProvider.html">KVHeavyTaskBaseDataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager.html">KVHeavyTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager.html">KVLightTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/DataProvider.html">– DataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache.html">MemoryCache</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache/Configuration.html">– Configuration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache/FetchResult.html">– FetchResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask.html">MonoTask</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask/OngoingExecutionStrategy.html">– OngoingExecutionStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/PriorityLRUQueue.html">PriorityLRUQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/TTLPriorityLRUQueue.html">TTLPriorityLRUQueue</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/CacheRecord.html">CacheRecord</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/KVHeavyTaskDataProviderStopAction.html">KVHeavyTaskDataProviderStopAction</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/RetryCount.html">RetryCount</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/RetryCount/IntervalProxy.html">– IntervalProxy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/CPUTimeStamp.html">CPUTimeStamp</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CacheStatistics.html">CacheStatistics</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/MemoryUsageLimitation.html">MemoryUsageLimitation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/TracingIDFactory.html">TracingIDFactory</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>HashQueue</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HashQueue</span><span class="o">&lt;</span><span class="kt">K</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">K</span> <span class="p">:</span> <span class="kt">Hashable</span></code></pre>
+
+                </div>
+              </div>
+            <p>A high-performance hash-based queue that maintains insertion order with O(1) access and removal operations.</p>
+<h2 id='core-features' class='heading'>Core Features</h2>
+
+<ul>
+<li><strong>Hash-Based Operations</strong>: All operations are performed using hashable keys, providing intuitive access patterns</li>
+<li><strong>LRU (Least Recently Used) Management</strong>: Recently accessed keys are moved to the front of the queue</li>
+<li><strong>O(1) Performance</strong>: Constant time complexity for enqueue, dequeue, and removal operations</li>
+<li><strong>Capacity Management</strong>: Configurable capacity with automatic eviction of least recently used keys</li>
+<li><strong>Duplicate Key Handling</strong>: Re-inserting an existing key moves it to the front (LRU behavior)</li>
+</ul>
+<h2 id='data-structure' class='heading'>Data Structure</h2>
+
+<p>The queue uses a combination of:</p>
+
+<ul>
+<li><strong>Doubly Linked List</strong>: Maintains insertion order and provides O(1) front/back operations</li>
+<li><strong>Hash Map</strong>: Provides O(1) key-to-node lookup for efficient access and removal</li>
+</ul>
+<h2 id='performance-characteristics' class='heading'>Performance Characteristics</h2>
+
+<ul>
+<li><strong>Time Complexity</strong>: O(1) average case for all operations</li>
+<li><strong>Space Complexity</strong>: O(n) where n is the number of keys</li>
+<li><strong>Memory Efficiency</strong>: Automatic eviction when capacity is exceeded</li>
+<li><strong>Thread Safety</strong>: Not thread-safe; caller must ensure thread safety if needed</li>
+</ul>
+<h2 id='example-usage' class='heading'>Example Usage</h2>
+<pre class="highlight swift"><code><span class="c1">// Create a hash queue with capacity of 100</span>
+<span class="k">let</span> <span class="nv">queue</span> <span class="o">=</span> <span class="kt">HashQueue</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">capacity</span><span class="p">:</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="c1">// Enqueue keys (moves to front if already exists)</span>
+<span class="n">queue</span><span class="o">.</span><span class="nf">enqueueFront</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="s">"task1"</span><span class="p">)</span>
+<span class="n">queue</span><span class="o">.</span><span class="nf">enqueueFront</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="s">"task2"</span><span class="p">)</span>
+<span class="n">queue</span><span class="o">.</span><span class="nf">enqueueFront</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="s">"task1"</span><span class="p">)</span> <span class="c1">// Moves "task1" to front</span>
+
+<span class="c1">// Dequeue from front (most recently used)</span>
+<span class="k">let</span> <span class="nv">mostRecent</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="nf">dequeueFront</span><span class="p">()</span> <span class="c1">// Returns "task1"</span>
+
+<span class="c1">// Dequeue from back (least recently used)</span>
+<span class="k">let</span> <span class="nv">leastRecent</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="nf">dequeueBack</span><span class="p">()</span> <span class="c1">// Returns "task2"</span>
+
+<span class="c1">// Remove specific key</span>
+<span class="n">queue</span><span class="o">.</span><span class="nf">remove</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="s">"task3"</span><span class="p">)</span>
+</code></pre>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra9HashQueueC8capacityACyxGSi_tcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(capacity:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra9HashQueueC8capacityACyxGSi_tcfc">init(capacity:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initializes a new empty hash queue with specified capacity.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">capacity</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>capacity</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Maximum number of keys allowed in the queue.
+Negative values are treated as zero.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra9HashQueueC12enqueueFront3key15evictedStrategyxSgx_AA10DoublyLinkC07EvictedH0Oyx_GtF"></a>
+                    <a name="//apple_ref/swift/Method/enqueueFront(key:evictedStrategy:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra9HashQueueC12enqueueFront3key15evictedStrategyxSgx_AA10DoublyLinkC07EvictedH0Oyx_GtF">enqueueFront(key:<wbr>evictedStrategy:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Enqueues a key at the front (most recently used position).</p>
+
+<ul>
+<li><p>Behavior:</p>
+
+<ul>
+<li>If <code>key</code> already exists, it is moved to the front (LRU behavior)</li>
+<li>When at capacity, applies <code>evictedStrategy</code> from the underlying <code><a href="../Classes/DoublyLink.html">DoublyLink</a></code>:</li>
+<li><code>.FIFO</code>: evicts the least-recent key from the back and returns it</li>
+<li><code>.LIFO</code>: rejects insertion and returns the provided <code>key</code> (no state change)</li>
+<li>If <code>capacity == 0</code>, returns <code>key</code> immediately and performs no mutation</li>
+</ul></li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@discardableResult</span>
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">enqueueFront</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="kt">K</span><span class="p">,</span> <span class="nv">evictedStrategy</span><span class="p">:</span> <span class="kt"><a href="../Classes/DoublyLink.html">DoublyLink</a></span><span class="o">&lt;</span><span class="kt">K</span><span class="o">&gt;.</span><span class="kt">EvictedStrategy</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">K</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>key</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The key to enqueue</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>evictedStrategy</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Eviction policy when full (default: <code>.FIFO</code>)</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>Evicted key (if any), or the input <code>key</code> when insertion is rejected; otherwise nil</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra9HashQueueC12dequeueFrontxSgyF"></a>
+                    <a name="//apple_ref/swift/Method/dequeueFront()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra9HashQueueC12dequeueFrontxSgyF">dequeueFront()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Removes and returns the key at the front of the queue (most recently used).</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">dequeueFront</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">K</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The most recently used key, or nil if the queue is empty.</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra9HashQueueC12dequeueFront5countSayxGSu_tF"></a>
+                    <a name="//apple_ref/swift/Method/dequeueFront(count:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra9HashQueueC12dequeueFront5countSayxGSu_tF">dequeueFront(count:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Removes and returns multiple keys from the front of the queue (most recently used).</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">dequeueFront</span><span class="p">(</span><span class="nv">count</span><span class="p">:</span> <span class="kt">UInt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">K</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>count</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The number of keys to dequeue. If count exceeds available keys, returns all available keys.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>Array of the most recently used keys, in order from most to least recent.
+Returns empty array if queue is empty or count is 0.</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra9HashQueueC11dequeueBackxSgyF"></a>
+                    <a name="//apple_ref/swift/Method/dequeueBack()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra9HashQueueC11dequeueBackxSgyF">dequeueBack()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Removes and returns the key at the back of the queue (least recently used).</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">dequeueBack</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">K</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The least recently used key, or nil if the queue is empty.</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra9HashQueueC11dequeueBack5countSayxGSu_tF"></a>
+                    <a name="//apple_ref/swift/Method/dequeueBack(count:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra9HashQueueC11dequeueBack5countSayxGSu_tF">dequeueBack(count:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Removes and returns multiple keys from the back of the queue (least recently used).</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">dequeueBack</span><span class="p">(</span><span class="nv">count</span><span class="p">:</span> <span class="kt">UInt</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">K</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>count</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The number of keys to dequeue. If count exceeds available keys, returns all available keys.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>Array of the least recently used keys, in order from least to most recent.
+Returns empty array if queue is empty or count is 0.</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra9HashQueueC6remove3keyyx_tF"></a>
+                    <a name="//apple_ref/swift/Method/remove(key:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra9HashQueueC6remove3keyyx_tF">remove(key:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Removes a specific key from the queue.
+If the key doesn&rsquo;t exist, this operation has no effect.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">remove</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="kt">K</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>key</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The key to remove from the queue.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra9HashQueueC8capacitySivp"></a>
+                    <a name="//apple_ref/swift/Property/capacity" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra9HashQueueC8capacitySivp">capacity</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The maximum number of keys the queue can hold.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">capacity</span><span class="p">:</span> <span class="kt">Int</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra9HashQueueC5countSivp"></a>
+                    <a name="//apple_ref/swift/Property/count" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra9HashQueueC5countSivp">count</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The current number of keys in the queue.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra9HashQueueC6isFullSbvp"></a>
+                    <a name="//apple_ref/swift/Property/isFull" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra9HashQueueC6isFullSbvp">isFull</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Indicates if the queue is at maximum capacity.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">isFull</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra9HashQueueC7isEmptySbvp"></a>
+                    <a name="//apple_ref/swift/Property/isEmpty" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra9HashQueueC7isEmptySbvp">isEmpty</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Indicates if the queue is empty.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">isEmpty</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra9HashQueueC8contains3keySbx_tF"></a>
+                    <a name="//apple_ref/swift/Method/contains(key:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra9HashQueueC8contains3keySbx_tF">contains(key:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns whether the queue currently contains <code>key</code>.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">contains</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="kt">K</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>key</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The key to test for membership</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>True if present, false otherwise</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2025 <a class="link" href="mailto:yangchenlarkin@gmail.com" target="_blank" rel="external noopener">Larkin</a>. All rights reserved. (Last updated: 2025-09-09)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

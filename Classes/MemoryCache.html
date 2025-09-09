@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>MemoryCache Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Class/MemoryCache" class="dashAnchor"></a>
+    <a title="MemoryCache Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">Monstra 0.0.9 Docs</a> (100% documented)</p>
+        <p class="header-right"><a href="https://github.com/yangchenlarkin/Monstra"><img src="../img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">Monstra</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        <a href="../Classes.html">Classes</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        MemoryCache Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink.html">DoublyLink</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink/EvictedStrategy.html">– EvictedStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink/Node.html">– Node</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/HashQueue.html">HashQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap.html">Heap</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap/Event.html">– Event</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap/ComparisonResult.html">– ComparisonResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTaskBaseDataProvider.html">KVHeavyTaskBaseDataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager.html">KVHeavyTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager.html">KVLightTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/DataProvider.html">– DataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache.html">MemoryCache</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache/Configuration.html">– Configuration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache/FetchResult.html">– FetchResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask.html">MonoTask</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask/OngoingExecutionStrategy.html">– OngoingExecutionStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/PriorityLRUQueue.html">PriorityLRUQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/TTLPriorityLRUQueue.html">TTLPriorityLRUQueue</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/CacheRecord.html">CacheRecord</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/KVHeavyTaskDataProviderStopAction.html">KVHeavyTaskDataProviderStopAction</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/RetryCount.html">RetryCount</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/RetryCount/IntervalProxy.html">– IntervalProxy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/CPUTimeStamp.html">CPUTimeStamp</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CacheStatistics.html">CacheStatistics</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/MemoryUsageLimitation.html">MemoryUsageLimitation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/TracingIDFactory.html">TracingIDFactory</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>MemoryCache</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">MemoryCache</span><span class="o">&lt;</span><span class="kt">Key</span><span class="p">,</span> <span class="kt">Element</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">Key</span> <span class="p">:</span> <span class="kt">Hashable</span></code></pre>
+
+                </div>
+              </div>
+            <p>A high-performance, in-memory key-value cache with configurable thread safety and memory management.</p>
+
+<p>This cache provides automatic expiration, priority-based eviction, and memory usage tracking.
+It&rsquo;s designed for scenarios where you need fine-grained control over cache behavior and memory usage.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Initialization"></a>
+                <a name="//apple_ref/swift/Section/Initialization" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Initialization"></a>
+                  <h3 class="section-name"><span>Initialization</span>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC13configuration16statisticsReportACyxq_GAC13ConfigurationVyxq__G_yAA0C10StatisticsV_AA0C6RecordOtcSgtcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(configuration:statisticsReport:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC13configuration16statisticsReportACyxq_GAC13ConfigurationVyxq__G_yAA0C10StatisticsV_AA0C6RecordOtcSgtcfc">init(configuration:<wbr>statisticsReport:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Creates a new memory cache with the specified configuration.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span>
+    <span class="nv">configuration</span><span class="p">:</span> <span class="kt"><a href="../Classes/MemoryCache/Configuration.html">Configuration</a></span> <span class="o">=</span> <span class="o">.</span><span class="n">defaultConfig</span><span class="p">,</span>
+    <span class="nv">statisticsReport</span><span class="p">:</span> <span class="p">((</span><span class="kt"><a href="../Structs/CacheStatistics.html">CacheStatistics</a></span><span class="p">,</span> <span class="kt"><a href="../Enums/CacheRecord.html">CacheRecord</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)?</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>configuration</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The configuration for this cache instance.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Configuration"></a>
+                <a name="//apple_ref/swift/Section/Configuration" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Configuration"></a>
+                  <h3 class="section-name"><span>Configuration</span>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC13ConfigurationV"></a>
+                    <a name="//apple_ref/swift/Struct/Configuration" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC13ConfigurationV">Configuration</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Configuration options for the memory cache behavior and limits.</p>
+
+                        <a href="../Classes/MemoryCache/Configuration.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">Configuration</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Public%20API"></a>
+                <a name="//apple_ref/swift/Section/Public API" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Public%20API"></a>
+                  <h3 class="section-name"><span>Public API</span>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC7isEmptySbvp"></a>
+                    <a name="//apple_ref/swift/Property/isEmpty" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC7isEmptySbvp">isEmpty</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns true if the cache is empty.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">isEmpty</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC6isFullSbvp"></a>
+                    <a name="//apple_ref/swift/Property/isFull" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC6isFullSbvp">isFull</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Returns true if the cache is at capacity.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">isFull</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC5countSivp"></a>
+                    <a name="//apple_ref/swift/Property/count" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC5countSivp">count</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The current number of elements in the cache.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC8capacitySivp"></a>
+                    <a name="//apple_ref/swift/Property/capacity" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC8capacitySivp">capacity</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The maximum capacity of the cache.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">capacity</span><span class="p">:</span> <span class="kt">Int</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC3set7element3for8priority9expiredInSayq_Gq_Sg_xS2dSgtF"></a>
+                    <a name="//apple_ref/swift/Method/set(element:for:priority:expiredIn:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC3set7element3for8priority9expiredInSayq_Gq_Sg_xS2dSgtF">set(element:<wbr>for:<wbr>priority:<wbr>expiredIn:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Inserts or updates an element for the given key with optional priority and expiration.</p>
+
+<p>This method handles both regular elements and null elements, applying appropriate TTL settings
+and memory cost tracking. When the cache exceeds its memory limit, it automatically
+evicts entries according to priority-based LRU.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>Thread safety depends on the <code>enableThreadSynchronization</code> configuration option</p>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@discardableResult</span>
+<span class="kd">func</span> <span class="nf">set</span><span class="p">(</span>
+    <span class="nv">element</span><span class="p">:</span> <span class="kt">Element</span><span class="p">?,</span>
+    <span class="k">for</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">Key</span><span class="p">,</span>
+    <span class="nv">priority</span><span class="p">:</span> <span class="kt">Double</span> <span class="o">=</span> <span class="o">.</span><span class="n">zero</span><span class="p">,</span>
+    <span class="n">expiredIn</span> <span class="nv">duration</span><span class="p">:</span> <span class="kt">TimeInterval</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">Element</span><span class="p">]</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>element</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The element to store (can be nil to cache a null element)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>key</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The key to associate with the element</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>priority</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Eviction priority where larger values are retained longer (default: 0)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>duration</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>TTL in seconds for this entry. If nil, uses configuration defaults</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>Array of evicted elements due to capacity or memory limits</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC11FetchResultO"></a>
+                    <a name="//apple_ref/swift/Enum/FetchResult" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC11FetchResultO">FetchResult</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Result of a cache fetch attempt for a key.</p>
+
+                        <a href="../Classes/MemoryCache/FetchResult.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">enum</span> <span class="kt">FetchResult</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC10getElement3forAC11FetchResultOyxq__Gx_tF"></a>
+                    <a name="//apple_ref/swift/Method/getElement(for:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC10getElement3forAC11FetchResultOyxq__Gx_tF">getElement(for:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Retrieves the cached state for the given key.</p>
+
+<p>This method validates the key using the configured validator and returns a <code><a href="../Classes/MemoryCache/FetchResult.html">FetchResult</a></code> that
+distinguishes invalid keys, misses, null-element hits, and non-null element hits. Access updates
+the LRU order of the entry when present.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>Thread safety depends on the <code>enableThreadSynchronization</code> configuration option</p>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">getElement</span><span class="p">(</span><span class="k">for</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">Key</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt"><a href="../Classes/MemoryCache/FetchResult.html">FetchResult</a></span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>key</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The key to look up</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>A <code><a href="../Classes/MemoryCache/FetchResult.html">FetchResult</a></code> describing the cache state for <code>key</code></p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC13removeElement3forq_Sgx_tF"></a>
+                    <a name="//apple_ref/swift/Method/removeElement(for:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC13removeElement3forq_Sgx_tF">removeElement(for:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Removes the element for the given key, if present.</p>
+
+<p>This method removes the entry from the cache and updates the memory cost tracking.
+The removed element is returned if it existed in the cache.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>Thread safety depends on the <code>enableThreadSynchronization</code> configuration option</p>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@discardableResult</span>
+<span class="kd">func</span> <span class="nf">removeElement</span><span class="p">(</span><span class="k">for</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">Key</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Element</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>key</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The key to remove</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The removed element, or nil if not found</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC13removeElementq_SgyF"></a>
+                    <a name="//apple_ref/swift/Method/removeElement()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC13removeElementq_SgyF">removeElement()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Removes and returns the least recently used element from the cache.</p>
+
+<p>This method removes the least recently used entry from the cache and returns its element.
+The removal follows the cache&rsquo;s eviction policy (priority-based LRU).</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>Thread safety depends on the <code>enableThreadSynchronization</code> configuration option</p>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@discardableResult</span>
+<span class="kd">func</span> <span class="nf">removeElement</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Element</span><span class="p">?</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The removed element, or nil if the cache is empty</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC21removeExpiredElementsyyF"></a>
+                    <a name="//apple_ref/swift/Method/removeExpiredElements()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC21removeExpiredElementsyyF">removeExpiredElements()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Removes all expired elements from the cache.</p>
+
+<p>This method iterates through the cache and removes all entries that have expired
+based on their TTL (Time-to-Live) settings. This is useful for periodic cleanup
+to free up memory and maintain cache efficiency.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    Thread safety depends on the <code>enableThreadSynchronization</code> configuration option
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">removeExpiredElements</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC14removeElements9toPercentySd_tF"></a>
+                    <a name="//apple_ref/swift/Method/removeElements(toPercent:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC14removeElements9toPercentySd_tF">removeElements(toPercent:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Removes cache entries to reduce the cache size to a specified percentage of its current size.</p>
+
+<p>This method first removes all expired elements, then continues removing the least recently used
+entries until the cache size reaches the specified percentage of its original size.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>Thread safety depends on the <code>enableThreadSynchronization</code> configuration option</p>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">removeElements</span><span class="p">(</span><span class="nv">toPercent</span><span class="p">:</span> <span class="kt">Double</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>toPercent</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The target percentage (0.0 to 1.0) of current cache size to retain</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC15resetStatisticsyyF"></a>
+                    <a name="//apple_ref/swift/Method/resetStatistics()" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC15resetStatisticsyyF">resetStatistics()</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Resets all recorded cache statistics to zero.</p>
+
+<p>This clears counters such as hit/miss counts and total accesses. Useful for
+measuring statistics over distinct time windows.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">resetStatistics</span><span class="p">()</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2025 <a class="link" href="mailto:yangchenlarkin@gmail.com" target="_blank" rel="external noopener">Larkin</a>. All rights reserved. (Last updated: 2025-09-09)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

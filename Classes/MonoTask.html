@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>MonoTask Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Class/MonoTask" class="dashAnchor"></a>
+    <a title="MonoTask Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">Monstra 0.0.9 Docs</a> (100% documented)</p>
+        <p class="header-right"><a href="https://github.com/yangchenlarkin/Monstra"><img src="../img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">Monstra</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        <a href="../Classes.html">Classes</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        MonoTask Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink.html">DoublyLink</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink/EvictedStrategy.html">– EvictedStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink/Node.html">– Node</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/HashQueue.html">HashQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap.html">Heap</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap/Event.html">– Event</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap/ComparisonResult.html">– ComparisonResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTaskBaseDataProvider.html">KVHeavyTaskBaseDataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager.html">KVHeavyTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager.html">KVLightTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/DataProvider.html">– DataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache.html">MemoryCache</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache/Configuration.html">– Configuration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache/FetchResult.html">– FetchResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask.html">MonoTask</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask/OngoingExecutionStrategy.html">– OngoingExecutionStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/PriorityLRUQueue.html">PriorityLRUQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/TTLPriorityLRUQueue.html">TTLPriorityLRUQueue</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/CacheRecord.html">CacheRecord</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/KVHeavyTaskDataProviderStopAction.html">KVHeavyTaskDataProviderStopAction</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/RetryCount.html">RetryCount</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/RetryCount/IntervalProxy.html">– IntervalProxy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/CPUTimeStamp.html">CPUTimeStamp</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CacheStatistics.html">CacheStatistics</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/MemoryUsageLimitation.html">MemoryUsageLimitation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/TracingIDFactory.html">TracingIDFactory</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>MonoTask</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">MonoTask</span><span class="o">&lt;</span><span class="kt">TaskResult</span><span class="o">&gt;</span></code></pre>
+
+                </div>
+              </div>
+            <p><strong>MonoTask: Single-Instance Task Executor with TTL Caching and Retry Logic</strong></p>
+
+<p>MonoTask is a thread-safe, high-performance task executor that ensures only one instance
+of a task runs at a time while providing intelligent result caching and retry capabilities.</p>
+<h2 id='key-features' class='heading'>Key Features:</h2>
+
+<ul>
+<li><strong>Execution Merging</strong>: Multiple concurrent requests are merged into a single execution</li>
+<li><strong>TTL-based Caching</strong>: Results are cached for a configurable duration to avoid redundant work</li>
+<li><strong>Retry Logic</strong>: Automatic retry with exponential backoff for failed executions</li>
+<li><strong>Thread Safety</strong>: Full thread safety with fine-grained locking using semaphores</li>
+<li><strong>Queue Management</strong>: Separate queues for task execution and callback invocation</li>
+<li><strong>Manual Cache Control</strong>: Manual cache invalidation with execution strategy options</li>
+</ul>
+<h2 id='architecture' class='heading'>Architecture:</h2>
+<pre class="highlight swift"><code><span class="err">┌─────────────────┐</span>    <span class="err">┌──────────────┐</span>    <span class="err">┌─────────────────┐</span>
+<span class="err">│</span>   <span class="kt">Execution</span>     <span class="err">│</span>    <span class="err">│</span>   <span class="kt">Caching</span>    <span class="err">│</span>    <span class="err">│</span>   <span class="kt">Callbacks</span>     <span class="err">│</span>
+<span class="err">│</span>   <span class="kt">Merging</span>       <span class="err">│───▶│</span>   <span class="kt">Layer</span>      <span class="err">│───▶│</span>   <span class="kt">Distribution</span>  <span class="err">│</span>
+<span class="err">│</span>                 <span class="err">│</span>    <span class="err">│</span>              <span class="err">│</span>    <span class="err">│</span>                 <span class="err">│</span>
+<span class="err">│</span> <span class="err">•</span> <span class="kt">Single</span> <span class="n">run</span>    <span class="err">│</span>    <span class="err">│</span> <span class="err">•</span> <span class="kt">TTL</span> <span class="n">cache</span>  <span class="err">│</span>    <span class="err">│</span> <span class="err">•</span> <span class="kt">All</span> <span class="n">waiters</span>   <span class="err">│</span>
+<span class="err">│</span> <span class="err">•</span> <span class="kt">Merge</span> <span class="n">calls</span>   <span class="err">│</span>    <span class="err">│</span> <span class="err">•</span> <span class="kt">Expiration</span> <span class="err">│</span>    <span class="err">│</span> <span class="err">•</span> <span class="kt">Same</span> <span class="n">result</span>   <span class="err">│</span>
+<span class="err">└─────────────────┘</span>    <span class="err">└──────────────┘</span>    <span class="err">└─────────────────┘</span>
+</code></pre>
+<h2 id='usage-examples' class='heading'>Usage Examples:</h2>
+<pre class="highlight swift"><code><span class="c1">// Basic usage with caching</span>
+<span class="k">let</span> <span class="nv">task</span> <span class="o">=</span> <span class="kt">MonoTask</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">resultExpireDuration</span><span class="p">:</span> <span class="mf">60.0</span><span class="p">)</span> <span class="p">{</span> <span class="n">callback</span> <span class="k">in</span>
+    <span class="c1">// Expensive network call</span>
+    <span class="kt">URLSession</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">dataTask</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">error</span> <span class="k">in</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">error</span> <span class="o">=</span> <span class="n">error</span> <span class="p">{</span>
+            <span class="nf">callback</span><span class="p">(</span><span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nf">callback</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="kt">String</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="n">data</span><span class="o">!</span><span class="p">,</span> <span class="nv">encoding</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">)</span><span class="o">!</span><span class="p">))</span>
+        <span class="p">}</span>
+    <span class="p">}</span><span class="o">.</span><span class="nf">resume</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// Multiple concurrent calls - only one network request</span>
+<span class="k">let</span> <span class="nv">result1</span> <span class="o">=</span> <span class="k">await</span> <span class="n">task</span><span class="o">.</span><span class="nf">asyncExecute</span><span class="p">()</span> <span class="c1">// Network call happens</span>
+<span class="k">let</span> <span class="nv">result2</span> <span class="o">=</span> <span class="k">await</span> <span class="n">task</span><span class="o">.</span><span class="nf">asyncExecute</span><span class="p">()</span> <span class="c1">// Returns cached result</span>
+<span class="k">let</span> <span class="nv">result3</span> <span class="o">=</span> <span class="k">await</span> <span class="n">task</span><span class="o">.</span><span class="nf">asyncExecute</span><span class="p">()</span> <span class="c1">// Returns cached result</span>
+
+<span class="c1">// With retry logic</span>
+<span class="k">let</span> <span class="nv">retryTask</span> <span class="o">=</span> <span class="kt">MonoTask</span><span class="o">&lt;</span><span class="kt">Data</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="nv">retry</span><span class="p">:</span> <span class="o">.</span><span class="nf">count</span><span class="p">(</span><span class="nv">count</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="nv">intervalProxy</span><span class="p">:</span> <span class="o">.</span><span class="nf">exponentialBackoff</span><span class="p">(</span><span class="nv">initialTimeInterval</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="nv">scaleRate</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">)),</span>
+    <span class="nv">resultExpireDuration</span><span class="p">:</span> <span class="mf">300.0</span>
+<span class="p">)</span> <span class="p">{</span> <span class="n">callback</span> <span class="k">in</span>
+    <span class="nf">performNetworkRequest</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// Manual cache control</span>
+<span class="n">task</span><span class="o">.</span><span class="nf">clearResult</span><span class="p">(</span><span class="nv">ongoingExecutionStrategy</span><span class="p">:</span> <span class="o">.</span><span class="n">cancel</span><span class="p">)</span> <span class="c1">// Cancel and clear</span>
+</code></pre>
+<h2 id='thread-safety' class='heading'>Thread Safety:</h2>
+
+<p>MonoTask uses a single internal semaphore for fine-grained thread safety:</p>
+
+<ul>
+<li>Protects cached result, expiration timestamp, callback registration, and execution state</li>
+</ul>
+<h2 id='performance' class='heading'>Performance:</h2>
+
+<ul>
+<li><strong>Execution Merging</strong>: Prevents duplicate work when multiple callers request same task</li>
+<li><strong>TTL Caching</strong>: Avoids repeated expensive operations within cache period</li>
+<li><strong>Queue Separation</strong>: Task execution and callback invocation can run on different queues</li>
+<li><p><strong>Memory Efficient</strong>: Minimal overhead per task instance</p></li>
+</ul><div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>This class is designed for expensive, idempotent operations like network requests,
+    database queries, or complex computations that benefit from caching and deduplication.</p>
+
+</div>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Type%20Aliases"></a>
+                <a name="//apple_ref/swift/Section/Type Aliases" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Type%20Aliases"></a>
+                  <h3 class="section-name"><span>Type Aliases</span>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra8MonoTaskC14ResultCallbacka"></a>
+                    <a name="//apple_ref/swift/Alias/ResultCallback" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra8MonoTaskC14ResultCallbacka">ResultCallback</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Callback signature for receiving task execution results</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">typealias</span> <span class="kt">ResultCallback</span> <span class="o">=</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt">TaskResult</span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>result</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Success with TaskResult data or failure with Error</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra8MonoTaskC17CallbackExecutiona"></a>
+                    <a name="//apple_ref/swift/Alias/CallbackExecution" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra8MonoTaskC17CallbackExecutiona">CallbackExecution</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Callback-based execution block signature for traditional async patterns</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">typealias</span> <span class="kt">CallbackExecution</span> <span class="o">=</span> <span class="p">(</span><span class="kd">@escaping</span> <span class="kt"><a href="../Classes/MonoTask.html#/s:7Monstra8MonoTaskC14ResultCallbacka">ResultCallback</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>callback</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Callback to invoke with result when task completes</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra8MonoTaskC14AsyncExecutiona"></a>
+                    <a name="//apple_ref/swift/Alias/AsyncExecution" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra8MonoTaskC14AsyncExecutiona">AsyncExecution</a>
+                    </code>
+                      <span class="declaration-note">
+                        Asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Swift async/await execution block signature for modern async patterns</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">typealias</span> <span class="kt">AsyncExecution</span> <span class="o">=</span> <span class="p">()</span> <span class="k">async</span> <span class="o">-&gt;</span> <span class="kt">Result</span><span class="o">&lt;</span><span class="kt">TaskResult</span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>Result with success data or failure error</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Convenience%20Initializers"></a>
+                <a name="//apple_ref/swift/Section/Convenience Initializers" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Convenience%20Initializers"></a>
+                  <h3 class="section-name"><span>Convenience Initializers</span>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra8MonoTaskC5retry20resultExpireDuration9taskQueue08callbackI00H0ACyxGAA10RetryCountO_SdSo17OS_dispatch_queueCAMyys6ResultOyxs5Error_pGcctcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(retry:resultExpireDuration:taskQueue:callbackQueue:task:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra8MonoTaskC5retry20resultExpireDuration9taskQueue08callbackI00H0ACyxGAA10RetryCountO_SdSo17OS_dispatch_queueCAMyys6ResultOyxs5Error_pGcctcfc">init(retry:<wbr>resultExpireDuration:<wbr>taskQueue:<wbr>callbackQueue:<wbr>task:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Create MonoTask with callback-based execution (traditional async pattern)</p>
+
+<p>Perfect for wrapping existing callback-based APIs like URLSession, Core Data, etc.</p>
+
+<p><strong>Example</strong>:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">networkTask</span> <span class="o">=</span> <span class="kt">MonoTask</span><span class="o">&lt;</span><span class="kt">Data</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="nv">retry</span><span class="p">:</span> <span class="o">.</span><span class="nf">count</span><span class="p">(</span><span class="nv">count</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="nv">intervalProxy</span><span class="p">:</span> <span class="o">.</span><span class="nf">exponentialBackoff</span><span class="p">(</span><span class="nv">initialTimeInterval</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)),</span>
+    <span class="nv">resultExpireDuration</span><span class="p">:</span> <span class="mf">300.0</span> <span class="c1">// 5 minutes</span>
+<span class="p">)</span> <span class="p">{</span> <span class="n">callback</span> <span class="k">in</span>
+    <span class="kt">URLSession</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">dataTask</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">error</span> <span class="k">in</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">error</span> <span class="o">=</span> <span class="n">error</span> <span class="p">{</span>
+            <span class="nf">callback</span><span class="p">(</span><span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="n">data</span> <span class="p">{</span>
+            <span class="nf">callback</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="p">}</span>
+    <span class="p">}</span><span class="o">.</span><span class="nf">resume</span><span class="p">()</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">convenience</span> <span class="nf">init</span><span class="p">(</span>
+    <span class="nv">retry</span><span class="p">:</span> <span class="kt"><a href="../Enums/RetryCount.html">RetryCount</a></span> <span class="o">=</span> <span class="o">.</span><span class="n">never</span><span class="p">,</span>
+    <span class="nv">resultExpireDuration</span><span class="p">:</span> <span class="kt">TimeInterval</span><span class="p">,</span>
+    <span class="nv">taskQueue</span><span class="p">:</span> <span class="kt">DispatchQueue</span> <span class="o">=</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(),</span>
+    <span class="nv">callbackQueue</span><span class="p">:</span> <span class="kt">DispatchQueue</span> <span class="o">=</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(),</span>
+    <span class="nv">task</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/MonoTask.html#/s:7Monstra8MonoTaskC17CallbackExecutiona">CallbackExecution</a></span>
+<span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>retry</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Retry configuration (default: no retries)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>resultExpireDuration</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>How long to cache results in seconds</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>taskQueue</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Queue where task execution happens (default: global background)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>callbackQueue</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Queue where callbacks are invoked (default: global background)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>task</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The callback-based task to execute</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra8MonoTaskC5retry20resultExpireDuration9taskQueue08callbackI00H0ACyxGAA10RetryCountO_SdSo17OS_dispatch_queueCAMs6ResultOyxs5Error_pGyYactcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(retry:resultExpireDuration:taskQueue:callbackQueue:task:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra8MonoTaskC5retry20resultExpireDuration9taskQueue08callbackI00H0ACyxGAA10RetryCountO_SdSo17OS_dispatch_queueCAMs6ResultOyxs5Error_pGyYactcfc">init(retry:<wbr>resultExpireDuration:<wbr>taskQueue:<wbr>callbackQueue:<wbr>task:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Create MonoTask with async/await execution (modern async pattern)</p>
+
+<p>Perfect for wrapping modern async APIs and Swift concurrency patterns.</p>
+
+<p><strong>Example</strong>:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">apiTask</span> <span class="o">=</span> <span class="kt">MonoTask</span><span class="o">&lt;</span><span class="kt">APIResponse</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="nv">retry</span><span class="p">:</span> <span class="o">.</span><span class="nf">count</span><span class="p">(</span><span class="nv">count</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="nv">intervalProxy</span><span class="p">:</span> <span class="o">.</span><span class="nf">fixed</span><span class="p">(</span><span class="nv">timeInterval</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">)),</span>
+    <span class="nv">resultExpireDuration</span><span class="p">:</span> <span class="mf">60.0</span> <span class="c1">// 1 minute</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="k">do</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">response</span> <span class="o">=</span> <span class="k">try</span> <span class="k">await</span> <span class="kt">APIClient</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">fetchData</span><span class="p">()</span>
+        <span class="k">return</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">convenience</span> <span class="nf">init</span><span class="p">(</span>
+    <span class="nv">retry</span><span class="p">:</span> <span class="kt"><a href="../Enums/RetryCount.html">RetryCount</a></span> <span class="o">=</span> <span class="o">.</span><span class="n">never</span><span class="p">,</span>
+    <span class="nv">resultExpireDuration</span><span class="p">:</span> <span class="kt">TimeInterval</span><span class="p">,</span>
+    <span class="nv">taskQueue</span><span class="p">:</span> <span class="kt">DispatchQueue</span> <span class="o">=</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(),</span>
+    <span class="nv">callbackQueue</span><span class="p">:</span> <span class="kt">DispatchQueue</span> <span class="o">=</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(),</span>
+    <span class="nv">task</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/MonoTask.html#/s:7Monstra8MonoTaskC14AsyncExecutiona">AsyncExecution</a></span>
+<span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>retry</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Retry configuration (default: no retries)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>resultExpireDuration</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>How long to cache results in seconds</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>taskQueue</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Queue where task execution happens (default: global background)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>callbackQueue</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Queue where callbacks are invoked (default: global background)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>task</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The async task to execute</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Execution%20Methods"></a>
+                <a name="//apple_ref/swift/Section/Execution Methods" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Execution%20Methods"></a>
+                  <h3 class="section-name"><span>Execution Methods</span>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra8MonoTaskC11justExecute11forceUpdateySb_tF"></a>
+                    <a name="//apple_ref/swift/Method/justExecute(forceUpdate:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra8MonoTaskC11justExecute11forceUpdateySb_tF">justExecute(forceUpdate:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Execute task without waiting for result (fire-and-forget)</p>
+
+<p>Useful when you want to trigger execution but don&rsquo;t need the result immediately.
+The task will still benefit from caching and execution merging.</p>
+
+<p><strong>Example</strong>:</p>
+<pre class="highlight swift"><code><span class="c1">// Pre-warm cache</span>
+<span class="n">task</span><span class="o">.</span><span class="nf">justExecute</span><span class="p">()</span>
+
+<span class="c1">// Later, this will likely return cached result</span>
+<span class="k">let</span> <span class="nv">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">task</span><span class="o">.</span><span class="nf">asyncExecute</span><span class="p">()</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">justExecute</span><span class="p">(</span><span class="nv">forceUpdate</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra8MonoTaskC7execute11forceUpdate4thenySb_ys6ResultOyxs5Error_pGcSgtF"></a>
+                    <a name="//apple_ref/swift/Method/execute(forceUpdate:then:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra8MonoTaskC7execute11forceUpdate4thenySb_ys6ResultOyxs5Error_pGcSgtF">execute(forceUpdate:<wbr>then:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Execute task with callback-based result handling</p>
+
+<p>Perfect for integrating with callback-based code or when you need to handle
+results in a specific queue context.</p>
+
+<p><strong>Example</strong>:</p>
+<pre class="highlight swift"><code><span class="n">task</span><span class="o">.</span><span class="n">execute</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+    <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">data</span><span class="p">):</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"Got data: </span><span class="se">\(</span><span class="n">data</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"Error: </span><span class="se">\(</span><span class="n">error</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">execute</span><span class="p">(</span><span class="nv">forceUpdate</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">false</span><span class="p">,</span> <span class="n">then</span> <span class="nv">completionHandler</span><span class="p">:</span> <span class="kt"><a href="../Classes/MonoTask.html#/s:7Monstra8MonoTaskC14ResultCallbacka">ResultCallback</a></span><span class="p">?)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>completionHandler</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Optional callback to receive the result</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra8MonoTaskC12asyncExecute11forceUpdates6ResultOyxs5Error_pGSb_tYaF"></a>
+                    <a name="//apple_ref/swift/Method/asyncExecute(forceUpdate:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra8MonoTaskC12asyncExecute11forceUpdates6ResultOyxs5Error_pGSb_tYaF">asyncExecute(forceUpdate:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Execute task with async/await and return Result type</p>
+
+<p>This is the recommended method for modern Swift code. Returns a Result type
+which allows explicit error handling without exceptions.</p>
+
+<p><strong>Example</strong>:</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">task</span><span class="o">.</span><span class="nf">asyncExecute</span><span class="p">()</span>
+<span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+<span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">data</span><span class="p">):</span>
+    <span class="c1">// Handle success</span>
+    <span class="nf">updateUI</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+<span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+    <span class="c1">// Handle error</span>
+    <span class="nf">showErrorMessage</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@discardableResult</span>
+<span class="kd">func</span> <span class="nf">asyncExecute</span><span class="p">(</span><span class="nv">forceUpdate</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span> <span class="k">async</span> <span class="o">-&gt;</span> <span class="kt">Result</span><span class="o">&lt;</span><span class="kt">TaskResult</span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>Result containing either success data or failure error</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra8MonoTaskC13executeThrows11forceUpdatexSb_tYaKF"></a>
+                    <a name="//apple_ref/swift/Method/executeThrows(forceUpdate:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra8MonoTaskC13executeThrows11forceUpdatexSb_tYaKF">executeThrows(forceUpdate:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Execute task with async/await and throw on failure</p>
+
+<p>Convenient when you want to use Swift&rsquo;s error throwing mechanism.
+Will throw the underlying error if execution fails.</p>
+
+<p><strong>Example</strong>:</p>
+<pre class="highlight swift"><code><span class="k">do</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="k">try</span> <span class="k">await</span> <span class="n">task</span><span class="o">.</span><span class="nf">executeThrows</span><span class="p">()</span>
+    <span class="c1">// Handle success case directly</span>
+    <span class="nf">updateUI</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+    <span class="c1">// Handle any errors</span>
+    <span class="nf">showErrorMessage</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+<div class="aside aside-throws">
+    <p class="aside-title">Throws</p>
+    The underlying error if execution fails
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">@discardableResult</span>
+<span class="kd">func</span> <span class="nf">executeThrows</span><span class="p">(</span><span class="nv">forceUpdate</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">false</span><span class="p">)</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">TaskResult</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>The successful result data</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/State%20Properties"></a>
+                <a name="//apple_ref/swift/Section/State Properties" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/State%20Properties"></a>
+                  <h3 class="section-name"><span>State Properties</span>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra8MonoTaskC13currentResultxSgvp"></a>
+                    <a name="//apple_ref/swift/Property/currentResult" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra8MonoTaskC13currentResultxSgvp">currentResult</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Get currently cached result without triggering execution</p>
+
+<p>Returns the cached result if available and not expired, otherwise nil.
+This property respects TTL and will return nil for expired results.</p>
+
+<p><strong>Thread Safety</strong>: This property is thread-safe and can be called from any queue</p>
+
+<p><strong>Use Cases</strong>:</p>
+
+<ul>
+<li>Check if data is available without triggering a potentially expensive operation</li>
+<li>Display cached data immediately while triggering background refresh</li>
+<li>Implement cache-first UI patterns</li>
+</ul>
+
+<p><strong>Example</strong>:</p>
+<pre class="highlight swift"><code><span class="c1">// Show cached data immediately if available</span>
+<span class="k">if</span> <span class="k">let</span> <span class="nv">cached</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">currentResult</span> <span class="p">{</span>
+    <span class="nf">updateUI</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">cached</span><span class="p">)</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nf">showLoadingSpinner</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// Trigger fresh execution</span>
+<span class="n">task</span><span class="o">.</span><span class="n">execute</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+    <span class="nf">hideLoadingSpinner</span><span class="p">()</span>
+    <span class="c1">// Handle result...</span>
+<span class="p">}</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">currentResult</span><span class="p">:</span> <span class="kt">TaskResult</span><span class="p">?</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra8MonoTaskC11isExecutingSbvp"></a>
+                    <a name="//apple_ref/swift/Property/isExecuting" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra8MonoTaskC11isExecutingSbvp">isExecuting</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Indicates whether the task is currently executing.</p>
+
+<p>Thread-safe. Returns true while an execution is in progress (i.e.,
+there are registered callbacks waiting for completion), and false
+when the task is idle.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="k">var</span> <span class="nv">isExecuting</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="task-group">
+              <div class="task-name-container">
+                <a name="/Cache%20Management"></a>
+                <a name="//apple_ref/swift/Section/Cache Management" class="dashAnchor"></a>
+                <div class="section-name-container">
+                  <a class="section-name-link" href="#/Cache%20Management"></a>
+                  <h3 class="section-name"><span>Cache Management</span>
+</h3>
+                </div>
+              </div>
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra8MonoTaskC24OngoingExecutionStrategyO"></a>
+                    <a name="//apple_ref/swift/Enum/OngoingExecutionStrategy" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra8MonoTaskC24OngoingExecutionStrategyO">OngoingExecutionStrategy</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Strategy for handling ongoing execution when clearing cached results</p>
+
+<p>Defines how to handle a running task when <code>clearResult()</code> is called.</p>
+
+                        <a href="../Classes/MonoTask/OngoingExecutionStrategy.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">enum</span> <span class="kt">OngoingExecutionStrategy</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra8MonoTaskC6ErrorsO"></a>
+                    <a name="//apple_ref/swift/Enum/Errors" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra8MonoTaskC6ErrorsO">Errors</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>MonoTask-specific errors</p>
+
+                        <a href="../Classes/MonoTask/Errors.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">enum</span> <span class="kt">Errors</span> <span class="p">:</span> <span class="kt">Error</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra8MonoTaskC11clearResult24ongoingExecutionStrategy21shouldRestartWhenIDLEyAC07OngoinggH0Oyx_G_SbtF"></a>
+                    <a name="//apple_ref/swift/Method/clearResult(ongoingExecutionStrategy:shouldRestartWhenIDLE:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra8MonoTaskC11clearResult24ongoingExecutionStrategy21shouldRestartWhenIDLEyAC07OngoinggH0Oyx_G_SbtF">clearResult(ongoingExecutionStrategy:<wbr>shouldRestartWhenIDLE:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Manually invalidate cached result with fine-grained control over ongoing execution</p>
+
+<p>This method provides powerful cache management capabilities:</p>
+
+<p><strong>Execution State Handling</strong>:</p>
+
+<ul>
+<li><strong>If task is idle</strong>: Simply clears cache, optionally starts fresh execution</li>
+<li><strong>If task is executing</strong>: Applies the chosen strategy for ongoing execution</li>
+</ul>
+
+<p><strong>Strategy Details</strong>:</p>
+
+<ul>
+<li><code>.cancel</code>: Immediately cancels execution and notifies all callbacks with error</li>
+<li><code>.restart</code>: Lets execution complete, then starts fresh execution</li>
+<li><code>.allowCompletion</code>: Lets execution complete normally, just clears cache</li>
+</ul>
+
+<p><strong>Thread Safety</strong>: Fully thread-safe, can be called from any queue</p>
+
+<p><strong>Use Cases</strong>:</p>
+<pre class="highlight swift"><code><span class="c1">// Force fresh data (cancel ongoing request)</span>
+<span class="n">task</span><span class="o">.</span><span class="nf">clearResult</span><span class="p">(</span><span class="nv">ongoingExecutionStrategy</span><span class="p">:</span> <span class="o">.</span><span class="n">cancel</span><span class="p">)</span>
+
+<span class="c1">// Clear cache but let current request complete</span>
+<span class="n">task</span><span class="o">.</span><span class="nf">clearResult</span><span class="p">(</span><span class="nv">ongoingExecutionStrategy</span><span class="p">:</span> <span class="o">.</span><span class="n">allowCompletion</span><span class="p">)</span>
+
+<span class="c1">// Clear cache and ensure fresh execution</span>
+<span class="n">task</span><span class="o">.</span><span class="nf">clearResult</span><span class="p">(</span><span class="nv">ongoingExecutionStrategy</span><span class="p">:</span> <span class="o">.</span><span class="n">restart</span><span class="p">,</span> <span class="nv">shouldRestartWhenIDLE</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
+</code></pre>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">clearResult</span><span class="p">(</span>
+    <span class="nv">ongoingExecutionStrategy</span><span class="p">:</span> <span class="kt"><a href="../Classes/MonoTask/OngoingExecutionStrategy.html">OngoingExecutionStrategy</a></span> <span class="o">=</span> <span class="o">.</span><span class="n">allowCompletion</span><span class="p">,</span>
+    <span class="nv">shouldRestartWhenIDLE</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">false</span>
+<span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>ongoingExecutionStrategy</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>How to handle currently running execution</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>shouldRestartWhenIDLE</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Whether to start new execution if task is idle</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2025 <a class="link" href="mailto:yangchenlarkin@gmail.com" target="_blank" rel="external noopener">Larkin</a>. All rights reserved. (Last updated: 2025-09-09)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

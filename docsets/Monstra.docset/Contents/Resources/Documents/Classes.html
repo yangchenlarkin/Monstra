@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Classes  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Section/Classes" class="dashAnchor"></a>
+    <a title="Classes  Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="index.html">Monstra 0.0.9 Docs</a> (100% documented)</p>
+        <p class="header-right"><a href="https://github.com/yangchenlarkin/Monstra"><img src="img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="index.html">Monstra</a>
+        <img id="carat" src="img/carat.png" alt=""/>
+        Classes  Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Classes/DoublyLink.html">DoublyLink</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/DoublyLink/EvictedStrategy.html">– EvictedStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/DoublyLink/Node.html">– Node</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/HashQueue.html">HashQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/Heap.html">Heap</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/Heap/Event.html">– Event</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/Heap/ComparisonResult.html">– ComparisonResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVHeavyTaskBaseDataProvider.html">KVHeavyTaskBaseDataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVHeavyTasksManager.html">KVHeavyTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVHeavyTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVHeavyTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVLightTasksManager.html">KVLightTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVLightTasksManager/DataProvider.html">– DataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVLightTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVLightTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/MemoryCache.html">MemoryCache</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/MemoryCache/Configuration.html">– Configuration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/MemoryCache/FetchResult.html">– FetchResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/MonoTask.html">MonoTask</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/MonoTask/OngoingExecutionStrategy.html">– OngoingExecutionStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/MonoTask/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/PriorityLRUQueue.html">PriorityLRUQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/TTLPriorityLRUQueue.html">TTLPriorityLRUQueue</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Enums/CacheRecord.html">CacheRecord</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/KVHeavyTaskDataProviderStopAction.html">KVHeavyTaskDataProviderStopAction</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/RetryCount.html">RetryCount</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/RetryCount/IntervalProxy.html">– IntervalProxy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Structs/CPUTimeStamp.html">CPUTimeStamp</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/CacheStatistics.html">CacheStatistics</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/MemoryUsageLimitation.html">MemoryUsageLimitation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/TracingIDFactory.html">TracingIDFactory</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>Classes</h1>
+            <p>The following classes are available globally.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra27KVHeavyTaskBaseDataProviderC"></a>
+                    <a name="//apple_ref/swift/Class/KVHeavyTaskBaseDataProvider" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra27KVHeavyTaskBaseDataProviderC">KVHeavyTaskBaseDataProvider</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Base class for heavy task data providers that defines the foundation for task execution.</p>
+
+<p>This abstract base class provides the essential components that every heavy task data provider needs:
+a unique key identifier, event publishing capabilities, and result delivery mechanisms.
+It serves as the foundation for implementing concrete data providers that perform specific heavy operations.</p>
+<h2 id='key-responsibilities' class='heading'>Key Responsibilities</h2>
+
+<ul>
+<li><strong>Task Identification</strong>: Maintains unique key for task tracking and cache coordination</li>
+<li><strong>Event Broadcasting</strong>: Provides mechanism for real-time progress and status updates</li>
+<li><strong>Result Delivery</strong>: Handles final result publishing with success/failure states</li>
+<li><strong>Type Safety</strong>: Enforces generic type constraints for keys, elements, and events</li>
+</ul>
+<h2 id='generic-parameters' class='heading'>Generic Parameters</h2>
+
+<ul>
+<li><code>K</code>: Key type (must be Hashable) used for task identification and caching</li>
+<li><code>Element</code>: Result type returned upon successful task completion</li>
+<li><code>CustomEvent</code>: Event type for progress updates and status notifications</li>
+</ul>
+<h2 id='usage-pattern' class='heading'>Usage Pattern</h2>
+
+<p>Concrete implementations should inherit from this class and implement the
+<code><a href="Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a></code> protocol to provide actual task execution logic.</p>
+
+                        <a href="Classes/KVHeavyTaskBaseDataProvider.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">open</span> <span class="kd">class</span> <span class="kt">KVHeavyTaskBaseDataProvider</span><span class="o">&lt;</span><span class="kt">K</span><span class="p">,</span> <span class="kt">Element</span><span class="p">,</span> <span class="kt">CustomEvent</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">K</span> <span class="p">:</span> <span class="kt">Hashable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVHeavyTasksManagerC"></a>
+                    <a name="//apple_ref/swift/Class/KVHeavyTasksManager" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVHeavyTasksManagerC">KVHeavyTasksManager</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Comprehensive manager for resource-intensive computational tasks and operations.</p>
+
+<p>KVHeavyTasksManager serves as the central coordination hub for executing, caching, and managing
+heavy computational tasks. It provides sophisticated concurrency control, intelligent caching,
+flexible priority strategies, and comprehensive lifecycle management for resource-intensive operations.</p>
+<h2 id='architecture-overview' class='heading'>Architecture Overview</h2>
+
+<p>The manager operates through several interconnected systems:</p>
+
+<ul>
+<li><strong>Task Queue Management</strong>: Dual-queue system (waiting/running) with configurable capacity and eviction</li>
+<li><strong>Priority Coordination</strong>: FIFO/LIFO strategies with optional task interruption support</li>
+<li><strong>Cache Integration</strong>: Multi-level caching with hit/miss/null/invalid state handling</li>
+<li><strong>Provider Lifecycle</strong>: DataProvider creation, reuse, and cleanup with memory optimization</li>
+<li><strong>Event Broadcasting</strong>: Real-time progress updates and custom event distribution</li>
+<li><strong>Thread Safety</strong>: Complete concurrency protection using semaphore-based synchronization</li>
+</ul>
+<h2 id='key-features' class='heading'>Key Features</h2>
+
+<ul>
+<li><strong>Zero-configuration operation</strong>: Sensible defaults for immediate use</li>
+<li><strong>Highly configurable</strong>: Every aspect of behavior can be customized</li>
+<li><strong>Memory efficient</strong>: Automatic cleanup and configurable resource limits</li>
+<li><strong>Performance optimized</strong>: Minimal overhead with intelligent caching and provider reuse</li>
+<li><strong>Robust error handling</strong>: Comprehensive error propagation and graceful degradation</li>
+<li><strong>Production ready</strong>: Thread-safe, tested, and optimized for high-load scenarios</li>
+</ul>
+<h2 id='generic-type-parameters' class='heading'>Generic Type Parameters</h2>
+
+<ul>
+<li><code>K</code>: Key type for task identification (must be Hashable) - used for deduplication and caching</li>
+<li><code>Element</code>: Result type returned by completed tasks - cached and delivered to callbacks</li>
+<li><code>CustomEvent</code>: Event type for progress updates - broadcast to all registered observers</li>
+<li><code>DataProvider</code>: Concrete provider class that executes the actual heavy operations</li>
+</ul>
+<h2 id='usage-example' class='heading'>Usage Example</h2>
+<pre class="highlight swift"><code><span class="c1">// Define your custom data provider</span>
+<span class="kd">class</span> <span class="kt">ImageProcessingProvider</span><span class="p">:</span> <span class="kt">KVHeavyTaskBaseDataProvider</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="kt">UIImage</span><span class="p">,</span> <span class="kt">ProcessingProgress</span><span class="o">&gt;</span><span class="p">,</span>
+                              <span class="kt">KVHeavyTaskDataProviderInterface</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// Implement heavy image processing</span>
+        <span class="n">performImageProcessing</span> <span class="p">{</span> <span class="n">progress</span> <span class="k">in</span>
+            <span class="nf">customEventPublisher</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span>
+        <span class="p">}</span> <span class="nv">completion</span><span class="p">:</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+            <span class="nf">resultPublisher</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kd">func</span> <span class="nf">stop</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">KVHeavyTaskDataProviderStopAction</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">.</span><span class="n">reuse</span> <span class="c1">// Preserve processing state for resumption</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Configure and create manager</span>
+<span class="k">let</span> <span class="nv">config</span> <span class="o">=</span> <span class="kt">KVHeavyTasksManager</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="kt">UIImage</span><span class="p">,</span> <span class="kt">ProcessingProgress</span><span class="p">,</span> <span class="kt">ImageProcessingProvider</span><span class="o">&gt;.</span><span class="kt">Config</span><span class="p">(</span>
+    <span class="nv">maxNumberOfRunningTasks</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="nv">priorityStrategy</span><span class="p">:</span> <span class="o">.</span><span class="kt">LIFO</span><span class="p">(</span><span class="o">.</span><span class="n">stop</span><span class="p">),</span>
+    <span class="nv">cacheConfig</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">memoryUsageLimitation</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">capacity</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="nv">memory</span><span class="p">:</span> <span class="mi">50_000_000</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="k">let</span> <span class="nv">manager</span> <span class="o">=</span> <span class="kt">KVHeavyTasksManager</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="kt">UIImage</span><span class="p">,</span> <span class="kt">ProcessingProgress</span><span class="p">,</span> <span class="kt">ImageProcessingProvider</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">config</span><span class="p">:</span> <span class="n">config</span><span class="p">)</span>
+
+<span class="c1">// Execute tasks with progress monitoring</span>
+<span class="n">manager</span><span class="o">.</span><span class="nf">fetch</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="s">"process_photo_123"</span><span class="p">,</span>
+              <span class="nv">customEventObserver</span><span class="p">:</span> <span class="p">{</span> <span class="n">progress</span> <span class="k">in</span>
+                  <span class="nf">print</span><span class="p">(</span><span class="s">"Processing progress: </span><span class="se">\(</span><span class="n">progress</span><span class="o">.</span><span class="n">percentage</span><span class="se">)</span><span class="s">%"</span><span class="p">)</span>
+              <span class="p">},</span>
+              <span class="nv">result</span><span class="p">:</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+                  <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+                  <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">image</span><span class="p">):</span>
+                      <span class="c1">// Handle processed image</span>
+                  <span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+                      <span class="c1">// Handle processing error</span>
+                  <span class="p">}</span>
+              <span class="p">})</span>
+</code></pre>
+<h2 id='thread-safety' class='heading'>Thread Safety</h2>
+
+<p>All public methods are fully thread-safe and can be called from any queue or thread.
+The manager uses internal synchronization to coordinate access to shared state while
+minimizing performance impact through careful lock scope management.</p>
+<h2 id='performance-considerations' class='heading'>Performance Considerations</h2>
+
+<ul>
+<li><strong>Queue sizing</strong>: Balance memory usage vs task eviction risk</li>
+<li><strong>Concurrency limits</strong>: Optimize for your specific task characteristics and system resources</li>
+<li><strong>Cache configuration</strong>: Tune for your result size and access patterns</li>
+<li><strong>Priority strategy</strong>: Choose based on responsiveness vs predictability requirements</li>
+<li><strong>Provider lifecycle</strong>: Balance setup cost vs memory usage with reuse/dealloc decisions</li>
+</ul>
+
+                        <a href="Classes/KVHeavyTasksManager.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">KVHeavyTasksManager</span><span class="o">&lt;</span>
+    <span class="kt">K</span><span class="p">,</span>
+    <span class="kt">Element</span><span class="p">,</span>
+    <span class="kt">CustomEvent</span><span class="p">,</span>
+    <span class="kt">DataProvider</span><span class="p">:</span> <span class="kt"><a href="Classes/KVHeavyTaskBaseDataProvider.html">KVHeavyTaskBaseDataProvider</a></span><span class="o">&lt;</span><span class="kt">K</span><span class="p">,</span> <span class="kt">Element</span><span class="p">,</span> <span class="kt">CustomEvent</span><span class="o">&gt;</span>
+<span class="o">&gt;</span> <span class="k">where</span> <span class="kt">DataProvider</span><span class="p">:</span> <span class="kt"><a href="Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a></span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">KVHeavyTasksManager</span><span class="p">:</span> <span class="kd">@unchecked</span> <span class="kt">Sendable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC"></a>
+                    <a name="//apple_ref/swift/Class/KVLightTasksManager" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC">KVLightTasksManager</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A lightweight key-value tasks manager that integrates a cache and configurable providers.</p>
+
+                        <a href="Classes/KVLightTasksManager.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">KVLightTasksManager</span><span class="o">&lt;</span><span class="kt">K</span><span class="p">,</span> <span class="kt">Element</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">K</span> <span class="p">:</span> <span class="kt">Hashable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra8MonoTaskC"></a>
+                    <a name="//apple_ref/swift/Class/MonoTask" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra8MonoTaskC">MonoTask</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p><strong>MonoTask: Single-Instance Task Executor with TTL Caching and Retry Logic</strong></p>
+
+<p>MonoTask is a thread-safe, high-performance task executor that ensures only one instance
+of a task runs at a time while providing intelligent result caching and retry capabilities.</p>
+<h2 id='key-features' class='heading'>Key Features:</h2>
+
+<ul>
+<li><strong>Execution Merging</strong>: Multiple concurrent requests are merged into a single execution</li>
+<li><strong>TTL-based Caching</strong>: Results are cached for a configurable duration to avoid redundant work</li>
+<li><strong>Retry Logic</strong>: Automatic retry with exponential backoff for failed executions</li>
+<li><strong>Thread Safety</strong>: Full thread safety with fine-grained locking using semaphores</li>
+<li><strong>Queue Management</strong>: Separate queues for task execution and callback invocation</li>
+<li><strong>Manual Cache Control</strong>: Manual cache invalidation with execution strategy options</li>
+</ul>
+<h2 id='architecture' class='heading'>Architecture:</h2>
+<pre class="highlight swift"><code><span class="err">┌─────────────────┐</span>    <span class="err">┌──────────────┐</span>    <span class="err">┌─────────────────┐</span>
+<span class="err">│</span>   <span class="kt">Execution</span>     <span class="err">│</span>    <span class="err">│</span>   <span class="kt">Caching</span>    <span class="err">│</span>    <span class="err">│</span>   <span class="kt">Callbacks</span>     <span class="err">│</span>
+<span class="err">│</span>   <span class="kt">Merging</span>       <span class="err">│───▶│</span>   <span class="kt">Layer</span>      <span class="err">│───▶│</span>   <span class="kt">Distribution</span>  <span class="err">│</span>
+<span class="err">│</span>                 <span class="err">│</span>    <span class="err">│</span>              <span class="err">│</span>    <span class="err">│</span>                 <span class="err">│</span>
+<span class="err">│</span> <span class="err">•</span> <span class="kt">Single</span> <span class="n">run</span>    <span class="err">│</span>    <span class="err">│</span> <span class="err">•</span> <span class="kt">TTL</span> <span class="n">cache</span>  <span class="err">│</span>    <span class="err">│</span> <span class="err">•</span> <span class="kt">All</span> <span class="n">waiters</span>   <span class="err">│</span>
+<span class="err">│</span> <span class="err">•</span> <span class="kt">Merge</span> <span class="n">calls</span>   <span class="err">│</span>    <span class="err">│</span> <span class="err">•</span> <span class="kt">Expiration</span> <span class="err">│</span>    <span class="err">│</span> <span class="err">•</span> <span class="kt">Same</span> <span class="n">result</span>   <span class="err">│</span>
+<span class="err">└─────────────────┘</span>    <span class="err">└──────────────┘</span>    <span class="err">└─────────────────┘</span>
+</code></pre>
+<h2 id='usage-examples' class='heading'>Usage Examples:</h2>
+<pre class="highlight swift"><code><span class="c1">// Basic usage with caching</span>
+<span class="k">let</span> <span class="nv">task</span> <span class="o">=</span> <span class="kt">MonoTask</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">resultExpireDuration</span><span class="p">:</span> <span class="mf">60.0</span><span class="p">)</span> <span class="p">{</span> <span class="n">callback</span> <span class="k">in</span>
+    <span class="c1">// Expensive network call</span>
+    <span class="kt">URLSession</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">dataTask</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">error</span> <span class="k">in</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">error</span> <span class="o">=</span> <span class="n">error</span> <span class="p">{</span>
+            <span class="nf">callback</span><span class="p">(</span><span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nf">callback</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="kt">String</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="n">data</span><span class="o">!</span><span class="p">,</span> <span class="nv">encoding</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">)</span><span class="o">!</span><span class="p">))</span>
+        <span class="p">}</span>
+    <span class="p">}</span><span class="o">.</span><span class="nf">resume</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// Multiple concurrent calls - only one network request</span>
+<span class="k">let</span> <span class="nv">result1</span> <span class="o">=</span> <span class="k">await</span> <span class="n">task</span><span class="o">.</span><span class="nf">asyncExecute</span><span class="p">()</span> <span class="c1">// Network call happens</span>
+<span class="k">let</span> <span class="nv">result2</span> <span class="o">=</span> <span class="k">await</span> <span class="n">task</span><span class="o">.</span><span class="nf">asyncExecute</span><span class="p">()</span> <span class="c1">// Returns cached result</span>
+<span class="k">let</span> <span class="nv">result3</span> <span class="o">=</span> <span class="k">await</span> <span class="n">task</span><span class="o">.</span><span class="nf">asyncExecute</span><span class="p">()</span> <span class="c1">// Returns cached result</span>
+
+<span class="c1">// With retry logic</span>
+<span class="k">let</span> <span class="nv">retryTask</span> <span class="o">=</span> <span class="kt">MonoTask</span><span class="o">&lt;</span><span class="kt">Data</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="nv">retry</span><span class="p">:</span> <span class="o">.</span><span class="nf">count</span><span class="p">(</span><span class="nv">count</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="nv">intervalProxy</span><span class="p">:</span> <span class="o">.</span><span class="nf">exponentialBackoff</span><span class="p">(</span><span class="nv">initialTimeInterval</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> <span class="nv">scaleRate</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">)),</span>
+    <span class="nv">resultExpireDuration</span><span class="p">:</span> <span class="mf">300.0</span>
+<span class="p">)</span> <span class="p">{</span> <span class="n">callback</span> <span class="k">in</span>
+    <span class="nf">performNetworkRequest</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// Manual cache control</span>
+<span class="n">task</span><span class="o">.</span><span class="nf">clearResult</span><span class="p">(</span><span class="nv">ongoingExecutionStrategy</span><span class="p">:</span> <span class="o">.</span><span class="n">cancel</span><span class="p">)</span> <span class="c1">// Cancel and clear</span>
+</code></pre>
+<h2 id='thread-safety' class='heading'>Thread Safety:</h2>
+
+<p>MonoTask uses a single internal semaphore for fine-grained thread safety:</p>
+
+<ul>
+<li>Protects cached result, expiration timestamp, callback registration, and execution state</li>
+</ul>
+<h2 id='performance' class='heading'>Performance:</h2>
+
+<ul>
+<li><strong>Execution Merging</strong>: Prevents duplicate work when multiple callers request same task</li>
+<li><strong>TTL Caching</strong>: Avoids repeated expensive operations within cache period</li>
+<li><strong>Queue Separation</strong>: Task execution and callback invocation can run on different queues</li>
+<li><p><strong>Memory Efficient</strong>: Minimal overhead per task instance</p></li>
+</ul><div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>This class is designed for expensive, idempotent operations like network requests,
+    database queries, or complex computations that benefit from caching and deduplication.</p>
+
+</div>
+
+                        <a href="Classes/MonoTask.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">MonoTask</span><span class="o">&lt;</span><span class="kt">TaskResult</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC"></a>
+                    <a name="//apple_ref/swift/Class/MemoryCache" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC">MemoryCache</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A high-performance, in-memory key-value cache with configurable thread safety and memory management.</p>
+
+<p>This cache provides automatic expiration, priority-based eviction, and memory usage tracking.
+It&rsquo;s designed for scenarios where you need fine-grained control over cache behavior and memory usage.</p>
+
+                        <a href="Classes/MemoryCache.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">MemoryCache</span><span class="o">&lt;</span><span class="kt">Key</span><span class="p">,</span> <span class="kt">Element</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">Key</span> <span class="p">:</span> <span class="kt">Hashable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra16PriorityLRUQueueC"></a>
+                    <a name="//apple_ref/swift/Class/PriorityLRUQueue" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra16PriorityLRUQueueC">PriorityLRUQueue</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>PriorityLRUQueue: Priority-aware LRU queue with O(1) average access and updates.</p>
+
+<p>This data structure maintains separate LRU queues per priority level and evicts
+elements according to a two-tier policy:</p>
+
+<ul>
+<li>By priority: lower priority values are evicted first</li>
+<li><p>Within a priority: least-recently-used (LRU) elements are evicted first</p></li>
+</ul><div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    <p>Complexity:</p>
+
+<ul>
+<li>get/set/remove by key: O(1) average</li>
+<li>eviction and priority promotion: O(1) average</li>
+</ul>
+
+</div><ul>
+<li><p>Thread-safety: This type is not thread-safe on its own. Wrap usage with external
+synchronization (such as a semaphore) when accessed from multiple threads.</p></li>
+</ul>
+
+                        <a href="Classes/PriorityLRUQueue.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">PriorityLRUQueue</span><span class="o">&lt;</span><span class="kt">K</span><span class="p">,</span> <span class="kt">Element</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">K</span> <span class="p">:</span> <span class="kt">Hashable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19TTLPriorityLRUQueueC"></a>
+                    <a name="//apple_ref/swift/Class/TTLPriorityLRUQueue" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19TTLPriorityLRUQueueC">TTLPriorityLRUQueue</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>TTLPriorityLRUQueue: Hybrid TTL + Priority + LRU cache.</p>
+
+<p>This structure stores items with a time-to-live (TTL), an eviction priority, and tracks
+recency for LRU ordering. Eviction proceeds in the following order:
+1) Expired entries
+2) Lowest priority
+3) Least-recently-used within the same priority</p>
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    O(1) average for set/get/remove by key; O(k) to purge k expired entries.
+
+</div><ul>
+<li>Thread-safety: Not thread-safe by itself; use external synchronization if needed.</li>
+</ul>
+
+                        <a href="Classes/TTLPriorityLRUQueue.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">TTLPriorityLRUQueue</span><span class="o">&lt;</span><span class="kt">Key</span><span class="p">,</span> <span class="kt">Element</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">Key</span> <span class="p">:</span> <span class="kt">Hashable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra10DoublyLinkC"></a>
+                    <a name="//apple_ref/swift/Class/DoublyLink" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra10DoublyLinkC">DoublyLink</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>DoublyLink: Minimal doubly linked list used for LRU ordering.</p>
+
+<p>Designed as a building block for higher-level queues (such as priority-based LRU structures),
+providing O(1) average operations for push/pop from both ends and node removal when the
+node reference is known.</p>
+<div class="aside aside-complexity">
+    <p class="aside-title">Complexity</p>
+    <p>Complexity:</p>
+
+<ul>
+<li>enqueueFront: O(1)</li>
+<li>dequeueFront / dequeueBack: O(1)</li>
+<li>removeNode (with node reference): O(1)</li>
+</ul>
+
+</div><ul>
+<li><p>Thread-safety: Not synchronized; use external synchronization when accessed concurrently.</p></li>
+<li><p>Invariants: <code>front</code> is the most-recent node; <code>back</code> is the least-recent node; <code>count</code> is &gt;= 0.</p></li>
+</ul>
+
+                        <a href="Classes/DoublyLink.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">DoublyLink</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra9HashQueueC"></a>
+                    <a name="//apple_ref/swift/Class/HashQueue" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra9HashQueueC">HashQueue</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>A high-performance hash-based queue that maintains insertion order with O(1) access and removal operations.</p>
+<h2 id='core-features' class='heading'>Core Features</h2>
+
+<ul>
+<li><strong>Hash-Based Operations</strong>: All operations are performed using hashable keys, providing intuitive access patterns</li>
+<li><strong>LRU (Least Recently Used) Management</strong>: Recently accessed keys are moved to the front of the queue</li>
+<li><strong>O(1) Performance</strong>: Constant time complexity for enqueue, dequeue, and removal operations</li>
+<li><strong>Capacity Management</strong>: Configurable capacity with automatic eviction of least recently used keys</li>
+<li><strong>Duplicate Key Handling</strong>: Re-inserting an existing key moves it to the front (LRU behavior)</li>
+</ul>
+<h2 id='data-structure' class='heading'>Data Structure</h2>
+
+<p>The queue uses a combination of:</p>
+
+<ul>
+<li><strong>Doubly Linked List</strong>: Maintains insertion order and provides O(1) front/back operations</li>
+<li><strong>Hash Map</strong>: Provides O(1) key-to-node lookup for efficient access and removal</li>
+</ul>
+<h2 id='performance-characteristics' class='heading'>Performance Characteristics</h2>
+
+<ul>
+<li><strong>Time Complexity</strong>: O(1) average case for all operations</li>
+<li><strong>Space Complexity</strong>: O(n) where n is the number of keys</li>
+<li><strong>Memory Efficiency</strong>: Automatic eviction when capacity is exceeded</li>
+<li><strong>Thread Safety</strong>: Not thread-safe; caller must ensure thread safety if needed</li>
+</ul>
+<h2 id='example-usage' class='heading'>Example Usage</h2>
+<pre class="highlight swift"><code><span class="c1">// Create a hash queue with capacity of 100</span>
+<span class="k">let</span> <span class="nv">queue</span> <span class="o">=</span> <span class="kt">HashQueue</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">capacity</span><span class="p">:</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="c1">// Enqueue keys (moves to front if already exists)</span>
+<span class="n">queue</span><span class="o">.</span><span class="nf">enqueueFront</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="s">"task1"</span><span class="p">)</span>
+<span class="n">queue</span><span class="o">.</span><span class="nf">enqueueFront</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="s">"task2"</span><span class="p">)</span>
+<span class="n">queue</span><span class="o">.</span><span class="nf">enqueueFront</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="s">"task1"</span><span class="p">)</span> <span class="c1">// Moves "task1" to front</span>
+
+<span class="c1">// Dequeue from front (most recently used)</span>
+<span class="k">let</span> <span class="nv">mostRecent</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="nf">dequeueFront</span><span class="p">()</span> <span class="c1">// Returns "task1"</span>
+
+<span class="c1">// Dequeue from back (least recently used)</span>
+<span class="k">let</span> <span class="nv">leastRecent</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="nf">dequeueBack</span><span class="p">()</span> <span class="c1">// Returns "task2"</span>
+
+<span class="c1">// Remove specific key</span>
+<span class="n">queue</span><span class="o">.</span><span class="nf">remove</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="s">"task3"</span><span class="p">)</span>
+</code></pre>
+
+                        <a href="Classes/HashQueue.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">HashQueue</span><span class="o">&lt;</span><span class="kt">K</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">K</span> <span class="p">:</span> <span class="kt">Hashable</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra4HeapC"></a>
+                    <a name="//apple_ref/swift/Class/Heap" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra4HeapC">Heap</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Heap: Generic priority queue with custom ordering and fixed capacity.</p>
+
+<p>Provides a binary-heap implementation backed by a Swift <code>Array</code>, supporting a caller-supplied
+comparison closure to define ordering. Offers convenience builders for min/max heaps when
+<code>Element: Comparable</code>.</p>
+
+<ul>
+<li><p>Features:</p>
+
+<ul>
+<li>Fixed logical capacity with optional force-insert semantics when full</li>
+<li>Event callbacks for insert/remove/move to track external indices</li>
+<li>O(log n) insertion and removal; O(1) root access</li>
+</ul></li>
+<li><p>Thread-safety: Not synchronized; guard with external synchronization when needed.</p></li>
+</ul>
+
+                        <a href="Classes/Heap.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">Heap</span><span class="o">&lt;</span><span class="kt">Element</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2025 <a class="link" href="mailto:yangchenlarkin@gmail.com" target="_blank" rel="external noopener">Larkin</a>. All rights reserved. (Last updated: 2025-09-09)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

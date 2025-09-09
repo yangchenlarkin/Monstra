@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Monstra  Reference</title>
+    <link rel="stylesheet" type="text/css" href="css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="js/jquery.min.js" defer></script>
+    <script src="js/jazzy.js" defer></script>
+    
+    <script src="js/lunr.min.js" defer></script>
+    <script src="js/typeahead.jquery.js" defer></script>
+    <script src="js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a title="Monstra  Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="index.html">Monstra 0.0.9 Docs</a> (100% documented)</p>
+        <p class="header-right"><a href="https://github.com/yangchenlarkin/Monstra"><img src="img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="index.html">Monstra</a>
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Classes/DoublyLink.html">DoublyLink</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/DoublyLink/EvictedStrategy.html">– EvictedStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/DoublyLink/Node.html">– Node</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/HashQueue.html">HashQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/Heap.html">Heap</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/Heap/Event.html">– Event</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/Heap/ComparisonResult.html">– ComparisonResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVHeavyTaskBaseDataProvider.html">KVHeavyTaskBaseDataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVHeavyTasksManager.html">KVHeavyTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVHeavyTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVHeavyTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVLightTasksManager.html">KVLightTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVLightTasksManager/DataProvider.html">– DataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVLightTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/KVLightTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/MemoryCache.html">MemoryCache</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/MemoryCache/Configuration.html">– Configuration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/MemoryCache/FetchResult.html">– FetchResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/MonoTask.html">MonoTask</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/MonoTask/OngoingExecutionStrategy.html">– OngoingExecutionStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/MonoTask/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/PriorityLRUQueue.html">PriorityLRUQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Classes/TTLPriorityLRUQueue.html">TTLPriorityLRUQueue</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Enums/CacheRecord.html">CacheRecord</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/KVHeavyTaskDataProviderStopAction.html">KVHeavyTaskDataProviderStopAction</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/RetryCount.html">RetryCount</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Enums/RetryCount/IntervalProxy.html">– IntervalProxy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="Structs/CPUTimeStamp.html">CPUTimeStamp</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/CacheStatistics.html">CacheStatistics</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/MemoryUsageLimitation.html">MemoryUsageLimitation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="Structs/TracingIDFactory.html">TracingIDFactory</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            
+            <div align="center">
+  <img src="Logo.png" alt="Monstra Logo" width="50%">
+</div>
+
+<p><a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-5.5-orange.svg" alt="Swift"></a>
+<a href="https://developer.apple.com"><img src="https://img.shields.io/badge/platform-iOS%20%7C%20macOS%20%7C%20tvOS%20%7C%20watchOS-lightgrey.svg" alt="Platform"></a>
+<a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+<a href="https://github.com/apple/swift-package-manager"><img src="https://img.shields.io/badge/Swift%20Package%20Manager-compatible-brightgreen.svg" alt="Swift Package Manager"></a>
+<a href="https://cocoapods.org"><img src="https://img.shields.io/badge/CocoaPods-compatible-brightgreen.svg" alt="CocoaPods"></a>
+<a href="https://yangchenlarkin.github.io/Monstra/"><img src="https://img.shields.io/badge/docs-API%20Reference-blue" alt="Docs"></a></p>
+
+<p><strong>English</strong> | <a href="README_CN.md">简体中文</a></p>
+
+<p>A high-performance Swift framework providing efficient task execution, memory caching, and data management utilities with intelligent execution merging, TTL caching, and retry logic.</p>
+
+<p>Documentation: <a href="https://yangchenlarkin.github.io/Monstra/" target="_blank" rel="noopener noreferrer">API Reference (Jazzy)</a>  </p>
+<h2 id='features' class='heading'>🚀 Features</h2>
+<h3 id='monstore-caching-system' class='heading'>Monstore - Caching System</h3>
+<h4 id='memorycache' class='heading'>MemoryCache</h4>
+
+<ul>
+<li><strong>⏰ TTL &amp; Priority Support</strong>: Advanced time-to-live functionality with automatic expiration and configurable priority-based eviction</li>
+<li><strong>💥 Avalanche Protection</strong>: Intelligent TTL randomization prevents cache stampede and simultaneous expiration cascades</li>
+<li><strong>🛡️ Breakdown Protection</strong>: Comprehensive null value caching and robust key validation for enhanced reliability</li>
+<li><strong>📊 Statistics &amp; Monitoring</strong>: Built-in cache statistics, performance metrics, and real-time monitoring capabilities</li>
+</ul>
+<h3 id='monstask-task-execution-framework' class='heading'>Monstask - Task Execution Framework</h3>
+<h4 id='strong-monotask-strong' class='heading'><strong>MonoTask</strong></h4>
+
+<ul>
+<li><strong>🔄 Execution Merging</strong>: Multiple concurrent requests merged into single execution</li>
+<li><strong>⏱️ TTL Caching</strong>: Results cached for configurable duration with automatic expiration</li>
+<li><strong>🔄 Advanced Retry Logic</strong>: Exponential backoff, fixed intervals, and hybrid retry strategies</li>
+<li><strong>🎯 Manual Cache Control</strong>: Fine-grained cache invalidation with execution strategy options</li>
+</ul>
+<h4 id='strong-kvlighttasksmanager-strong' class='heading'><strong>KVLightTasksManager</strong></h4>
+
+<ul>
+<li><strong>📈 Peak Shaving</strong>: Prevents excessive task execution volume through Priority-Based Scheduling (LIFO/FIFO strategies with configurable limits)</li>
+<li><strong>🔄 Batch Processing</strong>: Support for single and batch data provisioning to enhance backend execution efficiency</li>
+<li><strong>📊 Concurrent Execution</strong>: Configurable concurrent task limits (default: 4 running, 256 queued)</li>
+<li><strong>🎯 Execution Merging</strong>: Intelligent request deduplication and merging to prevent duplicate work and optimize resource usage</li>
+<li><strong>💾 Result Caching</strong>: Integrated MemoryCache for optimized performance</li>
+</ul>
+<h4 id='strong-kvheavytasksmanager-strong' class='heading'><strong>KVHeavyTasksManager</strong></h4>
+
+<ul>
+<li><strong>📊 Progress Tracking</strong>: Real-time progress updates with custom event publishing and broadcasting capabilities</li>
+<li><strong>🎯 Priority-Based Scheduling</strong>: Advanced LIFO/FIFO strategies with intelligent interruption support</li>
+<li><strong>🔄 Task Lifecycle Management</strong>: Complete start/stop/resume functionality with provider state preservation</li>
+<li><strong>📱 Concurrent Control</strong>: Optimized concurrent execution limits (default: 2 running, 64 queued)</li>
+<li><strong>🎯 Execution Merging</strong>: Intelligent request deduplication and merging to prevent duplicate work and optimize resource usage</li>
+<li><strong>💾 Result Caching</strong>: Integrated MemoryCache for enhanced performance and efficiency</li>
+</ul>
+<h2 id='quick-start' class='heading'>🚀 Quick Start</h2>
+<h3 id='installation' class='heading'>Installation</h3>
+<h4 id='swift-package-manager-recommended' class='heading'>Swift Package Manager (Recommended)</h4>
+
+<p>Add Monstra to your <code>Package.swift</code>:</p>
+<pre class="highlight swift"><code><span class="nv">dependencies</span><span class="p">:</span> <span class="p">[</span>
+    <span class="o">.</span><span class="nf">package</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="s">"https://github.com/yangchenlarkin/Monstra.git"</span><span class="p">,</span> <span class="nv">from</span><span class="p">:</span> <span class="s">"0.1.0"</span><span class="p">)</span>
+<span class="p">]</span>
+</code></pre>
+
+<p>Or add it directly in Xcode:</p>
+
+<ol>
+<li>File → Add Package Dependencies</li>
+<li>Enter the repository URL: <code>https://github.com/yangchenlarkin/Monstra.git</code></li>
+<li>Select the version you want to use</li>
+</ol>
+<h4 id='cocoapods' class='heading'>CocoaPods</h4>
+
+<p>Add Monstra to your <code>Podfile</code>:</p>
+<pre class="highlight ruby"><code><span class="n">pod</span> <span class="s1">'Monstra'</span><span class="p">,</span> <span class="s1">'~&gt; 0.1.0'</span>
+</code></pre>
+
+<p><strong>Note</strong>: Monstra is published as a unified framework, so you get all components together.</p>
+<h2 id='when-to-use-each-component' class='heading'>🎯 When to Use Each Component</h2>
+
+<table><thead>
+<tr>
+<th>Component</th>
+<th>Best For</th>
+<th>Key Features</th>
+</tr>
+</thead><tbody>
+<tr>
+<td><strong>MonoTask</strong></td>
+<td>Single expensive operations</td>
+<td>Execution merging, TTL caching, retry logic</td>
+</tr>
+<tr>
+<td><strong>KVLightTasksManager</strong></td>
+<td>Fast, lightweight operations</td>
+<td>Batch processing, key validation, high throughput</td>
+</tr>
+<tr>
+<td><strong>KVHeavyTasksManager</strong></td>
+<td>Resource-intensive operations</td>
+<td>Progress tracking, lifecycle management, error recovery</td>
+</tr>
+</tbody></table>
+<h4 id='strong-some-scenarios-for-each-component-strong' class='heading'><strong>Some Scenarios for Each Component</strong></h4>
+
+<ul>
+<li><strong>MonoTask</strong>: API calls, database queries, expensive computations that benefit from caching and deduplication</li>
+<li><strong>KVLightTasksManager</strong>: User profile fetching, search results, configuration loading, high-frequency operations</li>
+<li><strong>KVHeavyTasksManager</strong>: File downloads, video processing, ML inference, long-running operations with progress updates</li>
+</ul>
+<h2 id='simple-examples' class='heading'>💡 Simple Examples</h2>
+<h3 id='1-memorycache' class='heading'>1. MemoryCache</h3>
+
+<p>Basic caching operations with TTL, priority-based and LRU eviction.</p>
+
+<p><strong>Simple Example (Default Configuration):</strong></p>
+<pre class="highlight swift"><code><span class="kd">import</span> <span class="kt">Monstra</span>
+
+<span class="c1">// Create a basic cache with default configuration</span>
+<span class="k">let</span> <span class="nv">cache</span> <span class="o">=</span> <span class="kt">MemoryCache</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="kt">Int</span><span class="o">&gt;</span><span class="p">()</span>
+
+<span class="c1">// Set values with different priorities and TTL</span>
+<span class="n">cache</span><span class="o">.</span><span class="nf">set</span><span class="p">(</span><span class="nv">element</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span> <span class="nv">for</span><span class="p">:</span> <span class="s">"answer"</span><span class="p">,</span> <span class="nv">priority</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span> <span class="nv">expiredIn</span><span class="p">:</span> <span class="mf">3600.0</span><span class="p">)</span> <span class="c1">// 1 hour, high priority</span>
+<span class="n">cache</span><span class="o">.</span><span class="nf">set</span><span class="p">(</span><span class="nv">element</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="nv">for</span><span class="p">:</span> <span class="s">"score"</span><span class="p">,</span> <span class="nv">priority</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span> <span class="c1">// Default TTL, low priority</span>
+<span class="n">cache</span><span class="o">.</span><span class="nf">set</span><span class="p">(</span><span class="nv">element</span><span class="p">:</span> <span class="kc">nil</span><span class="p">,</span> <span class="nv">for</span><span class="p">:</span> <span class="s">"user-999"</span><span class="p">)</span> <span class="c1">// Cache null value</span>
+
+<span class="c1">// Get values using the FetchResult enum</span>
+<span class="k">switch</span> <span class="n">cache</span><span class="o">.</span><span class="nf">getElement</span><span class="p">(</span><span class="nv">for</span><span class="p">:</span> <span class="s">"answer"</span><span class="p">)</span> <span class="p">{</span>
+<span class="k">case</span> <span class="o">.</span><span class="nf">hitNonNullElement</span><span class="p">(</span><span class="k">let</span> <span class="nv">value</span><span class="p">):</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Found answer: </span><span class="se">\(</span><span class="n">value</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+<span class="k">case</span> <span class="o">.</span><span class="nv">hitNullElement</span><span class="p">:</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Found null value"</span><span class="p">)</span>
+<span class="k">case</span> <span class="o">.</span><span class="nv">miss</span><span class="p">:</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Key not found or expired"</span><span class="p">)</span>
+<span class="k">case</span> <span class="o">.</span><span class="nv">invalidKey</span><span class="p">:</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Invalid key"</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// Check cache status</span>
+<span class="nf">print</span><span class="p">(</span><span class="s">"Cache count: </span><span class="se">\(</span><span class="n">cache</span><span class="o">.</span><span class="n">count</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="s">"Cache capacity: </span><span class="se">\(</span><span class="n">cache</span><span class="o">.</span><span class="n">capacity</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="s">"Is empty: </span><span class="se">\(</span><span class="n">cache</span><span class="o">.</span><span class="n">isEmpty</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="s">"Is full: </span><span class="se">\(</span><span class="n">cache</span><span class="o">.</span><span class="n">isFull</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+
+<span class="c1">// Remove specific element</span>
+<span class="k">let</span> <span class="nv">removed</span> <span class="o">=</span> <span class="n">cache</span><span class="o">.</span><span class="nf">removeElement</span><span class="p">(</span><span class="nv">for</span><span class="p">:</span> <span class="s">"score"</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="s">"Removed: </span><span class="se">\(</span><span class="n">removed</span> <span class="p">??</span> <span class="o">-</span><span class="mi">1</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+
+<span class="c1">// Clean up expired elements</span>
+<span class="n">cache</span><span class="o">.</span><span class="nf">removeExpiredElements</span><span class="p">()</span>
+</code></pre>
+
+<p><strong>Detailed Configuration Example:</strong></p>
+<pre class="highlight swift"><code><span class="c1">// Advanced configuration with all options</span>
+<span class="k">let</span> <span class="nv">imageCache</span> <span class="o">=</span> <span class="kt">MemoryCache</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="kt">Data</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="nv">configuration</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+        <span class="c1">// Thread Safety: Enable DispatchSemaphore synchronization for concurrent access</span>
+        <span class="nv">enableThreadSynchronization</span><span class="p">:</span> <span class="kc">true</span><span class="p">,</span>
+
+        <span class="c1">// Memory &amp; Capacity Limits: Maximum 100 items, 50MB memory usage</span>
+        <span class="nv">memoryUsageLimitation</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+            <span class="nv">capacity</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>    <span class="c1">// Maximum number of cached items</span>
+            <span class="nv">memory</span><span class="p">:</span> <span class="mi">50</span>        <span class="c1">// Maximum memory usage in MB</span>
+        <span class="p">),</span>
+
+        <span class="c1">// TTL Settings: How long items stay in cache</span>
+        <span class="n">defaultTTL</span><span class="p">:</span> <span class="mf">1800.0</span><span class="p">,</span>              <span class="c1">// 30 minutes for regular elements</span>
+        <span class="n">defaultTTLForNullElement</span><span class="p">:</span> <span class="mf">300.0</span><span class="p">,</span> <span class="c1">// 5 minutes for null/nil elements</span>
+
+        <span class="c1">// Cache Stampede Prevention: Randomize TTL by ±30 seconds</span>
+        <span class="nv">ttlRandomizationRange</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span>     <span class="c1">// Prevents all items expiring simultaneously</span>
+
+        <span class="c1">// Key Validation: Only accept keys starting with "img_"</span>
+        <span class="nv">keyValidator</span><span class="p">:</span> <span class="p">{</span> <span class="n">key</span> <span class="k">in</span>
+            <span class="k">return</span> <span class="n">key</span><span class="o">.</span><span class="nf">hasPrefix</span><span class="p">(</span><span class="s">"img_"</span><span class="p">)</span>  <span class="c1">// Custom validation logic</span>
+        <span class="p">},</span>
+
+        <span class="c1">// Memory Cost Calculation: Use actual data size for eviction decisions</span>
+        <span class="nv">costProvider</span><span class="p">:</span> <span class="p">{</span> <span class="n">data</span> <span class="k">in</span>
+            <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">count</span>             <span class="c1">// Return size in bytes</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre>
+<h3 id='2-monotask' class='heading'>2. MonoTask</h3>
+
+<p><strong>Single Task Execution &amp; Merging</strong>: Handles individual task execution, request merging and result cache, such as module initialization, configuration file reading, and API call consolidation with result caching (e.g., UserProfile, e-commerce Cart operations)</p>
+
+<p><strong>Simple Example (Default Configuration):</strong></p>
+<pre class="highlight swift"><code><span class="kd">import</span> <span class="kt">Monstra</span>
+
+<span class="c1">// Create a basic task with minimal configuration</span>
+<span class="k">let</span> <span class="nv">networkTask</span> <span class="o">=</span> <span class="kt">MonoTask</span><span class="o">&lt;</span><span class="kt">Data</span><span class="o">&gt;</span> <span class="p">{</span> <span class="n">callback</span> <span class="k">in</span>
+    <span class="c1">// Your network request logic here</span>
+    <span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"https://api.example.com/data"</span><span class="p">)</span><span class="o">!</span>
+    <span class="kt">URLSession</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">dataTask</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">error</span> <span class="k">in</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">error</span> <span class="o">=</span> <span class="n">error</span> <span class="p">{</span>
+            <span class="nf">callback</span><span class="p">(</span><span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="n">data</span> <span class="p">{</span>
+            <span class="nf">callback</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+        <span class="p">}</span>
+    <span class="p">}</span><span class="o">.</span><span class="nf">resume</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// Alternatively, you can use an asynchornic block to create MonoTask</span>
+
+<span class="c1">// Multiple execution patterns - only one network request</span>
+<span class="c1">// Note: All executions benefit from MonoTask's execution merging</span>
+
+<span class="c1">// Execute with async/await</span>
+<span class="k">let</span> <span class="nv">result1</span><span class="p">:</span> <span class="kt">Result</span><span class="o">&lt;</span><span class="kt">Data</span><span class="p">,</span> <span class="kt">Error</span><span class="o">&gt;</span> <span class="o">=</span> <span class="k">await</span> <span class="n">networkTask</span><span class="o">.</span><span class="nf">asyncExecute</span><span class="p">()</span>
+<span class="k">switch</span> <span class="n">result1</span> <span class="p">{</span>
+<span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">data</span><span class="p">):</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Got data: </span><span class="se">\(</span><span class="n">data</span><span class="o">.</span><span class="n">count</span><span class="se">)</span><span class="s"> bytes"</span><span class="p">)</span>
+<span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Error: </span><span class="se">\(</span><span class="n">error</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// Execute with async/await and try/catch</span>
+<span class="k">do</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">result2</span><span class="p">:</span> <span class="kt">Data</span> <span class="o">=</span> <span class="k">try</span> <span class="k">await</span> <span class="n">networkTask</span><span class="o">.</span><span class="nf">executeThrows</span><span class="p">()</span> <span class="c1">// Second execution, returns cached result</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Result2: </span><span class="se">\(</span><span class="n">result2</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Result2 error: </span><span class="se">\(</span><span class="n">error</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+<span class="p">}</span>
+
+ <span class="c1">// Fire-and-forget execution</span>
+<span class="n">networkTask</span><span class="o">.</span><span class="nf">justExecute</span><span class="p">()</span>
+
+<span class="c1">// Callback-based execution</span>
+<span class="n">networkTask</span><span class="o">.</span><span class="n">execute</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+    <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">data</span><span class="p">):</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"Result3 (callback): </span><span class="se">\(</span><span class="n">data</span><span class="o">.</span><span class="n">count</span><span class="se">)</span><span class="s"> bytes"</span><span class="p">)</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"Result3 (callback) error: </span><span class="se">\(</span><span class="n">error</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+<p><strong>Detailed Configuration Example:</strong></p>
+<pre class="highlight swift"><code><span class="c1">// Advanced configuration with custom retry and queue settings</span>
+<span class="k">let</span> <span class="nv">fileProcessor1</span> <span class="o">=</span> <span class="kt">MonoTask</span><span class="o">&lt;</span><span class="kt">ProcessedData</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="nv">retry</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>  <span class="c1">// Simple retry count configuration</span>
+
+    <span class="c1">// Result Caching: Use default cache configuration</span>
+    <span class="nv">resultExpireDuration</span><span class="p">:</span> <span class="mf">300.0</span><span class="p">,</span>      <span class="c1">// 5 minutes cache duration</span>
+
+    <span class="c1">// Task Queue: Custom dispatch queue for task execution</span>
+    <span class="nv">taskQueue</span><span class="p">:</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(</span><span class="nv">qos</span><span class="p">:</span> <span class="o">.</span><span class="n">utility</span><span class="p">),</span>  <span class="c1">// Background priority queue</span>
+
+    <span class="c1">// Callback Queue: Custom dispatch queue for callbacks</span>
+    <span class="nv">callbackQueue</span><span class="p">:</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(</span><span class="nv">qos</span><span class="p">:</span> <span class="o">.</span><span class="n">userInitiated</span><span class="p">)</span>  <span class="c1">// High priority queue</span>
+<span class="p">)</span> <span class="p">{</span> <span class="n">callback</span> <span class="k">in</span>
+    <span class="c1">// Your file processing logic here</span>
+    <span class="k">let</span> <span class="nv">filePath</span> <span class="o">=</span> <span class="s">"/path/to/large/file.txt"</span>
+    <span class="k">do</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">Data</span><span class="p">(</span><span class="nv">contentsOf</span><span class="p">:</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">fileURLWithPath</span><span class="p">:</span> <span class="n">filePath</span><span class="p">))</span>
+        <span class="k">let</span> <span class="nv">processedData</span> <span class="o">=</span> <span class="kt">ProcessedData</span><span class="p">(</span><span class="nv">content</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="nv">metadata</span><span class="p">:</span> <span class="p">[</span><span class="s">"size"</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">count</span><span class="p">])</span>
+        <span class="nf">callback</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="n">processedData</span><span class="p">))</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+        <span class="nf">callback</span><span class="p">(</span><span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">// Advanced configuration with custom retry and queue settings</span>
+<span class="k">let</span> <span class="nv">fileProcessor2</span> <span class="o">=</span> <span class="kt">MonoTask</span><span class="o">&lt;</span><span class="kt">ProcessedData</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="c1">// Retry Strategy: Exponential backoff with 3 attempts</span>
+    <span class="nv">retry</span><span class="p">:</span> <span class="o">.</span><span class="nf">count</span><span class="p">(</span>
+        <span class="nv">count</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span>    <span class="c1">// Maximum retry attempts</span>
+        <span class="nv">intervalProxy</span><span class="p">:</span> <span class="o">.</span><span class="nf">exponentialBackoff</span><span class="p">(</span>
+            <span class="nv">initialTimeInterval</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>  <span class="c1">// Start with 1 second delay</span>
+            <span class="nv">scaleRate</span><span class="p">:</span> <span class="mf">2.0</span>             <span class="c1">// Double the delay each retry</span>
+        <span class="p">)</span>
+    <span class="p">),</span>
+
+    <span class="c1">// Result Caching: Use default cache configuration</span>
+    <span class="nv">resultExpireDuration</span><span class="p">:</span> <span class="mf">300.0</span><span class="p">,</span>      <span class="c1">// 5 minutes cache duration</span>
+
+    <span class="c1">// Task Queue: Custom dispatch queue for task execution</span>
+    <span class="nv">taskQueue</span><span class="p">:</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(</span><span class="nv">qos</span><span class="p">:</span> <span class="o">.</span><span class="n">utility</span><span class="p">),</span>  <span class="c1">// Background priority queue</span>
+
+    <span class="c1">// Callback Queue: Custom dispatch queue for callbacks</span>
+    <span class="nv">callbackQueue</span><span class="p">:</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(</span><span class="nv">qos</span><span class="p">:</span> <span class="o">.</span><span class="n">userInitiated</span><span class="p">)</span>  <span class="c1">// High priority queue</span>
+<span class="p">)</span> <span class="p">{</span> <span class="n">callback</span> <span class="k">in</span>
+    <span class="c1">// Your file processing logic here</span>
+    <span class="k">let</span> <span class="nv">filePath</span> <span class="o">=</span> <span class="s">"/path/to/large/file.txt"</span>
+    <span class="k">do</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">Data</span><span class="p">(</span><span class="nv">contentsOf</span><span class="p">:</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">fileURLWithPath</span><span class="p">:</span> <span class="n">filePath</span><span class="p">))</span>
+        <span class="k">let</span> <span class="nv">processedData</span> <span class="o">=</span> <span class="kt">ProcessedData</span><span class="p">(</span><span class="nv">content</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="nv">metadata</span><span class="p">:</span> <span class="p">[</span><span class="s">"size"</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">count</span><span class="p">])</span>
+        <span class="nf">callback</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="n">processedData</span><span class="p">))</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+        <span class="nf">callback</span><span class="p">(</span><span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+<p><strong>Async Task Block Example:</strong></p>
+<pre class="highlight swift"><code><span class="c1">// Async/await initialization with modern Swift concurrency</span>
+<span class="k">let</span> <span class="nv">unzipTask</span> <span class="o">=</span> <span class="kt">MonoTask</span><span class="o">&lt;</span><span class="p">[</span><span class="kt">String</span><span class="p">]</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="c1">// Retry Strategy: Fixed interval retry for file operations</span>
+    <span class="nv">retry</span><span class="p">:</span> <span class="o">.</span><span class="nf">count</span><span class="p">(</span>
+        <span class="nv">count</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>    <span class="c1">// Retry twice for file system issues</span>
+        <span class="nv">intervalProxy</span><span class="p">:</span> <span class="o">.</span><span class="nf">fixed</span><span class="p">(</span><span class="nv">timeInterval</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>  <span class="c1">// Wait 1 second between retries</span>
+    <span class="p">),</span>
+
+    <span class="c1">// Result Caching: Cache unzipped file list for 10 minutes</span>
+    <span class="nv">resultExpireDuration</span><span class="p">:</span> <span class="mf">600.0</span><span class="p">,</span>      <span class="c1">// 10 minutes cache duration</span>
+
+    <span class="c1">// Task Queue: Background queue for file operations</span>
+    <span class="nv">taskQueue</span><span class="p">:</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(</span><span class="nv">qos</span><span class="p">:</span> <span class="o">.</span><span class="n">utility</span><span class="p">),</span>
+
+    <span class="c1">// Callback Queue: Main queue for UI updates</span>
+    <span class="nv">callbackQueue</span><span class="p">:</span> <span class="kt">DispatchQueue</span><span class="o">.</span><span class="n">main</span>
+<span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Async task block that returns Result directly</span>
+    <span class="k">do</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">archivePath</span> <span class="o">=</span> <span class="s">"/path/to/archive.zip"</span>
+        <span class="k">let</span> <span class="nv">extractPath</span> <span class="o">=</span> <span class="s">"/path/to/extract/"</span>
+
+        <span class="c1">// Simulate async unzip operation</span>
+        <span class="k">let</span> <span class="nv">extractedFiles</span> <span class="o">=</span> <span class="k">try</span> <span class="k">await</span> <span class="nf">unzipArchive</span><span class="p">(</span><span class="nv">at</span><span class="p">:</span> <span class="n">archivePath</span><span class="p">,</span> <span class="nv">to</span><span class="p">:</span> <span class="n">extractPath</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="n">extractedFiles</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Usage with async/await</span>
+<span class="k">let</span> <span class="nv">extractedFiles</span> <span class="o">=</span> <span class="k">try</span> <span class="k">await</span> <span class="n">unzipTask</span><span class="o">.</span><span class="nf">executeThrows</span><span class="p">()</span>
+<span class="nf">print</span><span class="p">(</span><span class="s">"Extracted </span><span class="se">\(</span><span class="n">extractedFiles</span><span class="o">.</span><span class="n">count</span><span class="se">)</span><span class="s"> files"</span><span class="p">)</span>
+</code></pre>
+<h3 id='3-kvlighttasksmanager' class='heading'>3. KVLightTasksManager</h3>
+
+<p><strong>High-Volume Task Execution</strong>: Handles high-volume operations with peak shaving, such as image downloads, local database batch reads, map tile downloads and cache warming operations</p>
+
+<p><strong>Simple Example (Default Configuration):</strong></p>
+<pre class="highlight swift"><code><span class="kd">import</span> <span class="kt">Monstra</span>
+
+<span class="c1">// Create a lightweight tasks manager for handling image downloads</span>
+<span class="k">let</span> <span class="nv">imageTaskManager</span> <span class="o">=</span> <span class="kt">KVLightTasksManager</span><span class="o">&lt;</span><span class="kt">UIImage</span><span class="o">&gt;</span> <span class="p">{</span> <span class="p">(</span><span class="nv">imageURL</span><span class="p">:</span> <span class="kt">URL</span><span class="p">,</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt">UIImage</span><span class="p">?,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span> <span class="k">in</span>
+    <span class="c1">// Simple image download task</span>
+    <span class="kt">URLSession</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">dataTask</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">imageURL</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">error</span> <span class="k">in</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">error</span> <span class="o">=</span> <span class="n">error</span> <span class="p">{</span>
+            <span class="nf">completion</span><span class="p">(</span><span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="n">error</span><span class="p">))</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span> <span class="k">let</span> <span class="nv">image</span> <span class="o">=</span> <span class="kt">UIImage</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span> <span class="p">{</span>
+            <span class="nf">completion</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="n">image</span><span class="p">))</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nf">completion</span><span class="p">(</span><span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="kt">NSError</span><span class="p">(</span><span class="nv">domain</span><span class="p">:</span> <span class="s">"ImageError"</span><span class="p">,</span> <span class="nv">code</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="nv">userInfo</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)))</span>
+        <span class="p">}</span>
+    <span class="p">}</span><span class="o">.</span><span class="nf">resume</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// Fetch multiple images</span>
+<span class="k">let</span> <span class="nv">imageURLs</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">"https://example.com/image1.jpg"</span><span class="p">,</span>
+    <span class="s">"https://example.com/image2.jpg"</span><span class="p">,</span> 
+    <span class="s">"https://example.com/image3.jpg"</span>
+<span class="p">]</span><span class="o">.</span><span class="n">compactMap</span> <span class="p">{</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="nv">$0</span><span class="p">)</span> <span class="p">}</span>
+
+<span class="c1">// Fetch images individually</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">url</span><span class="p">)</span> <span class="k">in</span> <span class="n">imageURLs</span><span class="o">.</span><span class="nf">enumerated</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">imageTaskManager</span><span class="o">.</span><span class="nf">fetch</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span> <span class="p">{</span> <span class="n">key</span><span class="p">,</span> <span class="n">result</span> <span class="k">in</span>
+        <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">image</span><span class="p">):</span>
+            <span class="k">if</span> <span class="k">let</span> <span class="nv">image</span> <span class="o">=</span> <span class="n">image</span> <span class="p">{</span>
+                <span class="nf">print</span><span class="p">(</span><span class="s">"Image </span><span class="se">\(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="se">)</span><span class="s"> downloaded successfully: </span><span class="se">\(</span><span class="n">image</span><span class="o">.</span><span class="n">size</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="nf">print</span><span class="p">(</span><span class="s">"Image </span><span class="se">\(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="se">)</span><span class="s"> returned nil"</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+            <span class="nf">print</span><span class="p">(</span><span class="s">"Image </span><span class="se">\(</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="se">)</span><span class="s"> failed: </span><span class="se">\(</span><span class="n">error</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Fetch multiple images at once with batch callback</span>
+<span class="n">imageTaskManager</span><span class="o">.</span><span class="nf">fetch</span><span class="p">(</span><span class="nv">keys</span><span class="p">:</span> <span class="n">imageURLs</span><span class="p">)</span> <span class="p">{</span> <span class="n">key</span><span class="p">,</span> <span class="n">result</span> <span class="k">in</span>
+    <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">image</span><span class="p">):</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">image</span> <span class="o">=</span> <span class="n">image</span> <span class="p">{</span>
+            <span class="nf">print</span><span class="p">(</span><span class="s">"Image downloaded: </span><span class="se">\(</span><span class="n">image</span><span class="o">.</span><span class="n">size</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nf">print</span><span class="p">(</span><span class="s">"Image returned nil"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"Image failed: </span><span class="se">\(</span><span class="n">error</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+<p><strong>Batch Processing Example:</strong></p>
+<pre class="highlight swift"><code><span class="c1">// Create a manager for batch fetching user profile data</span>
+<span class="k">let</span> <span class="nv">userProfileManager</span> <span class="o">=</span> <span class="kt">KVLightTasksManager</span><span class="o">&lt;</span><span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">UserProfile</span><span class="p">?]</span><span class="o">&gt;</span> <span class="p">{</span> <span class="p">(</span><span class="nv">userIDs</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">],</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">UserProfile</span><span class="p">?],</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span> <span class="k">in</span>
+    <span class="c1">// Simulate batch API call to fetch multiple user profiles</span>
+    <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">(</span><span class="nv">qos</span><span class="p">:</span> <span class="o">.</span><span class="n">utility</span><span class="p">)</span><span class="o">.</span><span class="k">async</span> <span class="p">{</span>
+        <span class="c1">// Simulate network delay</span>
+        <span class="kt">Thread</span><span class="o">.</span><span class="nf">sleep</span><span class="p">(</span><span class="nv">forTimeInterval</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">)</span>
+
+        <span class="k">var</span> <span class="nv">profiles</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">UserProfile</span><span class="p">?]</span> <span class="o">=</span> <span class="p">[:]</span>
+
+        <span class="c1">// Simulate batch API response</span>
+        <span class="k">for</span> <span class="n">userID</span> <span class="k">in</span> <span class="n">userIDs</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="nv">profile</span> <span class="o">=</span> <span class="kt">UserProfile</span><span class="p">(</span>
+                <span class="nv">id</span><span class="p">:</span> <span class="n">userID</span><span class="p">,</span>
+                <span class="nv">name</span><span class="p">:</span> <span class="s">"User </span><span class="se">\(</span><span class="n">userID</span><span class="se">)</span><span class="s">"</span><span class="p">,</span>
+                <span class="nv">email</span><span class="p">:</span> <span class="s">"user</span><span class="se">\(</span><span class="n">userID</span><span class="se">)</span><span class="s">@example.com"</span><span class="p">,</span>
+                <span class="nv">avatar</span><span class="p">:</span> <span class="s">"https://example.com/avatars/</span><span class="se">\(</span><span class="n">userID</span><span class="se">)</span><span class="s">.jpg"</span>
+            <span class="p">)</span>
+            <span class="n">profiles</span><span class="p">[</span><span class="n">userID</span><span class="p">]</span> <span class="o">=</span> <span class="n">profile</span>
+        <span class="p">}</span>
+
+        <span class="nf">completion</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="n">profiles</span><span class="p">))</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Fetch multiple user profiles in a single batch</span>
+<span class="k">let</span> <span class="nv">userIDs</span> <span class="o">=</span> <span class="p">[</span><span class="s">"user1"</span><span class="p">,</span> <span class="s">"user2"</span><span class="p">,</span> <span class="s">"user3"</span><span class="p">]</span>
+
+<span class="c1">// Using batch callback for all results at once</span>
+<span class="n">userProfileManager</span><span class="o">.</span><span class="nf">fetch</span><span class="p">(</span><span class="nv">keys</span><span class="p">:</span> <span class="n">userIDs</span><span class="p">,</span> <span class="nv">multiCallback</span><span class="p">:</span> <span class="p">{</span> <span class="n">results</span> <span class="k">in</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Batch loaded </span><span class="se">\(</span><span class="n">results</span><span class="o">.</span><span class="n">count</span><span class="se">)</span><span class="s"> users:"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">userID</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span> <span class="k">in</span> <span class="n">results</span> <span class="p">{</span>
+        <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">profile</span><span class="p">):</span>
+            <span class="k">if</span> <span class="k">let</span> <span class="nv">profile</span> <span class="o">=</span> <span class="n">profile</span> <span class="p">{</span>
+                <span class="nf">print</span><span class="p">(</span><span class="s">"  ✓ </span><span class="se">\(</span><span class="n">profile</span><span class="o">.</span><span class="n">name</span><span class="se">)</span><span class="s"> (</span><span class="se">\(</span><span class="n">profile</span><span class="o">.</span><span class="n">email</span><span class="se">)</span><span class="s">)"</span><span class="p">)</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="nf">print</span><span class="p">(</span><span class="s">"  - </span><span class="se">\(</span><span class="n">userID</span><span class="se">)</span><span class="s">: No profile found"</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+            <span class="nf">print</span><span class="p">(</span><span class="s">"  ✗ </span><span class="se">\(</span><span class="n">userID</span><span class="se">)</span><span class="s">: </span><span class="se">\(</span><span class="n">error</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">})</span>
+
+<span class="c1">// Using individual callbacks for each user (still benefits from batch processing)</span>
+<span class="n">userProfileManager</span><span class="o">.</span><span class="nf">fetch</span><span class="p">(</span><span class="nv">keys</span><span class="p">:</span> <span class="n">userIDs</span><span class="p">)</span> <span class="p">{</span> <span class="n">userID</span><span class="p">,</span> <span class="n">result</span> <span class="k">in</span>
+    <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">profile</span><span class="p">):</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">profile</span> <span class="o">=</span> <span class="n">profile</span> <span class="p">{</span>
+            <span class="nf">print</span><span class="p">(</span><span class="s">"Individual: </span><span class="se">\(</span><span class="n">profile</span><span class="o">.</span><span class="n">name</span><span class="se">)</span><span class="s"> loaded"</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nf">print</span><span class="p">(</span><span class="s">"Individual: </span><span class="se">\(</span><span class="n">userID</span><span class="se">)</span><span class="s"> - No profile found"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"Individual: </span><span class="se">\(</span><span class="n">userID</span><span class="se">)</span><span class="s"> - </span><span class="se">\(</span><span class="n">error</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+
+<p><strong>Advanced Configuration Example:</strong></p>
+<pre class="highlight swift"><code><span class="c1">// Create a manager with custom configuration for image downloads</span>
+<span class="k">let</span> <span class="nv">imageManager</span> <span class="o">=</span> <span class="kt">KVLightTasksManager</span><span class="o">&lt;</span><span class="kt">UIImage</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="nv">config</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+        <span class="nv">dataProvider</span><span class="p">:</span> <span class="o">.</span><span class="nf">multiprovide</span><span class="p">(</span><span class="nv">maximumBatchCount</span><span class="p">:</span> <span class="mi">4</span><span class="p">)</span> <span class="p">{</span> <span class="p">(</span><span class="nv">imageURLs</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">],</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">UIImage</span><span class="p">?],</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span> <span class="k">in</span>
+            <span class="c1">// Download multiple images in parallel</span>
+            <span class="k">let</span> <span class="nv">group</span> <span class="o">=</span> <span class="kt">DispatchGroup</span><span class="p">()</span>
+            <span class="k">var</span> <span class="nv">results</span> <span class="o">=</span> <span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">UIImage</span><span class="p">?]()</span>
+            <span class="k">let</span> <span class="nv">lock</span> <span class="o">=</span> <span class="kt">NSLock</span><span class="p">()</span>
+
+            <span class="k">for</span> <span class="n">urlString</span> <span class="k">in</span> <span class="n">imageURLs</span> <span class="p">{</span>
+                <span class="n">group</span><span class="o">.</span><span class="nf">enter</span><span class="p">()</span>
+
+                <span class="k">guard</span> <span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="n">urlString</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
+                    <span class="n">lock</span><span class="o">.</span><span class="nf">lock</span><span class="p">()</span>
+                    <span class="n">results</span><span class="p">[</span><span class="n">urlString</span><span class="p">]</span> <span class="o">=</span> <span class="kc">nil</span>
+                    <span class="n">lock</span><span class="o">.</span><span class="nf">unlock</span><span class="p">()</span>
+                    <span class="n">group</span><span class="o">.</span><span class="nf">leave</span><span class="p">()</span>
+                    <span class="k">continue</span>
+                <span class="p">}</span>
+
+                <span class="kt">URLSession</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">dataTask</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">error</span> <span class="k">in</span>
+                    <span class="k">defer</span> <span class="p">{</span> <span class="n">group</span><span class="o">.</span><span class="nf">leave</span><span class="p">()</span> <span class="p">}</span>
+
+                    <span class="n">lock</span><span class="o">.</span><span class="nf">lock</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">,</span> <span class="k">let</span> <span class="nv">image</span> <span class="o">=</span> <span class="kt">UIImage</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span> <span class="p">{</span>
+                        <span class="n">results</span><span class="p">[</span><span class="n">urlString</span><span class="p">]</span> <span class="o">=</span> <span class="n">image</span>
+                    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                        <span class="n">results</span><span class="p">[</span><span class="n">urlString</span><span class="p">]</span> <span class="o">=</span> <span class="kc">nil</span>
+                    <span class="p">}</span>
+                    <span class="n">lock</span><span class="o">.</span><span class="nf">unlock</span><span class="p">()</span>
+                <span class="p">}</span><span class="o">.</span><span class="nf">resume</span><span class="p">()</span>
+            <span class="p">}</span>
+
+            <span class="n">group</span><span class="o">.</span><span class="nf">notify</span><span class="p">(</span><span class="nv">queue</span><span class="p">:</span> <span class="o">.</span><span class="n">main</span><span class="p">)</span> <span class="p">{</span>
+                <span class="nf">completion</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="n">results</span><span class="p">))</span>
+            <span class="p">}</span>
+        <span class="p">},</span>
+        <span class="nv">maxNumberOfQueueingTasks</span><span class="p">:</span> <span class="mi">32</span><span class="p">,</span>     <span class="c1">// Queue up to 32 image requests</span>
+        <span class="nv">maxNumberOfRunningTasks</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>       <span class="c1">// Download 4 images simultaneously</span>
+        <span class="nv">retryCount</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>                    <span class="c1">// Retry failed downloads once</span>
+        <span class="kt">PriorityStrategy</span><span class="p">:</span> <span class="o">.</span><span class="kt">FIFO</span><span class="p">,</span>          <span class="c1">// Process oldest requests first</span>
+        <span class="nv">cacheConfig</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+            <span class="nv">capacity</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>                <span class="c1">// Cache up to 100 images</span>
+            <span class="nv">memory</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>                   <span class="c1">// 50MB memory limit</span>
+            <span class="n">defaultTTL</span><span class="p">:</span> <span class="mf">3600.0</span><span class="p">,</span>           <span class="c1">// 1 hour cache duration</span>
+            <span class="nv">enableThreadSynchronization</span><span class="p">:</span> <span class="kc">true</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1">// Download multiple images</span>
+<span class="k">let</span> <span class="nv">imageURLs</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s">"https://example.com/image1.jpg"</span><span class="p">,</span>
+    <span class="s">"https://example.com/image2.jpg"</span><span class="p">,</span>
+    <span class="s">"https://example.com/image3.jpg"</span>
+<span class="p">]</span>
+
+<span class="c1">// Download all images</span>
+<span class="n">imageManager</span><span class="o">.</span><span class="nf">fetch</span><span class="p">(</span><span class="nv">keys</span><span class="p">:</span> <span class="n">imageURLs</span><span class="p">)</span> <span class="p">{</span> <span class="n">url</span><span class="p">,</span> <span class="n">result</span> <span class="k">in</span>
+    <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">image</span><span class="p">):</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">image</span> <span class="o">=</span> <span class="n">image</span> <span class="p">{</span>
+            <span class="nf">print</span><span class="p">(</span><span class="s">"✓ Downloaded: </span><span class="se">\(</span><span class="n">image</span><span class="o">.</span><span class="n">size</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nf">print</span><span class="p">(</span><span class="s">"- Failed to download: </span><span class="se">\(</span><span class="n">url</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"✗ Error: </span><span class="se">\(</span><span class="n">error</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+</code></pre>
+<h3 id='4-kvheavytasksmanager' class='heading'>4. KVHeavyTasksManager</h3>
+
+<p><strong>Resource-Intensive Operations</strong>: Handles demanding tasks such as large file downloads, video processing, and ML inference with comprehensive progress tracking</p>
+<h4 id='simpledataprovider-implementation' class='heading'>SimpleDataProvider implementation</h4>
+
+<p>Notes:</p>
+
+<ul>
+<li><code>SimpleDataProvider</code> is intentionally minimal (blocking I/O, no progress/resume) for clarity.</li>
+<li>For production downloads with progress/resume/cancellation, see the advanced providers in
+<code>Examples/KVHeavyTasksManager/LargeFileDownloadManagement</code>.</li>
+</ul>
+<pre class="highlight swift"><code><span class="kd">import</span> <span class="kt">Foundation</span>
+<span class="kd">import</span> <span class="kt">Monstra</span>
+
+<span class="kd">enum</span> <span class="kt">SimpleDataProviderEvent</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="n">didStart</span>
+    <span class="k">case</span> <span class="n">didFinish</span>
+<span class="p">}</span>
+
+<span class="c1">/// Minimal synchronous provider for educational purposes only.</span>
+<span class="kd">class</span> <span class="kt">SimpleDataProvider</span><span class="p">:</span> <span class="kt">Monstra</span><span class="o">.</span><span class="kt">KVHeavyTaskBaseDataProvider</span><span class="o">&lt;</span><span class="kt">URL</span><span class="p">,</span> <span class="kt">Data</span><span class="p">,</span> <span class="kt">SimpleDataProviderEvent</span><span class="o">&gt;</span><span class="p">,</span> <span class="kt">Monstra</span><span class="o">.</span><span class="kt">KVHeavyTaskDataProviderInterface</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">semaphore</span> <span class="o">=</span> <span class="kt">DispatchSemaphore</span><span class="p">(</span><span class="nv">value</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">var</span> <span class="nv">isRunning</span> <span class="o">=</span> <span class="kc">false</span> <span class="p">{</span>
+        <span class="k">didSet</span> <span class="p">{</span> <span class="nf">customEventPublisher</span><span class="p">(</span><span class="n">isRunning</span> <span class="p">?</span> <span class="o">.</span><span class="nv">didStart</span> <span class="p">:</span> <span class="o">.</span><span class="n">didFinish</span><span class="p">)</span> <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">semaphore</span><span class="o">.</span><span class="nf">wait</span><span class="p">();</span> <span class="k">defer</span> <span class="p">{</span> <span class="n">semaphore</span><span class="o">.</span><span class="nf">signal</span><span class="p">()</span> <span class="p">}</span>
+        <span class="k">guard</span> <span class="o">!</span><span class="n">isRunning</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="p">}</span>
+        <span class="n">isRunning</span> <span class="o">=</span> <span class="kc">true</span>
+
+        <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">()</span><span class="o">.</span><span class="k">async</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="nv">result</span><span class="p">:</span> <span class="kt">Result</span><span class="o">&lt;</span><span class="kt">Data</span><span class="p">?,</span> <span class="kt">Error</span><span class="o">&gt;</span>
+            <span class="k">do</span> <span class="p">{</span>
+                <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">Data</span><span class="p">(</span><span class="nv">contentsOf</span><span class="p">:</span> <span class="k">self</span><span class="o">.</span><span class="n">key</span><span class="p">,</span> <span class="nv">options</span><span class="p">:</span> <span class="o">.</span><span class="n">mappedIfSafe</span><span class="p">)</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+            <span class="p">}</span>
+
+            <span class="k">self</span><span class="o">.</span><span class="n">semaphore</span><span class="o">.</span><span class="nf">wait</span><span class="p">();</span> <span class="k">defer</span> <span class="p">{</span> <span class="k">self</span><span class="o">.</span><span class="n">semaphore</span><span class="o">.</span><span class="nf">signal</span><span class="p">()</span> <span class="p">}</span>
+            <span class="k">guard</span> <span class="k">self</span><span class="o">.</span><span class="n">isRunning</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="p">}</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">isRunning</span> <span class="o">=</span> <span class="kc">false</span>
+            <span class="k">self</span><span class="o">.</span><span class="nf">resultPublisher</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kd">@discardableResult</span>
+    <span class="kd">func</span> <span class="nf">stop</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">KVHeavyTaskDataProviderStopAction</span> <span class="p">{</span>
+        <span class="n">semaphore</span><span class="o">.</span><span class="nf">wait</span><span class="p">();</span> <span class="k">defer</span> <span class="p">{</span> <span class="n">semaphore</span><span class="o">.</span><span class="nf">signal</span><span class="p">()</span> <span class="p">}</span>
+        <span class="k">guard</span> <span class="n">isRunning</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="o">.</span><span class="n">dealloc</span> <span class="p">}</span>
+        <span class="n">isRunning</span> <span class="o">=</span> <span class="kc">false</span>
+        <span class="k">return</span> <span class="o">.</span><span class="n">dealloc</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre>
+<h4 id='minimal-usage' class='heading'>Minimal usage</h4>
+<pre class="highlight swift"><code><span class="kd">import</span> <span class="kt">Monstra</span>
+
+<span class="c1">// Educational provider that does a blocking read on a background queue</span>
+<span class="c1">// See: Examples/KVHeavyTasksManager/LargeFileDownloadManagement/Sources/.../SimpleDataProvider.swift</span>
+<span class="kd">typealias</span> <span class="kt">SimpleHeavyManager</span> <span class="o">=</span> <span class="kt">KVHeavyTasksManager</span><span class="o">&lt;</span><span class="kt">URL</span><span class="p">,</span> <span class="kt">Data</span><span class="p">,</span> <span class="kt">SimpleDataProviderEvent</span><span class="p">,</span> <span class="kt">SimpleDataProvider</span><span class="o">&gt;</span>
+
+<span class="k">let</span> <span class="nv">manager</span> <span class="o">=</span> <span class="kt">SimpleHeavyManager</span><span class="p">(</span><span class="nv">config</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">())</span>
+<span class="k">let</span> <span class="nv">fileURL</span> <span class="o">=</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"https://example.com/file.bin"</span><span class="p">)</span><span class="o">!</span>
+
+<span class="c1">// Observe simple start/finish events and get the result</span>
+<span class="n">manager</span><span class="o">.</span><span class="nf">fetch</span><span class="p">(</span>
+    <span class="nv">key</span><span class="p">:</span> <span class="n">fileURL</span><span class="p">,</span>
+    <span class="nv">customEventObserver</span><span class="p">:</span> <span class="p">{</span> <span class="n">event</span> <span class="k">in</span>
+        <span class="k">switch</span> <span class="n">event</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nv">didStart</span><span class="p">:</span>  <span class="nf">print</span><span class="p">(</span><span class="s">"SimpleDataProvider: didStart"</span><span class="p">)</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nv">didFinish</span><span class="p">:</span> <span class="nf">print</span><span class="p">(</span><span class="s">"SimpleDataProvider: didFinish"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">},</span>
+    <span class="nv">result</span><span class="p">:</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+        <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">data</span><span class="p">):</span>
+            <span class="nf">print</span><span class="p">(</span><span class="s">"Downloaded: </span><span class="se">\(</span><span class="n">data</span><span class="o">.</span><span class="n">count</span><span class="se">)</span><span class="s"> bytes"</span><span class="p">)</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+            <span class="nf">print</span><span class="p">(</span><span class="s">"Failed: </span><span class="se">\(</span><span class="n">error</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</code></pre>
+<h2 id='advanced-examples' class='heading'>🚀 Advanced Examples</h2>
+<h3 id='strong-monotask-task-execution-scenarios-strong' class='heading'><strong>⚡ MonoTask - Task Execution Scenarios</strong></h3>
+
+<table width="100%">
+  <colgroup>
+    <col width="40%" />
+    <col width="40%" />
+    <col width="20%" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Scenarios</th>
+      <th>Best Practices</th>
+      <th>Example Link</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Module Initialization</td>
+      <td>Cache app configuration with retry logic</td>
+      <td><a href="Examples/MonoTask/ModuleInitialization">Module Initialization</a></td>
+    </tr>
+    <tr>
+      <td>UserProfile Manager</td>
+      <td>Single-instance user profile management with caching</td>
+      <td><a href="Examples/MonoTask/UserProfileManager">UserProfile Manager</a></td>
+    </tr>
+  </tbody>
+ </table>
+<h3 id='strong-kvlighttasksmanager-light-task-scenarios-strong' class='heading'><strong>🚀 KVLightTasksManager - Light Task Scenarios</strong></h3>
+
+<table width="100%">
+  <colgroup>
+    <col width="40%" />
+    <col width="40%" />
+    <col width="20%" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Scenarios</th>
+      <th>Best Practices</th>
+      <th>Example Link</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Object Fetch Task</td>
+      <td>Batch fetch objects by ID list with performance enhancement</td>
+      <td><a href="Examples/KVLightTasksManager/ObjectFetchTask">Object Fetch Task</a></td>
+    </tr>
+  </tbody>
+ </table>
+<h3 id='strong-️-kvheavytasksmanager-heavy-task-scenarios-strong' class='heading'><strong>🏗️ KVHeavyTasksManager - Heavy Task Scenarios</strong></h3>
+
+<table width="100%">
+  <colgroup>
+    <col width="40%" />
+    <col width="40%" />
+    <col width="20%" />
+  </colgroup>
+  <thead>
+    <tr>
+      <th>Scenarios</th>
+      <th>Best Practices</th>
+      <th>Example Link</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Large File Download Management</td>
+      <td>Large file downloads with progress tracking</td>
+      <td><a href="Examples/KVHeavyTasksManager/LargeFileDownloadManagement">Large File Downloader</a></td>
+    </tr>
+    <tr>
+      <td>Large File Unzip</td>
+      <td>Processing large archive files with progress tracking and resource management</td>
+      <td><a href="Examples/KVHeavyTasksManager/LargeFileUnzip">Large File Unzip</a></td>
+    </tr>
+  </tbody>
+ </table>
+<h2 id='requirements' class='heading'>📋 Requirements</h2>
+<h3 id='platform-support' class='heading'>Platform Support</h3>
+
+<ul>
+<li><strong>iOS</strong>: 13.0+</li>
+<li><strong>macOS</strong>: 10.15+</li>
+<li><strong>tvOS</strong>: 13.0+</li>
+<li><strong>watchOS</strong>: 6.0+</li>
+</ul>
+<h3 id='swift-version' class='heading'>Swift Version</h3>
+
+<ul>
+<li><strong>Swift</strong>: 5.5+</li>
+</ul>
+<h3 id='dependencies' class='heading'>Dependencies</h3>
+
+<ul>
+<li><strong>Foundation</strong>: Built-in (no external dependencies)</li>
+<li><strong>Alamofire</strong>: Only for example executable (not required for core library)</li>
+</ul>
+<h2 id='️-key-advantages-amp-protection-mechanisms' class='heading'>🛡️ Key Advantages &amp; Protection Mechanisms</h2>
+<h3 id='strong-monstore-protection-features-strong' class='heading'><strong>Monstore Protection Features</strong></h3>
+<h3 id='strong-cache-stampede-prevention-strong' class='heading'><strong>Cache Stampede Prevention</strong></h3>
+
+<p>Monstra prevents cache stampede attacks through TTL randomization. When multiple cache entries expire simultaneously, it can cause a sudden surge of requests to your backend. Monstra randomizes expiration times within a configurable range to distribute the load.</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">cache</span> <span class="o">=</span> <span class="kt">MemoryCache</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="kt">Data</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="nv">configuration</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+        <span class="nv">ttlRandomizationRange</span><span class="p">:</span> <span class="mf">30.0</span> <span class="c1">// ±30 seconds randomization</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre>
+<h3 id='strong-avalanche-protection-strong' class='heading'><strong>Avalanche Protection</strong></h3>
+
+<p>Monstra protects against memory avalanches by implementing intelligent eviction policies. When memory usage approaches limits, the system automatically evicts the least valuable entries based on priority, recency, and expiration status.</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">cache</span> <span class="o">=</span> <span class="kt">MemoryCache</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="kt">UIImage</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="nv">configuration</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+        <span class="nv">memoryUsageLimitation</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+            <span class="nv">capacity</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>    <span class="c1">// Max 1000 images</span>
+            <span class="nv">memory</span><span class="p">:</span> <span class="mi">500</span>        <span class="c1">// Max 500MB</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre>
+<h3 id='strong-breakdown-protection-strong' class='heading'><strong>Breakdown Protection</strong></h3>
+
+<p>Monstra prevents cache breakdowns through priority-based LRU eviction. Critical data with higher priority is retained longer, while less important data is evicted first when capacity is reached.</p>
+<pre class="highlight swift"><code><span class="c1">// Set high priority for critical data</span>
+<span class="n">cache</span><span class="o">.</span><span class="nf">set</span><span class="p">(</span><span class="nv">element</span><span class="p">:</span> <span class="n">userProfile</span><span class="p">,</span> <span class="nv">for</span><span class="p">:</span> <span class="s">"user-123"</span><span class="p">,</span> <span class="nv">priority</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">)</span>
+
+<span class="c1">// Set low priority for temporary data</span>
+<span class="n">cache</span><span class="o">.</span><span class="nf">set</span><span class="p">(</span><span class="nv">element</span><span class="p">:</span> <span class="n">searchResults</span><span class="p">,</span> <span class="nv">for</span><span class="p">:</span> <span class="s">"search-query"</span><span class="p">,</span> <span class="nv">priority</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">)</span>
+</code></pre>
+<h3 id='strong-null-element-caching-strong' class='heading'><strong>Null Element Caching</strong></h3>
+
+<p>Monstra supports caching null/nil elements with separate TTL configuration, preventing repeated database queries for non-existent data.</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">cache</span> <span class="o">=</span> <span class="kt">MemoryCache</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="kt">User</span><span class="p">?</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="nv">configuration</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+        <span class="n">defaultTTL</span><span class="p">:</span> <span class="mf">3600.0</span><span class="p">,</span>           <span class="c1">// Regular data: 1 hour</span>
+        <span class="n">defaultTTLForNullElement</span><span class="p">:</span> <span class="mf">300.0</span>  <span class="c1">// Null data: 5 minutes</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="c1">// Cache both existing and non-existing users</span>
+<span class="n">cache</span><span class="o">.</span><span class="nf">set</span><span class="p">(</span><span class="nv">element</span><span class="p">:</span> <span class="n">user</span><span class="p">,</span> <span class="nv">for</span><span class="p">:</span> <span class="s">"user-123"</span><span class="p">)</span>      <span class="c1">// Regular cache</span>
+<span class="n">cache</span><span class="o">.</span><span class="nf">set</span><span class="p">(</span><span class="nv">element</span><span class="p">:</span> <span class="kc">nil</span><span class="p">,</span> <span class="nv">for</span><span class="p">:</span> <span class="s">"user-999"</span><span class="p">)</span>      <span class="c1">// Null cache</span>
+</code></pre>
+<h3 id='strong-monstask-protection-features-strong' class='heading'><strong>Monstask Protection Features</strong></h3>
+<h4 id='strong-monotask-execution-merging-amp-deduplication-strong' class='heading'><strong>MonoTask - Execution Merging &amp; Deduplication</strong></h4>
+
+<p>MonoTask prevents duplicate work through intelligent execution merging. When multiple concurrent requests are made for the same task, only one execution occurs while all callbacks receive the same result.</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">task</span> <span class="o">=</span> <span class="kt">MonoTask</span><span class="o">&lt;</span><span class="kt">String</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">resultExpireDuration</span><span class="p">:</span> <span class="mf">60.0</span><span class="p">)</span> <span class="p">{</span> <span class="n">callback</span> <span class="k">in</span>
+    <span class="c1">// Expensive network call</span>
+    <span class="nf">performExpensiveOperation</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// Multiple concurrent calls - only one network request</span>
+<span class="kt">Task</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">result1</span> <span class="o">=</span> <span class="k">await</span> <span class="n">task</span><span class="o">.</span><span class="nf">asyncExecute</span><span class="p">()</span> <span class="c1">// Network call happens</span>
+    <span class="k">let</span> <span class="nv">result2</span> <span class="o">=</span> <span class="k">await</span> <span class="n">task</span><span class="o">.</span><span class="nf">asyncExecute</span><span class="p">()</span> <span class="c1">// Returns cached result</span>
+    <span class="k">let</span> <span class="nv">result3</span> <span class="o">=</span> <span class="k">await</span> <span class="n">task</span><span class="o">.</span><span class="nf">asyncExecute</span><span class="p">()</span> <span class="c1">// Returns cached result</span>
+<span class="p">}</span>
+</code></pre>
+<h4 id='strong-monotask-advanced-retry-strategies-strong' class='heading'><strong>MonoTask - Advanced Retry Strategies</strong></h4>
+
+<p>MonoTask provides sophisticated retry mechanisms with exponential backoff, fixed intervals, and hybrid approaches to handle transient failures gracefully.</p>
+<pre class="highlight swift"><code><span class="c1">// Exponential backoff with 3 retries</span>
+<span class="k">let</span> <span class="nv">retryTask</span> <span class="o">=</span> <span class="kt">MonoTask</span><span class="o">&lt;</span><span class="kt">Data</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="nv">retry</span><span class="p">:</span> <span class="o">.</span><span class="nf">count</span><span class="p">(</span>
+        <span class="nv">count</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> 
+        <span class="nv">intervalProxy</span><span class="p">:</span> <span class="o">.</span><span class="nf">exponentialBackoff</span><span class="p">(</span>
+            <span class="nv">initialTimeInterval</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span> 
+            <span class="nv">scaleRate</span><span class="p">:</span> <span class="mf">2.0</span>
+        <span class="p">)</span>
+    <span class="p">),</span>
+    <span class="nv">resultExpireDuration</span><span class="p">:</span> <span class="mf">300.0</span>
+<span class="p">)</span> <span class="p">{</span> <span class="n">callback</span> <span class="k">in</span>
+    <span class="nf">performNetworkRequest</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// Fixed interval retry</span>
+<span class="k">let</span> <span class="nv">fixedRetryTask</span> <span class="o">=</span> <span class="kt">MonoTask</span><span class="o">&lt;</span><span class="kt">Data</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="nv">retry</span><span class="p">:</span> <span class="o">.</span><span class="nf">count</span><span class="p">(</span>
+        <span class="nv">count</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> 
+        <span class="nv">intervalProxy</span><span class="p">:</span> <span class="o">.</span><span class="nf">fixed</span><span class="p">(</span><span class="nv">timeInterval</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span> <span class="p">{</span> <span class="n">callback</span> <span class="k">in</span>
+    <span class="nf">performDatabaseQuery</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre>
+<h4 id='strong-monotask-execution-state-management-strong' class='heading'><strong>MonoTask - Execution State Management</strong></h4>
+
+<p>MonoTask provides fine-grained control over task execution states with cancellation, restart, and completion strategies.</p>
+<pre class="highlight swift"><code><span class="c1">// Cancel ongoing execution immediately</span>
+<span class="n">task</span><span class="o">.</span><span class="nf">clearResult</span><span class="p">(</span><span class="nv">ongoingExecutionStrategy</span><span class="p">:</span> <span class="o">.</span><span class="n">cancel</span><span class="p">)</span>
+
+<span class="c1">// Let execution complete, then restart</span>
+<span class="n">task</span><span class="o">.</span><span class="nf">clearResult</span><span class="p">(</span><span class="nv">ongoingExecutionStrategy</span><span class="p">:</span> <span class="o">.</span><span class="n">restart</span><span class="p">)</span>
+
+<span class="c1">// Let execution complete normally, just clear cache</span>
+<span class="n">task</span><span class="o">.</span><span class="nf">clearResult</span><span class="p">(</span><span class="nv">ongoingExecutionStrategy</span><span class="p">:</span> <span class="o">.</span><span class="n">allowCompletion</span><span class="p">)</span>
+</code></pre>
+<h4 id='strong-monotask-multiple-execution-patterns-strong' class='heading'><strong>MonoTask - Multiple Execution Patterns</strong></h4>
+
+<p>MonoTask supports various execution patterns to fit different use cases and coding styles.</p>
+<pre class="highlight swift"><code><span class="c1">// Async/await (recommended for modern Swift)</span>
+<span class="k">let</span> <span class="nv">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">task</span><span class="o">.</span><span class="nf">asyncExecute</span><span class="p">()</span>
+<span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+<span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">data</span><span class="p">):</span>
+    <span class="nf">updateUI</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+<span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+    <span class="nf">showErrorMessage</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// Callback-based (for legacy code integration)</span>
+<span class="n">task</span><span class="o">.</span><span class="n">execute</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+    <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">data</span><span class="p">):</span>
+        <span class="nf">updateUI</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+        <span class="nf">showErrorMessage</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Fire-and-forget (for pre-warming cache)</span>
+<span class="n">task</span><span class="o">.</span><span class="nf">justExecute</span><span class="p">()</span>
+<span class="c1">// Later, this will likely return cached result</span>
+<span class="k">let</span> <span class="nv">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">task</span><span class="o">.</span><span class="nf">asyncExecute</span><span class="p">()</span>
+</code></pre>
+<h4 id='strong-task-managers-priority-based-scheduling-strong' class='heading'><strong>Task Managers - Priority-Based Scheduling</strong></h4>
+
+<p>KVLightTasksManager and KVHeavyTasksManager provide priority-based scheduling with LIFO/FIFO strategies for optimal resource utilization.</p>
+<pre class="highlight swift"><code><span class="k">let</span> <span class="nv">lightManager</span> <span class="o">=</span> <span class="kt">KVLightTasksManager</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="kt">User</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="nv">config</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+        <span class="nv">dataProvider</span><span class="p">:</span> <span class="o">.</span><span class="n">asyncMonoprovide</span> <span class="p">{</span> <span class="n">key</span> <span class="k">in</span>
+            <span class="k">try</span> <span class="k">await</span> <span class="kt">API</span><span class="o">.</span><span class="nf">fetchUser</span><span class="p">(</span><span class="nv">id</span><span class="p">:</span> <span class="n">key</span><span class="p">)</span>
+        <span class="p">},</span>
+        <span class="kt">PriorityStrategy</span><span class="p">:</span> <span class="o">.</span><span class="kt">LIFO</span><span class="p">,</span>  <span class="c1">// Latest requests get priority</span>
+        <span class="nv">maxNumberOfRunningTasks</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="nv">maxNumberOfQueueingTasks</span><span class="p">:</span> <span class="mi">256</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="k">let</span> <span class="nv">heavyManager</span> <span class="o">=</span> <span class="kt">KVHeavyTasksManager</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="kt">Video</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="nv">config</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+        <span class="nv">dataProvider</span><span class="p">:</span> <span class="o">.</span><span class="n">asyncMonoprovide</span> <span class="p">{</span> <span class="n">key</span> <span class="k">in</span>
+            <span class="k">try</span> <span class="k">await</span> <span class="kt">VideoProcessor</span><span class="o">.</span><span class="nf">process</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="p">},</span>
+        <span class="kt">PriorityStrategy</span><span class="p">:</span> <span class="o">.</span><span class="kt">FIFO</span><span class="p">,</span>  <span class="c1">// Fair processing order</span>
+        <span class="nv">maxNumberOfRunningTasks</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>  <span class="c1">// Limited for heavy operations</span>
+        <span class="nv">maxNumberOfQueueingTasks</span><span class="p">:</span> <span class="mi">64</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</code></pre>
+<h2 id='contributing' class='heading'>🤝 Contributing</h2>
+
+<p>We welcome contributions! Please see our <a href="CONTRIBUTING.md">Contributing Guide</a> for details.</p>
+<h3 id='development-workflow' class='heading'>Development Workflow</h3>
+
+<ol>
+<li>Fork the repository</li>
+<li>Create a feature branch (<code>git checkout -b feature/amazing-feature</code>)</li>
+<li>Make your changes</li>
+<li>Add tests for new functionality</li>
+<li>Ensure all tests pass (<code>swift test</code>)</li>
+<li>Run linting (<code>swiftlint lint Sources/</code>)</li>
+<li>Commit your changes (<code>git commit -m &#39;Add amazing feature&#39;</code>)</li>
+<li>Push to the branch (<code>git push origin feature/amazing-feature</code>)</li>
+<li>Submit a pull request</li>
+</ol>
+<h3 id='code-style' class='heading'>Code Style</h3>
+
+<ul>
+<li>Follow Swift API Design Guidelines</li>
+<li>Use meaningful variable and function names</li>
+<li>Add comprehensive documentation comments</li>
+<li>Ensure all public APIs have unit tests</li>
+<li>Maintain performance benchmarks</li>
+</ul>
+<h2 id='license' class='heading'>📄 License</h2>
+
+<p>This project is licensed under the MIT License - see the <a href="LICENSE">LICENSE</a> file for details.</p>
+<h2 id='acknowledgments' class='heading'>🙏 Acknowledgments</h2>
+
+<ul>
+<li>Inspired by high-performance cache implementations</li>
+<li>Built with Swift&rsquo;s excellent type system and performance characteristics</li>
+<li>Tested extensively for production readiness</li>
+<li>Special thanks to the Swift community for feedback and contributions</li>
+<li>Special thanks to <a href="https://cursor.sh">Cursor</a> - AI-first code editor for enhancing development productivity</li>
+</ul>
+
+<hr>
+
+<p><strong>Made with ❤️ for the Swift community</strong> </p>
+
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2025 <a class="link" href="mailto:yangchenlarkin@gmail.com" target="_blank" rel="external noopener">Larkin</a>. All rights reserved. (Last updated: 2025-09-09)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

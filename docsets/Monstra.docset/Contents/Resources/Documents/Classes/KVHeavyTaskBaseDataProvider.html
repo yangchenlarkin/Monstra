@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>KVHeavyTaskBaseDataProvider Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Class/KVHeavyTaskBaseDataProvider" class="dashAnchor"></a>
+    <a title="KVHeavyTaskBaseDataProvider Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">Monstra 0.0.9 Docs</a> (100% documented)</p>
+        <p class="header-right"><a href="https://github.com/yangchenlarkin/Monstra"><img src="../img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">Monstra</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        <a href="../Classes.html">Classes</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        KVHeavyTaskBaseDataProvider Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink.html">DoublyLink</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink/EvictedStrategy.html">– EvictedStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink/Node.html">– Node</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/HashQueue.html">HashQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap.html">Heap</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap/Event.html">– Event</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap/ComparisonResult.html">– ComparisonResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTaskBaseDataProvider.html">KVHeavyTaskBaseDataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager.html">KVHeavyTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager.html">KVLightTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/DataProvider.html">– DataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache.html">MemoryCache</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache/Configuration.html">– Configuration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache/FetchResult.html">– FetchResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask.html">MonoTask</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask/OngoingExecutionStrategy.html">– OngoingExecutionStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/PriorityLRUQueue.html">PriorityLRUQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/TTLPriorityLRUQueue.html">TTLPriorityLRUQueue</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/CacheRecord.html">CacheRecord</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/KVHeavyTaskDataProviderStopAction.html">KVHeavyTaskDataProviderStopAction</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/RetryCount.html">RetryCount</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/RetryCount/IntervalProxy.html">– IntervalProxy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/CPUTimeStamp.html">CPUTimeStamp</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CacheStatistics.html">CacheStatistics</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/MemoryUsageLimitation.html">MemoryUsageLimitation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/TracingIDFactory.html">TracingIDFactory</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>KVHeavyTaskBaseDataProvider</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">open</span> <span class="kd">class</span> <span class="kt">KVHeavyTaskBaseDataProvider</span><span class="o">&lt;</span><span class="kt">K</span><span class="p">,</span> <span class="kt">Element</span><span class="p">,</span> <span class="kt">CustomEvent</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">K</span> <span class="p">:</span> <span class="kt">Hashable</span></code></pre>
+
+                </div>
+              </div>
+            <p>Base class for heavy task data providers that defines the foundation for task execution.</p>
+
+<p>This abstract base class provides the essential components that every heavy task data provider needs:
+a unique key identifier, event publishing capabilities, and result delivery mechanisms.
+It serves as the foundation for implementing concrete data providers that perform specific heavy operations.</p>
+<h2 id='key-responsibilities' class='heading'>Key Responsibilities</h2>
+
+<ul>
+<li><strong>Task Identification</strong>: Maintains unique key for task tracking and cache coordination</li>
+<li><strong>Event Broadcasting</strong>: Provides mechanism for real-time progress and status updates</li>
+<li><strong>Result Delivery</strong>: Handles final result publishing with success/failure states</li>
+<li><strong>Type Safety</strong>: Enforces generic type constraints for keys, elements, and events</li>
+</ul>
+<h2 id='generic-parameters' class='heading'>Generic Parameters</h2>
+
+<ul>
+<li><code>K</code>: Key type (must be Hashable) used for task identification and caching</li>
+<li><code>Element</code>: Result type returned upon successful task completion</li>
+<li><code>CustomEvent</code>: Event type for progress updates and status notifications</li>
+</ul>
+<h2 id='usage-pattern' class='heading'>Usage Pattern</h2>
+
+<p>Concrete implementations should inherit from this class and implement the
+<code><a href="../Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a></code> protocol to provide actual task execution logic.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra27KVHeavyTaskBaseDataProviderC20CustomEventPublishera"></a>
+                    <a name="//apple_ref/swift/Alias/CustomEventPublisher" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra27KVHeavyTaskBaseDataProviderC20CustomEventPublishera">CustomEventPublisher</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Callback type for publishing custom events during task execution.</p>
+
+<p>This closure is invoked to broadcast real-time updates such as:</p>
+
+<ul>
+<li>Progress percentages and completion estimates</li>
+<li>Status changes (starting, processing, pausing)</li>
+<li>Custom metrics (throughput, error counts, quality metrics)</li>
+<li>User-defined events specific to the task domain</li>
+</ul>
+
+<p>Events are published asynchronously to avoid blocking task execution.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">typealias</span> <span class="kt">CustomEventPublisher</span> <span class="o">=</span> <span class="kd">@Sendable</span> <span class="p">(</span><span class="kt">CustomEvent</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra27KVHeavyTaskBaseDataProviderC15ResultPublishera"></a>
+                    <a name="//apple_ref/swift/Alias/ResultPublisher" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra27KVHeavyTaskBaseDataProviderC15ResultPublishera">ResultPublisher</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Callback type for publishing the final task result.</p>
+
+<p>This closure is called exactly once per task execution to deliver:</p>
+
+<ul>
+<li><strong>Success case</strong>: Contains the computed result or nil for valid null results</li>
+<li><strong>Failure case</strong>: Contains detailed error information for debugging and recovery</li>
+</ul>
+
+<p>The callback is thread-safe and handles proper cleanup after result delivery.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">typealias</span> <span class="kt">ResultPublisher</span> <span class="o">=</span> <span class="kd">@Sendable</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt">Element</span><span class="p">?,</span> <span class="kt">Error</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra27KVHeavyTaskBaseDataProviderC3keyxvp"></a>
+                    <a name="//apple_ref/swift/Property/key" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra27KVHeavyTaskBaseDataProviderC3keyxvp">key</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The unique identifier for this task instance.</p>
+
+<p>This key serves multiple purposes:</p>
+
+<ul>
+<li><strong>Task identification</strong>: Uniquely identifies this task across the system</li>
+<li><strong>Cache coordination</strong>: Used as cache key for result storage and retrieval</li>
+<li><strong>Deduplication</strong>: Prevents duplicate tasks from running simultaneously</li>
+<li><strong>Progress tracking</strong>: Associates events and callbacks with specific tasks</li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">internal(set)</span> <span class="k">var</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">K</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra27KVHeavyTaskBaseDataProviderC20customEventPublisheryyq0_Ybcvp"></a>
+                    <a name="//apple_ref/swift/Property/customEventPublisher" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra27KVHeavyTaskBaseDataProviderC20customEventPublisheryyq0_Ybcvp">customEventPublisher</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Publisher for broadcasting custom events during task execution.</p>
+
+<p>Use this callback to send real-time updates to observers. Events are delivered
+asynchronously on a global queue to prevent blocking the main task execution.
+Multiple observers can be registered for the same task key.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">internal(set)</span> <span class="k">var</span> <span class="nv">customEventPublisher</span><span class="p">:</span> <span class="kt"><a href="../Classes/KVHeavyTaskBaseDataProvider.html#/s:7Monstra27KVHeavyTaskBaseDataProviderC20CustomEventPublishera">CustomEventPublisher</a></span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra27KVHeavyTaskBaseDataProviderC15resultPublisheryys6ResultOyq_Sgs5Error_pGYbcvp"></a>
+                    <a name="//apple_ref/swift/Property/resultPublisher" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra27KVHeavyTaskBaseDataProviderC15resultPublisheryys6ResultOyq_Sgs5Error_pGYbcvp">resultPublisher</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Publisher for delivering the final task result.</p>
+
+<p><strong>Critical</strong>: This callback must be called exactly once per task execution.
+Calling it multiple times or not calling it will result in undefined behavior,
+memory leaks, or hanging operations. The manager relies on this callback
+for proper task lifecycle management and resource cleanup.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">internal(set)</span> <span class="k">var</span> <span class="nv">resultPublisher</span><span class="p">:</span> <span class="kt"><a href="../Classes/KVHeavyTaskBaseDataProvider.html#/s:7Monstra27KVHeavyTaskBaseDataProviderC15ResultPublishera">ResultPublisher</a></span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra27KVHeavyTaskBaseDataProviderC3key20customEventPublisher06resultJ0ACyxq_q0_Gx_yq0_Ybcys6ResultOyq_Sgs5Error_pGYbctcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(key:customEventPublisher:resultPublisher:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra27KVHeavyTaskBaseDataProviderC3key20customEventPublisher06resultJ0ACyxq_q0_Gx_yq0_Ybcys6ResultOyq_Sgs5Error_pGYbctcfc">init(key:<wbr>customEventPublisher:<wbr>resultPublisher:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initializes a new heavy task data provider instance.</p>
+
+<p>This initializer sets up the essential communication channels between the data provider
+and the task manager. The provided callbacks are used for the entire lifecycle of the task.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    <p>Both publishers are thread-safe and can be called from any queue.</p>
+
+</div><div class="aside aside-warning">
+    <p class="aside-title">Warning</p>
+    <p>The resultPublisher must be called exactly once per task execution.</p>
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">required</span> <span class="nf">init</span><span class="p">(</span>
+    <span class="nv">key</span><span class="p">:</span> <span class="kt">K</span><span class="p">,</span>
+    <span class="nv">customEventPublisher</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/KVHeavyTaskBaseDataProvider.html#/s:7Monstra27KVHeavyTaskBaseDataProviderC20CustomEventPublishera">CustomEventPublisher</a></span><span class="p">,</span>
+    <span class="nv">resultPublisher</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kt"><a href="../Classes/KVHeavyTaskBaseDataProvider.html#/s:7Monstra27KVHeavyTaskBaseDataProviderC15ResultPublishera">ResultPublisher</a></span>
+<span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>key</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Unique identifier for this task (used for caching and deduplication)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>customEventPublisher</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Callback for sending progress updates and custom events</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>resultPublisher</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Callback for delivering the final result (success or failure)</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2025 <a class="link" href="mailto:yangchenlarkin@gmail.com" target="_blank" rel="external noopener">Larkin</a>. All rights reserved. (Last updated: 2025-09-09)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

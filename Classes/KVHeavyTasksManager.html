@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>KVHeavyTasksManager Class Reference</title>
+    <link rel="stylesheet" type="text/css" href="../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../js/jquery.min.js" defer></script>
+    <script src="../js/jazzy.js" defer></script>
+    
+    <script src="../js/lunr.min.js" defer></script>
+    <script src="../js/typeahead.jquery.js" defer></script>
+    <script src="../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Class/KVHeavyTasksManager" class="dashAnchor"></a>
+    <a title="KVHeavyTasksManager Class Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../index.html">Monstra 0.0.9 Docs</a> (100% documented)</p>
+        <p class="header-right"><a href="https://github.com/yangchenlarkin/Monstra"><img src="../img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../index.html">Monstra</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        <a href="../Classes.html">Classes</a>
+        <img id="carat" src="../img/carat.png" alt=""/>
+        KVHeavyTasksManager Class Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink.html">DoublyLink</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink/EvictedStrategy.html">– EvictedStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/DoublyLink/Node.html">– Node</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/HashQueue.html">HashQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap.html">Heap</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap/Event.html">– Event</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/Heap/ComparisonResult.html">– ComparisonResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTaskBaseDataProvider.html">KVHeavyTaskBaseDataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager.html">KVHeavyTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVHeavyTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager.html">KVLightTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/DataProvider.html">– DataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/KVLightTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache.html">MemoryCache</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache/Configuration.html">– Configuration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MemoryCache/FetchResult.html">– FetchResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask.html">MonoTask</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask/OngoingExecutionStrategy.html">– OngoingExecutionStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/MonoTask/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/PriorityLRUQueue.html">PriorityLRUQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Classes/TTLPriorityLRUQueue.html">TTLPriorityLRUQueue</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Enums/CacheRecord.html">CacheRecord</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/KVHeavyTaskDataProviderStopAction.html">KVHeavyTaskDataProviderStopAction</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/RetryCount.html">RetryCount</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Enums/RetryCount/IntervalProxy.html">– IntervalProxy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../Structs/CPUTimeStamp.html">CPUTimeStamp</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/CacheStatistics.html">CacheStatistics</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/MemoryUsageLimitation.html">MemoryUsageLimitation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../Structs/TracingIDFactory.html">TracingIDFactory</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>KVHeavyTasksManager</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">class</span> <span class="kt">KVHeavyTasksManager</span><span class="o">&lt;</span>
+    <span class="kt">K</span><span class="p">,</span>
+    <span class="kt">Element</span><span class="p">,</span>
+    <span class="kt">CustomEvent</span><span class="p">,</span>
+    <span class="kt">DataProvider</span><span class="p">:</span> <span class="kt"><a href="../Classes/KVHeavyTaskBaseDataProvider.html">KVHeavyTaskBaseDataProvider</a></span><span class="o">&lt;</span><span class="kt">K</span><span class="p">,</span> <span class="kt">Element</span><span class="p">,</span> <span class="kt">CustomEvent</span><span class="o">&gt;</span>
+<span class="o">&gt;</span> <span class="k">where</span> <span class="kt">DataProvider</span><span class="p">:</span> <span class="kt"><a href="../Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a></span></code></pre>
+<pre class="highlight swift"><code><span class="kd">extension</span> <span class="kt">KVHeavyTasksManager</span><span class="p">:</span> <span class="kd">@unchecked</span> <span class="kt">Sendable</span></code></pre>
+
+                </div>
+              </div>
+            <p>Comprehensive manager for resource-intensive computational tasks and operations.</p>
+
+<p>KVHeavyTasksManager serves as the central coordination hub for executing, caching, and managing
+heavy computational tasks. It provides sophisticated concurrency control, intelligent caching,
+flexible priority strategies, and comprehensive lifecycle management for resource-intensive operations.</p>
+<h2 id='architecture-overview' class='heading'>Architecture Overview</h2>
+
+<p>The manager operates through several interconnected systems:</p>
+
+<ul>
+<li><strong>Task Queue Management</strong>: Dual-queue system (waiting/running) with configurable capacity and eviction</li>
+<li><strong>Priority Coordination</strong>: FIFO/LIFO strategies with optional task interruption support</li>
+<li><strong>Cache Integration</strong>: Multi-level caching with hit/miss/null/invalid state handling</li>
+<li><strong>Provider Lifecycle</strong>: DataProvider creation, reuse, and cleanup with memory optimization</li>
+<li><strong>Event Broadcasting</strong>: Real-time progress updates and custom event distribution</li>
+<li><strong>Thread Safety</strong>: Complete concurrency protection using semaphore-based synchronization</li>
+</ul>
+<h2 id='key-features' class='heading'>Key Features</h2>
+
+<ul>
+<li><strong>Zero-configuration operation</strong>: Sensible defaults for immediate use</li>
+<li><strong>Highly configurable</strong>: Every aspect of behavior can be customized</li>
+<li><strong>Memory efficient</strong>: Automatic cleanup and configurable resource limits</li>
+<li><strong>Performance optimized</strong>: Minimal overhead with intelligent caching and provider reuse</li>
+<li><strong>Robust error handling</strong>: Comprehensive error propagation and graceful degradation</li>
+<li><strong>Production ready</strong>: Thread-safe, tested, and optimized for high-load scenarios</li>
+</ul>
+<h2 id='generic-type-parameters' class='heading'>Generic Type Parameters</h2>
+
+<ul>
+<li><code>K</code>: Key type for task identification (must be Hashable) - used for deduplication and caching</li>
+<li><code>Element</code>: Result type returned by completed tasks - cached and delivered to callbacks</li>
+<li><code>CustomEvent</code>: Event type for progress updates - broadcast to all registered observers</li>
+<li><code>DataProvider</code>: Concrete provider class that executes the actual heavy operations</li>
+</ul>
+<h2 id='usage-example' class='heading'>Usage Example</h2>
+<pre class="highlight swift"><code><span class="c1">// Define your custom data provider</span>
+<span class="kd">class</span> <span class="kt">ImageProcessingProvider</span><span class="p">:</span> <span class="kt">KVHeavyTaskBaseDataProvider</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="kt">UIImage</span><span class="p">,</span> <span class="kt">ProcessingProgress</span><span class="o">&gt;</span><span class="p">,</span>
+                              <span class="kt">KVHeavyTaskDataProviderInterface</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="p">{</span>
+        <span class="c1">// Implement heavy image processing</span>
+        <span class="n">performImageProcessing</span> <span class="p">{</span> <span class="n">progress</span> <span class="k">in</span>
+            <span class="nf">customEventPublisher</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span>
+        <span class="p">}</span> <span class="nv">completion</span><span class="p">:</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+            <span class="nf">resultPublisher</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kd">func</span> <span class="nf">stop</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">KVHeavyTaskDataProviderStopAction</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="o">.</span><span class="n">reuse</span> <span class="c1">// Preserve processing state for resumption</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// Configure and create manager</span>
+<span class="k">let</span> <span class="nv">config</span> <span class="o">=</span> <span class="kt">KVHeavyTasksManager</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="kt">UIImage</span><span class="p">,</span> <span class="kt">ProcessingProgress</span><span class="p">,</span> <span class="kt">ImageProcessingProvider</span><span class="o">&gt;.</span><span class="kt">Config</span><span class="p">(</span>
+    <span class="nv">maxNumberOfRunningTasks</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+    <span class="nv">priorityStrategy</span><span class="p">:</span> <span class="o">.</span><span class="kt">LIFO</span><span class="p">(</span><span class="o">.</span><span class="n">stop</span><span class="p">),</span>
+    <span class="nv">cacheConfig</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">memoryUsageLimitation</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">capacity</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="nv">memory</span><span class="p">:</span> <span class="mi">50_000_000</span><span class="p">))</span>
+<span class="p">)</span>
+<span class="k">let</span> <span class="nv">manager</span> <span class="o">=</span> <span class="kt">KVHeavyTasksManager</span><span class="o">&lt;</span><span class="kt">String</span><span class="p">,</span> <span class="kt">UIImage</span><span class="p">,</span> <span class="kt">ProcessingProgress</span><span class="p">,</span> <span class="kt">ImageProcessingProvider</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">config</span><span class="p">:</span> <span class="n">config</span><span class="p">)</span>
+
+<span class="c1">// Execute tasks with progress monitoring</span>
+<span class="n">manager</span><span class="o">.</span><span class="nf">fetch</span><span class="p">(</span><span class="nv">key</span><span class="p">:</span> <span class="s">"process_photo_123"</span><span class="p">,</span>
+              <span class="nv">customEventObserver</span><span class="p">:</span> <span class="p">{</span> <span class="n">progress</span> <span class="k">in</span>
+                  <span class="nf">print</span><span class="p">(</span><span class="s">"Processing progress: </span><span class="se">\(</span><span class="n">progress</span><span class="o">.</span><span class="n">percentage</span><span class="se">)</span><span class="s">%"</span><span class="p">)</span>
+              <span class="p">},</span>
+              <span class="nv">result</span><span class="p">:</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+                  <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+                  <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">image</span><span class="p">):</span>
+                      <span class="c1">// Handle processed image</span>
+                  <span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+                      <span class="c1">// Handle processing error</span>
+                  <span class="p">}</span>
+              <span class="p">})</span>
+</code></pre>
+<h2 id='thread-safety' class='heading'>Thread Safety</h2>
+
+<p>All public methods are fully thread-safe and can be called from any queue or thread.
+The manager uses internal synchronization to coordinate access to shared state while
+minimizing performance impact through careful lock scope management.</p>
+<h2 id='performance-considerations' class='heading'>Performance Considerations</h2>
+
+<ul>
+<li><strong>Queue sizing</strong>: Balance memory usage vs task eviction risk</li>
+<li><strong>Concurrency limits</strong>: Optimize for your specific task characteristics and system resources</li>
+<li><strong>Cache configuration</strong>: Tune for your result size and access patterns</li>
+<li><strong>Priority strategy</strong>: Choose based on responsiveness vs predictability requirements</li>
+<li><strong>Provider lifecycle</strong>: Balance setup cost vs memory usage with reuse/dealloc decisions</li>
+</ul>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVHeavyTasksManagerC6configACyxq_q0_q1_GAC6ConfigVyxq_q0_q1__G_tcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(config:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVHeavyTasksManagerC6configACyxq_q0_q1_GAC6ConfigVyxq_q0_q1__G_tcfc">init(config:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initializes a new KVHeavyTasksManager with the specified configuration.</p>
+
+<p>This initializer sets up all internal systems including queues, cache, and synchronization
+primitives. The configuration is immutable after initialization to ensure consistent behavior.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    Initialization is lightweight and safe to call from any thread
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span><span class="nv">config</span><span class="p">:</span> <span class="kt"><a href="../Classes/KVHeavyTasksManager/Config.html">Config</a></span><span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>config</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Complete configuration defining all manager behavior</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVHeavyTasksManagerC6configAC6ConfigVyxq_q0_q1__Gvp"></a>
+                    <a name="//apple_ref/swift/Property/config" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVHeavyTasksManagerC6configAC6ConfigVyxq_q0_q1__Gvp">config</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Immutable configuration that defines all manager behavior.</p>
+
+<p>This configuration is set at initialization and cannot be changed during the manager&rsquo;s
+lifetime, ensuring consistent and predictable behavior for all operations.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">config</span><span class="p">:</span> <span class="kt"><a href="../Classes/KVHeavyTasksManager/Config.html">Config</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVHeavyTasksManagerC6ConfigV"></a>
+                    <a name="//apple_ref/swift/Struct/Config" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVHeavyTasksManagerC6ConfigV">Config</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Configuration structure that controls all aspects of task manager behavior.</p>
+
+<p>This configuration is immutable after manager initialization, ensuring consistent
+behavior throughout the manager&rsquo;s lifecycle. Choose settings based on your specific
+use case requirements for performance, memory usage, and task prioritization needs.</p>
+
+                        <a href="../Classes/KVHeavyTasksManager/Config.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">Config</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVHeavyTasksManagerC6ErrorsO"></a>
+                    <a name="//apple_ref/swift/Enum/Errors" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVHeavyTasksManagerC6ErrorsO">Errors</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Error types emitted by <code><a href="../Classes/KVHeavyTasksManager.html">KVHeavyTasksManager</a></code> operations.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    These errors cover configuration and queue-capacity conditions that
+prevent a task from executing under the current constraints.
+
+</div>
+
+                        <a href="../Classes/KVHeavyTasksManager/Errors.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">enum</span> <span class="kt">Errors</span> <span class="p">:</span> <span class="kt">Error</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVHeavyTasksManagerC5fetch3key19customEventObserver6resultyx_yq0_YbcSgys6ResultOyq_Sgs5Error_pGYbcSgtF"></a>
+                    <a name="//apple_ref/swift/Method/fetch(key:customEventObserver:result:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVHeavyTasksManagerC5fetch3key19customEventObserver6resultyx_yq0_YbcSgys6ResultOyq_Sgs5Error_pGYbcSgtF">fetch(key:<wbr>customEventObserver:<wbr>result:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Fetch a single key using a heavy <code>DataProvider</code>, optionally observing custom events.</p>
+
+<p>This method registers observers and callbacks, consults the cache, and schedules
+execution according to the configured priority strategy and concurrency limits.</p>
+<div class="aside aside-warning">
+    <p class="aside-title">Warning</p>
+    If <code>maxNumberOfRunningTasks</code> is &lt;= 0, the <code>result</code> will receive
+<code>.failure(Errors.invalidConcurrencyConfiguration)</code> and no work will be performed.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">fetch</span><span class="p">(</span>
+    <span class="nv">key</span><span class="p">:</span> <span class="kt">K</span><span class="p">,</span>
+    <span class="nv">customEventObserver</span><span class="p">:</span> <span class="kt">DataProvider</span><span class="o">.</span><span class="kt">CustomEventPublisher</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span>
+    <span class="n">result</span> <span class="nv">resultCallback</span><span class="p">:</span> <span class="kt">DataProvider</span><span class="o">.</span><span class="kt">ResultPublisher</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>key</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Unique key to fetch.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>customEventObserver</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Optional observer for real-time progress/status updates.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>result</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Optional callback invoked once with the final result for <code>key</code>.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVHeavyTasksManagerC10asyncFetch3key19customEventObservers6ResultOyq_Sgs5Error_pGx_yq0_YbcSgtYaF"></a>
+                    <a name="//apple_ref/swift/Method/asyncFetch(key:customEventObserver:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVHeavyTasksManagerC10asyncFetch3key19customEventObservers6ResultOyq_Sgs5Error_pGx_yq0_YbcSgtYaF">asyncFetch(key:<wbr>customEventObserver:<wbr>)</a>
+                    </code>
+                      <span class="declaration-note">
+                        Asynchronous
+                      </span>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Fetch a single key asynchronously using a heavy <code>DataProvider</code>.</p>
+
+<p>Registers the optional event observer, then returns a <code>Result</code> once the task completes.</p>
+<div class="aside aside-note">
+    <p class="aside-title">Note</p>
+    If <code>maxNumberOfRunningTasks</code> is &lt;= 0, this method returns
+<code>.failure(Errors.invalidConcurrencyConfiguration)</code> immediately.
+
+</div>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">func</span> <span class="nf">asyncFetch</span><span class="p">(</span>
+    <span class="nv">key</span><span class="p">:</span> <span class="kt">K</span><span class="p">,</span>
+    <span class="nv">customEventObserver</span><span class="p">:</span> <span class="kt">DataProvider</span><span class="o">.</span><span class="kt">CustomEventPublisher</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="p">)</span> <span class="k">async</span> <span class="o">-&gt;</span> <span class="kt">Result</span><span class="o">&lt;</span><span class="kt">Element</span><span class="p">?,</span> <span class="kt">Error</span><span class="o">&gt;</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>key</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Unique key to fetch.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>customEventObserver</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Optional observer for real-time progress/status updates.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div>
+                        <h4>Return Value</h4>
+                        <p>A <code>Result</code> containing the fetched element or an error.</p>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2025 <a class="link" href="mailto:yangchenlarkin@gmail.com" target="_blank" rel="external noopener">Larkin</a>. All rights reserved. (Last updated: 2025-09-09)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Configuration Structure Reference</title>
+    <link rel="stylesheet" type="text/css" href="../../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../../js/jquery.min.js" defer></script>
+    <script src="../../js/jazzy.js" defer></script>
+    
+    <script src="../../js/lunr.min.js" defer></script>
+    <script src="../../js/typeahead.jquery.js" defer></script>
+    <script src="../../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Struct/Configuration" class="dashAnchor"></a>
+    <a title="Configuration Structure Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../../index.html">Monstra 0.0.9 Docs</a> (100% documented)</p>
+        <p class="header-right"><a href="https://github.com/yangchenlarkin/Monstra"><img src="../../img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="../../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../../index.html">Monstra</a>
+        <img id="carat" src="../../img/carat.png" alt=""/>
+        <a href="../../Classes.html">Classes</a>
+        <img id="carat" src="../../img/carat.png" alt=""/>
+        <a href="../../Classes/MemoryCache.html">MemoryCache</a>
+        <img id="carat" src="../../img/carat.png" alt=""/>
+        Configuration Structure Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Classes/DoublyLink.html">DoublyLink</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/DoublyLink/EvictedStrategy.html">– EvictedStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/DoublyLink/Node.html">– Node</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/HashQueue.html">HashQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/Heap.html">Heap</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/Heap/Event.html">– Event</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/Heap/ComparisonResult.html">– ComparisonResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVHeavyTaskBaseDataProvider.html">KVHeavyTaskBaseDataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVHeavyTasksManager.html">KVHeavyTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVHeavyTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVHeavyTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVLightTasksManager.html">KVLightTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVLightTasksManager/DataProvider.html">– DataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVLightTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVLightTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MemoryCache.html">MemoryCache</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MemoryCache/Configuration.html">– Configuration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MemoryCache/FetchResult.html">– FetchResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MonoTask.html">MonoTask</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MonoTask/OngoingExecutionStrategy.html">– OngoingExecutionStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MonoTask/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/PriorityLRUQueue.html">PriorityLRUQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/TTLPriorityLRUQueue.html">TTLPriorityLRUQueue</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Enums/CacheRecord.html">CacheRecord</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Enums/KVHeavyTaskDataProviderStopAction.html">KVHeavyTaskDataProviderStopAction</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Enums/RetryCount.html">RetryCount</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Enums/RetryCount/IntervalProxy.html">– IntervalProxy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Structs/CPUTimeStamp.html">CPUTimeStamp</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/CacheStatistics.html">CacheStatistics</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/MemoryUsageLimitation.html">MemoryUsageLimitation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/TracingIDFactory.html">TracingIDFactory</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>Configuration</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">Configuration</span></code></pre>
+
+                </div>
+              </div>
+            <p>Configuration options for the memory cache behavior and limits.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC13ConfigurationV27enableThreadSynchronizationSbvp"></a>
+                    <a name="//apple_ref/swift/Property/enableThreadSynchronization" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC13ConfigurationV27enableThreadSynchronizationSbvp">enableThreadSynchronization</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Whether to enable thread synchronization using DispatchSemaphore (default: true)
+When true: All cache operations are synchronized for thread safety
+When false: No synchronization, caller must ensure thread safety</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">enableThreadSynchronization</span><span class="p">:</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC13ConfigurationV21memoryUsageLimitationAA0bfG0Vvp"></a>
+                    <a name="//apple_ref/swift/Property/memoryUsageLimitation" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC13ConfigurationV21memoryUsageLimitationAA0bfG0Vvp">memoryUsageLimitation</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Memory and capacity constraints for the cache.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">memoryUsageLimitation</span><span class="p">:</span> <span class="kt"><a href="../../Structs/MemoryUsageLimitation.html">MemoryUsageLimitation</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC13ConfigurationV10defaultTTLSdvp"></a>
+                    <a name="//apple_ref/swift/Property/defaultTTL" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC13ConfigurationV10defaultTTLSdvp">defaultTTL</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Default TTL for non-null elements (in seconds).</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">defaultTTL</span><span class="p">:</span> <span class="kt">TimeInterval</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC13ConfigurationV24defaultTTLForNullElementSdvp"></a>
+                    <a name="//apple_ref/swift/Property/defaultTTLForNullElement" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC13ConfigurationV24defaultTTLForNullElementSdvp">defaultTTLForNullElement</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Default TTL for null elements (in seconds).</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">defaultTTLForNullElement</span><span class="p">:</span> <span class="kt">TimeInterval</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC13ConfigurationV21ttlRandomizationRangeSdvp"></a>
+                    <a name="//apple_ref/swift/Property/ttlRandomizationRange" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC13ConfigurationV21ttlRandomizationRangeSdvp">ttlRandomizationRange</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Randomization range for TTL elements to prevent cache stampede (in seconds).</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">ttlRandomizationRange</span><span class="p">:</span> <span class="kt">TimeInterval</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC13ConfigurationV12keyValidatorySbxcvp"></a>
+                    <a name="//apple_ref/swift/Property/keyValidator" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC13ConfigurationV12keyValidatorySbxcvp">keyValidator</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Key validation function that returns true for valid keys. Fixed at initialization.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">keyValidator</span><span class="p">:</span> <span class="p">(</span><span class="kt">Key</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC13ConfigurationV12costProviderySiq_cvp"></a>
+                    <a name="//apple_ref/swift/Property/costProvider" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC13ConfigurationV12costProviderySiq_cvp">costProvider</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Function to calculate memory cost of elements in bytes.</p>
+
+<p>This closure is called for each element to determine its memory footprint for eviction decisions.
+The returned element should represent the actual memory usage in bytes.</p>
+<h2 id='usage-guidelines' class='heading'>Usage Guidelines:</h2>
+
+<ul>
+<li><strong>For reference types (classes)</strong>: Return the actual memory size (e.g., image data size, buffer length)</li>
+<li><strong>For element types</strong>: Can return 0 as memory layout is automatically calculated by the system</li>
+<li><strong>For complex objects</strong>: Sum up all contained data sizes (strings, arrays, etc.)</li>
+<li><strong>For nil elements</strong>: Return 0 (handled automatically by the cache)</li>
+</ul>
+<h2 id='examples' class='heading'>Examples:</h2>
+<pre class="highlight swift"><code><span class="c1">// For UIImage: return actual image data size</span>
+<span class="nv">costProvider</span><span class="p">:</span> <span class="p">{</span> <span class="n">image</span> <span class="k">in</span>
+    <span class="k">guard</span> <span class="k">let</span> <span class="nv">cgImage</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">cgImage</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">0</span> <span class="p">}</span>
+    <span class="k">return</span> <span class="n">cgImage</span><span class="o">.</span><span class="n">bytesPerRow</span> <span class="o">*</span> <span class="n">cgImage</span><span class="o">.</span><span class="n">height</span>
+<span class="p">}</span>
+
+<span class="c1">// For String: return character count (approximate)</span>
+<span class="nv">costProvider</span><span class="p">:</span> <span class="p">{</span> <span class="nv">$0</span><span class="o">.</span><span class="n">count</span> <span class="o">*</span> <span class="mi">2</span> <span class="p">}</span>
+
+<span class="c1">// For Data: return actual byte count</span>
+<span class="nv">costProvider</span><span class="p">:</span> <span class="p">{</span> <span class="nv">$0</span><span class="o">.</span><span class="n">count</span> <span class="p">}</span>
+
+<span class="c1">// For complex objects: sum up all data</span>
+<span class="nv">costProvider</span><span class="p">:</span> <span class="p">{</span> <span class="n">obj</span> <span class="k">in</span>
+    <span class="k">return</span> <span class="n">obj</span><span class="o">.</span><span class="n">stringData</span><span class="o">.</span><span class="n">count</span> <span class="o">+</span> <span class="n">obj</span><span class="o">.</span><span class="n">binaryData</span><span class="o">.</span><span class="n">count</span> <span class="o">+</span> <span class="n">obj</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">count</span>
+<span class="p">}</span>
+</code></pre>
+<h2 id='important-notes' class='heading'>Important Notes:</h2>
+
+<ul>
+<li><strong>Cost Unit</strong>: The returned value represents memory cost in <strong>bytes</strong></li>
+<li>The returned element should be <strong>positive</strong> and <strong>reasonable</strong> (avoid extremely large elements)</li>
+<li>Should be <strong>consistent</strong> for the same input (deterministic)</li>
+<li><strong>Performance</strong>: This closure is called frequently during eviction, so keep it fast</li>
+<li><strong>Memory limit</strong>: Total cost across all elements should not exceed <code><a href="../../Structs/MemoryUsageLimitation.html#/s:7Monstra21MemoryUsageLimitationV6memorySivp">MemoryUsageLimitation.memory</a></code></li>
+<li><strong>Default behavior</strong>: Returns 0 if not specified, relying on automatic memory layout calculation</li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">costProvider</span><span class="p">:</span> <span class="p">(</span><span class="kt">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC13ConfigurationV27enableThreadSynchronization21memoryUsageLimitation10defaultTTL0K17TTLForNullElement21ttlRandomizationRange12keyValidator12costProviderAEyxq__GSb_AA0biJ0VS3dSbxcSiq_ctcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(enableThreadSynchronization:memoryUsageLimitation:defaultTTL:defaultTTLForNullElement:ttlRandomizationRange:keyValidator:costProvider:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC13ConfigurationV27enableThreadSynchronization21memoryUsageLimitation10defaultTTL0K17TTLForNullElement21ttlRandomizationRange12keyValidator12costProviderAEyxq__GSb_AA0biJ0VS3dSbxcSiq_ctcfc">init(enableThreadSynchronization:<wbr>memoryUsageLimitation:<wbr>defaultTTL:<wbr>defaultTTLForNullElement:<wbr>ttlRandomizationRange:<wbr>keyValidator:<wbr>costProvider:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Creates a new configuration with specified parameters.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span>
+    <span class="nv">enableThreadSynchronization</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">true</span><span class="p">,</span>
+    <span class="nv">memoryUsageLimitation</span><span class="p">:</span> <span class="kt"><a href="../../Structs/MemoryUsageLimitation.html">MemoryUsageLimitation</a></span> <span class="o">=</span> <span class="o">.</span><span class="nf">init</span><span class="p">(),</span>
+    <span class="n"><a href="../../Classes/MemoryCache/Configuration.html#/s:7Monstra11MemoryCacheC13ConfigurationV10defaultTTLSdvp">defaultTTL</a></span><span class="p">:</span> <span class="kt">TimeInterval</span> <span class="o">=</span> <span class="o">.</span><span class="n">infinity</span><span class="p">,</span>
+    <span class="n"><a href="../../Classes/MemoryCache/Configuration.html#/s:7Monstra11MemoryCacheC13ConfigurationV24defaultTTLForNullElementSdvp">defaultTTLForNullElement</a></span><span class="p">:</span> <span class="kt">TimeInterval</span> <span class="o">=</span> <span class="o">.</span><span class="n">infinity</span><span class="p">,</span>
+    <span class="nv">ttlRandomizationRange</span><span class="p">:</span> <span class="kt">TimeInterval</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="nv">keyValidator</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Key</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="p">{</span> <span class="n">_</span> <span class="k">in</span> <span class="kc">true</span> <span class="p">},</span>
+    <span class="nv">costProvider</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Element</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Int</span> <span class="o">=</span> <span class="p">{</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">0</span> <span class="p">}</span>
+<span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>enableThreadSynchronization</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Enable DispatchSemaphore synchronization for thread safety (default: true)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>memoryUsageLimitation</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Memory and capacity constraints (default: unlimited)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>defaultTTL</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Default TTL for non-nil elements (default: .infinity)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>defaultTTLForNullElement</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Default TTL for nil elements (default: .infinity)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>ttlRandomizationRange</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>TTL randomization range (default: 0)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>keyValidator</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Key validation closure (default: always true)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>costProvider</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Memory cost calculation closure that returns cost in <strong>bytes</strong>. Should return actual
+memory usage for accurate eviction decisions (default: returns 0)</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra11MemoryCacheC13ConfigurationV13defaultConfigAEyxq__GvpZ"></a>
+                    <a name="//apple_ref/swift/Variable/defaultConfig" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra11MemoryCacheC13ConfigurationV13defaultConfigAEyxq__GvpZ">defaultConfig</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Default configuration (thread-synchronized with DispatchSemaphore, unlimited size, no expiration, all keys
+valid)</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">static</span> <span class="k">var</span> <span class="nv">defaultConfig</span><span class="p">:</span> <span class="kt">Configuration</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2025 <a class="link" href="mailto:yangchenlarkin@gmail.com" target="_blank" rel="external noopener">Larkin</a>. All rights reserved. (Last updated: 2025-09-09)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Config Structure Reference</title>
+    <link rel="stylesheet" type="text/css" href="../../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../../js/jquery.min.js" defer></script>
+    <script src="../../js/jazzy.js" defer></script>
+    
+    <script src="../../js/lunr.min.js" defer></script>
+    <script src="../../js/typeahead.jquery.js" defer></script>
+    <script src="../../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Struct/Config" class="dashAnchor"></a>
+    <a title="Config Structure Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../../index.html">Monstra 0.0.9 Docs</a> (100% documented)</p>
+        <p class="header-right"><a href="https://github.com/yangchenlarkin/Monstra"><img src="../../img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="../../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../../index.html">Monstra</a>
+        <img id="carat" src="../../img/carat.png" alt=""/>
+        <a href="../../Classes.html">Classes</a>
+        <img id="carat" src="../../img/carat.png" alt=""/>
+        <a href="../../Classes/KVHeavyTasksManager.html">KVHeavyTasksManager</a>
+        <img id="carat" src="../../img/carat.png" alt=""/>
+        Config Structure Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Classes/DoublyLink.html">DoublyLink</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/DoublyLink/EvictedStrategy.html">– EvictedStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/DoublyLink/Node.html">– Node</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/HashQueue.html">HashQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/Heap.html">Heap</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/Heap/Event.html">– Event</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/Heap/ComparisonResult.html">– ComparisonResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVHeavyTaskBaseDataProvider.html">KVHeavyTaskBaseDataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVHeavyTasksManager.html">KVHeavyTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVHeavyTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVHeavyTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVLightTasksManager.html">KVLightTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVLightTasksManager/DataProvider.html">– DataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVLightTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVLightTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MemoryCache.html">MemoryCache</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MemoryCache/Configuration.html">– Configuration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MemoryCache/FetchResult.html">– FetchResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MonoTask.html">MonoTask</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MonoTask/OngoingExecutionStrategy.html">– OngoingExecutionStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MonoTask/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/PriorityLRUQueue.html">PriorityLRUQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/TTLPriorityLRUQueue.html">TTLPriorityLRUQueue</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Enums/CacheRecord.html">CacheRecord</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Enums/KVHeavyTaskDataProviderStopAction.html">KVHeavyTaskDataProviderStopAction</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Enums/RetryCount.html">RetryCount</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Enums/RetryCount/IntervalProxy.html">– IntervalProxy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Structs/CPUTimeStamp.html">CPUTimeStamp</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/CacheStatistics.html">CacheStatistics</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/MemoryUsageLimitation.html">MemoryUsageLimitation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/TracingIDFactory.html">TracingIDFactory</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>Config</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">Config</span></code></pre>
+
+                </div>
+              </div>
+            <p>Configuration structure that controls all aspects of task manager behavior.</p>
+
+<p>This configuration is immutable after manager initialization, ensuring consistent
+behavior throughout the manager&rsquo;s lifecycle. Choose settings based on your specific
+use case requirements for performance, memory usage, and task prioritization needs.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVHeavyTasksManagerC6ConfigV12LIFOStrategyO"></a>
+                    <a name="//apple_ref/swift/Enum/LIFOStrategy" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVHeavyTasksManagerC6ConfigV12LIFOStrategyO">LIFOStrategy</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Defines how new tasks handle currently running tasks in LIFO priority mode.</p>
+
+<p>This strategy only applies when using <code>PriorityStrategy.LIFO(strategy)</code> and determines
+the behavior when a new high-priority task needs resources that are currently in use.</p>
+<h2 id='performance-characteristics' class='heading'>Performance Characteristics</h2>
+
+<ul>
+<li><strong><code>.await</code></strong>: Lower interruption overhead, predictable completion times</li>
+<li><strong><code>.stop</code></strong>: Higher responsiveness, potential task restart overhead</li>
+</ul>
+<h2 id='memory-implications' class='heading'>Memory Implications</h2>
+
+<ul>
+<li><strong><code>.await</code></strong>: Gradual memory usage patterns, no sudden spikes</li>
+<li><strong><code>.stop</code></strong>: Potential memory spikes from simultaneous task states</li>
+</ul>
+
+                        <a href="../../Classes/KVHeavyTasksManager/Config/LIFOStrategy.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">LIFOStrategy</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVHeavyTasksManagerC6ConfigV16PriorityStrategyO"></a>
+                    <a name="//apple_ref/swift/Enum/PriorityStrategy" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVHeavyTasksManagerC6ConfigV16PriorityStrategyO">PriorityStrategy</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Defines the overall task execution order and priority handling strategy.</p>
+
+<p>This is the primary control for task scheduling behavior and significantly
+affects both performance characteristics and resource usage patterns.</p>
+<h2 id='choosing-the-right-strategy' class='heading'>Choosing the Right Strategy</h2>
+
+<ul>
+<li><strong>FIFO</strong>: Use for batch processing, fair resource allocation, or when task order matters</li>
+<li><strong>LIFO(.await)</strong>: Use for responsive systems with predictable task completion</li>
+<li><strong>LIFO(.stop)</strong>: Use for highly interactive systems with dynamic priorities</li>
+</ul>
+
+                        <a href="../../Classes/KVHeavyTasksManager/Config/PriorityStrategy.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">PriorityStrategy</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVHeavyTasksManagerC6ConfigV019maxNumberOfQueueingC0Sivp"></a>
+                    <a name="//apple_ref/swift/Property/maxNumberOfQueueingTasks" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVHeavyTasksManagerC6ConfigV019maxNumberOfQueueingC0Sivp">maxNumberOfQueueingTasks</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Maximum number of tasks that can wait in the queue simultaneously.</p>
+
+<p>This setting controls memory usage and prevents unbounded queue growth.
+When the queue is full, new tasks evict older waiting tasks based on the
+priority strategy (FIFO evicts oldest, LIFO evicts based on strategy).</p>
+
+<p><strong>Tuning Guidelines</strong>:</p>
+
+<ul>
+<li><strong>Low values (10-50)</strong>: Better memory control, risk of task eviction</li>
+<li><strong>High values (100+)</strong>: Lower eviction risk, higher memory usage</li>
+<li><strong>Consider</strong>: Peak load, task submission rate, average task duration</li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">maxNumberOfQueueingTasks</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVHeavyTasksManagerC6ConfigV018maxNumberOfRunningC0Sivp"></a>
+                    <a name="//apple_ref/swift/Property/maxNumberOfRunningTasks" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVHeavyTasksManagerC6ConfigV018maxNumberOfRunningC0Sivp">maxNumberOfRunningTasks</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Maximum number of tasks that can execute concurrently.</p>
+
+<p>This setting directly controls resource usage and system load. The optimal
+value depends on task characteristics, system resources, and performance requirements.</p>
+
+<p><strong>Tuning Guidelines</strong>:</p>
+
+<ul>
+<li><strong>CPU-bound tasks</strong>: Typically equals number of CPU cores</li>
+<li><strong>I/O-bound tasks</strong>: Can be higher than CPU cores (2x-4x)</li>
+<li><strong>Memory-intensive tasks</strong>: Lower values to prevent memory pressure</li>
+<li><strong>Mixed workloads</strong>: Start conservative and monitor performance</li>
+</ul>
+
+<p><strong>Trade-offs</strong>:</p>
+
+<ul>
+<li>Higher values: Better throughput, higher resource usage</li>
+<li>Lower values: Better resource control, potential throughput limitation</li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">maxNumberOfRunningTasks</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVHeavyTasksManagerC6ConfigV16priorityStrategyAE08PriorityG0Oyxq_q0_q1___Gvp"></a>
+                    <a name="//apple_ref/swift/Property/priorityStrategy" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVHeavyTasksManagerC6ConfigV16priorityStrategyAE08PriorityG0Oyxq_q0_q1___Gvp">priorityStrategy</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Strategy for determining task execution order and priority handling.</p>
+
+<p>This setting affects the entire task scheduling behavior and should be chosen
+based on the specific requirements of your application&rsquo;s task characteristics.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">priorityStrategy</span><span class="p">:</span> <span class="kt"><a href="../../Classes/KVHeavyTasksManager/Config/PriorityStrategy.html">PriorityStrategy</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVHeavyTasksManagerC6ConfigV05cacheE0AA11MemoryCacheC13ConfigurationVyxq__Gvp"></a>
+                    <a name="//apple_ref/swift/Property/cacheConfig" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVHeavyTasksManagerC6ConfigV05cacheE0AA11MemoryCacheC13ConfigurationVyxq__Gvp">cacheConfig</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Configuration for caching completed task results.</p>
+
+<p>The cache prevents duplicate task execution and provides immediate results
+for previously computed tasks. Configure based on result value characteristics,
+memory constraints, and access patterns.</p>
+
+<p><strong>Key settings to consider</strong>:</p>
+
+<ul>
+<li><strong>Memory limits</strong>: Prevent cache from consuming too much memory</li>
+<li><strong>TTL (Time To Live)</strong>: How long results remain valid</li>
+<li><strong>Key validation</strong>: Filter out invalid or malformed keys</li>
+<li><strong>Eviction policy</strong>: How to handle cache capacity limits</li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">cacheConfig</span><span class="p">:</span> <span class="kt"><a href="../../Classes/MemoryCache.html">MemoryCache</a></span><span class="o">&lt;</span><span class="kt">K</span><span class="p">,</span> <span class="kt">Element</span><span class="o">&gt;.</span><span class="kt">Configuration</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVHeavyTasksManagerC6ConfigV21cacheStatisticsReportyAA05CacheG0V_AA0I6RecordOtcSgvp"></a>
+                    <a name="//apple_ref/swift/Property/cacheStatisticsReport" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVHeavyTasksManagerC6ConfigV21cacheStatisticsReportyAA05CacheG0V_AA0I6RecordOtcSgvp">cacheStatisticsReport</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Optional callback for monitoring cache performance and behavior.</p>
+
+<p>This callback provides detailed statistics about cache hits, misses, evictions,
+and memory usage. Use for performance monitoring, debugging, and optimization.</p>
+
+<p><strong>Provided statistics include</strong>:</p>
+
+<ul>
+<li>Hit/miss ratios and counts</li>
+<li>Memory usage and capacity utilization</li>
+<li>Eviction counts and reasons</li>
+<li>Access patterns and timing information</li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">cacheStatisticsReport</span><span class="p">:</span> <span class="p">((</span><span class="kt"><a href="../../Structs/CacheStatistics.html">CacheStatistics</a></span><span class="p">,</span> <span class="kt"><a href="../../Enums/CacheRecord.html">CacheRecord</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVHeavyTasksManagerC6ConfigV019maxNumberOfQueueingC00fgh7RunningC016priorityStrategy05cacheE00M16StatisticsReportAEyxq_q0_q1__GSi_SiAE08PriorityL0Oyxq_q0_q1___GAA11MemoryCacheC13ConfigurationVyxq__GyAA0rN0V_AA0R6RecordOtcSgtcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(maxNumberOfQueueingTasks:maxNumberOfRunningTasks:priorityStrategy:cacheConfig:cacheStatisticsReport:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVHeavyTasksManagerC6ConfigV019maxNumberOfQueueingC00fgh7RunningC016priorityStrategy05cacheE00M16StatisticsReportAEyxq_q0_q1__GSi_SiAE08PriorityL0Oyxq_q0_q1___GAA11MemoryCacheC13ConfigurationVyxq__GyAA0rN0V_AA0R6RecordOtcSgtcfc">init(maxNumberOfQueueingTasks:<wbr>maxNumberOfRunningTasks:<wbr>priorityStrategy:<wbr>cacheConfig:<wbr>cacheStatisticsReport:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initializes a new KVHeavyTasksManager configuration with specified parameters.</p>
+
+<p>This initializer provides sensible defaults for most use cases while allowing
+full customization of all behavioral aspects. The defaults are optimized for
+general-purpose heavy task management with balanced performance and resource usage.</p>
+<h2 id='default-value-rationale' class='heading'>Default Value Rationale</h2>
+
+<ul>
+<li><strong>50 queuing tasks</strong>: Balances memory usage with eviction avoidance</li>
+<li><strong>4 concurrent tasks</strong>: Suitable for most I/O-bound operations on multi-core systems</li>
+<li><strong>LIFO(.await)</strong>: Responsive to recent requests without interruption complexity</li>
+<li><strong>Default cache config</strong>: Reasonable memory limits with basic TTL support</li>
+<li><p><strong>No statistics reporting</strong>: Minimal overhead for production use</p></li>
+</ul>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span>
+    <span class="nv">maxNumberOfQueueingTasks</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="nv">maxNumberOfRunningTasks</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="nv">priorityStrategy</span><span class="p">:</span> <span class="kt"><a href="../../Classes/KVHeavyTasksManager/Config/PriorityStrategy.html">PriorityStrategy</a></span> <span class="o">=</span> <span class="o">.</span><span class="kt">LIFO</span><span class="p">(</span><span class="o">.</span><span class="k">await</span><span class="p">),</span>
+    <span class="nv">cacheConfig</span><span class="p">:</span> <span class="kt"><a href="../../Classes/MemoryCache.html">MemoryCache</a></span><span class="o">&lt;</span><span class="kt">K</span><span class="p">,</span> <span class="kt">Element</span><span class="o">&gt;.</span><span class="kt">Configuration</span> <span class="o">=</span> <span class="o">.</span><span class="n">defaultConfig</span><span class="p">,</span>
+    <span class="nv">cacheStatisticsReport</span><span class="p">:</span> <span class="p">((</span><span class="kt"><a href="../../Structs/CacheStatistics.html">CacheStatistics</a></span><span class="p">,</span> <span class="kt"><a href="../../Enums/CacheRecord.html">CacheRecord</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)?</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>maxNumberOfQueueingTasks</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Maximum tasks in waiting queue (default: 50)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>maxNumberOfRunningTasks</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Maximum concurrent task execution (default: 4)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>priorityStrategy</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Task execution order and priority handling (default: .LIFO(.await))</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>cacheConfig</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Cache configuration for task results (default: .defaultConfig)</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>cacheStatisticsReport</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Optional statistics monitoring callback (default: nil)</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2025 <a class="link" href="mailto:yangchenlarkin@gmail.com" target="_blank" rel="external noopener">Larkin</a>. All rights reserved. (Last updated: 2025-09-09)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

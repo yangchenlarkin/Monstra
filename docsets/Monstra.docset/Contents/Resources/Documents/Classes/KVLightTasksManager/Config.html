@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Config Structure Reference</title>
+    <link rel="stylesheet" type="text/css" href="../../css/jazzy.css" />
+    <link rel="stylesheet" type="text/css" href="../../css/highlight.css" />
+    <meta charset='utf-8'>
+    <script src="../../js/jquery.min.js" defer></script>
+    <script src="../../js/jazzy.js" defer></script>
+    
+    <script src="../../js/lunr.min.js" defer></script>
+    <script src="../../js/typeahead.jquery.js" defer></script>
+    <script src="../../js/jazzy.search.js" defer></script>
+  </head>
+  <body>
+    <a name="//apple_ref/swift/Struct/Config" class="dashAnchor"></a>
+    <a title="Config Structure Reference"></a>
+    <header>
+      <div class="content-wrapper">
+        <p><a href="../../index.html">Monstra 0.0.9 Docs</a> (100% documented)</p>
+        <p class="header-right"><a href="https://github.com/yangchenlarkin/Monstra"><img src="../../img/gh.png" alt="GitHub"/>View on GitHub</a></p>
+        <div class="header-right">
+          <form role="search" action="../../search.json">
+            <input type="text" placeholder="Search documentation" data-typeahead>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="content-wrapper">
+      <p id="breadcrumbs">
+        <a href="../../index.html">Monstra</a>
+        <img id="carat" src="../../img/carat.png" alt=""/>
+        <a href="../../Classes.html">Classes</a>
+        <img id="carat" src="../../img/carat.png" alt=""/>
+        <a href="../../Classes/KVLightTasksManager.html">KVLightTasksManager</a>
+        <img id="carat" src="../../img/carat.png" alt=""/>
+        Config Structure Reference
+      </p>
+    </div>
+    <div class="content-wrapper">
+      <nav class="sidebar">
+        <ul class="nav-groups">
+          <li class="nav-group-name">
+            <a href="../../Classes.html">Classes</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Classes/DoublyLink.html">DoublyLink</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/DoublyLink/EvictedStrategy.html">– EvictedStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/DoublyLink/Node.html">– Node</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/HashQueue.html">HashQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/Heap.html">Heap</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/Heap/Event.html">– Event</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/Heap/ComparisonResult.html">– ComparisonResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVHeavyTaskBaseDataProvider.html">KVHeavyTaskBaseDataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVHeavyTasksManager.html">KVHeavyTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVHeavyTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVHeavyTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVLightTasksManager.html">KVLightTasksManager</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVLightTasksManager/DataProvider.html">– DataProvider</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVLightTasksManager/Config.html">– Config</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/KVLightTasksManager/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MemoryCache.html">MemoryCache</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MemoryCache/Configuration.html">– Configuration</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MemoryCache/FetchResult.html">– FetchResult</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MonoTask.html">MonoTask</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MonoTask/OngoingExecutionStrategy.html">– OngoingExecutionStrategy</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/MonoTask/Errors.html">– Errors</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/PriorityLRUQueue.html">PriorityLRUQueue</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Classes/TTLPriorityLRUQueue.html">TTLPriorityLRUQueue</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Enums.html">Enumerations</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Enums/CacheRecord.html">CacheRecord</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Enums/KVHeavyTaskDataProviderStopAction.html">KVHeavyTaskDataProviderStopAction</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Enums/RetryCount.html">RetryCount</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Enums/RetryCount/IntervalProxy.html">– IntervalProxy</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Protocols.html">Protocols</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Protocols/KVHeavyTaskDataProviderInterface.html">KVHeavyTaskDataProviderInterface</a>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-group-name">
+            <a href="../../Structs.html">Structures</a>
+            <ul class="nav-group-tasks">
+              <li class="nav-group-task">
+                <a href="../../Structs/CPUTimeStamp.html">CPUTimeStamp</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/CacheStatistics.html">CacheStatistics</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/MemoryUsageLimitation.html">MemoryUsageLimitation</a>
+              </li>
+              <li class="nav-group-task">
+                <a href="../../Structs/TracingIDFactory.html">TracingIDFactory</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </nav>
+      <article class="main-content">
+        <section>
+          <section class="section">
+            <h1>Config</h1>
+              <div class="declaration">
+                <div class="language">
+                  
+                  <pre class="highlight swift"><code><span class="kd">struct</span> <span class="kt">Config</span></code></pre>
+
+                </div>
+              </div>
+            <p>Configuration for queue sizing, priority, retries, and cache policy.</p>
+
+          </section>
+          <section class="section task-group-section">
+            <div class="task-group">
+              <ul>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC6ConfigV16PriorityStrategyO"></a>
+                    <a name="//apple_ref/swift/Enum/PriorityStrategy" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC6ConfigV16PriorityStrategyO">PriorityStrategy</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Queueing priority strategy applied when scheduling provider work.</p>
+
+                        <a href="../../Classes/KVLightTasksManager/Config/PriorityStrategy.html" class="slightly-smaller">See more</a>
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="kd">enum</span> <span class="kt">PriorityStrategy</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC6ConfigV12dataProviderAC04DataG0Oyxq__Gvp"></a>
+                    <a name="//apple_ref/swift/Property/dataProvider" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC6ConfigV12dataProviderAC04DataG0Oyxq__Gvp">dataProvider</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>The selected data provider implementation.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">dataProvider</span><span class="p">:</span> <span class="kt"><a href="../../Classes/KVLightTasksManager/DataProvider.html">DataProvider</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC6ConfigV019maxNumberOfQueueingC0Sivp"></a>
+                    <a name="//apple_ref/swift/Property/maxNumberOfQueueingTasks" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC6ConfigV019maxNumberOfQueueingC0Sivp">maxNumberOfQueueingTasks</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Maximum number of keys allowed to be queued awaiting execution.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">maxNumberOfQueueingTasks</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC6ConfigV018maxNumberOfRunningC0Sivp"></a>
+                    <a name="//apple_ref/swift/Property/maxNumberOfRunningTasks" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC6ConfigV018maxNumberOfRunningC0Sivp">maxNumberOfRunningTasks</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Maximum number of provider tasks allowed to run concurrently.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">maxNumberOfRunningTasks</span><span class="p">:</span> <span class="kt">Int</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC6ConfigV10retryCountAA05RetryG0Ovp"></a>
+                    <a name="//apple_ref/swift/Property/retryCount" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC6ConfigV10retryCountAA05RetryG0Ovp">retryCount</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Retry policy applied to failed provider attempts.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">retryCount</span><span class="p">:</span> <span class="kt"><a href="../../Enums/RetryCount.html">RetryCount</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC6ConfigV16PriorityStrategyAeFOyxq___Gvp"></a>
+                    <a name="//apple_ref/swift/Property/PriorityStrategy" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC6ConfigV16PriorityStrategyAeFOyxq___Gvp">PriorityStrategy</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Queue priority strategy used when scheduling work.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">PriorityStrategy</span><span class="p">:</span> <span class="kt"><a href="../../Classes/KVLightTasksManager/Config/PriorityStrategy.html">PriorityStrategy</a></span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC6ConfigV05cacheE0AA11MemoryCacheC13ConfigurationVyxq__Gvp"></a>
+                    <a name="//apple_ref/swift/Property/cacheConfig" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC6ConfigV05cacheE0AA11MemoryCacheC13ConfigurationVyxq__Gvp">cacheConfig</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Cache configuration that controls memory limits, TTL, key validation, and thread safety.</p>
+
+<p>The keyValidator in this configuration is used to automatically filter out invalid keys
+during provide operations. Keys that fail validation will return nil without triggering
+network requests, improving performance and preventing unnecessary API calls.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">cacheConfig</span><span class="p">:</span> <span class="kt"><a href="../../Classes/MemoryCache.html">MemoryCache</a></span><span class="o">&lt;</span><span class="kt">K</span><span class="p">,</span> <span class="kt">Element</span><span class="o">&gt;.</span><span class="kt">Configuration</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC6ConfigV21cacheStatisticsReportyAA05CacheG0V_AA0I6RecordOtcSgvp"></a>
+                    <a name="//apple_ref/swift/Property/cacheStatisticsReport" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC6ConfigV21cacheStatisticsReportyAA05CacheG0V_AA0I6RecordOtcSgvp">cacheStatisticsReport</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Optional callback for cache statistics reporting</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="k">let</span> <span class="nv">cacheStatisticsReport</span><span class="p">:</span> <span class="p">((</span><span class="kt"><a href="../../Structs/CacheStatistics.html">CacheStatistics</a></span><span class="p">,</span> <span class="kt"><a href="../../Enums/CacheRecord.html">CacheRecord</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)?</span></code></pre>
+
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+                <li class="item">
+                  <div>
+                    <code>
+                    <a name="/s:7Monstra19KVLightTasksManagerC6ConfigV12dataProvider019maxNumberOfQueueingC00hij7RunningC010retryCount16PriorityStrategy05cacheE00Q16StatisticsReportAEyxq__GAC04DataG0Oyxq__G_S2iAA05RetryN0OAeJOyxq___GAA11MemoryCacheC13ConfigurationVyxq__GyAA0wR0V_AA0W6RecordOtcSgtcfc"></a>
+                    <a name="//apple_ref/swift/Method/init(dataProvider:maxNumberOfQueueingTasks:maxNumberOfRunningTasks:retryCount:PriorityStrategy:cacheConfig:cacheStatisticsReport:)" class="dashAnchor"></a>
+                    <a class="token" href="#/s:7Monstra19KVLightTasksManagerC6ConfigV12dataProvider019maxNumberOfQueueingC00hij7RunningC010retryCount16PriorityStrategy05cacheE00Q16StatisticsReportAEyxq__GAC04DataG0Oyxq__G_S2iAA05RetryN0OAeJOyxq___GAA11MemoryCacheC13ConfigurationVyxq__GyAA0wR0V_AA0W6RecordOtcSgtcfc">init(dataProvider:<wbr>maxNumberOfQueueingTasks:<wbr>maxNumberOfRunningTasks:<wbr>retryCount:<wbr>PriorityStrategy:<wbr>cacheConfig:<wbr>cacheStatisticsReport:<wbr>)</a>
+                    </code>
+                  </div>
+                  <div class="height-container">
+                    <div class="pointer-container"></div>
+                    <section class="section">
+                      <div class="pointer"></div>
+                      <div class="abstract">
+                        <p>Initializes a new KVLightTasksManager configuration.</p>
+
+                      </div>
+                      <div class="declaration">
+                        <h4>Declaration</h4>
+                        <div class="language">
+                          <p class="aside-title">Swift</p>
+                          <pre class="highlight swift"><code><span class="kd">public</span> <span class="nf">init</span><span class="p">(</span>
+    <span class="nv">dataProvider</span><span class="p">:</span> <span class="kt"><a href="../../Classes/KVLightTasksManager/DataProvider.html">DataProvider</a></span><span class="p">,</span>
+    <span class="nv">maxNumberOfQueueingTasks</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">256</span><span class="p">,</span>
+    <span class="nv">maxNumberOfRunningTasks</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+    <span class="nv">retryCount</span><span class="p">:</span> <span class="kt"><a href="../../Enums/RetryCount.html">RetryCount</a></span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="kt"><a href="../../Classes/KVLightTasksManager/Config/PriorityStrategy.html">PriorityStrategy</a></span><span class="p">:</span> <span class="kt"><a href="../../Classes/KVLightTasksManager/Config/PriorityStrategy.html">PriorityStrategy</a></span> <span class="o">=</span> <span class="o">.</span><span class="kt">LIFO</span><span class="p">,</span>
+    <span class="nv">cacheConfig</span><span class="p">:</span> <span class="kt"><a href="../../Classes/MemoryCache.html">MemoryCache</a></span><span class="o">&lt;</span><span class="kt">K</span><span class="p">,</span> <span class="kt">Element</span><span class="o">&gt;.</span><span class="kt">Configuration</span> <span class="o">=</span> <span class="o">.</span><span class="n">defaultConfig</span><span class="p">,</span>
+    <span class="nv">cacheStatisticsReport</span><span class="p">:</span> <span class="p">((</span><span class="kt"><a href="../../Structs/CacheStatistics.html">CacheStatistics</a></span><span class="p">,</span> <span class="kt"><a href="../../Enums/CacheRecord.html">CacheRecord</a></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)?</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="p">)</span></code></pre>
+
+                        </div>
+                      </div>
+                      <div>
+                        <h4>Parameters</h4>
+                        <table class="graybox">
+                          <tbody>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>dataProvider</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>The data provider for providing elements.</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>maxNumberOfQueueingTasks</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Maximum queued keys capacity (default: 256).</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>maxNumberOfRunningTasks</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Maximum concurrent provider tasks (default: 4).</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>retryCount</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Retry configuration for failed requests (default: 0).</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>PriorityStrategy</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Queue priority strategy (default: .LIFO).</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>cacheConfig</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Cache configuration including key validation (default: .defaultConfig).</p>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <code>
+                                <em>cacheStatisticsReport</em>
+                                </code>
+                              </td>
+                              <td>
+                                <div>
+                                  <p>Optional callback for cache statistics.</p>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </section>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </section>
+        </section>
+        <section id="footer">
+          <p>&copy; 2025 <a class="link" href="mailto:yangchenlarkin@gmail.com" target="_blank" rel="external noopener">Larkin</a>. All rights reserved. (Last updated: 2025-09-09)</p>
+          <p>Generated by <a class="link" href="https://github.com/realm/jazzy" target="_blank" rel="external noopener">jazzy ♪♫ v0.15.3</a>, a <a class="link" href="https://realm.io" target="_blank" rel="external noopener">Realm</a> project.</p>
+        </section>
+      </article>
+    </div>
+  </body>
+</html>

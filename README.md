@@ -9,6 +9,8 @@
 [![CocoaPods](https://img.shields.io/badge/CocoaPods-compatible-brightgreen.svg)](https://cocoapods.org)
 [![Docs](https://img.shields.io/badge/docs-API%20Reference-blue)](https://yangchenlarkin.github.io/Monstra/)
 
+**English** | [简体中文](README_CN.md)
+
 A high-performance Swift framework providing efficient task execution, memory caching, and data management utilities with intelligent execution merging, TTL caching, and retry logic.
 
 Documentation: <a href="https://yangchenlarkin.github.io/Monstra/" target="_blank" rel="noopener noreferrer">API Reference (Jazzy)</a>  

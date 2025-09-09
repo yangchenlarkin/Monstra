@@ -2,6 +2,8 @@
   <img src="../../../Logo.png" alt="Monstra Logo" width="200"/>
 </div>
 
+**English** | [简体中文](README_CN.md)
+
 # UserProfile Manager Example
 
 An example demonstrating how to manage a single user's profile using `MonoTask`—with execution merging, TTL caching, and post-mutation refresh via forced execution.

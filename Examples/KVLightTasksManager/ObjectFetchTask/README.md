@@ -2,6 +2,8 @@
   <img src="../../../Logo.png" alt="Monstra Logo" width="200"/>
 </div>
 
+**English** | [简体中文](README_CN.md)
+
 # Object Fetch Task Example
 
 An example demonstrating how to batch-fetch domain objects using the Monstra framework's `KVLightTasksManager` with execution merging and caching. It simulates three ViewModels running concurrently and fetching overlapping post IDs via a repository that wraps the tasks manager and a mocked API.

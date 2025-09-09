@@ -2,6 +2,8 @@
   <img src="../../../Logo.png" alt="Monstra Logo" width="200"/>
 </div>
 
+**English** | [简体中文](README_CN.md)
+
 # Module Initialization Example
 
 An example demonstrating how to initialize and cache an application configuration using `MonoTask` with execution merging, retry logic, and TTL caching. It also shows how consumers can access specific configuration values or compose usage strings without re-fetching the configuration.

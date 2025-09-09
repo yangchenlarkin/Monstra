@@ -2,6 +2,8 @@
   <img src="../../../Logo.png" alt="Monstra Logo" width="200"/>
 </div>
 
+**English** | [简体中文](README_CN.md)
+
 # Large File Unzip Example
 
 A comprehensive example demonstrating how to unzip large archive files with progress tracking using the Monstra framework's `KVHeavyTasksManager` and `ZIPFoundation`.
